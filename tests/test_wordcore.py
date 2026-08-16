@@ -4,7 +4,13 @@ import pytest
 from tests.games.trivial import TrivialRules
 
 from wordcore.board.board import Board, Bonus, BonusKind
-from wordcore.exceptions import IllegalMove, NotYourTurn, RejectionCode, StalePosition
+from wordcore.exceptions import (
+    IllegalMove,
+    NoPremove,
+    NotYourTurn,
+    RejectionCode,
+    StalePosition,
+)
 from wordcore.games.game import Game
 from wordcore.games.journal import EntryKind, JournalEntry
 from wordcore.lexicon.lexicon import TextLexicon
@@ -98,7 +104,7 @@ def test_text_lexicon() -> None:
 
 
 def test_engine_submit_and_turn() -> None:
-    game = Game(TrivialRules(), random.Random(0))
+    game = Game(TrivialRules(), random.Random(0), premoves_allowed=True)
     assert game.seq == 0
     game.submit(Move(player=0, action=Pass()), base_seq=0)
     assert game.seq == 1
@@ -106,19 +112,19 @@ def test_engine_submit_and_turn() -> None:
 
 
 def test_engine_not_your_turn() -> None:
-    game = Game(TrivialRules(), random.Random(0))
+    game = Game(TrivialRules(), random.Random(0), premoves_allowed=True)
     with pytest.raises(NotYourTurn):
         game.submit(Move(player=1, action=Pass()), base_seq=0)
 
 
 def test_engine_stale_position() -> None:
-    game = Game(TrivialRules(), random.Random(0))
+    game = Game(TrivialRules(), random.Random(0), premoves_allowed=True)
     with pytest.raises(StalePosition):
         game.submit(Move(player=0, action=Pass()), base_seq=1)
 
 
 def test_engine_illegal_move() -> None:
-    game = Game(TrivialRules(), random.Random(0))
+    game = Game(TrivialRules(), random.Random(0), premoves_allowed=True)
     with pytest.raises(IllegalMove):
         game.submit(
             Move(
@@ -130,7 +136,7 @@ def test_engine_illegal_move() -> None:
 
 
 def test_engine_premove_executes() -> None:
-    game = Game(TrivialRules(), random.Random(0))
+    game = Game(TrivialRules(), random.Random(0), premoves_allowed=True)
     game.submit(Move(player=1, action=Pass()), base_seq=0, premove=True)
     assert game.position.state.premoves == {1: Move(player=1, action=Pass())}
     game.submit(Move(player=0, action=Pass()), base_seq=1)
@@ -141,7 +147,7 @@ def test_engine_premove_executes() -> None:
 
 def test_engine_premove_discarded_when_invalid() -> None:
     rules = TrivialRules()
-    game = Game(rules, random.Random(0))
+    game = Game(rules, random.Random(0), premoves_allowed=True)
     game.submit(Move(player=1, action=Pass()), base_seq=0, premove=True)
     rules.reject_seat = 1
     game.submit(Move(player=0, action=Pass()), base_seq=1)
@@ -150,8 +156,57 @@ def test_engine_premove_discarded_when_invalid() -> None:
     assert game.position.state.turn_number == 1
 
 
+def test_premoves_can_be_disabled() -> None:
+    game = Game(TrivialRules(), random.Random(0), premoves_allowed=False)
+    with pytest.raises(IllegalMove):
+        game.submit(Move(player=1, action=Pass()), base_seq=0, premove=True)
+    assert game.seq == 0
+
+
+def test_cancel_premove_records_a_transaction() -> None:
+    game = Game(TrivialRules(), random.Random(0), premoves_allowed=True)
+    game.submit(Move(player=1, action=Pass()), base_seq=0, premove=True)
+    entry = game.cancel_premove(1, base_seq=1)
+    assert game.seq == 2
+    assert entry.kind == EntryKind.PREMOVE_CLEARED
+    assert entry.move is None
+    assert entry.actor == 1
+    assert game.position.state.premoves == {1: None}
+    cleared = game.events(observer=0, since=1)[0]
+    assert cleared.kind == EntryKind.PREMOVE_CLEARED
+    assert cleared.actor == 1
+    assert cleared.move is None
+
+
+def test_cancel_premove_requires_a_queued_premove() -> None:
+    game = Game(TrivialRules(), random.Random(0), premoves_allowed=True)
+    with pytest.raises(NoPremove):
+        game.cancel_premove(1, base_seq=0)
+
+
+def test_cancel_premove_requires_current_sequence() -> None:
+    game = Game(TrivialRules(), random.Random(0), premoves_allowed=True)
+    game.submit(Move(player=1, action=Pass()), base_seq=0, premove=True)
+    with pytest.raises(StalePosition):
+        game.cancel_premove(1, base_seq=0)
+
+
+def test_projection_shows_own_premove_and_public_pending() -> None:
+    game = Game(TrivialRules(), random.Random(0), premoves_allowed=True)
+    game.submit(Move(player=1, action=Pass()), base_seq=0, premove=True)
+    owner = game.view(observer=1)
+    assert owner.premove == Move(player=1, action=Pass())
+    assert owner.pending_premoves == frozenset({1})
+    other = game.view(observer=0)
+    assert other.premove is None
+    assert other.pending_premoves == frozenset({1})
+    spectator = game.view(observer=None)
+    assert spectator.premove is None
+    assert spectator.pending_premoves == frozenset({1})
+
+
 def test_events_mask_premove_content_per_observer() -> None:
-    game = Game(TrivialRules(), random.Random(0))
+    game = Game(TrivialRules(), random.Random(0), premoves_allowed=True)
     game.submit(Move(player=1, action=Pass()), base_seq=0, premove=True)
     owned = game.events(observer=1, since=0)[0]
     assert owned.kind == EntryKind.PREMOVE_SET
@@ -167,7 +222,7 @@ def test_events_mask_premove_content_per_observer() -> None:
 
 def test_discard_reason_reaches_owner_only() -> None:
     rules = TrivialRules()
-    game = Game(rules, random.Random(0))
+    game = Game(rules, random.Random(0), premoves_allowed=True)
     game.submit(Move(player=1, action=Pass()), base_seq=0, premove=True)
     rules.reject_seat = 1
     game.submit(Move(player=0, action=Pass()), base_seq=1)
@@ -182,7 +237,7 @@ def test_discard_reason_reaches_owner_only() -> None:
 
 
 def test_settled_premove_becomes_public_move() -> None:
-    game = Game(TrivialRules(), random.Random(0))
+    game = Game(TrivialRules(), random.Random(0), premoves_allowed=True)
     game.submit(Move(player=1, action=Pass()), base_seq=0, premove=True)
     game.submit(Move(player=0, action=Pass()), base_seq=1)
     settled = game.events(observer=0, since=2)[0]
@@ -208,7 +263,7 @@ def test_reorder_content_stays_with_its_owner() -> None:
 
 def test_late_subscriber_reads_the_same_masked_history() -> None:
     rules = TrivialRules()
-    game = Game(rules, random.Random(0))
+    game = Game(rules, random.Random(0), premoves_allowed=True)
     game.submit(Move(player=1, action=Pass()), base_seq=0, premove=True)
     game.submit(Move(player=0, action=Pass()), base_seq=1)
     live = game.events(observer=0, since=0)
@@ -219,7 +274,7 @@ def test_late_subscriber_reads_the_same_masked_history() -> None:
 
 def test_engine_projection_hides_other_racks() -> None:
     rules = TrivialRules()
-    game = Game(rules, random.Random(0))
+    game = Game(rules, random.Random(0), premoves_allowed=True)
     view = game.view(observer=0)
     assert view.racks[0] is not None
     assert view.racks[1] is None

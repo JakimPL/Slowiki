@@ -92,7 +92,7 @@ async def test_join_table(client: httpx.AsyncClient) -> None:
 async def test_session_events_streams_after_submit() -> None:
     resolved = resolve_scheme(CONFIG_DIR, "literaki")
     rules = build_rules(resolved, (0, 1), TextLexicon.from_words(["aa"]))
-    game = Game(rules, random.Random(0))
+    game = Game(rules, random.Random(0), premoves_allowed=True)
     time = TimeConfig(per_turn_seconds=None, increment_seconds=0, total_seconds=None)
     session = TableSession(game, {0: "token-a", 1: "token-b"}, time)
     await session.submit(Move(player=0, action=Pass()), base_seq=0, premove=False, token="token-a")

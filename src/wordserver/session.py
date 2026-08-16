@@ -2,12 +2,12 @@ import asyncio
 import json
 from collections.abc import AsyncIterator
 
-from wordcore.exceptions import NotYourTurn
 from wordcore.games.game import Game
 from wordcore.moves.action import ActionKind, Move, Pass
 from wordcore.states.state import Phase
 from wordcore.views.events import EventView
 from wordcore.views.projection import PositionView
+from wordserver.errors import SeatTokenMismatch
 from wordtable.config import TimeConfig
 
 
@@ -46,10 +46,19 @@ class TableSession:
         async with self._condition:
             observer = self.observer_for(token)
             if observer is None or observer != move.player:
-                raise NotYourTurn("seat token does not match the move")
+                raise SeatTokenMismatch("seat token does not match the move")
             self._game.submit(move, base_seq=base_seq, premove=premove)
             if move.action.kind != ActionKind.REORDER:
                 self._schedule_timer()
+            self._condition.notify_all()
+            return self._game.seq
+
+    async def cancel_premove(self, base_seq: int, token: str | None) -> int:
+        async with self._condition:
+            observer = self.observer_for(token)
+            if observer is None:
+                raise SeatTokenMismatch("seat token does not match a seat")
+            self._game.cancel_premove(observer, base_seq)
             self._condition.notify_all()
             return self._game.seq
 

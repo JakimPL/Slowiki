@@ -21,7 +21,7 @@ def _build_game(scheme_name: str, players: int) -> Game:
     lexicon = load_lexicon(resolved.scheme.dictionary)
     seats = tuple(range(players))
     rules = build_rules(resolved, seats, lexicon)
-    return Game(rules, random.Random())
+    return Game(rules, random.Random(), premoves_allowed=resolved.scheme.premoves)
 
 
 def _play(game: Game) -> None:

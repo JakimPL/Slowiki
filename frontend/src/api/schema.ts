@@ -123,6 +123,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/tables/{table_id}/premove": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Cancel Premove */
+        delete: operations["cancel_premove_tables__table_id__premove_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/tables/{table_id}/view": {
         parameters: {
             query?: never;
@@ -331,13 +348,12 @@ export interface components {
             exchange_counts: {
                 [key: string]: number;
             };
+            /** Pending Premoves */
+            pending_premoves: number[];
             phase: components["schemas"]["Phase"];
             /** Players */
             players: number[];
-            /** Premoves */
-            premoves: {
-                [key: string]: components["schemas"]["Move"] | null;
-            };
+            premove: components["schemas"]["Move"] | null;
             /** Racks */
             racks: {
                 [key: string]: components["schemas"]["Tile"][] | null;
@@ -699,6 +715,57 @@ export interface operations {
                 "application/json": components["schemas"]["MoveRequest"];
             };
         };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MoveAccepted"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cancel_premove_tables__table_id__premove_delete: {
+        parameters: {
+            query: {
+                base_seq: number;
+            };
+            header?: never;
+            path: {
+                table_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {

@@ -15,7 +15,8 @@ class PositionView(BaseFrozen):
     scores: dict[int, int]
     exchange_counts: dict[int, int]
     consecutive_passes: int
-    premoves: dict[int, Move | None]
+    premove: Move | None
+    pending_premoves: frozenset[int]
     turn_number: int
     players: tuple[int, ...]
 
@@ -26,10 +27,8 @@ def project(position: Position, observer: int | None) -> PositionView:
         seat: rack if observer is not None and seat == observer else None
         for seat, rack in state.racks.items()
     }
-    premoves = {
-        seat: move if observer is not None and seat == observer else None
-        for seat, move in state.premoves.items()
-    }
+    premove = state.premoves.get(observer) if observer is not None else None
+    pending = frozenset(seat for seat, queued in state.premoves.items() if queued is not None)
     return PositionView(
         board=position.board,
         phase=state.phase,
@@ -39,7 +38,8 @@ def project(position: Position, observer: int | None) -> PositionView:
         scores=state.scores,
         exchange_counts=state.exchange_counts,
         consecutive_passes=state.consecutive_passes,
-        premoves=premoves,
+        premove=premove,
+        pending_premoves=pending,
         turn_number=state.turn_number,
         players=position.players,
     )

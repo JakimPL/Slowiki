@@ -37,6 +37,10 @@ class Refusal(Exception):
         self.code = code
 
 
+class SeatTokenMismatch(Exception):
+    pass
+
+
 def code_for(error: WordcoreError) -> ErrorCode:
     return ErrorCode(rejection_code(error).value)
 

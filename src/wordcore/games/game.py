@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from wordcore.exceptions import (
     GameOver,
     IllegalMove,
+    NoPremove,
     NotYourTurn,
     RejectionCode,
     StalePosition,
@@ -36,9 +37,10 @@ class Rules(ABC):
 
 
 class Game:
-    def __init__(self, rules: Rules, rng: random.Random) -> None:
+    def __init__(self, rules: Rules, rng: random.Random, premoves_allowed: bool) -> None:
         self._rules = rules
         self._rng = rng
+        self._premoves_allowed = premoves_allowed
         self._initial = rules.initial_position(rng)
         self._entries: list[JournalEntry] = []
 
@@ -65,8 +67,18 @@ class Game:
     def submit(self, move: Move, base_seq: int, premove: bool = False) -> JournalEntry:
         position = self._require_current(base_seq)
         if premove and move.player not in position.state.to_act:
+            if not self._premoves_allowed:
+                raise IllegalMove("premoves are disabled at this table")
             return self._queue_premove(position, move)
         return self._play_move(position, move)
+
+    def cancel_premove(self, player: int, base_seq: int) -> JournalEntry:
+        position = self._require_current(base_seq)
+        self._ensure_member(position, player)
+        if position.state.premoves.get(player) is None:
+            raise NoPremove("no premove is queued")
+        new_position = position.model_copy(update={"state": position.state.without_premove(player)})
+        return self._record(EntryKind.PREMOVE_CLEARED, None, player, None, new_position)
 
     def _require_current(self, base_seq: int) -> Position:
         if base_seq != self.seq:

@@ -28,8 +28,62 @@ async def test_rejection_carries_code(client: httpx.AsyncClient) -> None:
     result = await client.post(f"/tables/{table_id}/moves", json={"move": move, "base_seq": 0})
     assert result.status_code == 409
     body = result.json()
-    assert body["code"] == "not_your_turn"
+    assert body["code"] == "seat_token_mismatch"
     assert isinstance(body["detail"], str)
+
+
+async def test_off_turn_move_carries_not_your_turn(client: httpx.AsyncClient) -> None:
+    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2})
+    data = created.json()
+    joined = await client.post(f"/tables/{data['code']}/join")
+    other = joined.json()
+    move = {"player": 1, "action": {"kind": "pass"}}
+    result = await client.post(
+        f"/tables/{data['table_id']}/moves",
+        json={"move": move, "base_seq": 0},
+        headers={"X-Seat-Token": other["token"]},
+    )
+    assert result.status_code == 409
+    assert result.json()["code"] == "not_your_turn"
+
+
+async def test_premove_queue_and_cancel_over_http(client: httpx.AsyncClient) -> None:
+    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2})
+    data = created.json()
+    joined = await client.post(f"/tables/{data['code']}/join")
+    other = joined.json()
+    move = {"player": 1, "action": {"kind": "pass"}}
+    queued = await client.post(
+        f"/tables/{data['table_id']}/moves",
+        json={"move": move, "base_seq": 0, "premove": True},
+        headers={"X-Seat-Token": other["token"]},
+    )
+    assert queued.status_code == 200
+    assert queued.json()["seq"] == 1
+    view = await client.get(
+        f"/tables/{data['table_id']}/view", headers={"X-Seat-Token": other["token"]}
+    )
+    assert view.json()["view"]["premove"] is not None
+    assert view.json()["view"]["pending_premoves"] == [1]
+    cancelled = await client.delete(
+        f"/tables/{data['table_id']}/premove",
+        params={"base_seq": 1},
+        headers={"X-Seat-Token": other["token"]},
+    )
+    assert cancelled.status_code == 200
+    assert cancelled.json()["seq"] == 2
+    repeated = await client.delete(
+        f"/tables/{data['table_id']}/premove",
+        params={"base_seq": 2},
+        headers={"X-Seat-Token": other["token"]},
+    )
+    assert repeated.status_code == 409
+    assert repeated.json()["code"] == "no_premove"
+    unauthorized = await client.delete(
+        f"/tables/{data['table_id']}/premove", params={"base_seq": 2}
+    )
+    assert unauthorized.status_code == 409
+    assert unauthorized.json()["code"] == "seat_token_mismatch"
 
 
 async def test_stale_position_carries_code(client: httpx.AsyncClient) -> None:

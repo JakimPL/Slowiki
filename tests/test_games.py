@@ -232,7 +232,7 @@ def test_reorder_rejects_wrong_multiset() -> None:
 
 def test_engine_reorder_does_not_advance_turn() -> None:
     rules = make_rules(TextLexicon.from_words(["ab"]))
-    game = Game(rules, random.Random(0))
+    game = Game(rules, random.Random(0), premoves_allowed=True)
     rack = [tile.identifier for tile in game.position.state.racks[0]]
     reordered = tuple(reversed(rack))
     game.submit(Move(player=0, action=Reorder(tile_ids=reordered)), base_seq=0)

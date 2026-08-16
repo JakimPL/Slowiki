@@ -15,7 +15,14 @@ from wordcore.games.game import Game
 from wordcore.models.base import BaseFrozen
 from wordcore.moves.action import Move
 from wordcore.views.events import EventView
-from wordserver.errors import ErrorBody, ErrorCode, Refusal, code_for, refusal_response
+from wordserver.errors import (
+    ErrorBody,
+    ErrorCode,
+    Refusal,
+    SeatTokenMismatch,
+    code_for,
+    refusal_response,
+)
 from wordserver.models import (
     MoveAccepted,
     OfferingsResponse,
@@ -82,6 +89,10 @@ def create_app() -> FastAPI:
     async def rejected(_request: Request, error: WordcoreError) -> JSONResponse:
         return refusal_response(409, str(error), code_for(error))
 
+    @app.exception_handler(SeatTokenMismatch)
+    async def mismatched(_request: Request, error: SeatTokenMismatch) -> JSONResponse:
+        return refusal_response(409, str(error), ErrorCode.SEAT_TOKEN_MISMATCH)
+
     def session_for(table_id: str) -> TableSession:
         session = registry.get(table_id)
         if session is None:
@@ -107,7 +118,7 @@ def create_app() -> FastAPI:
         lexicon = await service.get(resolved.scheme.dictionary)
         seats = tuple(range(body.seats))
         rules = build_rules(resolved, seats, lexicon)
-        game = Game(rules, random.Random())
+        game = Game(rules, random.Random(), premoves_allowed=resolved.scheme.premoves)
         tokens = {seat: secrets.token_urlsafe(_TOKEN_BYTES) for seat in seats}
         table_id = secrets.token_hex(_TABLE_ID_BYTES)
         code = _new_join_code()
@@ -164,6 +175,15 @@ def create_app() -> FastAPI:
         session = session_for(table_id)
         token = request.headers.get("X-Seat-Token")
         seq = await session.submit(body.move, body.base_seq, body.premove, token)
+        return MoveAccepted(seq=seq)
+
+    @app.delete(
+        "/tables/{table_id}/premove",
+        responses={404: {"model": ErrorBody}, 409: {"model": ErrorBody}},
+    )
+    async def cancel_premove(table_id: str, base_seq: int, request: Request) -> MoveAccepted:
+        session = session_for(table_id)
+        seq = await session.cancel_premove(base_seq, request.headers.get("X-Seat-Token"))
         return MoveAccepted(seq=seq)
 
     @app.get(
