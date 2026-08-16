@@ -31,7 +31,6 @@ P6. The engine owns the cursor. Turn order, phase, and premove settlement are
 - `wordgames` — game presets: shared rules and the literaki/scrabble backends.
 - `wordserver` — the FastAPI adapter: tables, sessions, SSE, identity, time.
 - `wordtable` — configuration, paths, lexicon service, and CLI entry points.
-- `wordassets` — SVG generation for boards and tiles from YAML style config.
 - `lexica` — dictionary building: word entries, SJP loader, compilation.
 - `wordbots` — automated player stubs.
 
@@ -55,6 +54,6 @@ event loop never blocks on disk or CPU-heavy lexicon work.
 transport-free, the pure layers reach no adapter or host, and the game,
 dictionary, and bot layers stay independent.
 
-`wordserver` and `wordassets` consume configuration and composition helpers from
-`wordtable`; a stricter host/adapter split, where `wordtable` is the sole
-composition root, is a planned refinement.
+`wordserver` consumes configuration and composition helpers from `wordtable`;
+a stricter host/adapter split, where `wordtable` is the sole composition root,
+is a planned refinement.

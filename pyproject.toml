@@ -37,7 +37,6 @@ packages = [
     "src/wordserver",
     "src/wordgames",
     "src/wordtable",
-    "src/wordassets",
     "src/lexica",
     "src/wordbots",
 ]
@@ -67,7 +66,6 @@ source = [
     "wordgames",
     "wordserver",
     "wordtable",
-    "wordassets",
     "lexica",
     "wordbots",
 ]
@@ -84,7 +82,6 @@ root_packages = [
     "wordgames",
     "wordserver",
     "wordtable",
-    "wordassets",
     "lexica",
     "wordbots",
 ]
@@ -97,7 +94,6 @@ forbidden_modules = [
     "wordgames",
     "wordserver",
     "wordtable",
-    "wordassets",
     "lexica",
     "wordbots",
 ]
@@ -105,14 +101,14 @@ forbidden_modules = [
 [[tool.importlinter.contracts]]
 name = "Rules are transport-free"
 type = "forbidden"
-source_modules = ["wordcore", "wordgames", "lexica", "wordbots", "wordassets"]
+source_modules = ["wordcore", "wordgames", "lexica", "wordbots"]
 forbidden_modules = ["fastapi", "uvicorn", "httpx"]
 
 [[tool.importlinter.contracts]]
 name = "Pure layers know no adapter or host"
 type = "forbidden"
 source_modules = ["wordgames", "lexica", "wordbots"]
-forbidden_modules = ["wordserver", "wordtable", "wordassets"]
+forbidden_modules = ["wordserver", "wordtable"]
 
 [[tool.importlinter.contracts]]
 name = "Game, dictionary, and bot layers stay independent"

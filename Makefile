@@ -1,4 +1,4 @@
-.PHONY: install check test play serve types assets frontend build dictionary
+.PHONY: install check test play serve types frontend build dictionary
 
 install:
 	uv sync --all-extras --all-groups
@@ -12,7 +12,7 @@ check:
 	uv run mypy src scripts
 	uv run pylint src scripts
 	uv run lint-imports
-	uv run pytest --cov=wordcore --cov=wordgames --cov=wordserver --cov=wordtable --cov=wordassets --cov=lexica --cov=wordbots --cov-fail-under=80
+	uv run pytest --cov=wordcore --cov=wordgames --cov=wordserver --cov=wordtable --cov=lexica --cov=wordbots --cov-fail-under=80
 
 test:
 	uv run pytest
@@ -27,11 +27,8 @@ types:
 	uv run python scripts/openapi.py
 	npm run types --workspace frontend
 
-assets:
-	uv run python -m wordassets.cli render
-
 frontend:
 	npm install
 	npm run build --workspace frontend
 
-build: install dictionary assets frontend
+build: install dictionary frontend
