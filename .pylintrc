@@ -1,0 +1,25 @@
+[MASTER]
+load-plugins=pylint_pydantic
+
+[MESSAGES CONTROL]
+disable=
+    missing-module-docstring,
+    missing-class-docstring,
+    missing-function-docstring,
+    too-few-public-methods,
+    duplicate-code,
+    fixme,
+    invalid-name,
+    no-else-return,
+    too-many-return-statements,
+    too-many-branches,
+    too-many-statements,
+    too-many-arguments,
+    too-many-positional-arguments,
+    too-many-locals,
+    too-many-instance-attributes,
+    too-many-public-methods,
+    no-member,
+
+[FORMAT]
+max-line-length=100
