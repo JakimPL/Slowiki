@@ -46,9 +46,13 @@ async def test_create_table_and_view(client: httpx.AsyncClient) -> None:
     assert view.status_code == 200
     body = view.json()
     assert body["seq"] == 0
-    assert body["view"]["racks"]["0"] is not None
+    assert body["view"]["racks"]["0"] is None
     assert body["view"]["racks"]["1"] is None
     assert body["view"]["bag_count"] == 86
+    await client.post(f"/tables/{data['code']}/join")
+    revealed = await client.get(f"/tables/{table_id}/view", headers={"X-Seat-Token": data["token"]})
+    assert revealed.json()["view"]["racks"]["0"] is not None
+    assert revealed.json()["view"]["racks"]["1"] is None
 
 
 async def test_move_requires_token(client: httpx.AsyncClient) -> None:
@@ -64,6 +68,7 @@ async def test_pass_advances_turn(client: httpx.AsyncClient) -> None:
     data = response.json()
     table_id = data["table_id"]
     token = data["token"]
+    await client.post(f"/tables/{data['code']}/join")
     move = {"player": 0, "action": {"kind": "pass"}}
     result = await client.post(
         f"/tables/{table_id}/moves",
@@ -98,6 +103,7 @@ async def test_session_events_streams_after_submit() -> None:
     time = TimeConfig(per_turn_seconds=None, increment_seconds=0, total_seconds=None)
     names: dict[int, str | None] = {0: "Ala", 1: None}
     session = TableSession(game, {0: "token-a", 1: "token-b"}, time, names)
+    await session.claim("Bob")
     await session.submit(Move(player=0, action=Pass()), base_seq=0, premove=False, token="token-a")
     stream = session.events(observer=0, since=0)
     first = await anext(stream)
@@ -142,3 +148,29 @@ async def test_claims_hand_out_distinct_seats_concurrently(client: httpx.AsyncCl
     assert first.status_code == 200
     assert second.status_code == 200
     assert {first.json()["seat"], second.json()["seat"]} == {1, 2}
+
+
+async def test_gathering_hides_racks_and_blocks_moves(client: httpx.AsyncClient) -> None:
+    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2})
+    data = created.json()
+    table_id = data["table_id"]
+    token = data["token"]
+    view = await client.get(f"/tables/{table_id}/view", headers={"X-Seat-Token": token})
+    racks = view.json()["view"]["racks"]
+    assert racks["0"] is None
+    assert racks["1"] is None
+    move = {"player": 0, "action": {"kind": "pass"}}
+    blocked = await client.post(
+        f"/tables/{table_id}/moves",
+        json={"move": move, "base_seq": 0},
+        headers={"X-Seat-Token": token},
+    )
+    assert blocked.status_code == 409
+    assert blocked.json()["code"] == "gathering"
+    await client.post(f"/tables/{data['code']}/join")
+    accepted = await client.post(
+        f"/tables/{table_id}/moves",
+        json={"move": move, "base_seq": 0},
+        headers={"X-Seat-Token": token},
+    )
+    assert accepted.status_code == 200

@@ -238,7 +238,7 @@ export interface components {
          * ErrorCode
          * @enum {string}
          */
-        ErrorCode: "illegal_move" | "not_your_turn" | "stale_position" | "invalid_word" | "game_over" | "no_premove" | "invalid_configuration" | "rejected" | "unknown_table" | "unknown_code" | "unknown_scheme" | "table_full" | "seats_out_of_range" | "seat_token_mismatch" | "dictionary_unavailable";
+        ErrorCode: "illegal_move" | "not_your_turn" | "stale_position" | "invalid_word" | "game_over" | "no_premove" | "invalid_configuration" | "rejected" | "unknown_table" | "unknown_code" | "unknown_scheme" | "table_full" | "seats_out_of_range" | "seat_token_mismatch" | "gathering" | "dictionary_unavailable";
         /** EventView */
         EventView: {
             /** Actor */

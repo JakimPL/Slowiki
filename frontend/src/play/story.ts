@@ -14,11 +14,11 @@ export function storyFor(view: PositionView, company: CompanyView, mySeat: numbe
         const winners = view.players.filter((seat) => (view.scores[String(seat)] ?? 0) === top);
         return { kind: "over", seats: winners, points: top };
     }
-    if (mySeat !== null && view.to_act.includes(mySeat)) {
-        return { kind: "acting", seats: sorted(view.to_act), points: null };
-    }
     if (company.seats.some((seated) => !seated.claimed)) {
         return { kind: "gathering", seats: [], points: null };
+    }
+    if (mySeat !== null && view.to_act.includes(mySeat)) {
+        return { kind: "acting", seats: sorted(view.to_act), points: null };
     }
     return { kind: "watching", seats: sorted(view.to_act), points: null };
 }

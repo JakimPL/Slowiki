@@ -5,7 +5,7 @@ import { reasonOf } from "../api/refusal";
 import type { Seat } from "../api/seat";
 import type { Connection } from "./connection";
 import type { TableState } from "./events";
-import { accompanied, advanced, openedFrom } from "./events";
+import { accompanied, advanced, gathered, openedFrom, refreshed } from "./events";
 import { whileInView } from "./viewing";
 
 export interface TableHold {
@@ -23,13 +23,30 @@ export function useTable(table: string, token: string | null): TableHold {
     useEffect(() => {
         let alive = true;
         let release: (() => void) | null = null;
+        let wasGathered = false;
         const seat: Seat = { table, token };
+        const refresh = (): void => {
+            readView(seat)
+                .then((response) => {
+                    if (!alive) {
+                        return;
+                    }
+                    sinceRef.current = Math.max(sinceRef.current, response.seq);
+                    setState((current) => (current === null ? openedFrom(response) : refreshed(current, response)));
+                })
+                .catch((error: unknown) => {
+                    if (alive) {
+                        setTrouble(reasonOf(error));
+                    }
+                });
+        };
         readView(seat)
             .then((response) => {
                 if (!alive) {
                     return;
                 }
                 sinceRef.current = response.seq;
+                wasGathered = gathered(response.company);
                 setState(openedFrom(response));
                 release = whileInView(document, () =>
                     followEvents(seat, sinceRef.current, {
@@ -42,6 +59,11 @@ export function useTable(table: string, token: string | null): TableHold {
                             setState((current) => (current === null ? current : advanced(current, event)));
                         },
                         onPresence: (company): void => {
+                            const nowGathered = gathered(company);
+                            if (nowGathered && !wasGathered) {
+                                refresh();
+                            }
+                            wasGathered = nowGathered;
                             setState((current) => (current === null ? current : accompanied(current, company)));
                         },
                         onDropped: (reason): void => {

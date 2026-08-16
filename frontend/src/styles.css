@@ -219,7 +219,7 @@ select {
     width: min(100%, 680px);
 }
 
-@media (min-width: 640px) {
+@media (width >= 640px) {
     .home-panels {
         grid-template-columns: 1fr 1fr;
     }

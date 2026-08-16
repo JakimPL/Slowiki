@@ -24,7 +24,7 @@ export interface TableProps {
 }
 
 export function Table({ arrival, connection, state, trouble }: TableProps): ReactElement {
-    const mySeat = seatedAs(state.view);
+    const mySeat = arrival.seated ?? seatedAs(state.view);
     const story = storyFor(state.view, state.company, mySeat);
     const present = state.company.seats.filter((seated) => seated.claimed).length;
     const gathering = present < state.company.seats.length;

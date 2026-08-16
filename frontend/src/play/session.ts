@@ -2,11 +2,13 @@ export interface Standing {
     readonly table: string | null;
     readonly token: string | null;
     readonly code: string | null;
+    readonly seated: number | null;
 }
 
 const TABLE_FIELD = "table";
 const TOKEN_FIELD = "token";
 const CODE_FIELD = "code";
+const SEAT_FIELD = "seat";
 
 export function standingIn(fragment: string): Standing {
     const fields = new URLSearchParams(fragment.replace(/^#/, ""));
@@ -14,16 +16,18 @@ export function standingIn(fragment: string): Standing {
         table: presentIn(fields, TABLE_FIELD),
         token: presentIn(fields, TOKEN_FIELD),
         code: presentIn(fields, CODE_FIELD),
+        seated: seatedIn(fields),
     };
 }
 
-export function fragmentFor(table: string, token: string, code: string | null): string {
+export function fragmentFor(table: string, token: string, code: string | null, seated: number): string {
     const fields = new URLSearchParams();
     fields.set(TABLE_FIELD, table);
     fields.set(TOKEN_FIELD, token);
     if (code !== null) {
         fields.set(CODE_FIELD, code);
     }
+    fields.set(SEAT_FIELD, String(seated));
     return `#${fields.toString()}`;
 }
 
@@ -32,6 +36,15 @@ export function invitationTo(origin: string, pathname: string, table: string, co
     fields.set(TABLE_FIELD, table);
     fields.set(CODE_FIELD, code);
     return `${origin}${pathname}#${fields.toString()}`;
+}
+
+function seatedIn(fields: URLSearchParams): number | null {
+    const value = presentIn(fields, SEAT_FIELD);
+    if (value === null) {
+        return null;
+    }
+    const parsed = Number(value);
+    return Number.isInteger(parsed) && parsed >= 0 ? parsed : null;
 }
 
 function presentIn(fields: URLSearchParams, name: string): string | null {

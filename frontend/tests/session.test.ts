@@ -3,31 +3,42 @@ import { describe, expect, it } from "vitest";
 import { fragmentFor, invitationTo, standingIn } from "../src/play/session";
 
 describe("standingIn", () => {
-    it("reads table, token, and code from a fragment", () => {
-        const standing = standingIn("#table=abc123&token=tok-1&code=KWPZTR");
-        expect(standing).toEqual({ table: "abc123", token: "tok-1", code: "KWPZTR" });
+    it("reads table, token, code, and seat from a fragment", () => {
+        const standing = standingIn("#table=abc123&token=tok-1&code=KWPZTR&seat=1");
+        expect(standing).toEqual({ table: "abc123", token: "tok-1", code: "KWPZTR", seated: 1 });
     });
 
     it("treats absent and empty fields as null", () => {
-        expect(standingIn("")).toEqual({ table: null, token: null, code: null });
-        expect(standingIn("#table=&code=KWPZTR")).toEqual({ table: null, token: null, code: "KWPZTR" });
+        expect(standingIn("")).toEqual({ table: null, token: null, code: null, seated: null });
+        expect(standingIn("#table=&code=KWPZTR")).toEqual({
+            table: null,
+            token: null,
+            code: "KWPZTR",
+            seated: null,
+        });
+    });
+
+    it("rejects a malformed seat field", () => {
+        expect(standingIn("#table=abc&token=tok&seat=abc").seated).toBeNull();
+        expect(standingIn("#table=abc&token=tok&seat=-2").seated).toBeNull();
     });
 });
 
 describe("fragmentFor", () => {
-    it("writes table and token, leaving an absent code out", () => {
-        expect(fragmentFor("abc123", "tok-1", null)).toBe("#table=abc123&token=tok-1");
+    it("writes table, token, and seat, leaving an absent code out", () => {
+        expect(fragmentFor("abc123", "tok-1", null, 0)).toBe("#table=abc123&token=tok-1&seat=0");
     });
 
     it("keeps the shareable code beside the credentials", () => {
-        expect(fragmentFor("abc123", "tok-1", "KWPZTR")).toBe("#table=abc123&token=tok-1&code=KWPZTR");
+        expect(fragmentFor("abc123", "tok-1", "KWPZTR", 1)).toBe("#table=abc123&token=tok-1&code=KWPZTR&seat=1");
     });
 
     it("round-trips through standingIn", () => {
-        const standing = standingIn(fragmentFor("abc123", "tok-1", "KWPZTR"));
+        const standing = standingIn(fragmentFor("abc123", "tok-1", "KWPZTR", 1));
         expect(standing.table).toBe("abc123");
         expect(standing.token).toBe("tok-1");
         expect(standing.code).toBe("KWPZTR");
+        expect(standing.seated).toBe(1);
     });
 });
 

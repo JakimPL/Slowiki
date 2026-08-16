@@ -11,7 +11,7 @@ from wordcore.moves.move import Move
 from wordcore.states.state import Phase
 from wordcore.views.events import EventView
 from wordcore.views.projection import PositionView
-from wordserver.errors import SeatTokenMismatch
+from wordserver.errors import SeatTokenMismatch, TableGathering
 from wordserver.models import CompanyView, SeatView
 from wordtable.config import TimeConfig
 
@@ -82,7 +82,13 @@ class TableSession:
             )
         )
 
+    def gathering(self) -> bool:
+        return len(self._claimed) < len(self._tokens)
+
     def view(self, observer: int | None) -> PositionView:
+        if self.gathering():
+            return self._game.view(None)
+
         return self._game.view(observer)
 
     async def submit(
@@ -98,6 +104,7 @@ class TableSession:
             if observer is None or observer != move.player:
                 raise SeatTokenMismatch("seat token does not match the move")
 
+            self._ensure_gathered()
             self._game.submit(move, base_seq=base_seq, premove=premove)
             if move.action.kind != ActionKind.REORDER:
                 self._schedule_timer()
@@ -111,9 +118,14 @@ class TableSession:
             if observer is None:
                 raise SeatTokenMismatch("seat token does not match a seat")
 
+            self._ensure_gathered()
             self._game.cancel_premove(observer, base_seq)
             self._condition.notify_all()
             return self._game.seq
+
+    def _ensure_gathered(self) -> None:
+        if self.gathering():
+            raise TableGathering("the table is still gathering players")
 
     async def events(self, observer: int | None, since: int) -> AsyncIterator[str]:
         await self._adjust_streams(observer, 1)

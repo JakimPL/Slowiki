@@ -3,14 +3,14 @@ import { describe, expect, it } from "vitest";
 
 import { openedFrom } from "../src/play/events";
 import { Table } from "../src/table/Table";
-import { aCompany, aSeatView, aTableResponse, aTile, aView } from "./positions";
+import { aCompany, aSeatView, aTableResponse, aView } from "./positions";
 
-const ARRIVAL = { seat: { table: "t1", token: "tok-1" }, code: "KWPZTR" };
+const ARRIVAL = { seat: { table: "t1", token: "tok-1" }, code: "KWPZTR", seated: 0 };
 
 describe("Table", () => {
-    it("shows the gathering room with the code while seats stay open", () => {
+    it("shows the gathering room with the code and no tiles while seats stay open", () => {
         const response = aTableResponse({
-            view: aView({ to_act: [1], racks: { 0: [aTile({ letter: "Ż" })], 1: null } }),
+            view: aView({ to_act: [0], racks: { 0: null, 1: null } }),
             company: aCompany([aSeatView(0, { name: "Ala" }), aSeatView(1, { claimed: false })]),
         });
         const markup = renderToStaticMarkup(
@@ -19,7 +19,8 @@ describe("Table", () => {
         expect(markup).toContain("Gathering players — 1 of 2 at the table");
         expect(markup).toContain("KWPZTR");
         expect(markup).toContain("Copy invitation");
-        expect(markup).toContain(">Ż<");
+        expect(markup).not.toContain("tile-letter");
+        expect(markup).not.toContain("Your turn");
         expect(markup).toContain("Bag 80");
     });
 

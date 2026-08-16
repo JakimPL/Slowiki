@@ -89,6 +89,7 @@ async def test_premove_queue_and_cancel_over_http(client: httpx.AsyncClient) -> 
 async def test_stale_position_carries_code(client: httpx.AsyncClient) -> None:
     created = await client.post("/tables", json={"scheme": "literaki", "seats": 2})
     data = created.json()
+    await client.post(f"/tables/{data['code']}/join")
     move = {"player": 0, "action": {"kind": "pass"}}
     result = await client.post(
         f"/tables/{data['table_id']}/moves",

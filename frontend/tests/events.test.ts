@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { accompanied, advanced, openedFrom, seatedAs } from "../src/play/events";
+import { accompanied, advanced, gathered, openedFrom, refreshed, seatedAs } from "../src/play/events";
 import { aCompany, anEvent, aSeatView, aTableResponse, aTile, aView } from "./positions";
 
 describe("openedFrom", () => {
@@ -58,5 +58,25 @@ describe("seatedAs", () => {
 
     it("returns null for a spectator", () => {
         expect(seatedAs(aView({ racks: { 0: null, 1: null } }))).toBeNull();
+    });
+});
+
+describe("gathered", () => {
+    it("holds once every seat is claimed", () => {
+        expect(gathered(aCompany())).toBe(true);
+        expect(gathered(aCompany([aSeatView(0), aSeatView(1, { claimed: false })]))).toBe(false);
+    });
+});
+
+describe("refreshed", () => {
+    it("adopts a response at or past the current seq", () => {
+        const state = openedFrom(aTableResponse({ seq: 2 }));
+        const revealing = aTableResponse({ seq: 2, view: aView({ racks: { 0: [aTile()], 1: null } }) });
+        expect(refreshed(state, revealing).view.racks[0]).not.toBeNull();
+    });
+
+    it("keeps the state when the response lags behind", () => {
+        const state = openedFrom(aTableResponse({ seq: 5 }));
+        expect(refreshed(state, aTableResponse({ seq: 3 }))).toBe(state);
     });
 });

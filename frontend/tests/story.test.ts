@@ -21,9 +21,9 @@ describe("storyFor", () => {
         expect(story.seats).toEqual([0, 1]);
     });
 
-    it("prefers acting over gathering", () => {
+    it("prefers gathering over acting while seats stay open", () => {
         const company = aCompany([aSeatView(0, { name: "Ala" }), aSeatView(1, { claimed: false })]);
-        expect(storyFor(aView({ to_act: [0] }), company, 0).kind).toBe("acting");
+        expect(storyFor(aView({ to_act: [0] }), company, 0).kind).toBe("gathering");
     });
 
     it("reports gathering while seats stay unclaimed", () => {

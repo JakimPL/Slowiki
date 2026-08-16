@@ -21,6 +21,17 @@ export function accompanied(state: TableState, company: CompanyView): TableState
     return { ...state, company };
 }
 
+export function refreshed(state: TableState, response: TableViewResponse): TableState {
+    if (response.seq < state.seq) {
+        return state;
+    }
+    return openedFrom(response);
+}
+
+export function gathered(company: CompanyView): boolean {
+    return company.seats.every((seated) => seated.claimed);
+}
+
 export function seatedAs(view: PositionView): number | null {
     for (const [seat, rack] of Object.entries(view.racks)) {
         if (rack !== null) {

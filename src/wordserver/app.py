@@ -21,6 +21,7 @@ from wordserver.errors import (
     ErrorCode,
     Refusal,
     SeatTokenMismatch,
+    TableGathering,
     code_for,
     refusal_response,
 )
@@ -234,6 +235,13 @@ def create_app() -> FastAPI:
         error: SeatTokenMismatch,
     ) -> JSONResponse:
         return refusal_response(409, str(error), ErrorCode.SEAT_TOKEN_MISMATCH)
+
+    @app.exception_handler(TableGathering)
+    async def still_gathering(
+        _request: Request,
+        error: TableGathering,
+    ) -> JSONResponse:
+        return refusal_response(409, str(error), ErrorCode.GATHERING)
 
     def session_for(table_id: str) -> TableSession:
         session = registry.get(table_id)
