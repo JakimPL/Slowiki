@@ -12,28 +12,53 @@ from wordtable.paths import CONFIG_DIR
 
 
 def run(scheme_name: str, players: int) -> None:
+    game = _build_game(scheme_name, players)
+    _play(game)
+
+
+def _build_game(scheme_name: str, players: int) -> Game:
     resolved = resolve_scheme(CONFIG_DIR, scheme_name)
     lexicon = load_lexicon(resolved.scheme.dictionary)
     seats = tuple(range(players))
     rules = build_rules(resolved, seats, lexicon)
-    game = Game(rules, random.Random())
+    return Game(rules, random.Random())
+
+
+def _play(game: Game) -> None:
     while game.position.state.phase != Phase.GAME_OVER:
         _render(game)
-        seat = next(iter(game.position.state.to_act))
-        print(f"player {seat} to move")
-        try:
-            command = input("> ").strip()
-        except EOFError:
+        if not _handle_command(game):
             return
-        if command in ("", "quit"):
-            return
-        try:
-            move = _parse_move(game, seat, command)
-            game.submit(move, base_seq=game.seq)
-        except (WordcoreError, ValueError, IndexError) as error:
-            print(f"rejected: {error}")
     _render(game)
     print("game over")
+
+
+def _handle_command(game: Game) -> bool:
+    seat = _current_seat(game)
+    print(f"player {seat} to move")
+    command = _read_command()
+    if command is None:
+        return False
+    try:
+        move = _parse_move(game, seat, command)
+        game.submit(move, base_seq=game.seq)
+    except (WordcoreError, ValueError, IndexError) as error:
+        print(f"rejected: {error}")
+    return True
+
+
+def _current_seat(game: Game) -> int:
+    return next(iter(game.position.state.to_act))
+
+
+def _read_command() -> str | None:
+    try:
+        command = input("> ").strip()
+    except EOFError:
+        return None
+    if command in ("", "quit"):
+        return None
+    return command
 
 
 def _parse_move(game: Game, seat: int, command: str) -> Move:

@@ -1,6 +1,6 @@
 from wordcore.board.board import Board, Bonus, BonusKind
 from wordcore.models.base import BaseFrozen
-from wordcore.rules.words import FormedWord
+from wordcore.rules.words import FormedWord, WordTile
 from wordcore.tiles.tile import Tile
 
 
@@ -25,20 +25,30 @@ def score_move(board: Board, words: tuple[FormedWord, ...], bingo: int) -> MoveS
 
 
 def _score_word(board: Board, word: FormedWord) -> int:
-    letter_sum = 0
-    for word_tile in word.tiles:
-        value = word_tile.tile.value
-        if board.index(word_tile.row, word_tile.column) in word.new_indices:
-            value *= _letter_bonus(board.bonus_at(word_tile.row, word_tile.column), word_tile.tile)
-        letter_sum += value
+    letter_sum = sum(_tile_points(board, word_tile, word) for word_tile in word.tiles)
+    return letter_sum * _word_multiplier(board, word)
+
+
+def _tile_points(board: Board, word_tile: WordTile, word: FormedWord) -> int:
+    value = word_tile.tile.value
+    if _is_new(board, word_tile, word):
+        value *= _letter_bonus(board.bonus_at(word_tile.row, word_tile.column), word_tile.tile)
+    return value
+
+
+def _word_multiplier(board: Board, word: FormedWord) -> int:
     multiplier = 1
     for word_tile in word.tiles:
-        if board.index(word_tile.row, word_tile.column) not in word.new_indices:
+        if not _is_new(board, word_tile, word):
             continue
         bonus = board.bonus_at(word_tile.row, word_tile.column)
         if bonus is not None and bonus.kind == BonusKind.WORD_MULTIPLIER:
             multiplier *= bonus.multiplier
-    return letter_sum * multiplier
+    return multiplier
+
+
+def _is_new(board: Board, word_tile: WordTile, word: FormedWord) -> bool:
+    return board.index(word_tile.row, word_tile.column) in word.new_indices
 
 
 def _letter_bonus(bonus: Bonus | None, tile: Tile) -> int:

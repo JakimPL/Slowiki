@@ -62,9 +62,26 @@ def _axis_words(
     new_indices: frozenset[int],
     horizontal: bool,
 ) -> tuple[FormedWord, ...]:
-    positions = [p.column if horizontal else p.row for p in placements]
-    low = min(positions)
-    high = max(positions)
+    low, high = _axis_bounds(placements, horizontal)
+    _ensure_contiguous(combined, fixed, low, high, horizontal)
+    words: list[FormedWord] = [
+        _to_word(_word_along(combined, fixed, low, high, horizontal), new_indices)
+    ]
+    for placement in placements:
+        cross = _cross_word(combined, placement, horizontal)
+        if cross is not None:
+            word = _to_word(cross, new_indices)
+            if word not in words:
+                words.append(word)
+    return tuple(words)
+
+
+def _axis_bounds(placements: tuple[Placement, ...], horizontal: bool) -> tuple[int, int]:
+    positions = [placement.column if horizontal else placement.row for placement in placements]
+    return min(positions), max(positions)
+
+
+def _ensure_contiguous(combined: Board, fixed: int, low: int, high: int, horizontal: bool) -> None:
     for coordinate in range(low, high + 1):
         tile = (
             combined.tile_at(fixed, coordinate)
@@ -73,19 +90,14 @@ def _axis_words(
         )
         if tile is None:
             raise IllegalMove("placements leave a gap")
-    main = _word_along(combined, fixed, low, high, horizontal)
-    words: list[FormedWord] = [_to_word(main, new_indices)]
-    for placement in placements:
-        cross = (
-            _vertical(combined, placement.row, placement.column)
-            if horizontal
-            else _horizontal(combined, placement.row, placement.column)
-        )
-        if cross is not None:
-            word = _to_word(cross, new_indices)
-            if word not in words:
-                words.append(word)
-    return tuple(words)
+
+
+def _cross_word(
+    combined: Board, placement: Placement, horizontal: bool
+) -> tuple[WordTile, ...] | None:
+    if horizontal:
+        return _vertical(combined, placement.row, placement.column)
+    return _horizontal(combined, placement.row, placement.column)
 
 
 def _word_along(

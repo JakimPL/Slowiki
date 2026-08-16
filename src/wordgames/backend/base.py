@@ -16,7 +16,7 @@ from wordcore.rules.validity import validate_words
 from wordcore.rules.words import Placement, formed_words, validate_anchor
 from wordcore.states.state import Phase, WordState
 from wordcore.tiles.bag import deal_racks, shuffled_bag
-from wordcore.tiles.tile import TilePreset
+from wordcore.tiles.tile import Tile, TilePreset
 
 
 class GameParameters(BaseFrozen):
@@ -26,6 +26,10 @@ class GameParameters(BaseFrozen):
     pass_end_limit: int | None
     scoreless_end_limit: int | None
     bingo_bonus: int
+
+
+def _board_with_placements(board: Board, placements: tuple[Placement, ...]) -> Board:
+    return board.with_tiles({board.index(p.row, p.column): p.tile for p in placements})
 
 
 class WordGameRules(Rules):
@@ -89,34 +93,36 @@ class WordGameRules(Rules):
     def _apply_play(
         self, position: Position, player: int, action: Play
     ) -> tuple[Position, int | None]:
-        board = position.board
-        state = position.state
         placements = self._resolve_placements(position, player, action)
-        words = formed_words(board, placements)
-        scored = score_move(board, words, self._bingo_bonus(len(placements)))
-        new_board = board.with_tiles({board.index(p.row, p.column): p.tile for p in placements})
-        played = {p.tile.identifier for p in placements}
-        kept = tuple(tile for tile in rack_of(position, player) if tile.identifier not in played)
-        rack_size = self._tiles.rack_size
-        if rack_size is None:
-            new_rack = kept
-            new_bag = state.bag
-        else:
-            needed = max(0, rack_size - len(kept))
-            drawn = state.bag[:needed]
-            new_rack = kept + drawn
-            new_bag = state.bag[needed:]
-        new_state = state.model_copy(
+        board = _board_with_placements(position.board, placements)
+        words = formed_words(position.board, placements)
+        scored = score_move(position.board, words, self._bingo_bonus(len(placements)))
+        new_rack, new_bag = self._replenished_rack(position, player, placements)
+        new_state = position.state.model_copy(
             update={
-                "racks": {**state.racks, player: new_rack},
+                "racks": {**position.state.racks, player: new_rack},
                 "bag": new_bag,
-                "scores": {**state.scores, player: state.scores[player] + scored.points},
+                "scores": {
+                    **position.state.scores,
+                    player: position.state.scores[player] + scored.points,
+                },
                 "consecutive_passes": 0,
                 "scoreless_turns": 0,
             }
         )
         went_out = player if not new_rack and not new_bag else None
-        return position.model_copy(update={"board": new_board, "state": new_state}), went_out
+        return position.model_copy(update={"board": board, "state": new_state}), went_out
+
+    def _replenished_rack(
+        self, position: Position, player: int, placements: tuple[Placement, ...]
+    ) -> tuple[tuple[Tile, ...], tuple[Tile, ...]]:
+        played = {placement.tile.identifier for placement in placements}
+        kept = tuple(tile for tile in rack_of(position, player) if tile.identifier not in played)
+        rack_size = self._tiles.rack_size
+        if rack_size is None:
+            return kept, position.state.bag
+        needed = max(0, rack_size - len(kept))
+        return kept + position.state.bag[:needed], position.state.bag[needed:]
 
     def _apply_exchange(self, position: Position, player: int, action: Exchange) -> Position:
         updated = apply_exchange(position, player, action)
@@ -137,21 +143,35 @@ class WordGameRules(Rules):
         return position.model_copy(update={"state": new_state})
 
     def _finish_turn(self, position: Position, mover: int, went_out: int | None) -> Position:
-        state = position.state
         if went_out is not None:
             return self._finish_game(position, went_out)
-        if self._parameters.pass_end_limit is not None:
-            if state.consecutive_passes >= self._parameters.pass_end_limit:
-                return self._finish_game(position, None)
-        if self._parameters.scoreless_end_limit is not None:
-            if state.scoreless_turns >= self._parameters.scoreless_end_limit:
-                return self._finish_game(position, None)
-        if len(self._players) == 1:
-            if not rack_of(position, mover) or state.consecutive_passes >= 1:
-                return self._finish_game(position, None)
+        if self._end_limit_reached(position.state):
+            return self._finish_game(position, None)
+        if self._solo_ended(position, mover):
+            return self._finish_game(position, None)
+        return self._advance_turn(position, mover)
+
+    def _end_limit_reached(self, state: WordState) -> bool:
+        pass_limit = self._parameters.pass_end_limit
+        if pass_limit is not None and state.consecutive_passes >= pass_limit:
+            return True
+        scoreless_limit = self._parameters.scoreless_end_limit
+        if scoreless_limit is not None and state.scoreless_turns >= scoreless_limit:
+            return True
+        return False
+
+    def _solo_ended(self, position: Position, mover: int) -> bool:
+        if len(self._players) != 1:
+            return False
+        return not rack_of(position, mover) or position.state.consecutive_passes >= 1
+
+    def _advance_turn(self, position: Position, mover: int) -> Position:
         next_player = next_seat(self._players, mover)
-        new_state = state.model_copy(
-            update={"to_act": frozenset({next_player}), "turn_number": state.turn_number + 1}
+        new_state = position.state.model_copy(
+            update={
+                "to_act": frozenset({next_player}),
+                "turn_number": position.state.turn_number + 1,
+            }
         )
         return position.model_copy(update={"state": new_state})
 
