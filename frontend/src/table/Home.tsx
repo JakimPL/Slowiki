@@ -1,4 +1,4 @@
-import type { FormEventHandler, ReactElement } from "react";
+import type { ReactElement, SubmitEventHandler } from "react";
 import { useEffect, useState } from "react";
 
 import { createTable, joinTable, readOfferings } from "../api/client";
@@ -82,7 +82,7 @@ export function Home({ invitedCode, themeNote, onArrive }: HomeProps): ReactElem
         }
     };
 
-    const create: FormEventHandler<HTMLFormElement> = (submission) => {
+    const create: SubmitEventHandler<HTMLFormElement> = (submission) => {
         submission.preventDefault();
         if (chosen === null) {
             return;
@@ -90,7 +90,7 @@ export function Home({ invitedCode, themeNote, onArrive }: HomeProps): ReactElem
         void settle(() => createTable({ scheme: chosen.name, seats: chosenSeats, name: cleanedName }));
     };
 
-    const join: FormEventHandler<HTMLFormElement> = (submission) => {
+    const join: SubmitEventHandler<HTMLFormElement> = (submission) => {
         submission.preventDefault();
         const cleanedCode = code.trim().toUpperCase();
         if (cleanedCode === "") {
