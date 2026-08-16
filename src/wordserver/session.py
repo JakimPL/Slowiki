@@ -1,12 +1,12 @@
 import asyncio
 import json
 from collections.abc import AsyncIterator
-from typing import Any
 
 from wordcore.exceptions import NotYourTurn
 from wordcore.games.game import EventView, Game
 from wordcore.moves.action import ActionKind, Move, Pass
 from wordcore.states.state import Phase
+from wordcore.views.projection import PositionView
 from wordtable.config import TimeConfig
 
 
@@ -38,8 +38,8 @@ class TableSession:
                 return seat, self._tokens[seat]
         return None
 
-    def view(self, observer: int | None) -> dict[str, Any]:
-        return self._game.view(observer).model_dump(mode="json")
+    def view(self, observer: int | None) -> PositionView:
+        return self._game.view(observer)
 
     async def submit(self, move: Move, base_seq: int, premove: bool, token: str | None) -> int:
         async with self._condition:

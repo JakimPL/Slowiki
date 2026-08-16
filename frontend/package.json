@@ -6,7 +6,8 @@
     "scripts": {
         "dev": "vite",
         "build": "tsc --noEmit && vite build",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "types": "openapi-typescript openapi.json --output src/api/schema.ts"
     },
     "dependencies": {
         "react": "^19.0.0",
@@ -16,6 +17,7 @@
         "@types/react": "^19.0.0",
         "@types/react-dom": "^19.0.0",
         "@vitejs/plugin-react": "^4.3.4",
+        "openapi-typescript": "^7.4.0",
         "typescript": "^5.7.2",
         "vite": "^6.0.0"
     }

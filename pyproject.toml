@@ -54,7 +54,7 @@ src_paths = ["src"]
 [tool.mypy]
 python_version = "3.12"
 strict = true
-files = ["src"]
+files = ["src", "scripts"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
