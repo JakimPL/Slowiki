@@ -2,7 +2,8 @@ import random
 
 from wordcore.board.board import Board
 from wordcore.exceptions import IllegalMove
-from wordcore.moves.action import Move, Pass
+from wordcore.moves.action import Pass
+from wordcore.moves.move import Move
 from wordcore.positions.position import Position
 from wordcore.states.state import Phase, WordState
 

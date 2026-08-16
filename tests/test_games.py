@@ -5,12 +5,15 @@ import pytest
 from wordcore.board.board import Board
 from wordcore.exceptions import IllegalMove, InvalidWord
 from wordcore.games.game import Game
-from wordcore.lexicon.lexicon import Lexicon, TextLexicon
-from wordcore.moves.action import Exchange, Move, Pass, Play, PlayPlacement, Reorder
+from wordcore.lexicon.lexicon import TextLexicon
+from wordcore.lexicon.protocol import Lexicon
+from wordcore.moves.action import Exchange, Pass, Play, PlayPlacement, Reorder
+from wordcore.moves.move import Move
 from wordcore.positions.position import Position
 from wordcore.states.state import Phase, WordState
 from wordcore.tiles.tile import LetterSpec, Tile, TilePreset
-from wordgames.backend.base import GameParameters, WordGameRules
+from wordgames.backend.base import WordGameRules
+from wordgames.backend.parameters import GameParameters
 from wordtable.build import build_rules
 from wordtable.catalogue import resolve_scheme
 from wordtable.paths import CONFIG_DIR

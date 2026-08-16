@@ -1,7 +1,7 @@
 from enum import StrEnum
 
 from wordcore.models.base import BaseFrozen
-from wordcore.moves.action import Move
+from wordcore.moves.move import Move
 from wordcore.tiles.tile import Tile
 
 

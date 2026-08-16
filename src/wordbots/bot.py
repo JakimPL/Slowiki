@@ -1,6 +1,6 @@
 from typing import Protocol
 
-from wordcore.moves.action import Move
+from wordcore.moves.move import Move
 from wordcore.positions.position import Position
 
 

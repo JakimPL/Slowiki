@@ -1,21 +1,10 @@
-from enum import StrEnum
+from __future__ import annotations
 
 from pydantic import model_validator
 
+from wordcore.board.bonus import Bonus
 from wordcore.models.base import BaseFrozen
 from wordcore.tiles.tile import Tile
-
-
-class BonusKind(StrEnum):
-    WORD_MULTIPLIER = "word_multiplier"
-    LETTER_MULTIPLIER = "letter_multiplier"
-    CATEGORY_MULTIPLIER = "category_multiplier"
-
-
-class Bonus(BaseFrozen):
-    kind: BonusKind
-    multiplier: int
-    category: str | None = None
 
 
 class Board(BaseFrozen):
@@ -24,7 +13,7 @@ class Board(BaseFrozen):
     tiles: tuple[Tile | None, ...]
 
     @model_validator(mode="after")
-    def validate_dimensions(self) -> "Board":
+    def validate_dimensions(self) -> Board:
         expected = self.size * self.size
         if len(self.bonuses) != expected or len(self.tiles) != expected:
             raise ValueError("board arrays must match the square size")
@@ -48,8 +37,12 @@ class Board(BaseFrozen):
     def center(self) -> int:
         return self.size // 2
 
-    def with_tiles(self, replacements: dict[int, Tile | None]) -> "Board":
+    def with_tiles(
+        self,
+        replacements: dict[int, Tile | None],
+    ) -> Board:
         tiles = list(self.tiles)
         for index, tile in replacements.items():
             tiles[index] = tile
+
         return self.model_copy(update={"tiles": tuple(tiles)})

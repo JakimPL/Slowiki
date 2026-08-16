@@ -15,4 +15,5 @@ def load_compiled_lexicon(path: Path) -> TextLexicon:
     data = marshal.loads(path.read_bytes())
     if not isinstance(data, tuple) or not all(isinstance(word, str) for word in data):
         raise InvalidConfiguration(f"malformed lexicon file: {path}")
+
     return TextLexicon(words=data)

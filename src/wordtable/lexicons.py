@@ -1,9 +1,9 @@
 import asyncio
 
 from lexica.compile import compile_lexicon, load_compiled_lexicon
+from lexica.dictionaries.sjp import iter_sjp_words
 from lexica.names import DictionaryName
-from lexica.sjp import iter_sjp_words
-from wordcore.lexicon.lexicon import Lexicon
+from wordcore.lexicon.protocol import Lexicon
 from wordtable.paths import dictionary_archive, dictionary_compiled
 
 
@@ -12,6 +12,7 @@ def load_lexicon(name: DictionaryName) -> Lexicon:
     compiled = dictionary_compiled(name)
     if not compiled.is_file():
         compile_lexicon(iter_sjp_words(archive), compiled)
+
     return load_compiled_lexicon(compiled)
 
 
@@ -23,6 +24,7 @@ class LexiconService:
         cached = self._cache.get(name)
         if cached is not None:
             return cached
+
         lexicon = await asyncio.to_thread(load_lexicon, name)
         self._cache[name] = lexicon
         return lexicon

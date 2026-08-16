@@ -10,15 +10,37 @@ class DictionaryRules(BaseFrozen):
     excluded_patterns: tuple[str, ...] = ()
 
 
-def apply_rules(words: Iterable[str], rules: DictionaryRules) -> tuple[str, ...]:
+def is_word_too_short(word: str, rules: DictionaryRules) -> bool:
+    return len(word) < rules.min_length
+
+
+def is_word_too_large(word: str, rules: DictionaryRules) -> bool:
+    return rules.max_length is not None and len(word) > rules.max_length
+
+
+def does_word_contain_excluded_pattern(
+    word: str,
+    rules: DictionaryRules,
+) -> bool:
     patterns = tuple(re.compile(pattern) for pattern in rules.excluded_patterns)
+    return any(pattern.search(word) for pattern in patterns)
+
+
+def apply_rules(
+    words: Iterable[str],
+    rules: DictionaryRules,
+) -> tuple[str, ...]:
     result: list[str] = []
     for word in words:
-        if len(word) < rules.min_length:
+        if is_word_too_short(word, rules):
             continue
-        if rules.max_length is not None and len(word) > rules.max_length:
+
+        if is_word_too_large(word, rules):
             continue
-        if any(pattern.search(word) for pattern in patterns):
+
+        if does_word_contain_excluded_pattern(word, rules):
             continue
+
         result.append(word)
+
     return tuple(result)

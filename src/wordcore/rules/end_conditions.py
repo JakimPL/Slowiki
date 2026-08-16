@@ -2,13 +2,22 @@ from wordcore.positions.position import Position
 from wordcore.rules.rack import rack_of
 
 
+def rack_deductions(position: Position) -> dict[int, int]:
+    return {seat: sum(tile.value for tile in rack_of(position, seat)) for seat in position.players}
+
+
+def deducted_scores(position: Position, deductions: dict[int, int]) -> dict[int, int]:
+    return {seat: position.state.scores[seat] - deductions[seat] for seat in position.players}
+
+
+def opponents_rack_total(deductions: dict[int, int], went_out: int) -> int:
+    return sum(value for seat, value in deductions.items() if seat != went_out)
+
+
 def final_scores(position: Position, went_out: int | None) -> dict[int, int]:
-    deductions = {
-        seat: sum(tile.value for tile in rack_of(position, seat)) for seat in position.players
-    }
-    scores = dict(position.state.scores)
-    for seat in position.players:
-        scores[seat] -= deductions[seat]
+    deductions = rack_deductions(position)
+    scores = deducted_scores(position, deductions)
     if went_out is not None:
-        scores[went_out] += sum(deductions[seat] for seat in position.players if seat != went_out)
+        scores[went_out] += opponents_rack_total(deductions, went_out)
+
     return scores

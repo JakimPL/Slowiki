@@ -1,16 +1,9 @@
-from enum import StrEnum
 from typing import Annotated, Literal
 
 from pydantic import Field
 
 from wordcore.models.base import BaseFrozen
-
-
-class ActionKind(StrEnum):
-    PLAY = "play"
-    EXCHANGE = "exchange"
-    PASS = "pass"
-    REORDER = "reorder"
+from wordcore.moves.kind import ActionKind
 
 
 class PlayPlacement(BaseFrozen):
@@ -39,9 +32,7 @@ class Reorder(BaseFrozen):
     tile_ids: tuple[int, ...]
 
 
-AnyAction = Annotated[Play | Exchange | Pass | Reorder, Field(discriminator="kind")]
-
-
-class Move(BaseFrozen):
-    player: int
-    action: AnyAction
+AnyAction = Annotated[
+    Play | Exchange | Pass | Reorder,
+    Field(discriminator="kind"),
+]

@@ -14,7 +14,7 @@ from pydantic import Field
 from wordcore.exceptions import WordcoreError
 from wordcore.games.game import Game
 from wordcore.models.base import BaseFrozen
-from wordcore.moves.action import Move
+from wordcore.moves.move import Move
 from wordcore.views.events import EventView
 from wordserver.errors import (
     ErrorBody,
@@ -70,6 +70,7 @@ def _new_join_code() -> str:
 def _cleaned_name(name: str | None) -> str | None:
     if name is None:
         return None
+
     stripped = name.strip()
     return stripped if stripped else None
 
@@ -101,11 +102,17 @@ def create_app() -> FastAPI:
         return refusal_response(error.status_code, error.detail, error.code)
 
     @app.exception_handler(WordcoreError)
-    async def rejected(_request: Request, error: WordcoreError) -> JSONResponse:
+    async def rejected(
+        _request: Request,
+        error: WordcoreError,
+    ) -> JSONResponse:
         return refusal_response(409, str(error), code_for(error))
 
     @app.exception_handler(SeatTokenMismatch)
-    async def mismatched(_request: Request, error: SeatTokenMismatch) -> JSONResponse:
+    async def mismatched(
+        _request: Request,
+        error: SeatTokenMismatch,
+    ) -> JSONResponse:
         return refusal_response(409, str(error), ErrorCode.SEAT_TOKEN_MISMATCH)
 
     def session_for(table_id: str) -> TableSession:
@@ -122,26 +129,48 @@ def create_app() -> FastAPI:
     def read_style() -> StyleTokens:
         return style_tokens
 
-    @app.post("/tables", responses={404: {"model": ErrorBody}, 422: {"model": ErrorBody}})
+    # TODO: refactor
+    @app.post(
+        "/tables",
+        responses={404: {"model": ErrorBody}, 422: {"model": ErrorBody}},
+    )
     async def create_table(body: TableRequest) -> TableAdmission:
         try:
             resolved = resolve_scheme(CONFIG_DIR, body.scheme)
         except WordcoreError as error:
             raise Refusal(404, str(error), ErrorCode.UNKNOWN_SCHEME) from error
+
         if not resolved.scheme.min_players <= body.seats <= resolved.scheme.max_players:
-            raise Refusal(422, "seats outside the scheme range", ErrorCode.SEATS_OUT_OF_RANGE)
+            raise Refusal(
+                422,
+                "seats outside the scheme range",
+                ErrorCode.SEATS_OUT_OF_RANGE,
+            )
+
         lexicon = await service.get(resolved.scheme.dictionary)
         seats = tuple(range(body.seats))
         rules = build_rules(resolved, seats, lexicon)
-        game = Game(rules, random.Random(), premoves_allowed=resolved.scheme.premoves)
+        game = Game(
+            rules,
+            random.Random(),
+            premoves_allowed=resolved.scheme.premoves,
+        )
         tokens = {seat: secrets.token_urlsafe(_TOKEN_BYTES) for seat in seats}
         table_id = secrets.token_hex(_TABLE_ID_BYTES)
         code = _new_join_code()
         creator = _cleaned_name(body.name)
         names: dict[int, str | None] = {seat: None for seat in seats}
         names[0] = creator
-        meta = TableMeta(scheme=body.scheme, game=resolved.scheme.game, max_players=body.seats)
-        registry.add(table_id, TableSession(game, tokens, resolved.scheme.time, names), meta)
+        meta = TableMeta(
+            scheme=body.scheme,
+            game=resolved.scheme.game,
+            max_players=body.seats,
+        )
+        registry.add(
+            table_id,
+            TableSession(game, tokens, resolved.scheme.time, names),
+            meta,
+        )
         registry.add_code(code, table_id)
         return TableAdmission(
             table_id=table_id,
@@ -154,22 +183,29 @@ def create_app() -> FastAPI:
             name=creator,
         )
 
+    # TODO: refactor
     @app.post(
         "/tables/{code}/join",
         responses={404: {"model": ErrorBody}, 409: {"model": ErrorBody}},
     )
-    async def join_table(code: str, body: JoinRequest | None = None) -> TableAdmission:
+    async def join_table(
+        code: str,
+        body: JoinRequest | None = None,
+    ) -> TableAdmission:
         table_id = registry.table_id_for_code(code.upper())
         if table_id is None:
             raise Refusal(404, "unknown table code", ErrorCode.UNKNOWN_CODE)
+
         session = registry.get(table_id)
         meta = registry.meta_for(table_id)
         if session is None or meta is None:
             raise Refusal(404, "unknown table", ErrorCode.UNKNOWN_TABLE)
+
         name = _cleaned_name(body.name if body is not None else None)
         claimed = await session.claim(name)
         if claimed is None:
             raise Refusal(409, "table is full", ErrorCode.TABLE_FULL)
+
         seat, token = claimed
         return TableAdmission(
             table_id=table_id,
@@ -197,19 +233,35 @@ def create_app() -> FastAPI:
         "/tables/{table_id}/moves",
         responses={404: {"model": ErrorBody}, 409: {"model": ErrorBody}},
     )
-    async def submit_move(table_id: str, body: MoveRequest, request: Request) -> MoveAccepted:
+    async def submit_move(
+        table_id: str,
+        body: MoveRequest,
+        request: Request,
+    ) -> MoveAccepted:
         session = session_for(table_id)
         token = request.headers.get("X-Seat-Token")
-        seq = await session.submit(body.move, body.base_seq, body.premove, token)
+        seq = await session.submit(
+            body.move,
+            base_seq=body.base_seq,
+            premove=body.premove,
+            token=token,
+        )
         return MoveAccepted(seq=seq)
 
     @app.delete(
         "/tables/{table_id}/premove",
         responses={404: {"model": ErrorBody}, 409: {"model": ErrorBody}},
     )
-    async def cancel_premove(table_id: str, base_seq: int, request: Request) -> MoveAccepted:
+    async def cancel_premove(
+        table_id: str,
+        base_seq: int,
+        request: Request,
+    ) -> MoveAccepted:
         session = session_for(table_id)
-        seq = await session.cancel_premove(base_seq, request.headers.get("X-Seat-Token"))
+        seq = await session.cancel_premove(
+            base_seq,
+            token=request.headers.get("X-Seat-Token"),
+        )
         return MoveAccepted(seq=seq)
 
     @app.get(
@@ -224,10 +276,17 @@ def create_app() -> FastAPI:
         session = session_for(table_id)
         observer = session.observer_for(request.headers.get("X-Seat-Token"))
         since = int(last_event_id) + 1 if last_event_id else 0
-        return StreamingResponse(session.events(observer, since), media_type="text/event-stream")
+        return StreamingResponse(
+            session.events(observer, since),
+            media_type="text/event-stream",
+        )
 
     if FRONTEND_DIST_DIR.is_dir():
-        app.mount("/assets", StaticFiles(directory=FRONTEND_DIST_DIR / "assets"), name="assets")
+        app.mount(
+            "/assets",
+            StaticFiles(directory=FRONTEND_DIST_DIR / "assets"),
+            name="assets",
+        )
 
         @app.get("/")
         def serve_index() -> FileResponse:

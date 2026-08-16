@@ -5,22 +5,37 @@ from wordcore.rules.rack import rack_of
 
 
 def validate_exchange(
-    position: Position, player: int, exchange: Exchange, limit: int | None, min_bag: int
+    position: Position,
+    player: int,
+    exchange: Exchange,
+    *,
+    limit: int | None,
+    min_bag: int,
 ) -> None:
     if not exchange.tile_ids:
         raise IllegalMove("exchange requires at least one tile")
+
     if len(set(exchange.tile_ids)) != len(exchange.tile_ids):
         raise IllegalMove("exchange lists a tile more than once")
+
     rack_ids = {tile.identifier for tile in rack_of(position, player)}
     if not set(exchange.tile_ids) <= rack_ids:
         raise IllegalMove("exchange tiles must be in the player's rack")
+
     if limit is not None and position.state.exchange_counts[player] >= limit:
         raise IllegalMove("exchange limit reached")
+
     if len(position.state.bag) < min_bag:
         raise IllegalMove("not enough tiles remain to exchange")
 
 
-def apply_exchange(position: Position, player: int, exchange: Exchange) -> Position:
+# TODO: refactor - split into functions
+# is this going to support unlimited bags?
+def apply_exchange(
+    position: Position,
+    player: int,
+    exchange: Exchange,
+) -> Position:
     rack = rack_of(position, player)
     exchanged = set(exchange.tile_ids)
     returned = [tile for tile in rack if tile.identifier in exchanged]
@@ -34,7 +49,10 @@ def apply_exchange(position: Position, player: int, exchange: Exchange) -> Posit
         update={
             "racks": {**state.racks, player: new_rack},
             "bag": new_bag,
-            "exchange_counts": {**state.exchange_counts, player: state.exchange_counts[player] + 1},
+            "exchange_counts": {
+                **state.exchange_counts,
+                player: state.exchange_counts[player] + 1,
+            },
         }
     )
     return position.model_copy(update={"state": new_state})

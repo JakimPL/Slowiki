@@ -6,7 +6,8 @@ import pytest
 
 from wordcore.games.game import Game
 from wordcore.lexicon.lexicon import TextLexicon
-from wordcore.moves.action import Move, Pass
+from wordcore.moves.action import Pass
+from wordcore.moves.move import Move
 from wordserver.app import create_app
 from wordserver.session import TableSession
 from wordtable.build import build_rules

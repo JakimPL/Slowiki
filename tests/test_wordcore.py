@@ -3,7 +3,8 @@ import random
 import pytest
 from tests.games.trivial import TrivialRules
 
-from wordcore.board.board import Board, Bonus, BonusKind
+from wordcore.board.board import Board
+from wordcore.board.bonus import Bonus, BonusKind
 from wordcore.exceptions import (
     IllegalMove,
     NoPremove,
@@ -14,7 +15,8 @@ from wordcore.exceptions import (
 from wordcore.games.game import Game
 from wordcore.games.journal import EntryKind, JournalEntry
 from wordcore.lexicon.lexicon import TextLexicon
-from wordcore.moves.action import Move, Pass, Play, PlayPlacement, Reorder
+from wordcore.moves.action import Pass, Play, PlayPlacement, Reorder
+from wordcore.moves.move import Move
 from wordcore.tiles.bag import build_tiles, deal_racks, shuffled_bag
 from wordcore.tiles.tile import LetterSpec, Tile, TilePreset
 from wordcore.views.events import event_view

@@ -3,12 +3,12 @@ import itertools
 import pytest
 
 from lexica.compile import compile_lexicon, load_compiled_lexicon
+from lexica.dictionaries.sjp import iter_sjp_words
 from lexica.distribution import letter_counts
 from lexica.models import WordEntry, entry_from_word
 from lexica.rules import DictionaryRules, apply_rules
-from lexica.sjp import iter_sjp_words
 from wordbots.registry import BotRegistry
-from wordcore.moves.action import Move
+from wordcore.moves.move import Move
 from wordcore.positions.position import Position
 from wordtable.paths import PROJECT_ROOT
 
@@ -34,7 +34,7 @@ def test_apply_rules_bounds_and_patterns() -> None:
 
 
 def test_letter_counts() -> None:
-    assert letter_counts(["aa", "ab"]) == {"a": 3, "b": 1}
+    assert letter_counts(["aa", "ab"]) == {"A": 3, "B": 1}
 
 
 def test_compile_round_trip(tmp_path) -> None:
@@ -49,8 +49,8 @@ def test_compile_round_trip(tmp_path) -> None:
 @pytest.mark.skipif(not SJP_ARCHIVE.is_file(), reason="SJP archive not present")
 def test_sjp_loader_sample() -> None:
     words = list(itertools.islice(iter_sjp_words(SJP_ARCHIVE), 25))
-    assert words[0] == "aa"
-    assert all(word == word.lower() for word in words)
+    assert words[0] == "AA"
+    assert all(word == word.upper() for word in words)
 
 
 def test_bot_registry() -> None:

@@ -2,9 +2,11 @@ import hypothesis.strategies as st
 from hypothesis import assume, given, settings
 from tests.scoring.authored import authored_score
 
-from wordcore.board.board import Board, Bonus, BonusKind
-from wordcore.rules.scoring import score_move
-from wordcore.rules.words import Placement, formed_words
+from wordcore.board.board import Board
+from wordcore.board.bonus import Bonus, BonusKind
+from wordcore.rules.score.scoring import score_move
+from wordcore.rules.words.formed import formed_words
+from wordcore.rules.words.placement import Placement
 from wordcore.tiles.tile import Tile
 
 BONUSES = st.one_of(

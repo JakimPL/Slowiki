@@ -1,5 +1,6 @@
-from wordcore.board.board import Board, Bonus, BonusKind
-from wordcore.rules.words import Placement
+from wordcore.board.board import Board
+from wordcore.board.bonus import Bonus, BonusKind
+from wordcore.rules.words.placement import Placement
 from wordcore.tiles.tile import Tile
 
 

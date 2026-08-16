@@ -1,15 +1,17 @@
 import pytest
 
-from wordcore.board.board import Board, Bonus, BonusKind
+from wordcore.board.board import Board
+from wordcore.board.bonus import Bonus, BonusKind
 from wordcore.exceptions import IllegalMove, InvalidWord
 from wordcore.lexicon.lexicon import TextLexicon
 from wordcore.moves.action import Exchange
 from wordcore.positions.position import Position
 from wordcore.rules.end_conditions import final_scores
 from wordcore.rules.exchange import apply_exchange, validate_exchange
-from wordcore.rules.scoring import score_move
+from wordcore.rules.score.scoring import score_move
 from wordcore.rules.validity import validate_words
-from wordcore.rules.words import Placement, formed_words, validate_anchor
+from wordcore.rules.words.formed import formed_words, validate_anchor
+from wordcore.rules.words.placement import Placement
 from wordcore.states.state import Phase, WordState
 from wordcore.tiles.tile import Tile
 
