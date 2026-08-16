@@ -5,9 +5,9 @@ import "./styles.css";
 
 const container = document.getElementById("root");
 if (container !== null) {
-  createRoot(container).render(
-    <StrictMode>
-      <App />
-    </StrictMode>,
-  );
+    createRoot(container).render(
+        <StrictMode>
+            <App />
+        </StrictMode>,
+    );
 }

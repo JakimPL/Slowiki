@@ -4,16 +4,10 @@ version = "0.1.0"
 description = "Configurable Literaki and Scrabble word game"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = [
-    "pydantic>=2.9",
-]
+dependencies = ["pydantic>=2.9"]
 
 [project.optional-dependencies]
-server = [
-    "fastapi>=0.115",
-    "uvicorn[standard]>=0.30",
-    "pyyaml>=6.0",
-]
+server = ["fastapi>=0.115", "uvicorn[standard]>=0.30", "pyyaml>=6.0"]
 
 [dependency-groups]
 dev = [
