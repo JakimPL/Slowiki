@@ -51,7 +51,7 @@ def test_formed_words_horizontal_with_cross() -> None:
         Placement(tile=tile(4, "c", 1, "yellow"), row=1, column=2),
     )
     words = formed_words(board, placements)
-    assert {word.text for word in words} == {"abc", "cc"}
+    assert {word.text for word in words} == {"ABC", "CC"}
 
 
 def test_formed_words_single_tile_two_directions() -> None:
@@ -60,7 +60,7 @@ def test_formed_words_single_tile_two_directions() -> None:
     board = board.with_tiles({board.index(0, 1): tile(2, "b", 1, "yellow")})
     placements = (Placement(tile=tile(3, "c", 1, "yellow"), row=1, column=1),)
     words = formed_words(board, placements)
-    assert {word.text for word in words} == {"ac", "bc"}
+    assert {word.text for word in words} == {"AC", "BC"}
 
 
 def test_formed_words_reject_gap() -> None:

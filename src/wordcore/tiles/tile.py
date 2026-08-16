@@ -1,14 +1,15 @@
 from wordcore.models.base import BaseFrozen
+from wordcore.models.letters import CanonicalLetter
 
 
 class Letter(BaseFrozen):
-    symbol: str
+    symbol: CanonicalLetter
     value: int
     category: str
 
 
 class LetterSpec(BaseFrozen):
-    symbol: str
+    symbol: CanonicalLetter
     value: int
     category: str
     count: int
@@ -16,7 +17,7 @@ class LetterSpec(BaseFrozen):
 
 class Tile(BaseFrozen):
     identifier: int
-    letter: str
+    letter: CanonicalLetter
     value: int
     category: str
     blank: bool

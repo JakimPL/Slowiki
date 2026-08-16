@@ -1,129 +1,129 @@
 letters:
-  - symbol: a
+  - symbol: "A"
     value: 1
     category: standard
     count: 9
-  - symbol: ą
+  - symbol: "Ą"
     value: 5
     category: standard
     count: 1
-  - symbol: b
+  - symbol: "B"
     value: 3
     category: standard
     count: 2
-  - symbol: c
+  - symbol: "C"
     value: 2
     category: standard
     count: 3
-  - symbol: ć
+  - symbol: "Ć"
     value: 6
     category: standard
     count: 1
-  - symbol: d
+  - symbol: "D"
     value: 2
     category: standard
     count: 3
-  - symbol: e
+  - symbol: "E"
     value: 1
     category: standard
     count: 7
-  - symbol: ę
+  - symbol: "Ę"
     value: 5
     category: standard
     count: 1
-  - symbol: f
+  - symbol: "F"
     value: 5
     category: standard
     count: 1
-  - symbol: g
+  - symbol: "G"
     value: 3
     category: standard
     count: 2
-  - symbol: h
+  - symbol: "H"
     value: 3
     category: standard
     count: 2
-  - symbol: i
+  - symbol: "I"
     value: 1
     category: standard
     count: 8
-  - symbol: j
+  - symbol: "J"
     value: 3
     category: standard
     count: 2
-  - symbol: k
+  - symbol: "K"
     value: 2
     category: standard
     count: 3
-  - symbol: l
+  - symbol: "L"
     value: 2
     category: standard
     count: 3
-  - symbol: ł
+  - symbol: "Ł"
     value: 3
     category: standard
     count: 2
-  - symbol: m
+  - symbol: "M"
     value: 2
     category: standard
     count: 3
-  - symbol: n
+  - symbol: "N"
     value: 1
     category: standard
     count: 5
-  - symbol: ń
+  - symbol: "Ń"
     value: 7
     category: standard
     count: 1
-  - symbol: o
+  - symbol: "O"
     value: 1
     category: standard
     count: 6
-  - symbol: ó
+  - symbol: "Ó"
     value: 5
     category: standard
     count: 1
-  - symbol: p
+  - symbol: "P"
     value: 2
     category: standard
     count: 3
-  - symbol: r
+  - symbol: "R"
     value: 1
     category: standard
     count: 4
-  - symbol: s
+  - symbol: "S"
     value: 1
     category: standard
     count: 4
-  - symbol: ś
+  - symbol: "Ś"
     value: 5
     category: standard
     count: 1
-  - symbol: t
+  - symbol: "T"
     value: 2
     category: standard
     count: 3
-  - symbol: u
+  - symbol: "U"
     value: 3
     category: standard
     count: 2
-  - symbol: w
+  - symbol: "W"
     value: 1
     category: standard
     count: 4
-  - symbol: y
+  - symbol: "Y"
     value: 2
     category: standard
     count: 4
-  - symbol: z
+  - symbol: "Z"
     value: 1
     category: standard
     count: 5
-  - symbol: ź
+  - symbol: "Ź"
     value: 9
     category: standard
     count: 1
-  - symbol: ż
+  - symbol: "Ż"
     value: 5
     category: standard
     count: 1

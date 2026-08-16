@@ -330,7 +330,7 @@ class WordGameRules(Rules):
                 if spec.letter is None or len(spec.letter) != 1 or not spec.letter.isalpha():
                     raise IllegalMove("a blank tile requires a single assigned letter")
 
-                tile = tile.model_copy(update={"letter": spec.letter.upper()})
+                tile = tile.model_copy(update={"letter": spec.letter})
 
             result.append(
                 Placement(

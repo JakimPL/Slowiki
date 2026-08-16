@@ -1,105 +1,105 @@
 letters:
-  - symbol: a
+  - symbol: "A"
     value: 1
     category: standard
     count: 9
-  - symbol: b
+  - symbol: "B"
     value: 3
     category: standard
     count: 2
-  - symbol: c
+  - symbol: "C"
     value: 3
     category: standard
     count: 2
-  - symbol: d
+  - symbol: "D"
     value: 2
     category: standard
     count: 4
-  - symbol: e
+  - symbol: "E"
     value: 1
     category: standard
     count: 12
-  - symbol: f
+  - symbol: "F"
     value: 4
     category: standard
     count: 2
-  - symbol: g
+  - symbol: "G"
     value: 2
     category: standard
     count: 3
-  - symbol: h
+  - symbol: "H"
     value: 4
     category: standard
     count: 2
-  - symbol: i
+  - symbol: "I"
     value: 1
     category: standard
     count: 9
-  - symbol: j
+  - symbol: "J"
     value: 8
     category: standard
     count: 1
-  - symbol: k
+  - symbol: "K"
     value: 5
     category: standard
     count: 1
-  - symbol: l
+  - symbol: "L"
     value: 1
     category: standard
     count: 4
-  - symbol: m
+  - symbol: "M"
     value: 3
     category: standard
     count: 2
-  - symbol: n
+  - symbol: "N"
     value: 1
     category: standard
     count: 6
-  - symbol: o
+  - symbol: "O"
     value: 1
     category: standard
     count: 8
-  - symbol: p
+  - symbol: "P"
     value: 3
     category: standard
     count: 2
-  - symbol: q
+  - symbol: "Q"
     value: 10
     category: standard
     count: 1
-  - symbol: r
+  - symbol: "R"
     value: 1
     category: standard
     count: 6
-  - symbol: s
+  - symbol: "S"
     value: 1
     category: standard
     count: 4
-  - symbol: t
+  - symbol: "T"
     value: 1
     category: standard
     count: 6
-  - symbol: u
+  - symbol: "U"
     value: 1
     category: standard
     count: 4
-  - symbol: v
+  - symbol: "V"
     value: 4
     category: standard
     count: 2
-  - symbol: w
+  - symbol: "W"
     value: 4
     category: standard
     count: 2
-  - symbol: x
+  - symbol: "X"
     value: 8
     category: standard
     count: 1
-  - symbol: y
+  - symbol: "Y"
     value: 4
     category: standard
     count: 2
-  - symbol: z
+  - symbol: "Z"
     value: 10
     category: standard
     count: 1
