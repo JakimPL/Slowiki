@@ -1,6 +1,6 @@
 import pytest
 
-from wordcore.board.board import Bonus, BonusKind, Board
+from wordcore.board.board import Board, Bonus, BonusKind
 from wordcore.exceptions import IllegalMove, InvalidWord
 from wordcore.lexicon.lexicon import TextLexicon
 from wordcore.moves.action import Exchange
@@ -107,7 +107,11 @@ def test_anchor_requires_connection() -> None:
 def test_score_category_match() -> None:
     board = make_board(3, (None,) * 9)
     board = board.model_copy(
-        update={"bonuses": (None,) * 4 + (Bonus(kind=BonusKind.CATEGORY_MULTIPLIER, multiplier=3, category="red"),) + (None,) * 4}
+        update={
+            "bonuses": (None,) * 4
+            + (Bonus(kind=BonusKind.CATEGORY_MULTIPLIER, multiplier=3, category="red"),)
+            + (None,) * 4
+        }
     )
     board = board.with_tiles({board.index(1, 0): tile(1, "a", 1, "yellow")})
     placements = (Placement(tile=tile(2, "b", 5, "red"), row=1, column=1),)
@@ -119,7 +123,11 @@ def test_score_category_match() -> None:
 def test_score_word_multiplier() -> None:
     board = make_board(3, (None,) * 9)
     board = board.model_copy(
-        update={"bonuses": (None,) * 4 + (Bonus(kind=BonusKind.WORD_MULTIPLIER, multiplier=2),) + (None,) * 4}
+        update={
+            "bonuses": (None,) * 4
+            + (Bonus(kind=BonusKind.WORD_MULTIPLIER, multiplier=2),)
+            + (None,) * 4
+        }
     )
     board = board.with_tiles({board.index(1, 0): tile(1, "a", 1, "yellow")})
     placements = (Placement(tile=tile(2, "b", 2, "yellow"), row=1, column=1),)
@@ -131,7 +139,11 @@ def test_score_word_multiplier() -> None:
 def test_score_letter_multiplier() -> None:
     board = make_board(3, (None,) * 9)
     board = board.model_copy(
-        update={"bonuses": (None,) * 4 + (Bonus(kind=BonusKind.LETTER_MULTIPLIER, multiplier=3),) + (None,) * 4}
+        update={
+            "bonuses": (None,) * 4
+            + (Bonus(kind=BonusKind.LETTER_MULTIPLIER, multiplier=3),)
+            + (None,) * 4
+        }
     )
     board = board.with_tiles({board.index(1, 0): tile(1, "a", 1, "yellow")})
     placements = (Placement(tile=tile(2, "b", 2, "yellow"), row=1, column=1),)

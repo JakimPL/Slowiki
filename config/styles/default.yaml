@@ -1,0 +1,12 @@
+board_color: "#2f6f4f"
+text_color: "#1a1a1a"
+tile_colors:
+  yellow: "#e8c46a"
+  green: "#6aa84f"
+  blue: "#6fa8dc"
+  red: "#cc4125"
+  blank: "#f3f3f3"
+premium_colors:
+  word_multiplier: "#d9534f"
+  letter_multiplier: "#5bc0de"
+  category_multiplier: "#cc4125"

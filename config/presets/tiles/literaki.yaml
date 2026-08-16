@@ -1,0 +1,131 @@
+letters:
+  - symbol: a
+    value: 1
+    category: yellow
+    count: 9
+  - symbol: ą
+    value: 5
+    category: red
+    count: 1
+  - symbol: b
+    value: 3
+    category: blue
+    count: 2
+  - symbol: c
+    value: 2
+    category: green
+    count: 3
+  - symbol: ć
+    value: 5
+    category: red
+    count: 1
+  - symbol: d
+    value: 2
+    category: green
+    count: 3
+  - symbol: e
+    value: 1
+    category: yellow
+    count: 7
+  - symbol: ę
+    value: 5
+    category: red
+    count: 1
+  - symbol: f
+    value: 5
+    category: red
+    count: 1
+  - symbol: g
+    value: 3
+    category: blue
+    count: 2
+  - symbol: h
+    value: 3
+    category: blue
+    count: 2
+  - symbol: i
+    value: 1
+    category: yellow
+    count: 8
+  - symbol: j
+    value: 3
+    category: blue
+    count: 2
+  - symbol: k
+    value: 2
+    category: green
+    count: 3
+  - symbol: l
+    value: 2
+    category: green
+    count: 3
+  - symbol: ł
+    value: 3
+    category: blue
+    count: 2
+  - symbol: m
+    value: 2
+    category: green
+    count: 3
+  - symbol: n
+    value: 1
+    category: yellow
+    count: 5
+  - symbol: ń
+    value: 5
+    category: red
+    count: 1
+  - symbol: o
+    value: 1
+    category: yellow
+    count: 6
+  - symbol: ó
+    value: 5
+    category: red
+    count: 1
+  - symbol: p
+    value: 2
+    category: green
+    count: 3
+  - symbol: r
+    value: 1
+    category: yellow
+    count: 4
+  - symbol: s
+    value: 1
+    category: yellow
+    count: 4
+  - symbol: ś
+    value: 5
+    category: red
+    count: 1
+  - symbol: t
+    value: 2
+    category: green
+    count: 3
+  - symbol: u
+    value: 3
+    category: blue
+    count: 2
+  - symbol: w
+    value: 1
+    category: yellow
+    count: 4
+  - symbol: y
+    value: 2
+    category: green
+    count: 4
+  - symbol: z
+    value: 1
+    category: yellow
+    count: 5
+  - symbol: ź
+    value: 5
+    category: red
+    count: 1
+  - symbol: ż
+    value: 5
+    category: red
+    count: 1
+blanks: 2
+rack_size: 7

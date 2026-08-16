@@ -1,4 +1,4 @@
-from wordcore.board.board import Bonus, BonusKind, Board
+from wordcore.board.board import Board, Bonus, BonusKind
 from wordcore.models.base import BaseFrozen
 from wordcore.rules.words import FormedWord
 from wordcore.tiles.tile import Tile

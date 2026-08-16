@@ -1,0 +1,246 @@
+size: 15
+bonuses:
+  - kind: word_multiplier
+    multiplier: 3
+    row: 0
+    column: 0
+  - kind: word_multiplier
+    multiplier: 3
+    row: 0
+    column: 7
+  - kind: word_multiplier
+    multiplier: 3
+    row: 0
+    column: 14
+  - kind: word_multiplier
+    multiplier: 3
+    row: 7
+    column: 0
+  - kind: word_multiplier
+    multiplier: 3
+    row: 7
+    column: 14
+  - kind: word_multiplier
+    multiplier: 3
+    row: 14
+    column: 0
+  - kind: word_multiplier
+    multiplier: 3
+    row: 14
+    column: 7
+  - kind: word_multiplier
+    multiplier: 3
+    row: 14
+    column: 14
+  - kind: word_multiplier
+    multiplier: 2
+    row: 1
+    column: 1
+  - kind: word_multiplier
+    multiplier: 2
+    row: 1
+    column: 13
+  - kind: word_multiplier
+    multiplier: 2
+    row: 2
+    column: 2
+  - kind: word_multiplier
+    multiplier: 2
+    row: 2
+    column: 12
+  - kind: word_multiplier
+    multiplier: 2
+    row: 3
+    column: 3
+  - kind: word_multiplier
+    multiplier: 2
+    row: 3
+    column: 11
+  - kind: word_multiplier
+    multiplier: 2
+    row: 4
+    column: 4
+  - kind: word_multiplier
+    multiplier: 2
+    row: 4
+    column: 10
+  - kind: word_multiplier
+    multiplier: 2
+    row: 7
+    column: 7
+  - kind: word_multiplier
+    multiplier: 2
+    row: 10
+    column: 4
+  - kind: word_multiplier
+    multiplier: 2
+    row: 10
+    column: 10
+  - kind: word_multiplier
+    multiplier: 2
+    row: 11
+    column: 3
+  - kind: word_multiplier
+    multiplier: 2
+    row: 11
+    column: 11
+  - kind: word_multiplier
+    multiplier: 2
+    row: 12
+    column: 2
+  - kind: word_multiplier
+    multiplier: 2
+    row: 12
+    column: 12
+  - kind: word_multiplier
+    multiplier: 2
+    row: 13
+    column: 1
+  - kind: word_multiplier
+    multiplier: 2
+    row: 13
+    column: 13
+  - kind: letter_multiplier
+    multiplier: 3
+    row: 1
+    column: 5
+  - kind: letter_multiplier
+    multiplier: 3
+    row: 1
+    column: 9
+  - kind: letter_multiplier
+    multiplier: 3
+    row: 5
+    column: 1
+  - kind: letter_multiplier
+    multiplier: 3
+    row: 5
+    column: 5
+  - kind: letter_multiplier
+    multiplier: 3
+    row: 5
+    column: 9
+  - kind: letter_multiplier
+    multiplier: 3
+    row: 5
+    column: 13
+  - kind: letter_multiplier
+    multiplier: 3
+    row: 9
+    column: 1
+  - kind: letter_multiplier
+    multiplier: 3
+    row: 9
+    column: 5
+  - kind: letter_multiplier
+    multiplier: 3
+    row: 9
+    column: 9
+  - kind: letter_multiplier
+    multiplier: 3
+    row: 9
+    column: 13
+  - kind: letter_multiplier
+    multiplier: 3
+    row: 13
+    column: 5
+  - kind: letter_multiplier
+    multiplier: 3
+    row: 13
+    column: 9
+  - kind: letter_multiplier
+    multiplier: 2
+    row: 0
+    column: 3
+  - kind: letter_multiplier
+    multiplier: 2
+    row: 0
+    column: 11
+  - kind: letter_multiplier
+    multiplier: 2
+    row: 2
+    column: 6
+  - kind: letter_multiplier
+    multiplier: 2
+    row: 2
+    column: 8
+  - kind: letter_multiplier
+    multiplier: 2
+    row: 3
+    column: 0
+  - kind: letter_multiplier
+    multiplier: 2
+    row: 3
+    column: 7
+  - kind: letter_multiplier
+    multiplier: 2
+    row: 3
+    column: 14
+  - kind: letter_multiplier
+    multiplier: 2
+    row: 6
+    column: 2
+  - kind: letter_multiplier
+    multiplier: 2
+    row: 6
+    column: 6
+  - kind: letter_multiplier
+    multiplier: 2
+    row: 6
+    column: 8
+  - kind: letter_multiplier
+    multiplier: 2
+    row: 6
+    column: 12
+  - kind: letter_multiplier
+    multiplier: 2
+    row: 7
+    column: 3
+  - kind: letter_multiplier
+    multiplier: 2
+    row: 7
+    column: 11
+  - kind: letter_multiplier
+    multiplier: 2
+    row: 8
+    column: 2
+  - kind: letter_multiplier
+    multiplier: 2
+    row: 8
+    column: 6
+  - kind: letter_multiplier
+    multiplier: 2
+    row: 8
+    column: 8
+  - kind: letter_multiplier
+    multiplier: 2
+    row: 8
+    column: 12
+  - kind: letter_multiplier
+    multiplier: 2
+    row: 11
+    column: 0
+  - kind: letter_multiplier
+    multiplier: 2
+    row: 11
+    column: 7
+  - kind: letter_multiplier
+    multiplier: 2
+    row: 11
+    column: 14
+  - kind: letter_multiplier
+    multiplier: 2
+    row: 12
+    column: 6
+  - kind: letter_multiplier
+    multiplier: 2
+    row: 12
+    column: 8
+  - kind: letter_multiplier
+    multiplier: 2
+    row: 14
+    column: 3
+  - kind: letter_multiplier
+    multiplier: 2
+    row: 14
+    column: 11

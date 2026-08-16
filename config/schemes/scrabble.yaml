@@ -1,0 +1,17 @@
+game: scrabble
+board: scrabble
+tiles: scrabble_en
+dictionary: english
+min_players: 2
+max_players: 4
+validate_on_play: true
+premoves: true
+exchange_limit: null
+pass_allowed: true
+time:
+  per_turn_seconds: null
+  increment_seconds: 0
+  total_seconds: null
+pass_end_limit: null
+scoreless_end_limit: 6
+bingo_bonus: 50
