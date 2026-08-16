@@ -1,3 +1,5 @@
+from pathlib import Path
+from string import Template
 from typing import Final
 
 from wordcore.board.board import Board, Bonus, BonusKind
@@ -5,61 +7,60 @@ from wordcore.tiles.tile import Tile
 from wordtable.config import StyleConfig
 
 CELL: Final = 40
+_TEMPLATES_DIR: Final = Path(__file__).resolve().parent / "templates"
+_BOARD_TEMPLATE = Template((_TEMPLATES_DIR / "board.svg").read_text(encoding="utf-8"))
+_CELL_TEMPLATE = Template((_TEMPLATES_DIR / "cell.svg").read_text(encoding="utf-8"))
+_TILE_TEMPLATE = Template((_TEMPLATES_DIR / "tile.svg").read_text(encoding="utf-8"))
 
 
 def render_board(board: Board, style: StyleConfig) -> str:
-    size = board.size
-    extent = size * CELL
-    parts = [
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="{extent}" height="{extent}" '
-        f'viewBox="0 0 {extent} {extent}">',
-        f'<rect width="{extent}" height="{extent}" fill="{style.board_color}"/>',
-    ]
-    for row in range(size):
-        for column in range(size):
-            x = column * CELL
-            y = row * CELL
-            fill = _bonus_fill(board.bonus_at(row, column), style)
-            parts.append(
-                f'<rect x="{x}" y="{y}" width="{CELL}" height="{CELL}" fill="{fill}" '
-                f'stroke="#1a1a1a" stroke-width="1"/>'
-            )
-            bonus = board.bonus_at(row, column)
-            label = _bonus_label(bonus)
-            if label:
-                parts.append(
-                    f'<text x="{x + CELL // 2}" y="{y + CELL // 2}" text-anchor="middle" '
-                    f'dominant-baseline="middle" font-size="12" fill="{style.text_color}">'
-                    f"{label}</text>"
-                )
-            if row == board.center() and column == board.center():
-                parts.append(
-                    f'<text x="{x + CELL // 2}" y="{y + CELL // 2}" text-anchor="middle" '
-                    f'dominant-baseline="middle" font-size="20" fill="{style.text_color}">★</text>'
-                )
-    parts.append("</svg>")
-    return "".join(parts)
+    extent = board.size * CELL
+    cells = "".join(
+        _render_cell(board, style, row, column)
+        for row in range(board.size)
+        for column in range(board.size)
+    )
+    return _BOARD_TEMPLATE.substitute(extent=extent, board_color=style.board_color, cells=cells)
 
 
 def render_tile(tile: Tile, style: StyleConfig) -> str:
     fill = style.tile_colors.get(tile.category, "#eeeeee")
-    letter = tile.letter if tile.letter else "*"
-    parts = [
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="{CELL}" height="{CELL}" '
-        f'viewBox="0 0 {CELL} {CELL}">',
-        f'<rect x="2" y="2" width="{CELL - 4}" height="{CELL - 4}" rx="6" fill="{fill}" '
-        f'stroke="#1a1a1a" stroke-width="1"/>',
-        f'<text x="{CELL // 2}" y="{CELL // 2 + 2}" text-anchor="middle" '
-        f'dominant-baseline="middle" font-size="20" fill="{style.text_color}">{letter}</text>',
-    ]
-    if tile.value:
-        parts.append(
-            f'<text x="{CELL - 6}" y="{CELL - 6}" text-anchor="end" '
-            f'dominant-baseline="middle" font-size="10" fill="{style.text_color}">'
-            f"{tile.value}</text>"
-        )
-    parts.append("</svg>")
-    return "".join(parts)
+    letter = tile.letter or "*"
+    value_text = (
+        f'<text x="{CELL - 6}" y="{CELL - 6}" text-anchor="end" '
+        f'dominant-baseline="middle" font-size="10" fill="{style.text_color}">{tile.value}</text>'
+        if tile.value
+        else ""
+    )
+    return _TILE_TEMPLATE.substitute(
+        cell=CELL,
+        inner=CELL - 4,
+        center=CELL // 2,
+        center_plus=CELL // 2 + 2,
+        fill=fill,
+        text_color=style.text_color,
+        letter=letter,
+        value_text=value_text,
+    )
+
+
+def _render_cell(board: Board, style: StyleConfig, row: int, column: int) -> str:
+    x = column * CELL
+    y = row * CELL
+    fill = _bonus_fill(board.bonus_at(row, column), style)
+    is_center = row == board.center() and column == board.center()
+    text = _cell_text(board.bonus_at(row, column), style, x, y, is_center)
+    return _CELL_TEMPLATE.substitute(cell=CELL, x=x, y=y, fill=fill, text=text)
+
+
+def _cell_text(bonus: Bonus | None, style: StyleConfig, x: int, y: int, is_center: bool) -> str:
+    label = "★" if is_center else _bonus_label(bonus)
+    if not label:
+        return ""
+    return (
+        f'<text x="{x + CELL // 2}" y="{y + CELL // 2}" text-anchor="middle" '
+        f'dominant-baseline="middle" font-size="20" fill="{style.text_color}">{label}</text>'
+    )
 
 
 def _bonus_fill(bonus: Bonus | None, style: StyleConfig) -> str:

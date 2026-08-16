@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="$cell" height="$cell" viewBox="0 0 $cell $cell">
+<rect x="2" y="2" width="$inner" height="$inner" rx="6" fill="$fill" stroke="#1a1a1a" stroke-width="1"/>
+<text x="$center" y="$center_plus" text-anchor="middle" dominant-baseline="middle" font-size="20" fill="$text_color">$letter</text>
+$value_text
+</svg>

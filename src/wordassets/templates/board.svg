@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="$extent" height="$extent" viewBox="0 0 $extent $extent">
+<rect width="$extent" height="$extent" fill="$board_color"/>
+$cells
+</svg>

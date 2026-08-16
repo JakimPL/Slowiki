@@ -3,441 +3,115 @@ bonuses:
   - kind: category_multiplier
     multiplier: 3
     category: red
-    row: 0
-    column: 0
-  - kind: category_multiplier
-    multiplier: 3
-    category: red
-    row: 0
-    column: 7
-  - kind: category_multiplier
-    multiplier: 3
-    category: red
-    row: 0
-    column: 14
-  - kind: category_multiplier
-    multiplier: 3
-    category: red
-    row: 1
-    column: 6
-  - kind: category_multiplier
-    multiplier: 3
-    category: red
-    row: 1
-    column: 8
-  - kind: category_multiplier
-    multiplier: 3
-    category: red
-    row: 6
-    column: 1
-  - kind: category_multiplier
-    multiplier: 3
-    category: red
-    row: 6
-    column: 13
-  - kind: category_multiplier
-    multiplier: 3
-    category: red
-    row: 7
-    column: 0
-  - kind: category_multiplier
-    multiplier: 3
-    category: red
-    row: 7
-    column: 7
-  - kind: category_multiplier
-    multiplier: 3
-    category: red
-    row: 7
-    column: 14
-  - kind: category_multiplier
-    multiplier: 3
-    category: red
-    row: 8
-    column: 1
-  - kind: category_multiplier
-    multiplier: 3
-    category: red
-    row: 8
-    column: 13
-  - kind: category_multiplier
-    multiplier: 3
-    category: red
-    row: 13
-    column: 6
-  - kind: category_multiplier
-    multiplier: 3
-    category: red
-    row: 13
-    column: 8
-  - kind: category_multiplier
-    multiplier: 3
-    category: red
-    row: 14
-    column: 0
-  - kind: category_multiplier
-    multiplier: 3
-    category: red
-    row: 14
-    column: 7
-  - kind: category_multiplier
-    multiplier: 3
-    category: red
-    row: 14
-    column: 14
+    positions:
+      - [0, 0]
+      - [0, 7]
+      - [0, 14]
+      - [1, 6]
+      - [1, 8]
+      - [6, 1]
+      - [6, 13]
+      - [7, 0]
+      - [7, 7]
+      - [7, 14]
+      - [8, 1]
+      - [8, 13]
+      - [13, 6]
+      - [13, 8]
+      - [14, 0]
+      - [14, 7]
+      - [14, 14]
   - kind: category_multiplier
     multiplier: 3
     category: green
-    row: 0
-    column: 5
-  - kind: category_multiplier
-    multiplier: 3
-    category: green
-    row: 0
-    column: 9
-  - kind: category_multiplier
-    multiplier: 3
-    category: green
-    row: 1
-    column: 4
-  - kind: category_multiplier
-    multiplier: 3
-    category: green
-    row: 1
-    column: 10
-  - kind: category_multiplier
-    multiplier: 3
-    category: green
-    row: 2
-    column: 3
-  - kind: category_multiplier
-    multiplier: 3
-    category: green
-    row: 2
-    column: 11
-  - kind: category_multiplier
-    multiplier: 3
-    category: green
-    row: 3
-    column: 2
-  - kind: category_multiplier
-    multiplier: 3
-    category: green
-    row: 3
-    column: 12
-  - kind: category_multiplier
-    multiplier: 3
-    category: green
-    row: 4
-    column: 1
-  - kind: category_multiplier
-    multiplier: 3
-    category: green
-    row: 4
-    column: 13
-  - kind: category_multiplier
-    multiplier: 3
-    category: green
-    row: 5
-    column: 0
-  - kind: category_multiplier
-    multiplier: 3
-    category: green
-    row: 5
-    column: 14
-  - kind: category_multiplier
-    multiplier: 3
-    category: green
-    row: 9
-    column: 0
-  - kind: category_multiplier
-    multiplier: 3
-    category: green
-    row: 9
-    column: 14
-  - kind: category_multiplier
-    multiplier: 3
-    category: green
-    row: 10
-    column: 1
-  - kind: category_multiplier
-    multiplier: 3
-    category: green
-    row: 10
-    column: 13
-  - kind: category_multiplier
-    multiplier: 3
-    category: green
-    row: 11
-    column: 2
-  - kind: category_multiplier
-    multiplier: 3
-    category: green
-    row: 11
-    column: 12
-  - kind: category_multiplier
-    multiplier: 3
-    category: green
-    row: 12
-    column: 3
-  - kind: category_multiplier
-    multiplier: 3
-    category: green
-    row: 12
-    column: 11
-  - kind: category_multiplier
-    multiplier: 3
-    category: green
-    row: 13
-    column: 4
-  - kind: category_multiplier
-    multiplier: 3
-    category: green
-    row: 13
-    column: 10
-  - kind: category_multiplier
-    multiplier: 3
-    category: green
-    row: 14
-    column: 5
-  - kind: category_multiplier
-    multiplier: 3
-    category: green
-    row: 14
-    column: 9
+    positions:
+      - [0, 5]
+      - [0, 9]
+      - [1, 4]
+      - [1, 10]
+      - [2, 3]
+      - [2, 11]
+      - [3, 2]
+      - [3, 12]
+      - [4, 1]
+      - [4, 13]
+      - [5, 0]
+      - [5, 14]
+      - [9, 0]
+      - [9, 14]
+      - [10, 1]
+      - [10, 13]
+      - [11, 2]
+      - [11, 12]
+      - [12, 3]
+      - [12, 11]
+      - [13, 4]
+      - [13, 10]
+      - [14, 5]
+      - [14, 9]
   - kind: category_multiplier
     multiplier: 3
     category: blue
-    row: 5
-    column: 7
-  - kind: category_multiplier
-    multiplier: 3
-    category: blue
-    row: 6
-    column: 6
-  - kind: category_multiplier
-    multiplier: 3
-    category: blue
-    row: 6
-    column: 8
-  - kind: category_multiplier
-    multiplier: 3
-    category: blue
-    row: 7
-    column: 5
-  - kind: category_multiplier
-    multiplier: 3
-    category: blue
-    row: 7
-    column: 9
-  - kind: category_multiplier
-    multiplier: 3
-    category: blue
-    row: 8
-    column: 6
-  - kind: category_multiplier
-    multiplier: 3
-    category: blue
-    row: 8
-    column: 8
-  - kind: category_multiplier
-    multiplier: 3
-    category: blue
-    row: 9
-    column: 7
+    positions:
+      - [5, 7]
+      - [6, 6]
+      - [6, 8]
+      - [7, 5]
+      - [7, 9]
+      - [8, 6]
+      - [8, 8]
+      - [9, 7]
   - kind: category_multiplier
     multiplier: 3
     category: yellow
-    row: 2
-    column: 7
-  - kind: category_multiplier
-    multiplier: 3
-    category: yellow
-    row: 3
-    column: 6
-  - kind: category_multiplier
-    multiplier: 3
-    category: yellow
-    row: 3
-    column: 8
-  - kind: category_multiplier
-    multiplier: 3
-    category: yellow
-    row: 4
-    column: 5
-  - kind: category_multiplier
-    multiplier: 3
-    category: yellow
-    row: 4
-    column: 9
-  - kind: category_multiplier
-    multiplier: 3
-    category: yellow
-    row: 5
-    column: 4
-  - kind: category_multiplier
-    multiplier: 3
-    category: yellow
-    row: 5
-    column: 10
-  - kind: category_multiplier
-    multiplier: 3
-    category: yellow
-    row: 6
-    column: 3
-  - kind: category_multiplier
-    multiplier: 3
-    category: yellow
-    row: 6
-    column: 11
-  - kind: category_multiplier
-    multiplier: 3
-    category: yellow
-    row: 7
-    column: 2
-  - kind: category_multiplier
-    multiplier: 3
-    category: yellow
-    row: 7
-    column: 12
-  - kind: category_multiplier
-    multiplier: 3
-    category: yellow
-    row: 8
-    column: 3
-  - kind: category_multiplier
-    multiplier: 3
-    category: yellow
-    row: 8
-    column: 11
-  - kind: category_multiplier
-    multiplier: 3
-    category: yellow
-    row: 9
-    column: 4
-  - kind: category_multiplier
-    multiplier: 3
-    category: yellow
-    row: 9
-    column: 10
-  - kind: category_multiplier
-    multiplier: 3
-    category: yellow
-    row: 10
-    column: 5
-  - kind: category_multiplier
-    multiplier: 3
-    category: yellow
-    row: 10
-    column: 9
-  - kind: category_multiplier
-    multiplier: 3
-    category: yellow
-    row: 11
-    column: 6
-  - kind: category_multiplier
-    multiplier: 3
-    category: yellow
-    row: 11
-    column: 8
-  - kind: category_multiplier
-    multiplier: 3
-    category: yellow
-    row: 12
-    column: 7
+    positions:
+      - [2, 7]
+      - [3, 6]
+      - [3, 8]
+      - [4, 5]
+      - [4, 9]
+      - [5, 4]
+      - [5, 10]
+      - [6, 3]
+      - [6, 11]
+      - [7, 2]
+      - [7, 12]
+      - [8, 3]
+      - [8, 11]
+      - [9, 4]
+      - [9, 10]
+      - [10, 5]
+      - [10, 9]
+      - [11, 6]
+      - [11, 8]
+      - [12, 7]
   - kind: word_multiplier
     multiplier: 2
-    row: 2
-    column: 5
-  - kind: word_multiplier
-    multiplier: 2
-    row: 2
-    column: 9
-  - kind: word_multiplier
-    multiplier: 2
-    row: 3
-    column: 4
-  - kind: word_multiplier
-    multiplier: 2
-    row: 3
-    column: 10
-  - kind: word_multiplier
-    multiplier: 2
-    row: 4
-    column: 3
-  - kind: word_multiplier
-    multiplier: 2
-    row: 4
-    column: 11
-  - kind: word_multiplier
-    multiplier: 2
-    row: 5
-    column: 2
-  - kind: word_multiplier
-    multiplier: 2
-    row: 5
-    column: 12
-  - kind: word_multiplier
-    multiplier: 2
-    row: 9
-    column: 2
-  - kind: word_multiplier
-    multiplier: 2
-    row: 9
-    column: 12
-  - kind: word_multiplier
-    multiplier: 2
-    row: 10
-    column: 3
-  - kind: word_multiplier
-    multiplier: 2
-    row: 10
-    column: 11
-  - kind: word_multiplier
-    multiplier: 2
-    row: 11
-    column: 4
-  - kind: word_multiplier
-    multiplier: 2
-    row: 11
-    column: 10
-  - kind: word_multiplier
-    multiplier: 2
-    row: 12
-    column: 5
-  - kind: word_multiplier
-    multiplier: 2
-    row: 12
-    column: 9
+    positions:
+      - [2, 5]
+      - [2, 9]
+      - [3, 4]
+      - [3, 10]
+      - [4, 3]
+      - [4, 11]
+      - [5, 2]
+      - [5, 12]
+      - [9, 2]
+      - [9, 12]
+      - [10, 3]
+      - [10, 11]
+      - [11, 4]
+      - [11, 10]
+      - [12, 5]
+      - [12, 9]
   - kind: word_multiplier
     multiplier: 3
-    row: 0
-    column: 2
-  - kind: word_multiplier
-    multiplier: 3
-    row: 0
-    column: 12
-  - kind: word_multiplier
-    multiplier: 3
-    row: 2
-    column: 0
-  - kind: word_multiplier
-    multiplier: 3
-    row: 2
-    column: 14
-  - kind: word_multiplier
-    multiplier: 3
-    row: 12
-    column: 0
-  - kind: word_multiplier
-    multiplier: 3
-    row: 12
-    column: 14
-  - kind: word_multiplier
-    multiplier: 3
-    row: 14
-    column: 2
-  - kind: word_multiplier
-    multiplier: 3
-    row: 14
-    column: 12
+    positions:
+      - [0, 2]
+      - [0, 12]
+      - [2, 0]
+      - [2, 14]
+      - [12, 0]
+      - [12, 14]
+      - [14, 2]
+      - [14, 12]
