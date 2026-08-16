@@ -1,15 +1,15 @@
 import random
 
 import pytest
+from tests.games.trivial import TrivialRules
 
-from wordcore.board.board import Bonus, BonusKind, Board
-from wordcore.tiles.tile import LetterSpec, Tile, TilePreset
-from wordcore.tiles.bag import build_tiles, deal_racks, shuffled_bag
+from wordcore.board.board import Board, Bonus, BonusKind
+from wordcore.exceptions import IllegalMove, NotYourTurn, StalePosition
+from wordcore.games.game import Game
 from wordcore.lexicon.lexicon import TextLexicon
 from wordcore.moves.action import Move, Pass, Play, PlayPlacement
-from wordcore.games.game import Game
-from wordcore.exceptions import IllegalMove, NotYourTurn, StalePosition
-from tests.games.trivial import TrivialRules
+from wordcore.tiles.bag import build_tiles, deal_racks, shuffled_bag
+from wordcore.tiles.tile import LetterSpec, Tile, TilePreset
 
 
 def make_board() -> Board:

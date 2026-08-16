@@ -11,11 +11,9 @@ class WordVerdict(BaseFrozen):
 
 
 class Lexicon(Protocol):
-    def judge(self, word: str) -> WordVerdict:
-        ...
+    def judge(self, word: str) -> WordVerdict: ...
 
-    def has_prefix(self, prefix: str) -> bool:
-        ...
+    def has_prefix(self, prefix: str) -> bool: ...
 
 
 class TextLexicon(BaseFrozen):
