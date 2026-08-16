@@ -93,7 +93,14 @@ root_packages = [
 name = "Core knows no subsystem"
 type = "forbidden"
 source_modules = ["wordcore"]
-forbidden_modules = ["wordgames", "wordserver", "wordtable", "wordassets", "lexica", "wordbots"]
+forbidden_modules = [
+    "wordgames",
+    "wordserver",
+    "wordtable",
+    "wordassets",
+    "lexica",
+    "wordbots",
+]
 
 [[tool.importlinter.contracts]]
 name = "Rules are transport-free"
