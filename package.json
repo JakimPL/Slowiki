@@ -1,0 +1,5 @@
+{
+  "name": "literabble",
+  "private": true,
+  "workspaces": ["frontend"]
+}

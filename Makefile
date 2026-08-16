@@ -27,4 +27,5 @@ assets:
 	uv run python -m wordassets.cli render
 
 frontend:
-	cd frontend && npm install && npm run build
+	npm install
+	npm run build --workspace frontend
