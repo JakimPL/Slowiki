@@ -1,7 +1,8 @@
 from pathlib import Path
-from typing import Any
+from typing import Annotated, Any
 
 import yaml
+from pydantic import Field
 
 from lexica.names import DictionaryName
 from wordcore.board.preset import BoardPreset
@@ -54,6 +55,59 @@ class StyleConfig(BaseFrozen):
     premium_colors: dict[str, str]
 
 
+HexColor = Annotated[str, Field(pattern=r"^#[0-9A-Fa-f]{6}$")]
+
+
+class ChromeTokens(BaseFrozen):
+    surface: HexColor
+    panel: HexColor
+    edge: HexColor
+    text: HexColor
+    muted: HexColor
+
+
+class BoardTokens(BaseFrozen):
+    surface: HexColor
+    grid: HexColor
+    frame: HexColor
+    star: HexColor
+
+
+class PremiumTokens(BaseFrozen):
+    fill: HexColor
+    label: HexColor
+
+
+class TileTokens(BaseFrozen):
+    face: HexColor
+    edge: HexColor
+    text: HexColor
+    bands: dict[str, HexColor]
+
+
+class AccentTokens(BaseFrozen):
+    primary: HexColor
+    on_primary: HexColor
+    danger: HexColor
+    premove: HexColor
+
+
+class ThemeTokens(BaseFrozen):
+    chrome: ChromeTokens
+    board: BoardTokens
+    premiums: dict[str, PremiumTokens]
+    category_premiums: dict[str, PremiumTokens]
+    tiles: TileTokens
+    accents: AccentTokens
+
+
+class StyleTokens(BaseFrozen):
+    name: str
+    font_family: str
+    light: ThemeTokens
+    dark: ThemeTokens
+
+
 class Configuration(BaseFrozen):
     service: ServiceConfig
     scheme: str
@@ -81,10 +135,25 @@ def load_tile_preset(directory: Path, name: str) -> TilePreset:
     return TilePreset.model_validate({**data, "name": name})
 
 
-def load_style(directory: Path, name: str) -> StyleConfig:
+def load_style_tokens(directory: Path, name: str) -> StyleTokens:
     path = directory / configuration_file(CONFIGURATION_STYLES_PATH, name)
     data = _read_yaml(path)
-    return StyleConfig.model_validate({**data, "name": name})
+    return StyleTokens.model_validate({**data, "name": name})
+
+
+def legacy_style(tokens: StyleTokens) -> StyleConfig:
+    light = tokens.light
+    return StyleConfig(
+        name=tokens.name,
+        board_color=light.board.surface,
+        text_color=light.chrome.text,
+        tile_colors={**light.tiles.bands, "blank": light.tiles.face},
+        premium_colors={
+            "word_multiplier": light.premiums["word_3"].fill,
+            "letter_multiplier": light.premiums["letter_3"].fill,
+            "category_multiplier": light.category_premiums["red"].fill,
+        },
+    )
 
 
 def _read_yaml(path: Path) -> dict[str, Any]:

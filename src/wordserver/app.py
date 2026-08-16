@@ -25,7 +25,7 @@ from wordserver.registry import TableMeta, TableRegistry
 from wordserver.session import TableSession
 from wordtable.build import build_rules
 from wordtable.catalogue import offerings, resolve_scheme
-from wordtable.config import load_style, read_config
+from wordtable.config import StyleTokens, legacy_style, load_style_tokens, read_config
 from wordtable.lexicons import LexiconService
 from wordtable.paths import CONFIG_DIR, FRONTEND_DIST_DIR, RUN_CONFIG_FILE
 
@@ -53,7 +53,8 @@ def _new_join_code() -> str:
 
 def create_app() -> FastAPI:
     configuration = read_config(RUN_CONFIG_FILE)
-    style = load_style(CONFIG_DIR, configuration.style)
+    tokens = load_style_tokens(CONFIG_DIR, configuration.style)
+    style = legacy_style(tokens)
     service = LexiconService()
     registry = TableRegistry()
 
@@ -89,6 +90,10 @@ def create_app() -> FastAPI:
     @app.get("/offerings")
     def list_offerings() -> OfferingsResponse:
         return OfferingsResponse(offerings=offerings(CONFIG_DIR))
+
+    @app.get("/style")
+    def read_style() -> StyleTokens:
+        return tokens
 
     @app.post("/tables", responses={404: {"model": ErrorBody}, 422: {"model": ErrorBody}})
     async def create_table(body: TableRequest) -> TableAdmission:

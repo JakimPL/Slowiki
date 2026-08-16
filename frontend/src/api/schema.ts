@@ -38,6 +38,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/style": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Style */
+        get: operations["read_style_style_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/tables": {
         parameters: {
             query?: never;
@@ -127,6 +144,17 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AccentTokens */
+        AccentTokens: {
+            /** Danger */
+            danger: string;
+            /** On Primary */
+            on_primary: string;
+            /** Premove */
+            premove: string;
+            /** Primary */
+            primary: string;
+        };
         /** Board */
         Board: {
             /** Bonuses */
@@ -135,6 +163,17 @@ export interface components {
             size: number;
             /** Tiles */
             tiles: (components["schemas"]["Tile"] | null)[];
+        };
+        /** BoardTokens */
+        BoardTokens: {
+            /** Frame */
+            frame: string;
+            /** Grid */
+            grid: string;
+            /** Star */
+            star: string;
+            /** Surface */
+            surface: string;
         };
         /** Bonus */
         Bonus: {
@@ -149,6 +188,19 @@ export interface components {
          * @enum {string}
          */
         BonusKind: "word_multiplier" | "letter_multiplier" | "category_multiplier";
+        /** ChromeTokens */
+        ChromeTokens: {
+            /** Edge */
+            edge: string;
+            /** Muted */
+            muted: string;
+            /** Panel */
+            panel: string;
+            /** Surface */
+            surface: string;
+            /** Text */
+            text: string;
+        };
         /** ErrorBody */
         ErrorBody: {
             code: components["schemas"]["ErrorCode"];
@@ -290,6 +342,13 @@ export interface components {
             /** Turn Number */
             turn_number: number;
         };
+        /** PremiumTokens */
+        PremiumTokens: {
+            /** Fill */
+            fill: string;
+            /** Label */
+            label: string;
+        };
         /** Reorder */
         Reorder: {
             /**
@@ -316,6 +375,15 @@ export interface components {
             tile_colors: {
                 [key: string]: string;
             };
+        };
+        /** StyleTokens */
+        StyleTokens: {
+            dark: components["schemas"]["ThemeTokens"];
+            /** Font Family */
+            font_family: string;
+            light: components["schemas"]["ThemeTokens"];
+            /** Name */
+            name: string;
         };
         /** TableAdmission */
         TableAdmission: {
@@ -347,6 +415,21 @@ export interface components {
             style: components["schemas"]["StyleConfig"];
             view: components["schemas"]["PositionView"];
         };
+        /** ThemeTokens */
+        ThemeTokens: {
+            accents: components["schemas"]["AccentTokens"];
+            board: components["schemas"]["BoardTokens"];
+            /** Category Premiums */
+            category_premiums: {
+                [key: string]: components["schemas"]["PremiumTokens"];
+            };
+            chrome: components["schemas"]["ChromeTokens"];
+            /** Premiums */
+            premiums: {
+                [key: string]: components["schemas"]["PremiumTokens"];
+            };
+            tiles: components["schemas"]["TileTokens"];
+        };
         /** Tile */
         Tile: {
             /** Blank */
@@ -359,6 +442,19 @@ export interface components {
             letter: string;
             /** Value */
             value: number;
+        };
+        /** TileTokens */
+        TileTokens: {
+            /** Bands */
+            bands: {
+                [key: string]: string;
+            };
+            /** Edge */
+            edge: string;
+            /** Face */
+            face: string;
+            /** Text */
+            text: string;
         };
         /** ValidationError */
         ValidationError: {
@@ -418,6 +514,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OfferingsResponse"];
+                };
+            };
+        };
+    };
+    read_style_style_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StyleTokens"];
                 };
             };
         };

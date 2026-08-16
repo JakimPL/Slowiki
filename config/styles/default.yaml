@@ -1,12 +1,105 @@
-board_color: "#2f6f4f"
-text_color: "#1a1a1a"
-tile_colors:
-  yellow: "#e8c46a"
-  green: "#6aa84f"
-  blue: "#6fa8dc"
-  red: "#cc4125"
-  blank: "#f3f3f3"
-premium_colors:
-  word_multiplier: "#d9534f"
-  letter_multiplier: "#5bc0de"
-  category_multiplier: "#cc4125"
+font_family: Lato
+light:
+  chrome:
+    surface: "#F3EDDF"
+    panel: "#E9E1CD"
+    edge: "#D8CDB2"
+    text: "#2B2419"
+    muted: "#7A6C55"
+  board:
+    surface: "#EDE5D1"
+    grid: "#D9CEB6"
+    frame: "#7A5F44"
+    star: "#8F3A24"
+  premiums:
+    word_2:
+      fill: "#D8CBA8"
+      label: "#6C5B39"
+    word_3:
+      fill: "#7B6142"
+      label: "#F3EBDA"
+    letter_2:
+      fill: "#C4D5DE"
+      label: "#38607A"
+    letter_3:
+      fill: "#8FB3C4"
+      label: "#1F455C"
+  category_premiums:
+    yellow:
+      fill: "#EBD188"
+      label: "#8A6A14"
+    green:
+      fill: "#C9D4A6"
+      label: "#4E6626"
+    blue:
+      fill: "#BACFDD"
+      label: "#2F5A78"
+    red:
+      fill: "#E3B8A8"
+      label: "#8F3A24"
+  tiles:
+    face: "#FAF3E1"
+    edge: "#CFC3A4"
+    text: "#241E14"
+    bands:
+      yellow: "#D9A226"
+      green: "#67903F"
+      blue: "#38719B"
+      red: "#AC4029"
+  accents:
+    primary: "#7C3F4E"
+    on_primary: "#FCF7EC"
+    danger: "#9A2F1F"
+    premove: "#6D5E8E"
+dark:
+  chrome:
+    surface: "#211B13"
+    panel: "#2E271C"
+    edge: "#3E3526"
+    text: "#EDE4D0"
+    muted: "#9A8D74"
+  board:
+    surface: "#322A1E"
+    grid: "#453B2B"
+    frame: "#4A3A29"
+    star: "#E8967E"
+  premiums:
+    word_2:
+      fill: "#4A4030"
+      label: "#C8B98F"
+    word_3:
+      fill: "#6B5334"
+      label: "#EFE3C8"
+    letter_2:
+      fill: "#24394A"
+      label: "#8FC0DE"
+    letter_3:
+      fill: "#2F4A5E"
+      label: "#BFDCEE"
+  category_premiums:
+    yellow:
+      fill: "#4E3E10"
+      label: "#E5C05C"
+    green:
+      fill: "#364219"
+      label: "#B7CC7E"
+    blue:
+      fill: "#22394A"
+      label: "#8FC0DE"
+    red:
+      fill: "#4C2417"
+      label: "#E8967E"
+  tiles:
+    face: "#F2E7CB"
+    edge: "#B7A784"
+    text: "#241C10"
+    bands:
+      yellow: "#E0AB2B"
+      green: "#7BA34C"
+      blue: "#4E86B4"
+      red: "#C04E33"
+  accents:
+    primary: "#B36A79"
+    on_primary: "#2A161B"
+    danger: "#D96A50"
+    premove: "#8E7FB5"

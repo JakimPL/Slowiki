@@ -4,7 +4,12 @@ from pathlib import Path
 from wordassets.svg import render_board, render_tile
 from wordcore.board.preset import board_from_preset
 from wordcore.tiles.bag import build_tiles
-from wordtable.config import load_board_preset, load_style, load_tile_preset
+from wordtable.config import (
+    legacy_style,
+    load_board_preset,
+    load_style_tokens,
+    load_tile_preset,
+)
 from wordtable.paths import CONFIG_DIR, PROJECT_ROOT
 
 
@@ -24,7 +29,7 @@ def main(argv: list[str] | None = None) -> None:
     args = build_parser().parse_args(argv)
     if args.command != "render":
         return
-    style = load_style(args.config, args.style)
+    style = legacy_style(load_style_tokens(args.config, args.style))
     board = board_from_preset(load_board_preset(args.config, args.board))
     tiles = load_tile_preset(args.config, args.tiles)
     output = args.output

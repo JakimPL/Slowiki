@@ -1,6 +1,9 @@
+import pytest
+from pydantic import ValidationError
+
 from wordcore.board.preset import board_from_preset
 from wordtable.catalogue import list_schemes, resolve_scheme
-from wordtable.config import load_style, read_config
+from wordtable.config import StyleTokens, legacy_style, load_style_tokens, read_config
 from wordtable.paths import CONFIG_DIR
 
 
@@ -37,7 +40,42 @@ def test_solo_tile_preset_is_unlimited() -> None:
     assert resolved.tiles.rack_size is None
 
 
-def test_style_loads() -> None:
-    style = load_style(CONFIG_DIR, "default")
-    assert style.board_color.startswith("#")
-    assert "yellow" in style.tile_colors
+def test_style_tokens_load() -> None:
+    tokens = load_style_tokens(CONFIG_DIR, "default")
+    assert tokens.name == "default"
+    assert tokens.font_family == "Lato"
+    assert {"word_2", "word_3", "letter_2", "letter_3"} <= set(tokens.light.premiums)
+
+
+def test_style_tokens_reject_invalid_hex() -> None:
+    payload = load_style_tokens(CONFIG_DIR, "default").model_dump()
+    payload["light"]["board"]["surface"] = "linen"
+    with pytest.raises(ValidationError):
+        StyleTokens.model_validate(payload)
+
+
+def test_legacy_style_derives_from_light_tokens() -> None:
+    tokens = load_style_tokens(CONFIG_DIR, "default")
+    legacy = legacy_style(tokens)
+    assert legacy.board_color == tokens.light.board.surface
+    assert legacy.text_color == tokens.light.chrome.text
+    assert legacy.tile_colors["blank"] == tokens.light.tiles.face
+    assert legacy.premium_colors["word_multiplier"] == tokens.light.premiums["word_3"].fill
+
+
+def test_default_palette_keeps_premiums_apart() -> None:
+    tokens = load_style_tokens(CONFIG_DIR, "default")
+    for theme in (tokens.light, tokens.dark):
+        red = theme.category_premiums["red"].fill
+        assert theme.premiums["word_2"].fill != red
+        assert theme.premiums["word_3"].fill != red
+        assert theme.board.surface not in set(theme.tiles.bands.values())
+
+
+def test_default_palette_covers_literaki_categories() -> None:
+    resolved = resolve_scheme(CONFIG_DIR, "literaki")
+    categories = {letter.category for letter in resolved.tiles.letters}
+    tokens = load_style_tokens(CONFIG_DIR, "default")
+    for theme in (tokens.light, tokens.dark):
+        assert categories <= set(theme.tiles.bands)
+        assert categories <= set(theme.category_premiums)

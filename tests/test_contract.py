@@ -6,6 +6,7 @@ from scripts.openapi import main
 
 from wordserver.app import create_app
 from wordserver.models import TableAdmission, TableViewResponse
+from wordtable.config import StyleTokens
 
 
 @pytest.fixture
@@ -57,6 +58,14 @@ async def test_transport_refusals_carry_codes(client: httpx.AsyncClient) -> None
     seats = await client.post("/tables", json={"scheme": "literaki", "seats": 9})
     assert seats.status_code == 422
     assert seats.json()["code"] == "seats_out_of_range"
+
+
+async def test_style_endpoint_serves_tokens(client: httpx.AsyncClient) -> None:
+    response = await client.get("/style")
+    assert response.status_code == 200
+    tokens = StyleTokens.model_validate(response.json())
+    assert tokens.name == "default"
+    assert tokens.light.board.surface != tokens.dark.board.surface
 
 
 async def test_responses_validate_against_models(client: httpx.AsyncClient) -> None:
