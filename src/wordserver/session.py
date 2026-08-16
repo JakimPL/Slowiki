@@ -3,9 +3,10 @@ import json
 from collections.abc import AsyncIterator
 
 from wordcore.exceptions import NotYourTurn
-from wordcore.games.game import EventView, Game
+from wordcore.games.game import Game
 from wordcore.moves.action import ActionKind, Move, Pass
 from wordcore.states.state import Phase
+from wordcore.views.events import EventView
 from wordcore.views.projection import PositionView
 from wordtable.config import TimeConfig
 

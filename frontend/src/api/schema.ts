@@ -201,6 +201,11 @@ export interface components {
             /** Text */
             text: string;
         };
+        /**
+         * EntryKind
+         * @enum {string}
+         */
+        EntryKind: "move" | "premove_set" | "premove_cleared" | "premove_discarded";
         /** ErrorBody */
         ErrorBody: {
             code: components["schemas"]["ErrorCode"];
@@ -214,8 +219,12 @@ export interface components {
         ErrorCode: "illegal_move" | "not_your_turn" | "stale_position" | "invalid_word" | "game_over" | "no_premove" | "invalid_configuration" | "rejected" | "unknown_table" | "unknown_code" | "unknown_scheme" | "table_full" | "seats_out_of_range" | "seat_token_mismatch" | "dictionary_unavailable";
         /** EventView */
         EventView: {
+            /** Actor */
+            actor: number | null;
+            kind: components["schemas"]["EntryKind"];
             move: components["schemas"]["Move"] | null;
             position: components["schemas"]["PositionView"];
+            reason: components["schemas"]["RejectionCode"] | null;
             /** Seq */
             seq: number;
         };
@@ -349,6 +358,11 @@ export interface components {
             /** Label */
             label: string;
         };
+        /**
+         * RejectionCode
+         * @enum {string}
+         */
+        RejectionCode: "illegal_move" | "not_your_turn" | "stale_position" | "invalid_word" | "game_over" | "no_premove" | "invalid_configuration" | "rejected";
         /** Reorder */
         Reorder: {
             /**

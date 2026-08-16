@@ -4,12 +4,14 @@ import pytest
 from tests.games.trivial import TrivialRules
 
 from wordcore.board.board import Board, Bonus, BonusKind
-from wordcore.exceptions import IllegalMove, NotYourTurn, StalePosition
+from wordcore.exceptions import IllegalMove, NotYourTurn, RejectionCode, StalePosition
 from wordcore.games.game import Game
+from wordcore.games.journal import EntryKind, JournalEntry
 from wordcore.lexicon.lexicon import TextLexicon
-from wordcore.moves.action import Move, Pass, Play, PlayPlacement
+from wordcore.moves.action import Move, Pass, Play, PlayPlacement, Reorder
 from wordcore.tiles.bag import build_tiles, deal_racks, shuffled_bag
 from wordcore.tiles.tile import LetterSpec, Tile, TilePreset
+from wordcore.views.events import event_view
 
 
 def make_board() -> Board:
@@ -146,6 +148,73 @@ def test_engine_premove_discarded_when_invalid() -> None:
     assert game.position.state.premoves == {1: None}
     assert game.position.state.to_act == frozenset({1})
     assert game.position.state.turn_number == 1
+
+
+def test_events_mask_premove_content_per_observer() -> None:
+    game = Game(TrivialRules(), random.Random(0))
+    game.submit(Move(player=1, action=Pass()), base_seq=0, premove=True)
+    owned = game.events(observer=1, since=0)[0]
+    assert owned.kind == EntryKind.PREMOVE_SET
+    assert owned.actor == 1
+    assert owned.move == Move(player=1, action=Pass())
+    other = game.events(observer=0, since=0)[0]
+    assert other.kind == EntryKind.PREMOVE_SET
+    assert other.actor == 1
+    assert other.move is None
+    spectator = game.events(observer=None, since=0)[0]
+    assert spectator.move is None
+
+
+def test_discard_reason_reaches_owner_only() -> None:
+    rules = TrivialRules()
+    game = Game(rules, random.Random(0))
+    game.submit(Move(player=1, action=Pass()), base_seq=0, premove=True)
+    rules.reject_seat = 1
+    game.submit(Move(player=0, action=Pass()), base_seq=1)
+    owned = game.events(observer=1, since=2)[0]
+    assert owned.kind == EntryKind.PREMOVE_DISCARDED
+    assert owned.actor == 1
+    assert owned.move is None
+    assert owned.reason == RejectionCode.ILLEGAL_MOVE
+    other = game.events(observer=0, since=2)[0]
+    assert other.kind == EntryKind.PREMOVE_DISCARDED
+    assert other.reason is None
+
+
+def test_settled_premove_becomes_public_move() -> None:
+    game = Game(TrivialRules(), random.Random(0))
+    game.submit(Move(player=1, action=Pass()), base_seq=0, premove=True)
+    game.submit(Move(player=0, action=Pass()), base_seq=1)
+    settled = game.events(observer=0, since=2)[0]
+    assert settled.kind == EntryKind.MOVE
+    assert settled.actor == 1
+    assert settled.move == Move(player=1, action=Pass())
+
+
+def test_reorder_content_stays_with_its_owner() -> None:
+    rules = TrivialRules()
+    position = rules.initial_position(random.Random(0))
+    entry = JournalEntry(
+        kind=EntryKind.MOVE,
+        move=Move(player=0, action=Reorder(tile_ids=(2, 1))),
+        actor=0,
+        reason=None,
+        position=position,
+    )
+    assert event_view(entry, 0, observer=0).move is not None
+    assert event_view(entry, 0, observer=1).move is None
+    assert event_view(entry, 0, observer=None).move is None
+
+
+def test_late_subscriber_reads_the_same_masked_history() -> None:
+    rules = TrivialRules()
+    game = Game(rules, random.Random(0))
+    game.submit(Move(player=1, action=Pass()), base_seq=0, premove=True)
+    game.submit(Move(player=0, action=Pass()), base_seq=1)
+    live = game.events(observer=0, since=0)
+    resumed = game.events(observer=0, since=0)[:1] + game.events(observer=0, since=1)
+    assert live == resumed
+    assert [event.seq for event in live] == [0, 1, 2]
 
 
 def test_engine_projection_hides_other_racks() -> None:

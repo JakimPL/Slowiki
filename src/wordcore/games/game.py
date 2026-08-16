@@ -1,24 +1,21 @@
 import random
 from abc import ABC, abstractmethod
 
-from wordcore.exceptions import GameOver, IllegalMove, NotYourTurn, StalePosition, WordcoreError
-from wordcore.models.base import BaseFrozen
+from wordcore.exceptions import (
+    GameOver,
+    IllegalMove,
+    NotYourTurn,
+    RejectionCode,
+    StalePosition,
+    WordcoreError,
+    rejection_code,
+)
+from wordcore.games.journal import EntryKind, JournalEntry
 from wordcore.moves.action import ActionKind, Move
 from wordcore.positions.position import Position
 from wordcore.states.state import Phase
+from wordcore.views.events import EventView, event_view
 from wordcore.views.projection import PositionView, project
-
-
-class Transaction(BaseFrozen):
-    seq: int
-    move: Move | None
-    position: Position
-
-
-class EventView(BaseFrozen):
-    seq: int
-    move: Move | None
-    position: PositionView
 
 
 class Rules(ABC):
@@ -42,31 +39,30 @@ class Game:
     def __init__(self, rules: Rules, rng: random.Random) -> None:
         self._rules = rules
         self._rng = rng
-        self._history: list[Position] = [rules.initial_position(rng)]
-        self._moves: list[Move | None] = []
+        self._initial = rules.initial_position(rng)
+        self._entries: list[JournalEntry] = []
 
     @property
     def position(self) -> Position:
-        return self._history[-1]
+        if self._entries:
+            return self._entries[-1].position
+        return self._initial
 
     @property
     def seq(self) -> int:
-        return len(self._moves)
+        return len(self._entries)
 
     def view(self, observer: int | None) -> PositionView:
         return project(self.position, observer)
 
     def events(self, observer: int | None, since: int) -> tuple[EventView, ...]:
         return tuple(
-            EventView(
-                seq=index,
-                move=self._moves[index],
-                position=project(self._history[index + 1], observer),
-            )
-            for index in range(since, len(self._moves))
+            event_view(entry, index, observer)
+            for index, entry in enumerate(self._entries)
+            if index >= since
         )
 
-    def submit(self, move: Move, base_seq: int, premove: bool = False) -> Transaction:
+    def submit(self, move: Move, base_seq: int, premove: bool = False) -> JournalEntry:
         position = self._require_current(base_seq)
         if premove and move.player not in position.state.to_act:
             return self._queue_premove(position, move)
@@ -80,34 +76,40 @@ class Game:
             raise GameOver("the game has finished")
         return position
 
-    def _queue_premove(self, position: Position, move: Move) -> Transaction:
+    def _queue_premove(self, position: Position, move: Move) -> JournalEntry:
         self._ensure_member(position, move.player)
         self._rules.validate(position, move)
         new_position = position.model_copy(
             update={"state": position.state.with_premove(move.player, move)}
         )
-        self._record(move, new_position)
-        return Transaction(seq=self.seq - 1, move=move, position=new_position)
+        return self._record(EntryKind.PREMOVE_SET, move, move.player, None, new_position)
 
-    def _play_move(self, position: Position, move: Move) -> Transaction:
+    def _play_move(self, position: Position, move: Move) -> JournalEntry:
         self._ensure_member(position, move.player)
         if move.player not in position.state.to_act:
             raise NotYourTurn("player is not on turn")
         self._rules.validate(position, move)
         new_position = self._rules.apply(position, move, self._rng)
-        self._record(move, new_position)
-        move_seq = self.seq - 1
+        entry = self._record(EntryKind.MOVE, move, move.player, None, new_position)
         if move.action.kind != ActionKind.REORDER:
             self._settle_premoves()
-        return Transaction(seq=move_seq, move=move, position=self.position)
+        return entry
 
     def _ensure_member(self, position: Position, player: int) -> None:
         if player not in position.players:
             raise IllegalMove("player is not part of the game")
 
-    def _record(self, move: Move | None, position: Position) -> None:
-        self._moves.append(move)
-        self._history.append(position)
+    def _record(
+        self,
+        kind: EntryKind,
+        move: Move | None,
+        actor: int | None,
+        reason: RejectionCode | None,
+        position: Position,
+    ) -> JournalEntry:
+        entry = JournalEntry(kind=kind, move=move, actor=actor, reason=reason, position=position)
+        self._entries.append(entry)
+        return entry
 
     def _settle_premoves(self) -> None:
         for _ in range(len(self.position.players)):
@@ -128,10 +130,12 @@ class Game:
             self._rules.validate(position, pending)
             applied = self._rules.apply(position, pending, self._rng)
             new_position = applied.model_copy(update={"state": applied.state.without_premove(seat)})
-            self._record(pending, new_position)
-        except WordcoreError:
+            self._record(EntryKind.MOVE, pending, seat, None, new_position)
+        except WordcoreError as error:
             new_position = position.model_copy(
                 update={"state": position.state.without_premove(seat)}
             )
-            self._record(None, new_position)
+            self._record(
+                EntryKind.PREMOVE_DISCARDED, None, seat, rejection_code(error), new_position
+            )
         return True

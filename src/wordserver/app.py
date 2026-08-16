@@ -11,9 +11,10 @@ from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
 from wordcore.exceptions import WordcoreError
-from wordcore.games.game import EventView, Game
+from wordcore.games.game import Game
 from wordcore.models.base import BaseFrozen
 from wordcore.moves.action import Move
+from wordcore.views.events import EventView
 from wordserver.errors import ErrorBody, ErrorCode, Refusal, code_for, refusal_response
 from wordserver.models import (
     MoveAccepted,
