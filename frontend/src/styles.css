@@ -19,6 +19,10 @@
     --band-green: #67903f;
     --band-blue: #38719b;
     --band-red: #ac4029;
+    --tile-face-yellow: color-mix(in srgb, var(--tile-face) 85%, var(--band-yellow) 15%);
+    --tile-face-green: color-mix(in srgb, var(--tile-face) 85%, var(--band-green) 15%);
+    --tile-face-blue: color-mix(in srgb, var(--tile-face) 85%, var(--band-blue) 15%);
+    --tile-face-red: color-mix(in srgb, var(--tile-face) 85%, var(--band-red) 15%);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -138,7 +142,7 @@ body {
     width: 44px;
     height: 48px;
     border-radius: 6px;
-    background: var(--tile-face);
+    background: var(--face, var(--tile-face));
     color: var(--tile-text);
     font-size: 20px;
     font-weight: 900;
@@ -149,16 +153,20 @@ body {
 
 .shell .specimen b[data-category="yellow"] {
     --band: var(--band-yellow);
+    --face: var(--tile-face-yellow);
 }
 
 .shell .specimen b[data-category="green"] {
     --band: var(--band-green);
+    --face: var(--tile-face-green);
 }
 
 .shell .specimen b[data-category="blue"] {
     --band: var(--band-blue);
+    --face: var(--tile-face-blue);
 }
 
 .shell .specimen b[data-category="red"] {
     --band: var(--band-red);
+    --face: var(--tile-face-red);
 }

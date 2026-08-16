@@ -105,8 +105,13 @@ least 40 px wide, board cells degrade to a 20 px floor.
 
 Token vocabulary (per variant): `chrome` (surface, panel, edge, text, muted) · `board` (surface,
 grid, frame, star) · `premiums.word_2/word_3/letter_2/letter_3` (fill, label) ·
-`category_premiums.yellow/green/blue/red` (fill, label) · `tiles` (face, edge, text; band per
-category) · `accents` (primary, on_primary, danger, premove).
+`category_premiums.yellow/green/blue/red` (fill, label) · `tiles` (face, edge, text, face_tint;
+band per category) · `accents` (primary, on_primary, danger, premove).
+
+Each category's tile face is derived, per variant, as `mix(tiles.face, tiles.band[category],
+tiles.face_tint)` — a linear per-channel sRGB blend — so tiles carry a wash of the color they hold.
+Every consumer of the tokens (the CSS custom properties, the asset generator) derives the faces
+with the same formula.
 
 ### Player tints
 
@@ -148,6 +153,7 @@ says whose turn.
 | tiles.face | `#FAF3E1` | `#F2E7CB` |
 | tiles.edge | `#CFC3A4` | `#B7A784` |
 | tiles.text | `#241E14` | `#241C10` |
+| tiles.face_tint | `0.15` | `0.15` |
 | tiles.band.yellow | `#D9A226` | `#E0AB2B` |
 | tiles.band.green | `#67903F` | `#7BA34C` |
 | tiles.band.blue | `#38719B` | `#4E86B4` |
@@ -158,8 +164,9 @@ says whose turn.
 | accents.premove | `#6D5E8E` | `#8E7FB5` |
 
 Premium cells carry a fill and a label glyph; tiles keep a light face in both variants — physical
-tiles under lamplight — with the category as an enamel band along the bottom edge. Blanks show a
-hollow diamond and print their assigned letter once played. The letter-multiplier rows serve the
+tiles under lamplight — with the category as an enamel band along the bottom edge and a
+`face_tint` wash of the band color across the face. Blanks show a hollow diamond and print their
+assigned letter once played. The letter-multiplier rows serve the
 Scrabble board and are provisional until its specimen renders in the asset phase.
 
 ## Type

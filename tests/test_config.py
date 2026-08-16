@@ -54,6 +54,16 @@ def test_style_tokens_reject_invalid_hex() -> None:
         StyleTokens.model_validate(payload)
 
 
+def test_tile_faces_carry_a_bounded_category_tint() -> None:
+    tokens = load_style_tokens(CONFIG_DIR, "default")
+    for theme in (tokens.light, tokens.dark):
+        assert 0 < theme.tiles.face_tint < 1
+    payload = tokens.model_dump()
+    payload["light"]["tiles"]["face_tint"] = 1.5
+    with pytest.raises(ValidationError):
+        StyleTokens.model_validate(payload)
+
+
 def test_legacy_style_derives_from_light_tokens() -> None:
     tokens = load_style_tokens(CONFIG_DIR, "default")
     legacy = legacy_style(tokens)

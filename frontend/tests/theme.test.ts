@@ -13,6 +13,12 @@ describe("declarationsFor", () => {
         expect(declarations).toContain("--band-red: #ac4029;");
         expect(declarations).toContain("--accent-premove: #6d5e8e;");
     });
+
+    it("derives a tinted face per category from the band and the tint share", () => {
+        const declarations = declarationsFor(aStyle().light);
+        expect(declarations).toContain("--tile-face-yellow: #f5e7c5;");
+        expect(declarations).toContain("--tile-face-red: #eed8c5;");
+    });
 });
 
 describe("cssFor", () => {

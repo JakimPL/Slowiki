@@ -509,6 +509,8 @@ export interface components {
             edge: string;
             /** Face */
             face: string;
+            /** Face Tint */
+            face_tint: number;
             /** Text */
             text: string;
         };

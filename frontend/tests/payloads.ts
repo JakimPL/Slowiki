@@ -16,6 +16,7 @@ function aTheme(surface: string): ThemeTokens {
             face: "#faf3e1",
             edge: "#cfc3a4",
             text: "#241e14",
+            face_tint: 0.15,
             bands: { yellow: "#d9a226", red: "#ac4029" },
         },
         accents: { primary: "#7c3f4e", on_primary: "#fcf7ec", danger: "#9a2f1f", premove: "#6d5e8e" },

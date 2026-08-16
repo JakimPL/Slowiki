@@ -56,6 +56,7 @@ class StyleConfig(BaseFrozen):
 
 
 HexColor = Annotated[str, Field(pattern=r"^#[0-9A-Fa-f]{6}$")]
+TintFraction = Annotated[float, Field(ge=0, le=1)]
 
 
 class ChromeTokens(BaseFrozen):
@@ -82,6 +83,7 @@ class TileTokens(BaseFrozen):
     face: HexColor
     edge: HexColor
     text: HexColor
+    face_tint: TintFraction
     bands: dict[str, HexColor]
 
 

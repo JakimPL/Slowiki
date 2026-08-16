@@ -1,4 +1,5 @@
 import type { StyleTokens, ThemeTokens } from "../api/views";
+import { mixHex } from "./color";
 
 export const THEME_STYLE_ELEMENT_ID = "theme-tokens";
 
@@ -42,6 +43,7 @@ export function declarationsFor(theme: ThemeTokens): readonly string[] {
     }
     for (const [category, band] of Object.entries(theme.tiles.bands)) {
         declarations.push(`--band-${slugOf(category)}: ${band};`);
+        declarations.push(`--tile-face-${slugOf(category)}: ${mixHex(theme.tiles.face, band, theme.tiles.face_tint)};`);
     }
     return declarations;
 }
@@ -56,6 +58,6 @@ export function applyTheme(style: StyleTokens, target: Document): void {
     }
 }
 
-function slugOf(name: string): string {
+export function slugOf(name: string): string {
     return name.replaceAll("_", "-");
 }
