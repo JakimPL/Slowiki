@@ -22,8 +22,7 @@ class ResolvedScheme(BaseFrozen):
 def list_schemes(directory: Path) -> dict[str, SchemeConfig]:
     schemes_dir = directory / "schemes"
     return {
-        path.stem: load_scheme(directory, path.stem)
-        for path in sorted(schemes_dir.glob("*.yaml"))
+        path.stem: load_scheme(directory, path.stem) for path in sorted(schemes_dir.glob("*.yaml"))
     }
 
 
