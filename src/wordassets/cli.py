@@ -5,17 +5,18 @@ from wordassets.svg import render_board, render_tile
 from wordcore.board.preset import board_from_preset
 from wordcore.tiles.bag import build_tiles
 from wordtable.config import load_board_preset, load_style, load_tile_preset
+from wordtable.paths import CONFIG_DIR, PROJECT_ROOT
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="wordassets")
     subparsers = parser.add_subparsers(dest="command", required=True)
     render = subparsers.add_parser("render")
-    render.add_argument("--config", type=Path, default=Path("config"))
+    render.add_argument("--config", type=Path, default=CONFIG_DIR)
     render.add_argument("--style", default="default")
     render.add_argument("--board", default="literaki")
     render.add_argument("--tiles", default="literaki")
-    render.add_argument("--output", type=Path, default=Path("assets"))
+    render.add_argument("--output", type=Path, default=PROJECT_ROOT / "assets")
     return parser
 
 

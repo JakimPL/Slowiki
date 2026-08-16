@@ -10,14 +10,13 @@ from wordserver.app import create_app
 from wordserver.session import TableSession
 from wordtable.build import build_rules
 from wordtable.catalogue import resolve_scheme
-from wordtable.config import TimeConfig, load_style
-from wordtable.paths import CONFIG_DIR, PROJECT_ROOT
+from wordtable.config import TimeConfig
+from wordtable.paths import CONFIG_DIR
 
 
 @pytest.fixture
 def app():
-    style = load_style(CONFIG_DIR, "default")
-    return create_app(CONFIG_DIR, PROJECT_ROOT / "dictionaries", style)
+    return create_app()
 
 
 @pytest.fixture

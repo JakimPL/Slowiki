@@ -9,6 +9,13 @@ from wordcore.exceptions import InvalidConfiguration
 from wordcore.models.base import BaseFrozen
 from wordcore.tiles.tile import TilePreset
 from wordgames.names import GameName
+from wordtable.paths import (
+    CONFIGURATION_BOARDS_PATH,
+    CONFIGURATION_SCHEMES_PATH,
+    CONFIGURATION_STYLES_PATH,
+    CONFIGURATION_TILES_PATH,
+    configuration_file,
+)
 
 
 class ServiceConfig(BaseFrozen):
@@ -58,21 +65,25 @@ def read_config(path: Path) -> Configuration:
 
 
 def load_scheme(directory: Path, name: str) -> SchemeConfig:
-    return SchemeConfig.model_validate(_read_yaml(directory / "schemes" / f"{name}.yaml"))
+    path = directory / configuration_file(CONFIGURATION_SCHEMES_PATH, name)
+    return SchemeConfig.model_validate(_read_yaml(path))
 
 
 def load_board_preset(directory: Path, name: str) -> BoardPreset:
-    data = _read_yaml(directory / "presets" / "boards" / f"{name}.yaml")
+    path = directory / configuration_file(CONFIGURATION_BOARDS_PATH, name)
+    data = _read_yaml(path)
     return BoardPreset.model_validate({**data, "name": name})
 
 
 def load_tile_preset(directory: Path, name: str) -> TilePreset:
-    data = _read_yaml(directory / "presets" / "tiles" / f"{name}.yaml")
+    path = directory / configuration_file(CONFIGURATION_TILES_PATH, name)
+    data = _read_yaml(path)
     return TilePreset.model_validate({**data, "name": name})
 
 
 def load_style(directory: Path, name: str) -> StyleConfig:
-    data = _read_yaml(directory / "styles" / f"{name}.yaml")
+    path = directory / configuration_file(CONFIGURATION_STYLES_PATH, name)
+    data = _read_yaml(path)
     return StyleConfig.model_validate({**data, "name": name})
 
 

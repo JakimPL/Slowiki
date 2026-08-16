@@ -8,12 +8,12 @@ from wordcore.tiles.tile import Tile
 from wordtable.build import build_rules
 from wordtable.catalogue import resolve_scheme
 from wordtable.lexicons import load_lexicon
-from wordtable.paths import CONFIG_DIR, PROJECT_ROOT
+from wordtable.paths import CONFIG_DIR
 
 
 def run(scheme_name: str, players: int) -> None:
     resolved = resolve_scheme(CONFIG_DIR, scheme_name)
-    lexicon = load_lexicon(resolved.scheme.dictionary, PROJECT_ROOT / "dictionaries")
+    lexicon = load_lexicon(resolved.scheme.dictionary)
     seats = tuple(range(players))
     rules = build_rules(resolved, seats, lexicon)
     game = Game(rules, random.Random())

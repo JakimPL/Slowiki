@@ -1,6 +1,8 @@
+import asyncio
 import random
 import secrets
-from pathlib import Path
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from typing import Any
 
 from fastapi import FastAPI, Header, HTTPException, Request
@@ -16,8 +18,9 @@ from wordserver.registry import TableRegistry
 from wordserver.session import TableSession
 from wordtable.build import build_rules
 from wordtable.catalogue import offerings, resolve_scheme
-from wordtable.config import StyleConfig
-from wordtable.lexicons import load_lexicon
+from wordtable.config import load_style, read_config
+from wordtable.lexicons import LexiconService
+from wordtable.paths import CONFIG_DIR, FRONTEND_DIST_DIR, RUN_CONFIG_FILE
 
 
 class TableRequest(BaseFrozen):
@@ -31,9 +34,20 @@ class MoveRequest(BaseFrozen):
     premove: bool = False
 
 
-def create_app(config_dir: Path, dictionaries_dir: Path, style: StyleConfig) -> FastAPI:
+def create_app() -> FastAPI:
+    configuration = read_config(RUN_CONFIG_FILE)
+    style = load_style(CONFIG_DIR, configuration.style)
+    service = LexiconService()
     registry = TableRegistry()
-    app = FastAPI(title="literabble")
+
+    @asynccontextmanager
+    async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
+        default = resolve_scheme(CONFIG_DIR, configuration.scheme)
+        preload = asyncio.create_task(service.get(default.scheme.dictionary))
+        yield
+        preload.cancel()
+
+    app = FastAPI(title="literabble", lifespan=lifespan)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
@@ -43,18 +57,18 @@ def create_app(config_dir: Path, dictionaries_dir: Path, style: StyleConfig) -> 
 
     @app.get("/offerings")
     def list_offerings() -> dict[str, Any]:
-        listed = [offering.model_dump(mode="json") for offering in offerings(config_dir)]
+        listed = [offering.model_dump(mode="json") for offering in offerings(CONFIG_DIR)]
         return {"offerings": listed}
 
     @app.post("/tables")
-    def create_table(body: TableRequest) -> dict[str, Any]:
+    async def create_table(body: TableRequest) -> dict[str, Any]:
         try:
-            resolved = resolve_scheme(config_dir, body.scheme)
+            resolved = resolve_scheme(CONFIG_DIR, body.scheme)
         except WordcoreError as error:
             raise HTTPException(status_code=404, detail=str(error)) from error
         if not resolved.scheme.min_players <= body.seats <= resolved.scheme.max_players:
             raise HTTPException(status_code=422, detail="seats outside the scheme range")
-        lexicon = load_lexicon(resolved.scheme.dictionary, dictionaries_dir)
+        lexicon = await service.get(resolved.scheme.dictionary)
         seats = tuple(range(body.seats))
         rules = build_rules(resolved, seats, lexicon)
         game = Game(rules, random.Random())
@@ -108,12 +122,11 @@ def create_app(config_dir: Path, dictionaries_dir: Path, style: StyleConfig) -> 
         since = int(last_event_id) + 1 if last_event_id else 0
         return StreamingResponse(session.events(observer, since), media_type="text/event-stream")
 
-    frontend_dist = config_dir.parent / "frontend" / "dist"
-    if frontend_dist.is_dir():
-        app.mount("/assets", StaticFiles(directory=frontend_dist / "assets"), name="assets")
+    if FRONTEND_DIST_DIR.is_dir():
+        app.mount("/assets", StaticFiles(directory=FRONTEND_DIST_DIR / "assets"), name="assets")
 
         @app.get("/")
         def serve_index() -> FileResponse:
-            return FileResponse(frontend_dist / "index.html")
+            return FileResponse(FRONTEND_DIST_DIR / "index.html")
 
     return app
