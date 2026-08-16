@@ -1,0 +1,90 @@
+import random
+
+import httpx
+import pytest
+
+from wordcore.games.game import Game
+from wordcore.lexicon.lexicon import TextLexicon
+from wordcore.moves.action import Move, Pass
+from wordserver.app import create_app
+from wordserver.session import TableSession
+from wordtable.build import build_rules
+from wordtable.catalogue import resolve_scheme
+from wordtable.config import TimeConfig, load_style
+from wordtable.paths import CONFIG_DIR, PROJECT_ROOT
+
+
+@pytest.fixture
+def app():
+    style = load_style(CONFIG_DIR, "default")
+    return create_app(CONFIG_DIR, PROJECT_ROOT / "dictionaries", style)
+
+
+@pytest.fixture
+async def client(app):
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        yield client
+
+
+async def test_offerings(client: httpx.AsyncClient) -> None:
+    response = await client.get("/offerings")
+    assert response.status_code == 200
+    names = {offering["name"] for offering in response.json()["offerings"]}
+    assert {"literaki", "scrabble", "solo-literaki"} <= names
+
+
+async def test_create_table_and_view(client: httpx.AsyncClient) -> None:
+    response = await client.post("/tables", json={"scheme": "literaki", "seats": 2})
+    assert response.status_code == 200
+    data = response.json()
+    table_id = data["table_id"]
+    seat_zero = next(seat for seat in data["seats"] if seat["seat"] == 0)
+    view = await client.get(
+        f"/tables/{table_id}/view", headers={"X-Seat-Token": seat_zero["token"]}
+    )
+    assert view.status_code == 200
+    body = view.json()
+    assert body["seq"] == 0
+    assert body["view"]["racks"]["0"] is not None
+    assert body["view"]["racks"]["1"] is None
+    assert body["view"]["bag_count"] == 86
+
+
+async def test_move_requires_token(client: httpx.AsyncClient) -> None:
+    response = await client.post("/tables", json={"scheme": "literaki", "seats": 2})
+    table_id = response.json()["table_id"]
+    move = {"player": 0, "action": {"kind": "pass"}}
+    result = await client.post(f"/tables/{table_id}/moves", json={"move": move, "base_seq": 0})
+    assert result.status_code == 409
+
+
+async def test_pass_advances_turn(client: httpx.AsyncClient) -> None:
+    response = await client.post("/tables", json={"scheme": "literaki", "seats": 2})
+    data = response.json()
+    table_id = data["table_id"]
+    seat_zero = next(seat for seat in data["seats"] if seat["seat"] == 0)["token"]
+    move = {"player": 0, "action": {"kind": "pass"}}
+    result = await client.post(
+        f"/tables/{table_id}/moves",
+        json={"move": move, "base_seq": 0},
+        headers={"X-Seat-Token": seat_zero},
+    )
+    assert result.status_code == 200
+    assert result.json()["seq"] == 1
+    view = await client.get(
+        f"/tables/{table_id}/view", headers={"X-Seat-Token": seat_zero}
+    )
+    assert view.json()["view"]["to_act"] == [1]
+
+
+async def test_session_events_streams_after_submit() -> None:
+    resolved = resolve_scheme(CONFIG_DIR, "literaki")
+    rules = build_rules(resolved, (0, 1), TextLexicon.from_words(["aa"]))
+    game = Game(rules, random.Random(0))
+    time = TimeConfig(per_turn_seconds=None, increment_seconds=0, total_seconds=None)
+    session = TableSession(game, {0: "token-a", 1: "token-b"}, time)
+    await session.submit(Move(player=0, action=Pass()), base_seq=0, premove=False, token="token-a")
+    first = await anext(session.events(observer=0, since=0))
+    assert first.startswith("id: 0\n")
+    assert '"seq": 0' in first

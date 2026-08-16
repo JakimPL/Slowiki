@@ -45,7 +45,9 @@ def make_rules(lexicon: Lexicon, players: tuple[int, ...] = (0, 1)) -> WordGameR
     return WordGameRules(players, make_board(), TINY_TILES, lexicon, parameters)
 
 
-def make_position(racks: dict[int, tuple[Tile, ...]], bag: tuple[Tile, ...], to_act: int = 0) -> Position:
+def make_position(
+    racks: dict[int, tuple[Tile, ...]], bag: tuple[Tile, ...], to_act: int = 0
+) -> Position:
     state = WordState(
         phase=Phase.TURN,
         to_act=frozenset({to_act}),
@@ -175,7 +177,9 @@ def test_solo_unlimited_deals_all_tiles() -> None:
         scoreless_end_limit=None,
         bingo_bonus=50,
     )
-    rules = WordGameRules((0,), make_board(), solo_tiles, TextLexicon.from_words(["ab"]), parameters)
+    rules = WordGameRules(
+        (0,), make_board(), solo_tiles, TextLexicon.from_words(["ab"]), parameters
+    )
     position = rules.initial_position(random.Random(0))
     assert len(position.state.racks[0]) == 6
     assert position.state.bag == ()

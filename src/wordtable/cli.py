@@ -1,6 +1,7 @@
 import argparse
 
 from wordtable.play import run
+from wordtable.serve import run as run_server
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -18,7 +19,7 @@ def main(argv: list[str] | None = None) -> None:
     if args.command == "play":
         run(args.scheme, args.players)
     elif args.command == "serve":
-        print("serve arrives in the server phase")
+        run_server()
 
 
 if __name__ == "__main__":
