@@ -18,6 +18,7 @@ def build_rules(
     parameters = GameParameters(
         validate_on_play=resolved.scheme.validate_on_play,
         exchange_limit=resolved.scheme.exchange_limit,
+        exchange_min_bag=resolved.scheme.exchange_min_bag,
         pass_allowed=resolved.scheme.pass_allowed,
         pass_end_limit=resolved.scheme.pass_end_limit,
         scoreless_end_limit=resolved.scheme.scoreless_end_limit,

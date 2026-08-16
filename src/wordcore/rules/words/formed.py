@@ -3,112 +3,209 @@ from typing import Final
 from wordcore.board.board import Board
 from wordcore.exceptions import IllegalMove
 from wordcore.models.base import BaseFrozen
-from wordcore.rules.words.placement import Placement
-from wordcore.rules.words.tile import WordTile
+from wordcore.rules.words.placement import Placement, board_with_placements
+from wordcore.tiles.tile import Tile
 
 _NEIGHBORS: Final = ((-1, 0), (1, 0), (0, -1), (0, 1))
 
 
 class FormedWord(BaseFrozen):
-    tiles: tuple[WordTile, ...]
+    tiles: tuple[Placement, ...]
     text: str
     new_indices: frozenset[int]
 
 
-# TODO: refactor this function so it reads as a prose
-# each step should be a separate function
 def formed_words(
     board: Board,
     placements: tuple[Placement, ...],
 ) -> tuple[FormedWord, ...]:
+    _ensure_any_placement(placements)
+    _ensure_distinct_squares(board, placements)
+    _ensure_within_board(board, placements)
+    _ensure_free_squares(board, placements)
+    combined = board_with_placements(board, placements)
+    new_indices = frozenset(
+        board.index(placement.row, placement.column) for placement in placements
+    )
+    if len(placements) == 1:
+        return _single_tile_words(combined, placements[0], new_indices)
+
+    return _straight_words(combined, placements, new_indices)
+
+
+def validate_anchor(board: Board, placements: tuple[Placement, ...]) -> None:
+    if board.is_empty():
+        _ensure_opening_size(placements)
+        _ensure_covers_center(board, placements)
+        return
+
+    _ensure_touches_existing(board, placements)
+
+
+def _ensure_any_placement(placements: tuple[Placement, ...]) -> None:
     if not placements:
         raise IllegalMove("a play requires at least one tile")
 
-    if len({board.index(placement.row, placement.column) for placement in placements}) != len(
-        placements
-    ):
+
+def _ensure_distinct_squares(board: Board, placements: tuple[Placement, ...]) -> None:
+    squares = {board.index(placement.row, placement.column) for placement in placements}
+    if len(squares) != len(placements):
         raise IllegalMove("placements overlap")
 
+
+def _ensure_within_board(board: Board, placements: tuple[Placement, ...]) -> None:
     for placement in placements:
         if not board.in_bounds(placement.row, placement.column):
             raise IllegalMove("placement is outside the board")
 
+
+def _ensure_free_squares(board: Board, placements: tuple[Placement, ...]) -> None:
+    for placement in placements:
         if board.tile_at(placement.row, placement.column) is not None:
             raise IllegalMove("placement collides with an existing tile")
 
-    combined = board.with_tiles({board.index(p.row, p.column): p.tile for p in placements})
-    new_indices = frozenset(board.index(p.row, p.column) for p in placements)
-    if len(placements) == 1:
-        placement = placements[0]
-        words: list[FormedWord] = []
-        horizontal = _horizontal(combined, placement.row, placement.column)
-        if horizontal is not None:
-            words.append(_to_word(horizontal, new_indices))
 
-        vertical = _vertical(combined, placement.row, placement.column)
-        if vertical is not None:
-            words.append(_to_word(vertical, new_indices))
+def _single_tile_words(
+    combined: Board,
+    placement: Placement,
+    new_indices: frozenset[int],
+) -> tuple[FormedWord, ...]:
+    across = _line_word(combined, placement.row, placement.column, horizontal=True)
+    down = _line_word(combined, placement.column, placement.row, horizontal=False)
+    words = [_to_word(line, new_indices) for line in (across, down) if line is not None]
+    if not words:
+        raise IllegalMove("a play must form a word")
 
-        if not words:
-            raise IllegalMove("a play must form a word")
+    return tuple(words)
 
-        return tuple(words)
 
+def _straight_words(
+    combined: Board,
+    placements: tuple[Placement, ...],
+    new_indices: frozenset[int],
+) -> tuple[FormedWord, ...]:
     rows = {placement.row for placement in placements}
-    columns = {p.column for p in placements}
+    columns = {placement.column for placement in placements}
     if len(rows) == 1:
-        return _axis_words(
-            combined,
-            next(iter(rows)),
-            placements,
-            new_indices,
-            True,
-        )
+        return _axis_words(combined, next(iter(rows)), placements, new_indices, horizontal=True)
 
     if len(columns) == 1:
-        return _axis_words(
-            combined,
-            next(iter(columns)),
-            placements,
-            new_indices,
-            False,
-        )
+        return _axis_words(combined, next(iter(columns)), placements, new_indices, horizontal=False)
 
     raise IllegalMove("placements must share a row or a column")
 
 
-# TODO: refactor
 def _axis_words(
     combined: Board,
     fixed: int,
     placements: tuple[Placement, ...],
     new_indices: frozenset[int],
+    *,
     horizontal: bool,
 ) -> tuple[FormedWord, ...]:
-    low, high = _axis_bounds(placements, horizontal)
+    low, high = _placement_bounds(placements, horizontal)
     _ensure_contiguous(combined, fixed, low, high, horizontal)
-    words: list[FormedWord] = [
-        _to_word(
-            _word_along(combined, fixed, low, high, horizontal),
-            new_indices,
-        )
-    ]
+    span = _line_span(combined, fixed, low, high, horizontal)
+    main = _to_word(_line_tiles(combined, fixed, span, horizontal), new_indices)
+    return (main, *_cross_words(combined, placements, new_indices, horizontal))
 
+
+def _cross_words(
+    combined: Board,
+    placements: tuple[Placement, ...],
+    new_indices: frozenset[int],
+    horizontal: bool,
+) -> tuple[FormedWord, ...]:
+    words: list[FormedWord] = []
     for placement in placements:
-        # TODO: refactor
-        cross = _cross_word(combined, placement, horizontal)
-        if cross is not None:
-            word = _to_word(cross, new_indices)
-            if word not in words:
-                words.append(word)
+        line = _cross_line(combined, placement, horizontal)
+        if line is None:
+            continue
+
+        word = _to_word(line, new_indices)
+        if word not in words:
+            words.append(word)
 
     return tuple(words)
 
 
-def _axis_bounds(
-    placements: tuple[Placement, ...],
+def _cross_line(
+    combined: Board,
+    placement: Placement,
+    horizontal: bool,
+) -> tuple[Placement, ...] | None:
+    if horizontal:
+        return _line_word(combined, placement.column, placement.row, horizontal=False)
+
+    return _line_word(combined, placement.row, placement.column, horizontal=True)
+
+
+def _line_word(
+    combined: Board,
+    fixed: int,
+    at: int,
+    *,
+    horizontal: bool,
+) -> tuple[Placement, ...] | None:
+    start, end = _line_span(combined, fixed, at, at, horizontal)
+    if start == end:
+        return None
+
+    return _line_tiles(combined, fixed, (start, end), horizontal)
+
+
+def _line_span(
+    combined: Board,
+    fixed: int,
+    low: int,
+    high: int,
     horizontal: bool,
 ) -> tuple[int, int]:
+    start = low
+    while start > 0 and _tile_on_line(combined, fixed, start - 1, horizontal) is not None:
+        start -= 1
+
+    end = high
+    while (
+        end < combined.size - 1 and _tile_on_line(combined, fixed, end + 1, horizontal) is not None
+    ):
+        end += 1
+
+    return start, end
+
+
+def _line_tiles(
+    combined: Board,
+    fixed: int,
+    span: tuple[int, int],
+    horizontal: bool,
+) -> tuple[Placement, ...]:
+    start, end = span
+    tiles: list[Placement] = []
+    for coordinate in range(start, end + 1):
+        tile = _tile_on_line(combined, fixed, coordinate, horizontal)
+        if tile is None:
+            raise IllegalMove("word contains a gap")
+
+        row, column = _square_on_line(fixed, coordinate, horizontal)
+        tiles.append(Placement(tile=tile, row=row, column=column))
+
+    return tuple(tiles)
+
+
+def _square_on_line(fixed: int, coordinate: int, horizontal: bool) -> tuple[int, int]:
+    if horizontal:
+        return fixed, coordinate
+
+    return coordinate, fixed
+
+
+def _tile_on_line(combined: Board, fixed: int, coordinate: int, horizontal: bool) -> Tile | None:
+    row, column = _square_on_line(fixed, coordinate, horizontal)
+    return combined.tile_at(row, column)
+
+
+def _placement_bounds(placements: tuple[Placement, ...], horizontal: bool) -> tuple[int, int]:
     positions = [placement.column if horizontal else placement.row for placement in placements]
     return min(positions), max(positions)
 
@@ -121,220 +218,31 @@ def _ensure_contiguous(
     horizontal: bool,
 ) -> None:
     for coordinate in range(low, high + 1):
-        tile = (
-            combined.tile_at(fixed, coordinate)
-            if horizontal
-            else combined.tile_at(
-                coordinate,
-                fixed,
-            )
-        )
-        if tile is None:
+        if _tile_on_line(combined, fixed, coordinate, horizontal) is None:
             raise IllegalMove("placements leave a gap")
 
 
-def _cross_word(
-    combined: Board,
-    placement: Placement,
-    horizontal: bool,
-) -> tuple[WordTile, ...] | None:
-    if horizontal:
-        return _vertical(combined, placement.row, placement.column)
-
-    return _horizontal(combined, placement.row, placement.column)
-
-
-# TODO: refactor; is the logic duplication really needed?
-def _word_along(
-    combined: Board,
-    fixed: int,
-    low: int,
-    high: int,
-    horizontal: bool,
-) -> tuple[WordTile, ...]:
-    start = low
-    while start > 0:
-        previous = (
-            combined.tile_at(
-                fixed,
-                start - 1,
-            )
-            if horizontal
-            else combined.tile_at(
-                start - 1,
-                fixed,
-            )
-        )
-        if previous is None:
-            break
-        start -= 1
-
-    end = high
-    while end < combined.size - 1:
-        following = (
-            combined.tile_at(
-                fixed,
-                end + 1,
-            )
-            if horizontal
-            else combined.tile_at(
-                end + 1,
-                fixed,
-            )
-        )
-        if following is None:
-            break
-        end += 1
-
-    tiles: list[WordTile] = []
-    for coordinate in range(start, end + 1):
-        tile = (
-            combined.tile_at(
-                fixed,
-                coordinate,
-            )
-            if horizontal
-            else combined.tile_at(
-                coordinate,
-                fixed,
-            )
-        )
-        if tile is None:
-            raise IllegalMove("word contains a gap")
-
-        if horizontal:
-            tiles.append(
-                WordTile(
-                    tile=tile,
-                    row=fixed,
-                    column=coordinate,
-                )
-            )
-        else:
-            tiles.append(
-                WordTile(
-                    tile=tile,
-                    row=coordinate,
-                    column=fixed,
-                )
-            )
-
-    return tuple(tiles)
-
-
-# TODO: refactor
-# use calculate_start_end transposed to avoid logic duplication
-def _horizontal(
-    combined: Board,
-    row: int,
-    column: int,
-) -> tuple[WordTile, ...] | None:
-    start = column
-    while start > 0 and combined.tile_at(row, start - 1) is not None:
-        start -= 1
-
-    end = column
-    while end < combined.size - 1 and combined.tile_at(row, end + 1) is not None:
-        end += 1
-
-    if end - start + 1 < 2:
-        return None
-
-    # a helper function - reuse for vertical
-    tiles: list[WordTile] = []
-    for coordinate in range(start, end + 1):
-        tile = combined.tile_at(row, coordinate)
-        if tile is None:
-            raise IllegalMove("word contains a gap")
-
-        tiles.append(
-            WordTile(
-                tile=tile,
-                row=row,
-                column=coordinate,
-            )
-        )
-
-    return tuple(tiles)
-
-
-def calculate_start_end(
-    combined: Board,
-    row: int,
-    column: int,
-) -> tuple[int, int]:
-    start = row
-    while start > 0 and combined.tile_at(start - 1, column) is not None:
-        start -= 1
-
-    end = row
-    while end < combined.size - 1 and combined.tile_at(end + 1, column) is not None:
-        end += 1
-
-    return start, end
-
-
-# TODO: refactor
-def _vertical(
-    combined: Board,
-    row: int,
-    column: int,
-) -> tuple[WordTile, ...] | None:
-    start, end = calculate_start_end(combined, row, column)
-    if end - start + 1 < 2:
-        return None
-
-    # a helper function
-    tiles: list[WordTile] = []
-    for coordinate in range(start, end + 1):
-        tile = combined.tile_at(coordinate, column)
-        if tile is None:
-            raise IllegalMove("word contains a gap")
-
-        tiles.append(
-            WordTile(
-                tile=tile,
-                row=coordinate,
-                column=column,
-            )
-        )
-
-    return tuple(tiles)
-
-
-def _to_word(
-    tiles: tuple[WordTile, ...],
-    new_indices: frozenset[int],
-) -> FormedWord:
+def _to_word(tiles: tuple[Placement, ...], new_indices: frozenset[int]) -> FormedWord:
     return FormedWord(
         tiles=tiles,
-        text="".join(word_tile.tile.letter for word_tile in tiles),
+        text="".join(placement.tile.letter for placement in tiles),
         new_indices=new_indices,
     )
 
 
-# TODO: refactor - each checked condition should be a separate helper function
-def validate_anchor(board: Board, placements: tuple[Placement, ...]) -> None:
-    if board.is_empty():
-        center = board.center()
-        if len(placements) < 2:
-            raise IllegalMove("the first move requires at least two tiles")
+def _ensure_opening_size(placements: tuple[Placement, ...]) -> None:
+    if len(placements) < 2:
+        raise IllegalMove("the first move requires at least two tiles")
 
-        if not any(
-            placement.row == center and placement.column == center for placement in placements
-        ):
-            raise IllegalMove("the first move must cover the center square")
 
-        return
+def _ensure_covers_center(board: Board, placements: tuple[Placement, ...]) -> None:
+    center = board.center()
+    if not any(placement.row == center and placement.column == center for placement in placements):
+        raise IllegalMove("the first move must cover the center square")
 
-    if any(
-        _has_neighbor(
-            board,
-            placement.row,
-            placement.column,
-        )
-        for placement in placements
-    ):
+
+def _ensure_touches_existing(board: Board, placements: tuple[Placement, ...]) -> None:
+    if any(_has_neighbor(board, placement.row, placement.column) for placement in placements):
         return
 
     raise IllegalMove("the play must connect to existing tiles")

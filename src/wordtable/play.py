@@ -1,5 +1,8 @@
+import logging
 import random
+from typing import Final, NamedTuple
 
+from wordcore.board.board import Board
 from wordcore.exceptions import IllegalMove, WordcoreError
 from wordcore.games.game import Game
 from wordcore.moves.action import Exchange, Pass, Play, PlayPlacement
@@ -11,8 +14,21 @@ from wordtable.catalogue import resolve_scheme
 from wordtable.lexicons import load_lexicon
 from wordtable.paths import CONFIG_DIR
 
+logger = logging.getLogger(__name__)
+
+_PLACE_ARGUMENT_COUNT: Final = 4
+_ORIENTATIONS: Final = ("h", "v")
+
+
+class PlaceCommand(NamedTuple):
+    word: str
+    row: int
+    column: int
+    horizontal: bool
+
 
 def run(scheme_name: str, players: int) -> None:
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
     game = _build_game(scheme_name, players)
     _play(game)
 
@@ -22,11 +38,7 @@ def _build_game(scheme_name: str, players: int) -> Game:
     lexicon = load_lexicon(resolved.scheme.dictionary)
     seats = tuple(range(players))
     rules = build_rules(resolved, seats, lexicon)
-    return Game(
-        rules,
-        random.Random(),
-        premoves_allowed=resolved.scheme.premoves,
-    )
+    return Game(rules, random.Random(), premoves_allowed=resolved.scheme.premoves)
 
 
 def _play(game: Game) -> None:
@@ -36,22 +48,21 @@ def _play(game: Game) -> None:
             return
 
     _render(game)
-    print("game over")  # TODO: logging, not printing
+    logger.info("game over")
 
 
 def _handle_command(game: Game) -> bool:
     seat = _current_seat(game)
-    print(f"player {seat} to move")
-    command = _read_command()  # TODO: logging, not printing
+    logger.info("player %d to move", seat)
+    command = _read_command()
     if command is None:
         return False
 
     try:
         move = _parse_move(game, seat, command)
         game.submit(move, base_seq=game.seq)
-
-    except (WordcoreError, ValueError, IndexError) as error:
-        print(f"rejected: {error}")
+    except (WordcoreError, ValueError) as error:
+        logger.info("rejected: %s", error)
 
     return True
 
@@ -72,103 +83,99 @@ def _read_command() -> str | None:
     return command
 
 
-# TODO: refactor
 def _parse_move(game: Game, seat: int, command: str) -> Move:
-    parts = command.split()
-    if not parts:
-        raise ValueError("empty command")
-
-    # TODO: fragile mechanism
-    if parts[0] == "pass":
-        return Move(player=seat, action=Pass())
-
-    if parts[0] == "exchange":
-        return Move(
-            player=seat,
-            action=Exchange(tile_ids=_rack_ids_for(game, seat, parts[1:])),
-        )
-
-    # TODO: refactor - a very fragile mechanism; use NamedTuple
-    if parts[0] == "place":
-        word = parts[1]
-        row = int(parts[2])
-        column = int(parts[3])
-        horizontal = parts[4] == "h"
-        placements = _placements_for(game, seat, word, row, column, horizontal)
-        return Move(player=seat, action=Play(placements=placements))
-
-    raise ValueError(f"unknown command: {parts[0]}")
+    head, *arguments = command.split()
+    match head:
+        case "pass":
+            return Move(player=seat, action=Pass())
+        case "exchange":
+            return Move(player=seat, action=Exchange(tile_ids=_rack_ids_for(game, seat, arguments)))
+        case "place":
+            return _place_move(game, seat, _parse_place(arguments))
+        case _:
+            raise ValueError(f"unknown command: {head}")
 
 
-# TODO: refactor
-def _rack_ids_for(
-    game: Game,
-    seat: int,
-    letters: list[str],
-) -> tuple[int, ...]:
-    by_letter: dict[str, list[int]] = {}
-    for tile in _rack(game, seat):
-        if not tile.blank:
-            by_letter.setdefault(tile.letter.upper(), []).append(tile.identifier)
+def _parse_place(arguments: list[str]) -> PlaceCommand:
+    if len(arguments) != _PLACE_ARGUMENT_COUNT:
+        raise ValueError("place expects: place <word> <row> <column> <h|v>")
 
+    word, row, column, orientation = arguments
+    if orientation not in _ORIENTATIONS:
+        raise ValueError("orientation must be h or v")
+
+    return PlaceCommand(
+        word=word.upper(),
+        row=int(row),
+        column=int(column),
+        horizontal=orientation == "h",
+    )
+
+
+def _place_move(game: Game, seat: int, place: PlaceCommand) -> Move:
+    return Move(player=seat, action=Play(placements=_placements_for(game, seat, place)))
+
+
+def _rack_ids_for(game: Game, seat: int, letters: list[str]) -> tuple[int, ...]:
+    by_letter = _tiles_by_letter(_rack(game, seat))
     result: list[int] = []
-    for letter in letters:
-        key = letter.upper()
-        if not by_letter.get(key):
+    for letter in (entry.upper() for entry in letters):
+        pool = by_letter.get(letter)
+        if not pool:
             raise IllegalMove(f"no tile {letter} in rack")
 
-        result.append(by_letter[key].pop(0))
+        result.append(pool.pop(0))
 
     return tuple(result)
 
 
-# TODO: refactor
-# BTW, at this stage we should NOT use lower/upper at all
-# letters should be normalized at this point
-def _placements_for(
-    game: Game,
-    seat: int,
-    word: str,
-    row: int,
-    column: int,
-    horizontal: bool,
-) -> tuple[PlayPlacement, ...]:
-    by_letter: dict[str, list[int]] = {}
-    blanks: list[int] = []
-    for tile in _rack(game, seat):
-        if tile.blank:
-            blanks.append(tile.identifier)
-        else:
-            by_letter.setdefault(tile.letter.upper(), []).append(tile.identifier)
-
+def _placements_for(game: Game, seat: int, place: PlaceCommand) -> tuple[PlayPlacement, ...]:
+    rack = _rack(game, seat)
+    by_letter = _tiles_by_letter(rack)
+    blanks = _blank_ids(rack)
     placements: list[PlayPlacement] = []
-    for offset, character in enumerate(word):
-        target_row = row if horizontal else row + offset
-        target_column = column + offset if horizontal else column
-        letter = character.upper()
-        if by_letter.get(letter):
-            placements.append(
-                PlayPlacement(
-                    tile_id=by_letter[letter].pop(0),
-                    row=target_row,
-                    column=target_column,
-                )
-            )
-
-        elif blanks:
-            placements.append(
-                PlayPlacement(
-                    tile_id=blanks.pop(0),
-                    row=target_row,
-                    column=target_column,
-                    letter=letter,
-                )
-            )
-
-        else:
-            raise IllegalMove(f"no tile for letter {character}")
+    for offset, letter in enumerate(place.word):
+        row, column = _target_square(place, offset)
+        placements.append(_letter_placement(by_letter, blanks, letter, row, column))
 
     return tuple(placements)
+
+
+def _target_square(place: PlaceCommand, offset: int) -> tuple[int, int]:
+    if place.horizontal:
+        return place.row, place.column + offset
+
+    return place.row + offset, place.column
+
+
+def _letter_placement(
+    by_letter: dict[str, list[int]],
+    blanks: list[int],
+    letter: str,
+    row: int,
+    column: int,
+) -> PlayPlacement:
+    pool = by_letter.get(letter)
+    if pool:
+        return PlayPlacement(tile_id=pool.pop(0), row=row, column=column)
+
+    if blanks:
+        return PlayPlacement(tile_id=blanks.pop(0), row=row, column=column, letter=letter)
+
+    raise IllegalMove(f"no tile for letter {letter}")
+
+
+def _tiles_by_letter(rack: tuple[Tile, ...]) -> dict[str, list[int]]:
+    by_letter: dict[str, list[int]] = {}
+    for tile in rack:
+        if not tile.blank:
+            by_letter.setdefault(tile.letter, []).append(tile.identifier)
+
+    return by_letter
+
+
+def _blank_ids(rack: tuple[Tile, ...]) -> list[int]:
+    return [tile.identifier for tile in rack if tile.blank]
 
 
 def _rack(game: Game, seat: int) -> tuple[Tile, ...]:
@@ -176,27 +183,36 @@ def _rack(game: Game, seat: int) -> tuple[Tile, ...]:
     return rack if rack is not None else ()
 
 
-# TODO: refactor
 def _render(game: Game) -> None:
+    _render_scores(game)
+    _render_racks(game)
+    _render_board(game)
+
+
+def _render_scores(game: Game) -> None:
     state = game.position.state
-    print("scores:", state.scores)
-    print("bag:", len(state.bag))
+    logger.info("scores: %s", state.scores)
+    logger.info("bag: %d tiles", len(state.bag))
+
+
+def _render_racks(game: Game) -> None:
     for seat in game.position.players:
         letters = "".join(tile.letter or "_" for tile in _rack(game, seat))
-        print(f"  seat {seat}: {letters}")
+        logger.info("  seat %d: %s", seat, letters)
 
+
+def _render_board(game: Game) -> None:
     board = game.position.board
     for row in range(board.size):
-        cells = []
-        for column in range(board.size):
-            tile = board.tile_at(row, column)
-            if tile is not None:
-                cells.append(tile.letter or "_")
+        logger.info(" ".join(_cell_glyph(board, row, column) for column in range(board.size)))
 
-            elif board.bonus_at(row, column) is not None:
-                cells.append("+")
 
-            else:
-                cells.append(".")
+def _cell_glyph(board: Board, row: int, column: int) -> str:
+    tile = board.tile_at(row, column)
+    if tile is not None:
+        return tile.letter or "_"
 
-        print(" ".join(cells))
+    if board.bonus_at(row, column) is not None:
+        return "+"
+
+    return "."

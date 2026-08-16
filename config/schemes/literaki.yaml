@@ -7,6 +7,7 @@ max_players: 8
 validate_on_play: true
 premoves: true
 exchange_limit: 3
+exchange_min_bag: 7
 pass_allowed: true
 time:
   per_turn_seconds: null

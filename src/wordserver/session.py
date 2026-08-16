@@ -1,6 +1,7 @@
 import asyncio
 import json
 from collections.abc import AsyncIterator
+from dataclasses import dataclass
 from typing import Final
 
 from wordcore.games.game import Game
@@ -15,6 +16,13 @@ from wordserver.models import CompanyView, SeatView
 from wordtable.config import TimeConfig
 
 _KEEPALIVE_SECONDS: Final = 15
+_KEEPALIVE_FRAME: Final = ": keepalive\n\n"
+
+
+@dataclass
+class _StreamCursor:
+    next_seq: int
+    seen_version: int
 
 
 class TableSession:
@@ -107,66 +115,54 @@ class TableSession:
             self._condition.notify_all()
             return self._game.seq
 
-    # TODO: refactor so this function reads as prose
-    async def events(
-        self,
-        observer: int | None,
-        since: int,
-    ) -> AsyncIterator[str]:
-        await self._open_stream(observer)
+    async def events(self, observer: int | None, since: int) -> AsyncIterator[str]:
+        await self._adjust_streams(observer, 1)
         try:
-            next_seq = since
-            seen_version = -1
+            cursor = _StreamCursor(next_seq=since, seen_version=-1)
             while True:
-                async with self._condition:
-                    pending = self._game.events(observer, since=next_seq)
-                    if pending:
-                        next_seq = pending[-1].seq + 1
+                frames = await self._fresh_frames(observer, cursor)
+                for frame in frames:
+                    yield frame
 
-                    version = self._company_version
-                    company = self.company() if version != seen_version else None
-
-                if company is not None or pending:
-                    if company is not None:
-                        seen_version = version
-                        yield _format_presence(company)
-
-                    for event in pending:
-                        yield self._format_event(event)
-
+                if frames:
                     continue
 
-                async with self._condition:
-                    try:
-                        await asyncio.wait_for(self._condition.wait(), timeout=_KEEPALIVE_SECONDS)
-                    except TimeoutError:
-                        yield ": keepalive\n\n"
+                if await self._timed_out_waiting():
+                    yield _KEEPALIVE_FRAME
 
         finally:
-            await self._close_stream(observer)
+            await self._adjust_streams(observer, -1)
 
-    async def _open_stream(self, observer: int | None) -> None:
+    async def _fresh_frames(self, observer: int | None, cursor: _StreamCursor) -> list[str]:
+        async with self._condition:
+            frames: list[str] = []
+            if cursor.seen_version != self._company_version:
+                cursor.seen_version = self._company_version
+                frames.append(_format_presence(self.company()))
+
+            for event in self._game.events(observer, since=cursor.next_seq):
+                cursor.next_seq = event.seq + 1
+                frames.append(_format_event(event))
+
+            return frames
+
+    async def _timed_out_waiting(self) -> bool:
+        async with self._condition:
+            try:
+                await asyncio.wait_for(self._condition.wait(), timeout=_KEEPALIVE_SECONDS)
+            except TimeoutError:
+                return True
+
+            return False
+
+    async def _adjust_streams(self, observer: int | None, delta: int) -> None:
         if observer is None:
             return
 
         async with self._condition:
-            self._streams[observer] = self._streams.get(observer, 0) + 1
+            self._streams[observer] = self._streams.get(observer, 0) + delta
             self._company_version += 1
             self._condition.notify_all()
-
-    async def _close_stream(self, observer: int | None) -> None:
-        if observer is None:
-            return
-
-        async with self._condition:
-            # TODO: duplicated bookkeeping logic
-            self._streams[observer] = self._streams.get(observer, 1) - 1
-            self._company_version += 1
-            self._condition.notify_all()
-
-    def _format_event(self, event: EventView) -> str:
-        payload = json.dumps(event.model_dump(mode="json"))
-        return f"id: {event.seq}\ndata: {payload}\n\n"
 
     def _schedule_timer(self) -> None:
         if self._timer_task is not None:
@@ -194,12 +190,14 @@ class TableSession:
             if position.state.to_act != frozenset({seat}):
                 return
 
-            self._game.submit(
-                Move(player=seat, action=Pass()),
-                base_seq=self._game.seq,
-            )
+            self._game.submit(Move(player=seat, action=Pass()), base_seq=self._game.seq)
             self._schedule_timer()
             self._condition.notify_all()
+
+
+def _format_event(event: EventView) -> str:
+    payload = json.dumps(event.model_dump(mode="json"))
+    return f"id: {event.seq}\ndata: {payload}\n\n"
 
 
 def _format_presence(company: CompanyView) -> str:

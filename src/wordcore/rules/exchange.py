@@ -2,6 +2,7 @@ from wordcore.exceptions import IllegalMove
 from wordcore.moves.action import Exchange
 from wordcore.positions.position import Position
 from wordcore.rules.rack import rack_of
+from wordcore.tiles.tile import Tile
 
 
 def validate_exchange(
@@ -29,26 +30,18 @@ def validate_exchange(
         raise IllegalMove("not enough tiles remain to exchange")
 
 
-# TODO: refactor - split into functions
-# is this going to support unlimited bags?
-def apply_exchange(
-    position: Position,
-    player: int,
-    exchange: Exchange,
-) -> Position:
+def apply_exchange(position: Position, player: int, exchange: Exchange) -> Position:
     rack = rack_of(position, player)
     exchanged = set(exchange.tile_ids)
-    returned = [tile for tile in rack if tile.identifier in exchanged]
-    kept = [tile for tile in rack if tile.identifier not in exchanged]
-    bag = list(position.state.bag)
-    drawn = bag[: len(returned)]
-    new_bag = tuple(bag[len(returned) :] + returned)
-    new_rack = tuple(kept + drawn)
+    returned = _returned_tiles(rack, exchanged)
+    kept = _kept_tiles(rack, exchanged)
+    drawn = position.state.bag[: len(returned)]
+    remaining = position.state.bag[len(returned) :]
     state = position.state
     new_state = state.model_copy(
         update={
-            "racks": {**state.racks, player: new_rack},
-            "bag": new_bag,
+            "racks": {**state.racks, player: kept + drawn},
+            "bag": remaining + returned,
             "exchange_counts": {
                 **state.exchange_counts,
                 player: state.exchange_counts[player] + 1,
@@ -56,3 +49,11 @@ def apply_exchange(
         }
     )
     return position.model_copy(update={"state": new_state})
+
+
+def _returned_tiles(rack: tuple[Tile, ...], exchanged: set[int]) -> tuple[Tile, ...]:
+    return tuple(tile for tile in rack if tile.identifier in exchanged)
+
+
+def _kept_tiles(rack: tuple[Tile, ...], exchanged: set[int]) -> tuple[Tile, ...]:
+    return tuple(tile for tile in rack if tile.identifier not in exchanged)

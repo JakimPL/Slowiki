@@ -40,6 +40,7 @@ class SchemeConfig(BaseFrozen):
     validate_on_play: bool
     premoves: bool
     exchange_limit: int | None
+    exchange_min_bag: int
     pass_allowed: bool
     time: TimeConfig
     pass_end_limit: int | None

@@ -41,6 +41,7 @@ def make_rules(lexicon: Lexicon, players: tuple[int, ...] = (0, 1)) -> WordGameR
     parameters = GameParameters(
         validate_on_play=True,
         exchange_limit=None,
+        exchange_min_bag=7,
         pass_allowed=True,
         pass_end_limit=2,
         scoreless_end_limit=None,
@@ -178,6 +179,7 @@ def test_solo_unlimited_deals_all_tiles() -> None:
     parameters = GameParameters(
         validate_on_play=True,
         exchange_limit=None,
+        exchange_min_bag=7,
         pass_allowed=True,
         pass_end_limit=None,
         scoreless_end_limit=None,
