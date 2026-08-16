@@ -21,3 +21,9 @@ class WordState(BaseFrozen):
     scoreless_turns: int = 0
     premoves: dict[int, Move | None]
     turn_number: int
+
+    def with_premove(self, seat: int, move: Move | None) -> "WordState":
+        return self.model_copy(update={"premoves": {**self.premoves, seat: move}})
+
+    def without_premove(self, seat: int) -> "WordState":
+        return self.with_premove(seat, None)

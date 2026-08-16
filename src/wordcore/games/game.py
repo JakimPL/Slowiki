@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 from wordcore.exceptions import GameOver, IllegalMove, NotYourTurn, StalePosition, WordcoreError
 from wordcore.models.base import BaseFrozen
-from wordcore.moves.action import Move
+from wordcore.moves.action import ActionKind, Move
 from wordcore.positions.position import Position
 from wordcore.states.state import Phase
 from wordcore.views.projection import PositionView, project
@@ -67,56 +67,71 @@ class Game:
         )
 
     def submit(self, move: Move, base_seq: int, premove: bool = False) -> Transaction:
+        position = self._require_current(base_seq)
+        if premove and move.player not in position.state.to_act:
+            return self._queue_premove(position, move)
+        return self._play_move(position, move)
+
+    def _require_current(self, base_seq: int) -> Position:
         if base_seq != self.seq:
             raise StalePosition("position advanced past the submitted sequence")
         position = self.position
         if position.state.phase == Phase.GAME_OVER:
             raise GameOver("the game has finished")
-        if move.player not in position.players:
-            raise IllegalMove("player is not part of the game")
-        if premove and move.player not in position.state.to_act:
-            self._rules.validate(position, move)
-            new_state = position.state.model_copy(
-                update={"premoves": {**position.state.premoves, move.player: move}}
-            )
-            new_position = position.model_copy(update={"state": new_state})
-            self._record(move, new_position)
-            return Transaction(seq=self.seq - 1, move=move, position=new_position)
+        return position
+
+    def _queue_premove(self, position: Position, move: Move) -> Transaction:
+        self._ensure_member(position, move.player)
+        self._rules.validate(position, move)
+        new_position = position.model_copy(
+            update={"state": position.state.with_premove(move.player, move)}
+        )
+        self._record(move, new_position)
+        return Transaction(seq=self.seq - 1, move=move, position=new_position)
+
+    def _play_move(self, position: Position, move: Move) -> Transaction:
+        self._ensure_member(position, move.player)
         if move.player not in position.state.to_act:
             raise NotYourTurn("player is not on turn")
         self._rules.validate(position, move)
         new_position = self._rules.apply(position, move, self._rng)
         self._record(move, new_position)
         move_seq = self.seq - 1
-        self._settle_premoves()
+        if move.action.kind != ActionKind.REORDER:
+            self._settle_premoves()
         return Transaction(seq=move_seq, move=move, position=self.position)
+
+    def _ensure_member(self, position: Position, player: int) -> None:
+        if player not in position.players:
+            raise IllegalMove("player is not part of the game")
 
     def _record(self, move: Move | None, position: Position) -> None:
         self._moves.append(move)
         self._history.append(position)
 
     def _settle_premoves(self) -> None:
-        while True:
-            position = self.position
-            if position.state.phase == Phase.GAME_OVER:
+        for _ in range(len(self.position.players)):
+            if not self._settle_next_premove():
                 return
-            if len(position.state.to_act) != 1:
-                return
-            seat = next(iter(position.state.to_act))
-            pending = position.state.premoves.get(seat)
-            if pending is None:
-                return
-            try:
-                self._rules.validate(position, pending)
-                applied = self._rules.apply(position, pending, self._rng)
-                cleared_state = applied.state.model_copy(
-                    update={"premoves": {**applied.state.premoves, seat: None}}
-                )
-                new_position = applied.model_copy(update={"state": cleared_state})
-                self._record(pending, new_position)
-            except WordcoreError:
-                new_state = position.state.model_copy(
-                    update={"premoves": {**position.state.premoves, seat: None}}
-                )
-                new_position = position.model_copy(update={"state": new_state})
-                self._record(None, new_position)
+
+    def _settle_next_premove(self) -> bool:
+        position = self.position
+        if position.state.phase == Phase.GAME_OVER:
+            return False
+        if len(position.state.to_act) != 1:
+            return False
+        seat = next(iter(position.state.to_act))
+        pending = position.state.premoves.get(seat)
+        if pending is None:
+            return False
+        try:
+            self._rules.validate(position, pending)
+            applied = self._rules.apply(position, pending, self._rng)
+            new_position = applied.model_copy(update={"state": applied.state.without_premove(seat)})
+            self._record(pending, new_position)
+        except WordcoreError:
+            new_position = position.model_copy(
+                update={"state": position.state.without_premove(seat)}
+            )
+            self._record(None, new_position)
+        return True

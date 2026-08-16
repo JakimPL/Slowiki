@@ -10,6 +10,7 @@ class ActionKind(StrEnum):
     PLAY = "play"
     EXCHANGE = "exchange"
     PASS = "pass"
+    REORDER = "reorder"
 
 
 class PlayPlacement(BaseFrozen):
@@ -33,7 +34,12 @@ class Pass(BaseFrozen):
     kind: Literal[ActionKind.PASS] = ActionKind.PASS
 
 
-AnyAction = Annotated[Play | Exchange | Pass, Field(discriminator="kind")]
+class Reorder(BaseFrozen):
+    kind: Literal[ActionKind.REORDER] = ActionKind.REORDER
+    tile_ids: tuple[int, ...]
+
+
+AnyAction = Annotated[Play | Exchange | Pass | Reorder, Field(discriminator="kind")]
 
 
 class Move(BaseFrozen):

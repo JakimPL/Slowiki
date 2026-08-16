@@ -5,7 +5,7 @@ from wordcore.exceptions import IllegalMove
 from wordcore.games.game import Rules
 from wordcore.lexicon.lexicon import Lexicon
 from wordcore.models.base import BaseFrozen
-from wordcore.moves.action import Exchange, Move, Pass, Play
+from wordcore.moves.action import Exchange, Move, Pass, Play, Reorder
 from wordcore.positions.position import Position
 from wordcore.rules.end_conditions import final_scores
 from wordcore.rules.exchange import apply_exchange, validate_exchange
@@ -76,19 +76,23 @@ class WordGameRules(Rules):
             case Pass():
                 if not self._parameters.pass_allowed:
                     raise IllegalMove("passing is not allowed")
+            case Reorder():
+                self._validate_reorder(position, move.player, action)
 
     def apply(self, position: Position, move: Move, _rng: random.Random) -> Position:
         action = move.action
         match action:
             case Play():
                 intermediate, went_out = self._apply_play(position, move.player, action)
+                return self._finish_turn(intermediate, move.player, went_out)
             case Exchange():
                 intermediate = self._apply_exchange(position, move.player, action)
-                went_out = None
+                return self._finish_turn(intermediate, move.player, None)
             case Pass():
                 intermediate = self._apply_pass(position)
-                went_out = None
-        return self._finish_turn(intermediate, move.player, went_out)
+                return self._finish_turn(intermediate, move.player, None)
+            case Reorder():
+                return self._apply_reorder(position, move.player, action)
 
     def _apply_play(
         self, position: Position, player: int, action: Play
@@ -139,6 +143,19 @@ class WordGameRules(Rules):
                 "consecutive_passes": state.consecutive_passes + 1,
                 "scoreless_turns": state.scoreless_turns + 1,
             }
+        )
+        return position.model_copy(update={"state": new_state})
+
+    def _validate_reorder(self, position: Position, player: int, action: Reorder) -> None:
+        rack_ids = [tile.identifier for tile in rack_of(position, player)]
+        if sorted(action.tile_ids) != sorted(rack_ids):
+            raise IllegalMove("reorder must list every rack tile exactly once")
+
+    def _apply_reorder(self, position: Position, player: int, action: Reorder) -> Position:
+        by_id = {tile.identifier: tile for tile in rack_of(position, player)}
+        ordered = tuple(by_id[tile_id] for tile_id in action.tile_ids)
+        new_state = position.state.model_copy(
+            update={"racks": {**position.state.racks, player: ordered}}
         )
         return position.model_copy(update={"state": new_state})
 

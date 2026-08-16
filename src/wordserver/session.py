@@ -5,7 +5,7 @@ from typing import Any
 
 from wordcore.exceptions import NotYourTurn
 from wordcore.games.game import EventView, Game
-from wordcore.moves.action import Move, Pass
+from wordcore.moves.action import ActionKind, Move, Pass
 from wordcore.states.state import Phase
 from wordtable.config import TimeConfig
 
@@ -39,7 +39,8 @@ class TableSession:
             if observer is None or observer != move.player:
                 raise NotYourTurn("seat token does not match the move")
             self._game.submit(move, base_seq=base_seq, premove=premove)
-            self._schedule_timer()
+            if move.action.kind != ActionKind.REORDER:
+                self._schedule_timer()
             self._condition.notify_all()
             return self._game.seq
 

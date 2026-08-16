@@ -4,8 +4,9 @@ import pytest
 
 from wordcore.board.board import Board
 from wordcore.exceptions import IllegalMove, InvalidWord
+from wordcore.games.game import Game
 from wordcore.lexicon.lexicon import Lexicon, TextLexicon
-from wordcore.moves.action import Exchange, Move, Pass, Play, PlayPlacement
+from wordcore.moves.action import Exchange, Move, Pass, Play, PlayPlacement, Reorder
 from wordcore.positions.position import Position
 from wordcore.states.state import Phase, WordState
 from wordcore.tiles.tile import LetterSpec, Tile, TilePreset
@@ -46,7 +47,9 @@ def make_rules(lexicon: Lexicon, players: tuple[int, ...] = (0, 1)) -> WordGameR
 
 
 def make_position(
-    racks: dict[int, tuple[Tile, ...]], bag: tuple[Tile, ...], to_act: int = 0
+    racks: dict[int, tuple[Tile, ...]],
+    bag: tuple[Tile, ...],
+    to_act: int = 0,
 ) -> Position:
     state = WordState(
         phase=Phase.TURN,
@@ -191,3 +194,47 @@ def test_literaki_scheme_builds_and_deals() -> None:
     position = rules.initial_position(random.Random(0))
     assert [len(rack or ()) for rack in position.state.racks.values()] == [7, 7]
     assert len(position.state.bag) == 86
+
+
+def test_reorder_applies_without_advancing() -> None:
+    rules = make_rules(TextLexicon.from_words(["ab"]))
+    position = make_position(
+        racks={
+            0: (
+                make_tile(1, "a", 1, "yellow"),
+                make_tile(2, "b", 2, "green"),
+                make_tile(3, "c", 1, "yellow"),
+            ),
+            1: (),
+        },
+        bag=(),
+    )
+    move = Move(player=0, action=Reorder(tile_ids=(3, 1, 2)))
+    rules.validate(position, move)
+    updated = rules.apply(position, move, random.Random(0))
+    assert [tile.identifier for tile in updated.state.racks[0]] == [3, 1, 2]
+    assert updated.state.to_act == frozenset({0})
+
+
+def test_reorder_rejects_wrong_multiset() -> None:
+    rules = make_rules(TextLexicon.from_words(["ab"]))
+    position = make_position(
+        racks={
+            0: (make_tile(1, "a", 1, "yellow"), make_tile(2, "b", 2, "green")),
+            1: (),
+        },
+        bag=(),
+    )
+    move = Move(player=0, action=Reorder(tile_ids=(1,)))
+    with pytest.raises(IllegalMove):
+        rules.validate(position, move)
+
+
+def test_engine_reorder_does_not_advance_turn() -> None:
+    rules = make_rules(TextLexicon.from_words(["ab"]))
+    game = Game(rules, random.Random(0))
+    rack = [tile.identifier for tile in game.position.state.racks[0]]
+    reordered = tuple(reversed(rack))
+    game.submit(Move(player=0, action=Reorder(tile_ids=reordered)), base_seq=0)
+    assert game.position.state.to_act == frozenset({0})
+    assert [tile.identifier for tile in game.position.state.racks[0]] == list(reordered)
