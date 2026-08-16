@@ -23,6 +23,25 @@
 * Restrict yourself from using default values for non-optional, excluding these that are not meant to be frequently changed (e.g. seed). If you do use defaults, declare a Final top-level constant for that.
 * Be explicit about type expectations. Avoid dynamic `getattr` or `hasattr`.
 
+### Function shape
+
+* Functions read as prose: an orchestrator names its steps at one level of abstraction and delegates each step to a helper named for its intent. If a reader must decode indices, coordinates, or state mutations inline — roughly anything past 15 lines of low-level work — the function does too much and must be split.
+* Each validation rule is its own `_ensure_*` helper that raises the domain error; the orchestrator reads as the list of rules it enforces.
+* Symmetric variants (horizontal/vertical, open/close, increment/decrement) are one function with a parameter, never two mirrored copies. Duplication that differs only by a transposition is a defect.
+* Helpers return values. A helper that mutates its argument and returns `None` hides the data flow and invites the caller to forget the result; build and return the new value instead.
+* Every game-rule number that a scheme could reasonably tune lives in the scheme configuration and flows through a parameters model. A `Final` module constant is reserved for genuinely fixed protocol values (formats, wire markers, retry buffers).
+
+### Modules
+
+* One concept per module. A model or enum shared across packages gets its own module named after the concept; splitting later is a rename, never an untangling.
+* Import every name from its defining module. Implicit re-exports (importing `X` from a module that itself imported `X`) are forbidden — they hide the owner and break when the intermediary changes.
+
+### Boundaries
+
+* External text — CLI arguments, configuration files, request payloads — is parsed once, at the boundary, into a typed structure (`NamedTuple` or Pydantic model) with explicit arity and value checks. Positional indexing of raw input is allowed only inside that parser.
+* Normalization happens once, at ingestion. Letters are canonically uppercase across the whole system (dictionary loaders, tile presets, blank assignments); join codes are canonically uppercase. Code past the boundary compares values directly and never calls `upper()`/`lower()` again.
+* Program status output goes through `logging`, configured at the entry point. `print` is reserved for data explicitly requested by the user (e.g. a value the CLI was asked to produce).
+
 ### Typing
 
 * Specify all input and return types in function signatures, including `None`.

@@ -24,6 +24,12 @@ P5. The journal is append-only. Each move appends a transaction of the form
 P6. The engine owns the cursor. Turn order, phase, and premove settlement are
     engine concerns; game rules supply validation and application.
 
+P7. Letters are canonical. Every letter inside the system is uppercase; dictionary
+    loaders, tile presets, and move payloads normalize on ingestion, so rules,
+    scoring, and projections compare letters directly. Compiled lexicons carry a
+    format version (`LEXICON_FORMAT` in `wordtable.paths`), so a normalization
+    change retires stale artifacts by filename.
+
 ## Packages
 
 - `wordcore` — the engine: frozen models, tiles, board, moves, rules kernel,
@@ -34,11 +40,22 @@ P6. The engine owns the cursor. Turn order, phase, and premove settlement are
 - `lexica` — dictionary building: word entries, SJP loader, compilation.
 - `wordbots` — automated player stubs.
 
+## Module layout
+
+Each module holds one concept; shared models and enums live in modules named
+after them (`board.bonus`, `moves.kind`, `moves.move`, `games.kind`,
+`games.rules`, `lexicon.protocol`, `lexicon.verdict`). The rules kernel splits
+into `wordcore.rules.words` (placements and word geometry) and
+`wordcore.rules.score` (word and move scoring). Dictionary source loaders live
+under `lexica.dictionaries`, one module per source.
+
 ## Vocabulary
 
 - `wordgames.names.GameName` — literaki, scrabble.
 - `lexica.names.DictionaryName` — sjp, english, osps.
-- `wordcore.moves.action.ActionKind` — play, exchange, pass, reorder.
+- `wordcore.moves.kind.ActionKind` — play, exchange, pass, reorder.
+- `wordcore.games.kind.EntryKind` — move, premove_set, premove_cleared,
+  premove_discarded.
 
 ## Concurrency
 
