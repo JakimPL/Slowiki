@@ -72,9 +72,7 @@ async def test_pass_advances_turn(client: httpx.AsyncClient) -> None:
     )
     assert result.status_code == 200
     assert result.json()["seq"] == 1
-    view = await client.get(
-        f"/tables/{table_id}/view", headers={"X-Seat-Token": seat_zero}
-    )
+    view = await client.get(f"/tables/{table_id}/view", headers={"X-Seat-Token": seat_zero})
     assert view.json()["view"]["to_act"] == [1]
 
 

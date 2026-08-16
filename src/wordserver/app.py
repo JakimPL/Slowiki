@@ -5,7 +5,8 @@ from typing import Any
 
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
 
 from wordcore.exceptions import WordcoreError
 from wordcore.games.game import Game
@@ -106,5 +107,13 @@ def create_app(config_dir: Path, dictionaries_dir: Path, style: StyleConfig) -> 
         observer = session.observer_for(token)
         since = int(last_event_id) + 1 if last_event_id else 0
         return StreamingResponse(session.events(observer, since), media_type="text/event-stream")
+
+    frontend_dist = config_dir.parent / "frontend" / "dist"
+    if frontend_dist.is_dir():
+        app.mount("/assets", StaticFiles(directory=frontend_dist / "assets"), name="assets")
+
+        @app.get("/")
+        def serve_index() -> FileResponse:
+            return FileResponse(frontend_dist / "index.html")
 
     return app

@@ -1,4 +1,4 @@
-.PHONY: install check test play serve types assets
+.PHONY: install check test play serve types assets frontend
 
 install:
 	uv sync --all-extras --all-groups
@@ -24,3 +24,6 @@ types:
 
 assets:
 	uv run python -m wordassets.cli render
+
+frontend:
+	cd frontend && npm install && npm run build
