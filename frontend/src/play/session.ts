@@ -17,10 +17,13 @@ export function standingIn(fragment: string): Standing {
     };
 }
 
-export function fragmentFor(table: string, token: string): string {
+export function fragmentFor(table: string, token: string, code: string | null): string {
     const fields = new URLSearchParams();
     fields.set(TABLE_FIELD, table);
     fields.set(TOKEN_FIELD, token);
+    if (code !== null) {
+        fields.set(CODE_FIELD, code);
+    }
     return `#${fields.toString()}`;
 }
 

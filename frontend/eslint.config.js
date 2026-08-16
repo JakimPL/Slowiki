@@ -52,4 +52,10 @@ export default tseslint.config(
             "@typescript-eslint/no-unnecessary-type-parameters": "off",
         },
     },
+    {
+        files: ["src/types/react-css.d.ts"],
+        rules: {
+            "@typescript-eslint/consistent-indexed-object-style": "off",
+        },
+    },
 );

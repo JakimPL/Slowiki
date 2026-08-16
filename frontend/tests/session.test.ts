@@ -15,15 +15,19 @@ describe("standingIn", () => {
 });
 
 describe("fragmentFor", () => {
-    it("writes table and token only", () => {
-        expect(fragmentFor("abc123", "tok-1")).toBe("#table=abc123&token=tok-1");
+    it("writes table and token, leaving an absent code out", () => {
+        expect(fragmentFor("abc123", "tok-1", null)).toBe("#table=abc123&token=tok-1");
+    });
+
+    it("keeps the shareable code beside the credentials", () => {
+        expect(fragmentFor("abc123", "tok-1", "KWPZTR")).toBe("#table=abc123&token=tok-1&code=KWPZTR");
     });
 
     it("round-trips through standingIn", () => {
-        const standing = standingIn(fragmentFor("abc123", "tok-1"));
+        const standing = standingIn(fragmentFor("abc123", "tok-1", "KWPZTR"));
         expect(standing.table).toBe("abc123");
         expect(standing.token).toBe("tok-1");
-        expect(standing.code).toBeNull();
+        expect(standing.code).toBe("KWPZTR");
     });
 });
 

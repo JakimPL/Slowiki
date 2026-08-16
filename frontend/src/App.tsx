@@ -2,34 +2,27 @@ import type { ReactElement } from "react";
 import { useEffect, useState } from "react";
 
 import { readStyle } from "./api/client";
-import { PRODUCT_NAME, PRODUCT_TAGLINE, SHELL_NOTE, STYLE_FALLBACK_NOTE } from "./table/strings";
+import type { Arrival } from "./play/useStanding";
+import { useStanding } from "./play/useStanding";
+import { useTable } from "./play/useTable";
+import { Home } from "./table/Home";
+import { JOINING_CAPTION, STYLE_FALLBACK_NOTE } from "./table/strings";
+import { Table } from "./table/Table";
 import { applyTheme } from "./table/theme";
 
-type ThemeSource = "loading" | "server" | "fallback";
-
-const SPECIMEN_TILES: readonly { letter: string; category: string }[] = [
-    { letter: "S", category: "yellow" },
-    { letter: "Ł", category: "blue" },
-    { letter: "O", category: "yellow" },
-    { letter: "W", category: "yellow" },
-    { letter: "A", category: "yellow" },
-];
-
 export function App(): ReactElement {
-    const [themeSource, setThemeSource] = useState<ThemeSource>("loading");
+    const [themeNote, setThemeNote] = useState<string | null>(null);
+    const { arrival, invitation, arrive } = useStanding();
 
     useEffect(() => {
         let mounted = true;
         readStyle()
             .then((style) => {
                 applyTheme(style, document);
-                if (mounted) {
-                    setThemeSource("server");
-                }
             })
             .catch(() => {
                 if (mounted) {
-                    setThemeSource("fallback");
+                    setThemeNote(STYLE_FALLBACK_NOTE);
                 }
             });
         return (): void => {
@@ -37,18 +30,24 @@ export function App(): ReactElement {
         };
     }, []);
 
-    return (
-        <main className="shell">
-            <div className="specimen" aria-hidden="true">
-                {SPECIMEN_TILES.map((tile, position) => (
-                    <b key={position} data-category={tile.category}>
-                        {tile.letter}
-                    </b>
-                ))}
-            </div>
-            <h1>{PRODUCT_NAME}</h1>
-            <p className="tagline">{PRODUCT_TAGLINE}</p>
-            <p className="note">{themeSource === "fallback" ? STYLE_FALLBACK_NOTE : SHELL_NOTE}</p>
-        </main>
-    );
+    if (arrival === null) {
+        return <Home invitedCode={invitation} themeNote={themeNote} onArrive={arrive} />;
+    }
+    return <TableScreen arrival={arrival} />;
+}
+
+interface TableScreenProps {
+    readonly arrival: Arrival;
+}
+
+function TableScreen({ arrival }: TableScreenProps): ReactElement {
+    const { connection, state, trouble } = useTable(arrival.seat.table, arrival.seat.token);
+    if (state === null) {
+        return (
+            <main className="waiting">
+                <p role="status">{trouble ?? JOINING_CAPTION}</p>
+            </main>
+        );
+    }
+    return <Table arrival={arrival} connection={connection} state={state} trouble={trouble} />;
 }
