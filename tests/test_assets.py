@@ -1,5 +1,5 @@
 from wordassets.svg import render_board, render_tile
-from wordcore.board.board import Bonus, BonusKind, Board
+from wordcore.board.board import Board, Bonus, BonusKind
 from wordcore.tiles.tile import Tile
 from wordtable.config import StyleConfig
 

@@ -1,6 +1,6 @@
 from typing import Final
 
-from wordcore.board.board import Bonus, BonusKind, Board
+from wordcore.board.board import Board, Bonus, BonusKind
 from wordcore.tiles.tile import Tile
 from wordtable.config import StyleConfig
 
@@ -65,20 +65,22 @@ def render_tile(tile: Tile, style: StyleConfig) -> str:
 def _bonus_fill(bonus: Bonus | None, style: StyleConfig) -> str:
     if bonus is None:
         return style.board_color
-    if bonus.kind == BonusKind.CATEGORY_MULTIPLIER:
-        return style.tile_colors.get(bonus.category or "", style.board_color)
-    if bonus.kind == BonusKind.WORD_MULTIPLIER:
-        return style.premium_colors.get("word_multiplier", style.board_color)
-    if bonus.kind == BonusKind.LETTER_MULTIPLIER:
-        return style.premium_colors.get("letter_multiplier", style.board_color)
-    return style.board_color
+    match bonus.kind:
+        case BonusKind.CATEGORY_MULTIPLIER:
+            return style.tile_colors.get(bonus.category or "", style.board_color)
+        case BonusKind.WORD_MULTIPLIER:
+            return style.premium_colors.get(BonusKind.WORD_MULTIPLIER.value, style.board_color)
+        case BonusKind.LETTER_MULTIPLIER:
+            return style.premium_colors.get(BonusKind.LETTER_MULTIPLIER.value, style.board_color)
 
 
 def _bonus_label(bonus: Bonus | None) -> str:
     if bonus is None:
         return ""
-    if bonus.kind == BonusKind.WORD_MULTIPLIER:
-        return f"{bonus.multiplier}W"
-    if bonus.kind == BonusKind.LETTER_MULTIPLIER:
-        return f"{bonus.multiplier}L"
-    return ""
+    match bonus.kind:
+        case BonusKind.WORD_MULTIPLIER:
+            return f"{bonus.multiplier}W"
+        case BonusKind.LETTER_MULTIPLIER:
+            return f"{bonus.multiplier}L"
+        case _:
+            return ""

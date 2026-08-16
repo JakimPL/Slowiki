@@ -3,10 +3,12 @@ from typing import Any
 
 import yaml
 
+from lexica.names import DictionaryName
 from wordcore.board.preset import BoardPreset
 from wordcore.exceptions import InvalidConfiguration
 from wordcore.models.base import BaseFrozen
 from wordcore.tiles.tile import TilePreset
+from wordgames.names import GameName
 
 
 class ServiceConfig(BaseFrozen):
@@ -21,10 +23,10 @@ class TimeConfig(BaseFrozen):
 
 
 class SchemeConfig(BaseFrozen):
-    game: str
+    game: GameName
     board: str
     tiles: str
-    dictionary: str
+    dictionary: DictionaryName
     min_players: int
     max_players: int
     validate_on_play: bool

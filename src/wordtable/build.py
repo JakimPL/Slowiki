@@ -5,6 +5,7 @@ from wordcore.lexicon.lexicon import Lexicon
 from wordgames.backend.base import GameParameters
 from wordgames.backend.literaki import LiterakiRules
 from wordgames.backend.scrabble import ScrabbleRules
+from wordgames.names import GameName
 from wordtable.catalogue import ResolvedScheme
 
 
@@ -18,8 +19,10 @@ def build_rules(resolved: ResolvedScheme, players: tuple[int, ...], lexicon: Lex
         scoreless_end_limit=resolved.scheme.scoreless_end_limit,
         bingo_bonus=resolved.scheme.bingo_bonus,
     )
-    if resolved.scheme.game == "literaki":
-        return LiterakiRules(players, board, resolved.tiles, lexicon, parameters)
-    if resolved.scheme.game == "scrabble":
-        return ScrabbleRules(players, board, resolved.tiles, lexicon, parameters)
-    raise InvalidConfiguration(f"unknown game: {resolved.scheme.game}")
+    match resolved.scheme.game:
+        case GameName.LITERAKI:
+            return LiterakiRules(players, board, resolved.tiles, lexicon, parameters)
+        case GameName.SCRABBLE:
+            return ScrabbleRules(players, board, resolved.tiles, lexicon, parameters)
+        case _:
+            raise InvalidConfiguration(f"unknown game: {resolved.scheme.game}")

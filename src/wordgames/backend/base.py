@@ -61,27 +61,29 @@ class WordGameRules(Rules):
 
     def validate(self, position: Position, move: Move) -> None:
         action = move.action
-        if isinstance(action, Play):
-            placements = self._resolve_placements(position, move.player, action)
-            validate_anchor(position.board, placements)
-            words = formed_words(position.board, placements)
-            validate_words(self._lexicon, words, self._parameters.validate_on_play)
-        elif isinstance(action, Exchange):
-            validate_exchange(position, move.player, action, self._parameters.exchange_limit, 7)
-        elif isinstance(action, Pass):
-            if not self._parameters.pass_allowed:
-                raise IllegalMove("passing is not allowed")
+        match action:
+            case Play():
+                placements = self._resolve_placements(position, move.player, action)
+                validate_anchor(position.board, placements)
+                words = formed_words(position.board, placements)
+                validate_words(self._lexicon, words, self._parameters.validate_on_play)
+            case Exchange():
+                validate_exchange(position, move.player, action, self._parameters.exchange_limit, 7)
+            case Pass():
+                if not self._parameters.pass_allowed:
+                    raise IllegalMove("passing is not allowed")
 
     def apply(self, position: Position, move: Move, _rng: random.Random) -> Position:
         action = move.action
-        if isinstance(action, Play):
-            intermediate, went_out = self._apply_play(position, move.player, action)
-        elif isinstance(action, Exchange):
-            intermediate = self._apply_exchange(position, move.player, action)
-            went_out = None
-        else:
-            intermediate = self._apply_pass(position)
-            went_out = None
+        match action:
+            case Play():
+                intermediate, went_out = self._apply_play(position, move.player, action)
+            case Exchange():
+                intermediate = self._apply_exchange(position, move.player, action)
+                went_out = None
+            case Pass():
+                intermediate = self._apply_pass(position)
+                went_out = None
         return self._finish_turn(intermediate, move.player, went_out)
 
     def _apply_play(

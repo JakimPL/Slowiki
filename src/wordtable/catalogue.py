@@ -3,12 +3,13 @@ from pathlib import Path
 from wordcore.board.preset import BoardPreset
 from wordcore.models.base import BaseFrozen
 from wordcore.tiles.tile import TilePreset
+from wordgames.names import GameName
 from wordtable.config import SchemeConfig, load_board_preset, load_scheme, load_tile_preset
 
 
 class Offering(BaseFrozen):
     name: str
-    game: str
+    game: GameName
     min_players: int
     max_players: int
 

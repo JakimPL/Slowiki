@@ -16,10 +16,11 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> None:
     args = build_parser().parse_args(argv)
-    if args.command == "play":
-        run(args.scheme, args.players)
-    elif args.command == "serve":
-        run_server()
+    match args.command:
+        case "play":
+            run(args.scheme, args.players)
+        case "serve":
+            run_server()
 
 
 if __name__ == "__main__":
