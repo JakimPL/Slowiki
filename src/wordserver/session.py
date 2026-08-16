@@ -17,6 +17,7 @@ class TableSession:
         self._time = time
         self._condition = asyncio.Condition()
         self._timer_task: asyncio.Task[None] | None = None
+        self._claimed: set[int] = {0}
 
     @property
     def seq(self) -> int:
@@ -28,6 +29,13 @@ class TableSession:
         for seat, seat_token in self._tokens.items():
             if seat_token == token:
                 return seat
+        return None
+
+    def claim_seat(self) -> tuple[int, str] | None:
+        for seat in sorted(self._tokens):
+            if seat not in self._claimed:
+                self._claimed.add(seat)
+                return seat, self._tokens[seat]
         return None
 
     def view(self, observer: int | None) -> dict[str, Any]:

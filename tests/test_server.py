@@ -38,10 +38,9 @@ async def test_create_table_and_view(client: httpx.AsyncClient) -> None:
     assert response.status_code == 200
     data = response.json()
     table_id = data["table_id"]
-    seat_zero = next(seat for seat in data["seats"] if seat["seat"] == 0)
-    view = await client.get(
-        f"/tables/{table_id}/view", headers={"X-Seat-Token": seat_zero["token"]}
-    )
+    assert data["seat"] == 0
+    assert len(data["code"]) == 6
+    view = await client.get(f"/tables/{table_id}/view", headers={"X-Seat-Token": data["token"]})
     assert view.status_code == 200
     body = view.json()
     assert body["seq"] == 0
@@ -62,17 +61,32 @@ async def test_pass_advances_turn(client: httpx.AsyncClient) -> None:
     response = await client.post("/tables", json={"scheme": "literaki", "seats": 2})
     data = response.json()
     table_id = data["table_id"]
-    seat_zero = next(seat for seat in data["seats"] if seat["seat"] == 0)["token"]
+    token = data["token"]
     move = {"player": 0, "action": {"kind": "pass"}}
     result = await client.post(
         f"/tables/{table_id}/moves",
         json={"move": move, "base_seq": 0},
-        headers={"X-Seat-Token": seat_zero},
+        headers={"X-Seat-Token": token},
     )
     assert result.status_code == 200
     assert result.json()["seq"] == 1
-    view = await client.get(f"/tables/{table_id}/view", headers={"X-Seat-Token": seat_zero})
+    view = await client.get(f"/tables/{table_id}/view", headers={"X-Seat-Token": token})
     assert view.json()["view"]["to_act"] == [1]
+
+
+async def test_join_table(client: httpx.AsyncClient) -> None:
+    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2})
+    data = created.json()
+    code = data["code"]
+    joined = await client.post(f"/tables/{code}/join")
+    assert joined.status_code == 200
+    body = joined.json()
+    assert body["seat"] == 1
+    assert body["table_id"] == data["table_id"]
+    full = await client.post(f"/tables/{code}/join")
+    assert full.status_code == 409
+    missing = await client.post("/tables/ZZZZZZ/join")
+    assert missing.status_code == 404
 
 
 async def test_session_events_streams_after_submit() -> None:

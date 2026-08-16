@@ -3,6 +3,7 @@ import {
     createTable,
     fetchOfferings,
     fetchView,
+    joinTable,
     submitMove,
     type MovePayload,
     type Offering,
@@ -20,13 +21,28 @@ interface PendingPlacement {
     letter: string | null;
 }
 
+const SESSION_KEY = "literabble:session";
+
 function messageOf(error: unknown): string {
     return error instanceof Error ? error.message : String(error);
 }
 
-function tokenFor(table: TableInfo, seat: number): string {
-    const found = table.seats.find((entry) => entry.seat === seat);
-    return found === undefined ? "" : found.token;
+function loadSession(): TableInfo | null {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (raw === null) return null;
+    try {
+        return JSON.parse(raw) as TableInfo;
+    } catch {
+        return null;
+    }
+}
+
+function saveSession(session: TableInfo) {
+    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+}
+
+function clearSession() {
+    localStorage.removeItem(SESSION_KEY);
 }
 
 export function App() {
@@ -34,7 +50,8 @@ export function App() {
     const [scheme, setScheme] = useState("literaki");
     const [seatCount, setSeatCount] = useState(2);
     const [table, setTable] = useState<TableInfo | null>(null);
-    const [seat, setSeat] = useState(0);
+    const [joinCode, setJoinCode] = useState("");
+    const [resumeSession, setResumeSession] = useState<TableInfo | null>(loadSession);
     const [view, setView] = useState<View | null>(null);
     const [style, setStyle] = useState<Style | null>(null);
     const [seq, setSeq] = useState(0);
@@ -54,7 +71,7 @@ export function App() {
         let active = true;
         const tick = async () => {
             try {
-                const data = await fetchView(table.table_id, tokenFor(table, seat));
+                const data = await fetchView(table.table_id, table.token);
                 if (!active) return;
                 setView(data.view);
                 setStyle(data.style);
@@ -70,7 +87,9 @@ export function App() {
             active = false;
             clearInterval(timer);
         };
-    }, [table, seat]);
+    }, [table]);
+
+    const seat = table?.seat ?? 0;
 
     const ownRack = useMemo(() => {
         if (view === null) return [];
@@ -84,23 +103,35 @@ export function App() {
 
     const myTurn = view !== null && view.phase === "turn" && view.to_act.includes(seat);
 
+    function enterTable(session: TableInfo) {
+        setTable(session);
+        setView(null);
+        setPending({});
+        setSelected([]);
+        setError(null);
+        saveSession(session);
+        setResumeSession(session);
+    }
+
     function startTable() {
         void createTable(scheme, seatCount)
-            .then((created) => {
-                setTable(created);
-                setSeat(created.seats[0]?.seat ?? 0);
-                setView(null);
-                setPending({});
-                setSelected([]);
-                setError(null);
-            })
+            .then(enterTable)
             .catch((reason: unknown) => setError(messageOf(reason)));
     }
 
-    function switchSeat(next: number) {
-        setSeat(next);
-        setSelected([]);
-        setPending({});
+    function joinByCode() {
+        const code = joinCode.trim().toUpperCase();
+        if (code === "") return;
+        void joinTable(code)
+            .then(enterTable)
+            .catch((reason: unknown) => setError(messageOf(reason)));
+    }
+
+    function leave() {
+        clearSession();
+        setResumeSession(null);
+        setTable(null);
+        setView(null);
         setError(null);
     }
 
@@ -144,7 +175,7 @@ export function App() {
 
     function send(move: MovePayload, premoveFlag: boolean) {
         if (table === null) return;
-        void submitMove(table.table_id, tokenFor(table, seat), move, seq, premoveFlag)
+        void submitMove(table.table_id, table.token, move, seq, premoveFlag)
             .then(() => {
                 setPending({});
                 setSelected([]);
@@ -201,6 +232,18 @@ export function App() {
                     />
                 </label>
                 <button onClick={startTable}>create table</button>
+                <label>
+                    join code
+                    <input
+                        value={joinCode}
+                        onChange={(event) => setJoinCode(event.target.value.toUpperCase())}
+                        maxLength={6}
+                    />
+                </label>
+                <button onClick={joinByCode}>join table</button>
+                {resumeSession !== null && (
+                    <button onClick={() => enterTable(resumeSession)}>resume game</button>
+                )}
                 {error !== null && <p className="error">{error}</p>}
             </div>
         );
@@ -268,17 +311,15 @@ export function App() {
         <div className="game">
             <header>
                 <span className={myTurn ? "turn mine" : "turn"}>{myTurn ? "your turn" : "waiting"}</span>
-                <span>bag {view?.bag_count ?? 0}</span>
-                <button onClick={() => setTable(null)}>leave</button>
+                <span>
+                    seat {seat} · code {table.code} · bag {view?.bag_count ?? 0}
+                </span>
+                <button onClick={leave}>leave</button>
             </header>
             <div className="seats">
-                {table.seats.map((entry) => (
-                    <button
-                        key={entry.seat}
-                        className={entry.seat === seat ? "active" : ""}
-                        onClick={() => switchSeat(entry.seat)}
-                    >
-                        seat {entry.seat} ({view?.scores[String(entry.seat)] ?? 0})
+                {(view?.players ?? []).map((entry) => (
+                    <button key={entry} className={entry === seat ? "active" : ""} disabled>
+                        seat {entry} ({view?.scores[String(entry)] ?? 0})
                     </button>
                 ))}
             </div>

@@ -5,16 +5,14 @@ export interface Offering {
     max_players: number;
 }
 
-export interface SeatInfo {
-    seat: number;
-    token: string;
-}
-
 export interface TableInfo {
     table_id: string;
+    code: string;
     scheme: string;
     game: string;
-    seats: SeatInfo[];
+    seat: number;
+    token: string;
+    max_players: number;
 }
 
 export interface Bonus {
@@ -103,6 +101,13 @@ export async function createTable(scheme: string, seats: number): Promise<TableI
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ scheme, seats }),
+    });
+    return (await response.json()) as TableInfo;
+}
+
+export async function joinTable(code: string): Promise<TableInfo> {
+    const response = await request(`/tables/${encodeURIComponent(code)}/join`, {
+        method: "POST",
     });
     return (await response.json()) as TableInfo;
 }
