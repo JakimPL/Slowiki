@@ -18,5 +18,6 @@ class WordState(BaseFrozen):
     scores: dict[int, int]
     exchange_counts: dict[int, int]
     consecutive_passes: int
+    scoreless_turns: int = 0
     premoves: dict[int, Move | None]
     turn_number: int

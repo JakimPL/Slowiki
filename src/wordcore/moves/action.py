@@ -9,6 +9,7 @@ class PlayPlacement(BaseFrozen):
     tile_id: int
     row: int
     column: int
+    letter: str | None = None
 
 
 class Play(BaseFrozen):

@@ -5,5 +5,4 @@ from wordcore.positions.position import Position
 
 
 class Bot(Protocol):
-    def choose(self, position: Position, seat: int) -> Move:
-        ...
+    def choose(self, position: Position, seat: int) -> Move: ...

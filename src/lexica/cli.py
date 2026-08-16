@@ -37,3 +37,7 @@ def main(argv: list[str] | None = None) -> None:
         print("download an English word list and write it to", args.output)
     elif args.command == "label":
         print("the LLM labelling pipeline lands here")
+
+
+if __name__ == "__main__":
+    main()

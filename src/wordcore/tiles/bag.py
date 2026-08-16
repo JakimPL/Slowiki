@@ -32,9 +32,9 @@ def shuffled_bag(preset: TilePreset, rng: random.Random) -> tuple[Tile, ...]:
 
 def deal_racks(
     bag: tuple[Tile, ...], rack_sizes: dict[int, int | None]
-) -> tuple[dict[int, tuple[Tile, ...]], tuple[Tile, ...]]:
+) -> tuple[dict[int, tuple[Tile, ...] | None], tuple[Tile, ...]]:
     remaining = list(bag)
-    racks: dict[int, tuple[Tile, ...]] = {}
+    racks: dict[int, tuple[Tile, ...] | None] = {}
     for seat, size in rack_sizes.items():
         if size is None:
             taken = tuple(remaining)
