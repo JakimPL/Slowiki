@@ -60,3 +60,54 @@ files = ["src"]
 testpaths = ["tests"]
 asyncio_mode = "auto"
 addopts = "-ra"
+
+[tool.coverage.run]
+source = [
+    "wordcore",
+    "wordgames",
+    "wordserver",
+    "wordtable",
+    "wordassets",
+    "lexica",
+    "wordbots",
+]
+omit = [
+    "src/wordtable/cli.py",
+    "src/wordtable/play.py",
+    "src/wordtable/serve.py",
+]
+
+[tool.importlinter]
+include_external_packages = true
+root_packages = [
+    "wordcore",
+    "wordgames",
+    "wordserver",
+    "wordtable",
+    "wordassets",
+    "lexica",
+    "wordbots",
+]
+
+[[tool.importlinter.contracts]]
+name = "Core knows no subsystem"
+type = "forbidden"
+source_modules = ["wordcore"]
+forbidden_modules = ["wordgames", "wordserver", "wordtable", "wordassets", "lexica", "wordbots"]
+
+[[tool.importlinter.contracts]]
+name = "Rules are transport-free"
+type = "forbidden"
+source_modules = ["wordcore", "wordgames", "lexica", "wordbots", "wordassets"]
+forbidden_modules = ["fastapi", "uvicorn", "httpx"]
+
+[[tool.importlinter.contracts]]
+name = "Pure layers know no adapter or host"
+type = "forbidden"
+source_modules = ["wordgames", "lexica", "wordbots"]
+forbidden_modules = ["wordserver", "wordtable", "wordassets"]
+
+[[tool.importlinter.contracts]]
+name = "Game, dictionary, and bot layers stay independent"
+type = "independence"
+modules = ["wordgames", "lexica", "wordbots"]
