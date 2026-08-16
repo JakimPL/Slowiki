@@ -1,365 +1,54 @@
-import { useEffect, useMemo, useState } from "react";
-import {
-    createTable,
-    fetchOfferings,
-    fetchView,
-    joinTable,
-    submitMove,
-    type MovePayload,
-    type Offering,
-    type Style,
-    type TableInfo,
-    type Tile,
-    type View,
-} from "./api";
-import { exchangeMove, passMove, playMove } from "./play";
+import type { ReactElement } from "react";
+import { useEffect, useState } from "react";
 
-interface PendingPlacement {
-    tileId: number;
-    row: number;
-    column: number;
-    letter: string | null;
-}
+import { readStyle } from "./api/client";
+import { PRODUCT_NAME, PRODUCT_TAGLINE, SHELL_NOTE, STYLE_FALLBACK_NOTE } from "./table/strings";
+import { applyTheme } from "./table/theme";
 
-const SESSION_KEY = "literabble:session";
+type ThemeSource = "loading" | "server" | "fallback";
 
-function messageOf(error: unknown): string {
-    return error instanceof Error ? error.message : String(error);
-}
+const SPECIMEN_TILES: readonly { letter: string; category: string }[] = [
+    { letter: "S", category: "yellow" },
+    { letter: "Ł", category: "blue" },
+    { letter: "O", category: "yellow" },
+    { letter: "W", category: "yellow" },
+    { letter: "A", category: "yellow" },
+];
 
-function loadSession(): TableInfo | null {
-    const raw = localStorage.getItem(SESSION_KEY);
-    if (raw === null) return null;
-    try {
-        return JSON.parse(raw) as TableInfo;
-    } catch {
-        return null;
-    }
-}
-
-function saveSession(session: TableInfo) {
-    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-}
-
-function clearSession() {
-    localStorage.removeItem(SESSION_KEY);
-}
-
-export function App() {
-    const [offerings, setOfferings] = useState<Offering[]>([]);
-    const [scheme, setScheme] = useState("literaki");
-    const [seatCount, setSeatCount] = useState(2);
-    const [table, setTable] = useState<TableInfo | null>(null);
-    const [joinCode, setJoinCode] = useState("");
-    const [resumeSession, setResumeSession] = useState<TableInfo | null>(loadSession);
-    const [view, setView] = useState<View | null>(null);
-    const [style, setStyle] = useState<Style | null>(null);
-    const [seq, setSeq] = useState(0);
-    const [error, setError] = useState<string | null>(null);
-    const [selected, setSelected] = useState<number[]>([]);
-    const [pending, setPending] = useState<Record<number, PendingPlacement>>({});
-    const [premove, setPremove] = useState(false);
+export function App(): ReactElement {
+    const [themeSource, setThemeSource] = useState<ThemeSource>("loading");
 
     useEffect(() => {
-        void fetchOfferings()
-            .then(setOfferings)
-            .catch((reason: unknown) => setError(messageOf(reason)));
+        let mounted = true;
+        readStyle()
+            .then((style) => {
+                applyTheme(style, document);
+                if (mounted) {
+                    setThemeSource("server");
+                }
+            })
+            .catch(() => {
+                if (mounted) {
+                    setThemeSource("fallback");
+                }
+            });
+        return (): void => {
+            mounted = false;
+        };
     }, []);
 
-    useEffect(() => {
-        if (table === null) return;
-        let active = true;
-        const tick = async () => {
-            try {
-                const data = await fetchView(table.table_id, table.token);
-                if (!active) return;
-                setView(data.view);
-                setStyle(data.style);
-                setSeq(data.seq);
-                setError(null);
-            } catch (reason) {
-                if (active) setError(messageOf(reason));
-            }
-        };
-        void tick();
-        const timer = setInterval(tick, 1200);
-        return () => {
-            active = false;
-            clearInterval(timer);
-        };
-    }, [table]);
-
-    const seat = table?.seat ?? 0;
-
-    const ownRack = useMemo(() => {
-        if (view === null) return [];
-        return view.racks[String(seat)] ?? [];
-    }, [view, seat]);
-
-    const rackById = useMemo(
-        () => new Map<number, Tile>(ownRack.map((tile) => [tile.identifier, tile])),
-        [ownRack],
-    );
-
-    const myTurn = view !== null && view.phase === "turn" && view.to_act.includes(seat);
-
-    function enterTable(session: TableInfo) {
-        setTable(session);
-        setView(null);
-        setPending({});
-        setSelected([]);
-        setError(null);
-        saveSession(session);
-        setResumeSession(session);
-    }
-
-    function startTable() {
-        void createTable(scheme, seatCount)
-            .then(enterTable)
-            .catch((reason: unknown) => setError(messageOf(reason)));
-    }
-
-    function joinByCode() {
-        const code = joinCode.trim().toUpperCase();
-        if (code === "") return;
-        void joinTable(code)
-            .then(enterTable)
-            .catch((reason: unknown) => setError(messageOf(reason)));
-    }
-
-    function leave() {
-        clearSession();
-        setResumeSession(null);
-        setTable(null);
-        setView(null);
-        setError(null);
-    }
-
-    function toggleTile(tileId: number) {
-        setSelected((previous) =>
-            previous.includes(tileId)
-                ? previous.filter((identifier) => identifier !== tileId)
-                : [...previous, tileId],
-        );
-    }
-
-    function placeAt(row: number, column: number, index: number) {
-        if (view === null) return;
-        const placement = pending[index];
-        if (placement !== undefined) {
-            const next = { ...pending };
-            delete next[index];
-            setPending(next);
-            setSelected([placement.tileId, ...selected]);
-            return;
-        }
-        const tileId = selected[0];
-        if (tileId === undefined || view.board.tiles[index] !== null) return;
-        const tile = rackById.get(tileId);
-        if (tile === undefined) return;
-        let letter: string | null = null;
-        if (tile.blank) {
-            const answer = window.prompt("letter for blank");
-            if (answer === null || answer.trim() === "") return;
-            letter = answer.trim().toLowerCase().slice(0, 1);
-        }
-        setPending({ ...pending, [index]: { tileId, row, column, letter } });
-        setSelected(selected.slice(1));
-    }
-
-    function clearPending() {
-        const returned = Object.values(pending).map((placement) => placement.tileId);
-        setPending({});
-        setSelected([...returned, ...selected]);
-    }
-
-    function send(move: MovePayload, premoveFlag: boolean) {
-        if (table === null) return;
-        void submitMove(table.table_id, table.token, move, seq, premoveFlag)
-            .then(() => {
-                setPending({});
-                setSelected([]);
-                setError(null);
-            })
-            .catch((reason: unknown) => setError(messageOf(reason)));
-    }
-
-    function play() {
-        if (view === null) return;
-        const placements = Object.values(pending).map((placement) => ({
-            tile_id: placement.tileId,
-            row: placement.row,
-            column: placement.column,
-            letter: placement.letter,
-        }));
-        send(playMove(seat, placements), premove && !myTurn);
-    }
-
-    function exchange() {
-        if (selected.length === 0) return;
-        send(exchangeMove(seat, selected), false);
-    }
-
-    function pass() {
-        send(passMove(seat), false);
-    }
-
-    if (table === null) {
-        return (
-            <div className="home">
-                <h1>Literabble</h1>
-                <label>
-                    scheme
-                    <select value={scheme} onChange={(event) => setScheme(event.target.value)}>
-                        {offerings.map((offering) => (
-                            <option key={offering.name} value={offering.name}>
-                                {offering.name} ({offering.game})
-                            </option>
-                        ))}
-                    </select>
-                </label>
-                <label>
-                    players
-                    <input
-                        type="number"
-                        min={1}
-                        max={8}
-                        value={seatCount}
-                        onChange={(event) => {
-                            const parsed = Number(event.target.value);
-                            setSeatCount(Number.isFinite(parsed) ? parsed : 1);
-                        }}
-                    />
-                </label>
-                <button onClick={startTable}>create table</button>
-                <label>
-                    join code
-                    <input
-                        value={joinCode}
-                        onChange={(event) => setJoinCode(event.target.value.toUpperCase())}
-                        maxLength={6}
-                    />
-                </label>
-                <button onClick={joinByCode}>join table</button>
-                {resumeSession !== null && (
-                    <button onClick={() => enterTable(resumeSession)}>resume game</button>
-                )}
-                {error !== null && <p className="error">{error}</p>}
-            </div>
-        );
-    }
-
-    const size = view === null ? 15 : view.board.size;
-    const cells = [];
-    if (view !== null && style !== null) {
-        for (let row = 0; row < view.board.size; row++) {
-            for (let column = 0; column < view.board.size; column++) {
-                const index = row * view.board.size + column;
-                const serverTile = view.board.tiles[index];
-                const placement = pending[index];
-                const bonus = view.board.bonuses[index];
-                let background = style.board_color;
-                let label = "";
-                if (bonus !== null) {
-                    if (bonus.kind === "category_multiplier") {
-                        background = style.tile_colors[bonus.category ?? ""] ?? background;
-                    } else if (bonus.kind === "word_multiplier") {
-                        background = style.premium_colors.word_multiplier;
-                        label = `${bonus.multiplier}W`;
-                    } else if (bonus.kind === "letter_multiplier") {
-                        background = style.premium_colors.letter_multiplier;
-                        label = `${bonus.multiplier}L`;
-                    }
-                }
-                let letter = "";
-                let value = 0;
-                let tileColor = "";
-                if (serverTile !== null) {
-                    letter = serverTile.letter;
-                    value = serverTile.value;
-                    tileColor = style.tile_colors[serverTile.category] ?? "";
-                } else if (placement !== undefined) {
-                    const tile = rackById.get(placement.tileId);
-                    if (tile !== undefined) {
-                        letter = placement.letter ?? tile.letter;
-                        value = tile.value;
-                        tileColor = style.tile_colors[tile.category] ?? "";
-                    }
-                }
-                cells.push(
-                    <div
-                        key={index}
-                        className="cell"
-                        style={{ backgroundColor: background }}
-                        onClick={() => placeAt(row, column, index)}
-                    >
-                        {serverTile !== null || placement !== undefined ? (
-                            <div className="tile" style={{ backgroundColor: tileColor }}>
-                                <span className="letter">{letter}</span>
-                                {value > 0 && <span className="value">{value}</span>}
-                            </div>
-                        ) : (
-                            <span className="bonus">{label}</span>
-                        )}
-                    </div>,
-                );
-            }
-        }
-    }
-
     return (
-        <div className="game">
-            <header>
-                <span className={myTurn ? "turn mine" : "turn"}>{myTurn ? "your turn" : "waiting"}</span>
-                <span>
-                    seat {seat} · code {table.code} · bag {view?.bag_count ?? 0}
-                </span>
-                <button onClick={leave}>leave</button>
-            </header>
-            <div className="seats">
-                {(view?.players ?? []).map((entry) => (
-                    <button key={entry} className={entry === seat ? "active" : ""} disabled>
-                        seat {entry} ({view?.scores[String(entry)] ?? 0})
-                    </button>
+        <main className="shell">
+            <div className="specimen" aria-hidden="true">
+                {SPECIMEN_TILES.map((tile, position) => (
+                    <b key={position} data-category={tile.category}>
+                        {tile.letter}
+                    </b>
                 ))}
             </div>
-            <div className="board" style={{ gridTemplateColumns: `repeat(${size}, 1fr)` }}>
-                {cells}
-            </div>
-            <div className="rack">
-                {ownRack.map((tile) => (
-                    <button
-                        key={tile.identifier}
-                        className={selected.includes(tile.identifier) ? "rack-tile selected" : "rack-tile"}
-                        style={{ backgroundColor: style?.tile_colors[tile.category] ?? "#eeeeee" }}
-                        onClick={() => toggleTile(tile.identifier)}
-                    >
-                        <span className="letter">{tile.blank ? "*" : tile.letter}</span>
-                        {tile.value > 0 && <span className="value">{tile.value}</span>}
-                    </button>
-                ))}
-            </div>
-            <div className="controls">
-                <button onClick={play} disabled={Object.keys(pending).length === 0}>
-                    play
-                </button>
-                <button onClick={exchange} disabled={selected.length === 0}>
-                    exchange
-                </button>
-                <button onClick={pass}>pass</button>
-                <button onClick={clearPending} disabled={Object.keys(pending).length === 0}>
-                    recall
-                </button>
-                <label className="premove">
-                    <input
-                        type="checkbox"
-                        checked={premove}
-                        onChange={(event) => setPremove(event.target.checked)}
-                    />
-                    premove
-                </label>
-            </div>
-            {error !== null && <p className="error">{error}</p>}
-        </div>
+            <h1>{PRODUCT_NAME}</h1>
+            <p className="tagline">{PRODUCT_TAGLINE}</p>
+            <p className="note">{themeSource === "fallback" ? STYLE_FALLBACK_NOTE : SHELL_NOTE}</p>
+        </main>
     );
 }

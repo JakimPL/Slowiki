@@ -1,0 +1,58 @@
+import type { FetchEventSourceInit } from "@microsoft/fetch-event-source";
+
+import { bodyOf } from "./parsing";
+import { reasonOf, refusalOf } from "./refusal";
+import type { CompanyView, EventView } from "./views";
+
+export type Transport = (url: string, init: FetchEventSourceInit) => Promise<void>;
+
+export interface Streamed {
+    onOpen: () => void;
+    onCommit: (event: EventView) => void;
+    onPresence: (company: CompanyView) => void;
+    onDropped: (reason: string) => void;
+}
+
+export const PRESENCE_EVENT = "presence";
+export const LAST_EVENT_ID_HEADER = "Last-Event-ID";
+const RETRY_AFTER_DROP_MILLISECONDS = 1000;
+
+export function follow(
+    transport: Transport,
+    url: string,
+    headers: Record<string, string>,
+    since: number,
+    streamed: Streamed,
+): () => void {
+    const controller = new AbortController();
+    const resumed = since > 0 ? { ...headers, [LAST_EVENT_ID_HEADER]: String(since - 1) } : headers;
+    void transport(url, {
+        headers: resumed,
+        signal: controller.signal,
+        openWhenHidden: true,
+        onopen: async (response: Response): Promise<void> => {
+            if (!response.ok) {
+                throw await refusalOf(response);
+            }
+            streamed.onOpen();
+        },
+        onmessage: (message): void => {
+            if (message.event === PRESENCE_EVENT) {
+                streamed.onPresence(bodyOf<CompanyView>(message.data));
+                return;
+            }
+            if (message.data !== "") {
+                streamed.onCommit(bodyOf<EventView>(message.data));
+            }
+        },
+        onerror: (error: unknown): number => {
+            streamed.onDropped(reasonOf(error));
+            return RETRY_AFTER_DROP_MILLISECONDS;
+        },
+    }).catch((error: unknown) => {
+        streamed.onDropped(reasonOf(error));
+    });
+    return (): void => {
+        controller.abort();
+    };
+}

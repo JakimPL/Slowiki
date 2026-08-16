@@ -1,5 +1,17 @@
+import { readFileSync } from "node:fs";
+
 import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import { parse } from "yaml";
+import { defineConfig } from "vitest/config";
+
+interface ServiceConfiguration {
+    service: { host: string; port: number };
+}
+
+const configuration = parse(
+    readFileSync(new URL("../config/config.yaml", import.meta.url), "utf-8"),
+) as ServiceConfiguration;
+const backend = `http://${configuration.service.host}:${String(configuration.service.port)}`;
 
 export default defineConfig({
     plugins: [react()],
@@ -9,8 +21,13 @@ export default defineConfig({
     },
     server: {
         proxy: {
-            "/offerings": "http://127.0.0.1:8000",
-            "/tables": "http://127.0.0.1:8000",
+            "/offerings": backend,
+            "/style": backend,
+            "/tables": backend,
         },
+    },
+    test: {
+        environment: "node",
+        include: ["tests/**/*.test.ts", "tests/**/*.test.tsx"],
     },
 });
