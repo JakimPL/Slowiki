@@ -1,3 +1,4 @@
+import asyncio
 import random
 
 import httpx
@@ -94,8 +95,49 @@ async def test_session_events_streams_after_submit() -> None:
     rules = build_rules(resolved, (0, 1), TextLexicon.from_words(["aa"]))
     game = Game(rules, random.Random(0), premoves_allowed=True)
     time = TimeConfig(per_turn_seconds=None, increment_seconds=0, total_seconds=None)
-    session = TableSession(game, {0: "token-a", 1: "token-b"}, time)
+    names: dict[int, str | None] = {0: "Ala", 1: None}
+    session = TableSession(game, {0: "token-a", 1: "token-b"}, time, names)
     await session.submit(Move(player=0, action=Pass()), base_seq=0, premove=False, token="token-a")
-    first = await anext(session.events(observer=0, since=0))
-    assert first.startswith("id: 0\n")
-    assert '"seq": 0' in first
+    stream = session.events(observer=0, since=0)
+    first = await anext(stream)
+    assert first.startswith("event: presence\n")
+    assert "id:" not in first
+    second = await anext(stream)
+    assert second.startswith("id: 0\n")
+    assert '"seq": 0' in second
+    await stream.aclose()
+
+
+async def test_presence_frames_follow_claims_and_disconnects() -> None:
+    resolved = resolve_scheme(CONFIG_DIR, "literaki")
+    rules = build_rules(resolved, (0, 1), TextLexicon.from_words(["aa"]))
+    game = Game(rules, random.Random(0), premoves_allowed=True)
+    time = TimeConfig(per_turn_seconds=None, increment_seconds=0, total_seconds=None)
+    names: dict[int, str | None] = {0: "Ala", 1: None}
+    session = TableSession(game, {0: "token-a", 1: "token-b"}, time, names)
+    stream = session.events(observer=0, since=0)
+    first = await anext(stream)
+    assert first.startswith("event: presence\n")
+    assert '"name": "Ala"' in first
+    assert '"connected": true' in first
+    claimed = await session.claim("Bob")
+    assert claimed == (1, "token-b")
+    second = await anext(stream)
+    assert second.startswith("event: presence\n")
+    assert '"name": "Bob"' in second
+    await stream.aclose()
+    company = session.company()
+    assert company.seats[0].connected is False
+    assert company.seats[1].claimed is True
+
+
+async def test_claims_hand_out_distinct_seats_concurrently(client: httpx.AsyncClient) -> None:
+    created = await client.post("/tables", json={"scheme": "literaki", "seats": 3, "name": "Ala"})
+    code = created.json()["code"]
+    first, second = await asyncio.gather(
+        client.post(f"/tables/{code}/join", json={"name": "Bob"}),
+        client.post(f"/tables/{code}/join", json={"name": "Cyryl"}),
+    )
+    assert first.status_code == 200
+    assert second.status_code == 200
+    assert {first.json()["seat"], second.json()["seat"]} == {1, 2}

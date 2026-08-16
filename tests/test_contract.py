@@ -114,6 +114,29 @@ async def test_transport_refusals_carry_codes(client: httpx.AsyncClient) -> None
     assert seats.json()["code"] == "seats_out_of_range"
 
 
+async def test_names_are_trimmed_and_served_in_company(client: httpx.AsyncClient) -> None:
+    created = await client.post(
+        "/tables", json={"scheme": "literaki", "seats": 2, "name": "  Ala  "}
+    )
+    data = created.json()
+    assert data["name"] == "Ala"
+    joined = await client.post(f"/tables/{data['code']}/join", json={"name": "   "})
+    assert joined.json()["name"] is None
+    view = await client.get(f"/tables/{data['table_id']}/view")
+    company = view.json()["company"]["seats"]
+    assert company[0]["name"] == "Ala"
+    assert company[0]["claimed"] is True
+    assert company[1]["name"] is None
+    assert company[1]["claimed"] is True
+
+
+async def test_overlong_name_is_rejected(client: httpx.AsyncClient) -> None:
+    response = await client.post(
+        "/tables", json={"scheme": "literaki", "seats": 2, "name": "x" * 33}
+    )
+    assert response.status_code == 422
+
+
 async def test_style_endpoint_serves_tokens(client: httpx.AsyncClient) -> None:
     response = await client.get("/style")
     assert response.status_code == 200

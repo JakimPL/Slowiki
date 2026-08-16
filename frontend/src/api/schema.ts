@@ -218,6 +218,11 @@ export interface components {
             /** Text */
             text: string;
         };
+        /** CompanyView */
+        CompanyView: {
+            /** Seats */
+            seats: components["schemas"]["SeatView"][];
+        };
         /**
          * EntryKind
          * @enum {string}
@@ -264,6 +269,11 @@ export interface components {
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** JoinRequest */
+        JoinRequest: {
+            /** Name */
+            name?: string | null;
         };
         /** Move */
         Move: {
@@ -389,6 +399,17 @@ export interface components {
             /** Tile Ids */
             tile_ids: number[];
         };
+        /** SeatView */
+        SeatView: {
+            /** Claimed */
+            claimed: boolean;
+            /** Connected */
+            connected: boolean;
+            /** Name */
+            name: string | null;
+            /** Seat */
+            seat: number;
+        };
         /** StyleConfig */
         StyleConfig: {
             /** Board Color */
@@ -422,6 +443,8 @@ export interface components {
             game: components["schemas"]["GameName"];
             /** Max Players */
             max_players: number;
+            /** Name */
+            name: string | null;
             /** Scheme */
             scheme: string;
             /** Seat */
@@ -433,6 +456,8 @@ export interface components {
         };
         /** TableRequest */
         TableRequest: {
+            /** Name */
+            name?: string | null;
             /** Scheme */
             scheme: string;
             /** Seats */
@@ -440,6 +465,7 @@ export interface components {
         };
         /** TableViewResponse */
         TableViewResponse: {
+            company: components["schemas"]["CompanyView"];
             /** Seq */
             seq: number;
             style: components["schemas"]["StyleConfig"];
@@ -619,7 +645,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["JoinRequest"] | null;
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {

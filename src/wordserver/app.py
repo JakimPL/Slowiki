@@ -9,6 +9,7 @@ from fastapi import FastAPI, Header, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import Field
 
 from wordcore.exceptions import WordcoreError
 from wordcore.games.game import Game
@@ -37,10 +38,17 @@ from wordtable.config import StyleTokens, legacy_style, load_style_tokens, read_
 from wordtable.lexicons import LexiconService
 from wordtable.paths import CONFIG_DIR, FRONTEND_DIST_DIR, RUN_CONFIG_FILE
 
+MAX_PLAYER_NAME_LENGTH: Final = 32
+
 
 class TableRequest(BaseFrozen):
     scheme: str
     seats: int
+    name: str | None = Field(default=None, max_length=MAX_PLAYER_NAME_LENGTH)
+
+
+class JoinRequest(BaseFrozen):
+    name: str | None = Field(default=None, max_length=MAX_PLAYER_NAME_LENGTH)
 
 
 class MoveRequest(BaseFrozen):
@@ -59,10 +67,17 @@ def _new_join_code() -> str:
     return "".join(secrets.choice(_JOIN_ALPHABET) for _ in range(_JOIN_CODE_LENGTH))
 
 
+def _cleaned_name(name: str | None) -> str | None:
+    if name is None:
+        return None
+    stripped = name.strip()
+    return stripped if stripped else None
+
+
 def create_app() -> FastAPI:
     configuration = read_config(RUN_CONFIG_FILE)
-    tokens = load_style_tokens(CONFIG_DIR, configuration.style)
-    style = legacy_style(tokens)
+    style_tokens = load_style_tokens(CONFIG_DIR, configuration.style)
+    style = legacy_style(style_tokens)
     service = LexiconService()
     registry = TableRegistry()
 
@@ -105,7 +120,7 @@ def create_app() -> FastAPI:
 
     @app.get("/style")
     def read_style() -> StyleTokens:
-        return tokens
+        return style_tokens
 
     @app.post("/tables", responses={404: {"model": ErrorBody}, 422: {"model": ErrorBody}})
     async def create_table(body: TableRequest) -> TableAdmission:
@@ -122,8 +137,11 @@ def create_app() -> FastAPI:
         tokens = {seat: secrets.token_urlsafe(_TOKEN_BYTES) for seat in seats}
         table_id = secrets.token_hex(_TABLE_ID_BYTES)
         code = _new_join_code()
+        creator = _cleaned_name(body.name)
+        names: dict[int, str | None] = {seat: None for seat in seats}
+        names[0] = creator
         meta = TableMeta(scheme=body.scheme, game=resolved.scheme.game, max_players=body.seats)
-        registry.add(table_id, TableSession(game, tokens, resolved.scheme.time), meta)
+        registry.add(table_id, TableSession(game, tokens, resolved.scheme.time, names), meta)
         registry.add_code(code, table_id)
         return TableAdmission(
             table_id=table_id,
@@ -133,13 +151,14 @@ def create_app() -> FastAPI:
             max_players=meta.max_players,
             seat=0,
             token=tokens[0],
+            name=creator,
         )
 
     @app.post(
         "/tables/{code}/join",
         responses={404: {"model": ErrorBody}, 409: {"model": ErrorBody}},
     )
-    def join_table(code: str) -> TableAdmission:
+    async def join_table(code: str, body: JoinRequest | None = None) -> TableAdmission:
         table_id = registry.table_id_for_code(code.upper())
         if table_id is None:
             raise Refusal(404, "unknown table code", ErrorCode.UNKNOWN_CODE)
@@ -147,7 +166,8 @@ def create_app() -> FastAPI:
         meta = registry.meta_for(table_id)
         if session is None or meta is None:
             raise Refusal(404, "unknown table", ErrorCode.UNKNOWN_TABLE)
-        claimed = session.claim_seat()
+        name = _cleaned_name(body.name if body is not None else None)
+        claimed = await session.claim(name)
         if claimed is None:
             raise Refusal(409, "table is full", ErrorCode.TABLE_FULL)
         seat, token = claimed
@@ -159,13 +179,19 @@ def create_app() -> FastAPI:
             max_players=meta.max_players,
             seat=seat,
             token=token,
+            name=name,
         )
 
     @app.get("/tables/{table_id}/view", responses={404: {"model": ErrorBody}})
     def table_view(table_id: str, request: Request) -> TableViewResponse:
         session = session_for(table_id)
         observer = session.observer_for(request.headers.get("X-Seat-Token"))
-        return TableViewResponse(seq=session.seq, style=style, view=session.view(observer))
+        return TableViewResponse(
+            seq=session.seq,
+            style=style,
+            view=session.view(observer),
+            company=session.company(),
+        )
 
     @app.post(
         "/tables/{table_id}/moves",

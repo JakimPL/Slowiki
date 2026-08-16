@@ -17,12 +17,25 @@ class TableAdmission(BaseFrozen):
     max_players: int
     seat: int
     token: str
+    name: str | None
+
+
+class SeatView(BaseFrozen):
+    seat: int
+    name: str | None
+    claimed: bool
+    connected: bool
+
+
+class CompanyView(BaseFrozen):
+    seats: tuple[SeatView, ...]
 
 
 class TableViewResponse(BaseFrozen):
     seq: int
     style: StyleConfig
     view: PositionView
+    company: CompanyView
 
 
 class MoveAccepted(BaseFrozen):
