@@ -1,4 +1,4 @@
-.PHONY: install check test play serve types assets frontend
+.PHONY: install check test play serve types assets frontend build
 
 install:
 	uv sync --all-extras --all-groups
@@ -27,5 +27,11 @@ assets:
 	uv run python -m wordassets.cli render
 
 frontend:
+	npm install
+	npm run build --workspace frontend
+
+build:
+	uv sync --all-extras --all-groups
+	@if test -f dictionaries/sjp-20260803.zip && ! test -f dictionaries/sjp-20260803.lexicon; then uv run python -m lexica.cli compile dictionaries/sjp-20260803.zip dictionaries/sjp-20260803.lexicon; fi
 	npm install
 	npm run build --workspace frontend
