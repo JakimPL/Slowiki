@@ -1,17 +1,21 @@
 import type { ReactElement } from "react";
 
 import type { Tile } from "../api/views";
-import { RACK_LABEL, tileCaption } from "./strings";
+import type { TileBindings } from "./bindings";
+import { GraspTile } from "./GraspTile";
+import { RACK_LABEL, RETURN_HERE } from "./strings";
 import { TileFace } from "./TileFace";
 
 export interface RackProps {
     readonly tiles: readonly Tile[];
     readonly liftedId: number | null;
-    readonly onLift: ((tile: Tile) => void) | null;
+    readonly bindings: TileBindings | null;
+    readonly returnable: boolean;
+    readonly onReturn: () => void;
 }
 
-export function Rack({ tiles, liftedId, onLift }: RackProps): ReactElement {
-    if (onLift === null) {
+export function Rack({ tiles, liftedId, bindings, returnable, onReturn }: RackProps): ReactElement {
+    if (bindings === null) {
         return (
             <div className="rack" role="img" aria-label={RACK_LABEL}>
                 {tiles.map((tile) => (
@@ -21,22 +25,21 @@ export function Rack({ tiles, liftedId, onLift }: RackProps): ReactElement {
         );
     }
     return (
-        <div className="rack" role="group" aria-label={RACK_LABEL}>
+        <div className="rack" role="group" aria-label={RACK_LABEL} data-region="rack">
             {tiles.map((tile) => (
-                <button
+                <GraspTile
                     key={tile.identifier}
-                    type="button"
-                    className="rack-tile"
-                    data-lifted={tile.identifier === liftedId ? "true" : undefined}
-                    aria-label={tileCaption(tile)}
-                    aria-pressed={tile.identifier === liftedId}
-                    onClick={(): void => {
-                        onLift(tile);
-                    }}
-                >
-                    <TileFace tile={tile} />
-                </button>
+                    tile={tile}
+                    spot={{ kind: "rack" }}
+                    lifted={tile.identifier === liftedId}
+                    bindings={bindings}
+                />
             ))}
+            {returnable ? (
+                <button type="button" className="slot-action" onClick={onReturn}>
+                    {RETURN_HERE}
+                </button>
+            ) : null}
         </div>
     );
 }

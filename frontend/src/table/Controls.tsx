@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 
-import { PASS_BUTTON, RECALL_BUTTON } from "./strings";
+import { PASS_BUTTON, RECALL_BUTTON, SHUFFLE_BUTTON } from "./strings";
 
 export interface ControlsProps {
     readonly caption: string;
@@ -8,9 +8,11 @@ export interface ControlsProps {
     readonly premove: boolean;
     readonly busy: boolean;
     readonly canRecall: boolean;
+    readonly canShuffle: boolean;
     readonly canPass: boolean;
-    readonly onPlay: () => void;
+    readonly onPrimary: () => void;
     readonly onRecall: () => void;
+    readonly onShuffle: () => void;
     readonly onPass: () => void;
 }
 
@@ -20,9 +22,11 @@ export function Controls({
     premove,
     busy,
     canRecall,
+    canShuffle,
     canPass,
-    onPlay,
+    onPrimary,
     onRecall,
+    onShuffle,
     onPass,
 }: ControlsProps): ReactElement {
     return (
@@ -32,7 +36,7 @@ export function Controls({
                 className="action control-primary"
                 data-premove={premove ? "true" : undefined}
                 disabled={!armed || busy}
-                onClick={onPlay}
+                onClick={onPrimary}
             >
                 {caption}
             </button>
@@ -43,6 +47,9 @@ export function Controls({
                 onClick={onRecall}
             >
                 {RECALL_BUTTON}
+            </button>
+            <button type="button" className="control-quiet" disabled={!canShuffle || busy} onClick={onShuffle}>
+                {SHUFFLE_BUTTON}
             </button>
             <button type="button" className="control-quiet" disabled={!canPass || busy} onClick={onPass}>
                 {PASS_BUTTON}

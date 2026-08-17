@@ -42,7 +42,9 @@ describe("Table", () => {
         expect(markup).toContain(">Play</button>");
         expect(markup).toContain(">Pass</button>");
         expect(markup).toContain(">Recall</button>");
+        expect(markup).toContain(">Shuffle</button>");
         expect(markup).toContain('class="rack" role="group"');
+        expect(markup).toContain('data-region="tray"');
     });
 
     it("keeps the desk away from spectators", () => {

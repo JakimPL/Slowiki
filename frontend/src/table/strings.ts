@@ -1,5 +1,6 @@
 import type { CompanyView, Tile } from "../api/views";
 import type { Connection } from "../play/connection";
+import type { ExchangeBlock } from "../play/exchange";
 import type { Guidance } from "../play/guidance";
 import type { Story } from "../play/story";
 
@@ -36,8 +37,13 @@ export const RACK_LABEL = "Your tiles";
 export const PLAY_BUTTON = "Play";
 export const PREMOVE_BUTTON = "Premove";
 export const PASS_BUTTON = "Pass";
-export const WORDS_LABEL = "Formed words";
 export const RECALL_BUTTON = "Recall";
+export const SHUFFLE_BUTTON = "Shuffle";
+export const WORDS_LABEL = "Formed words";
+export const TRAY_LABEL = "Exchange tray";
+export const TRAY_HINT = "Set tiles aside here to exchange or park them.";
+export const PARK_HERE = "Park here";
+export const RETURN_HERE = "Return here";
 export const BLANK_PICKER_HEADING = "Choose the blank's letter";
 export const BLANK_PICKER_CLOSE = "Close the letter picker";
 export const BLANK_INPUT_LABEL = "Letter";
@@ -47,6 +53,23 @@ export const BLANK_TILE_CAPTION = "Blank tile";
 export function primaryCaption(premove: boolean, points: number | null): string {
     const base = premove ? PREMOVE_BUTTON : PLAY_BUTTON;
     return points === null ? base : `${base} · ${String(points)}`;
+}
+
+export function exchangeCaption(count: number): string {
+    return `Exchange ${String(count)}`;
+}
+
+export function exchangeGuidance(block: ExchangeBlock, remaining: number | null, minBag: number): string {
+    if (block === "bag-low") {
+        return `Exchanging needs at least ${String(minBag)} tiles left in the bag.`;
+    }
+    if (block === "limit-spent") {
+        return "No exchanges left this game.";
+    }
+    if (remaining === null) {
+        return "Tap Exchange to swap the tray tiles.";
+    }
+    return `${String(remaining)} ${remaining === 1 ? "exchange" : "exchanges"} left this game.`;
 }
 
 export function bingoCaption(bonus: number): string {

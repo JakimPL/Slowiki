@@ -3,14 +3,16 @@ import { describe, expect, it } from "vitest";
 
 import type { Tile } from "../src/api/views";
 import { Board } from "../src/table/Board";
+import { stubBindings } from "./bindings";
 import { aBoard, aTile } from "./positions";
 
 const CENTER = 112;
 const PASSIVE = {
     pending: new Map<number, Tile>(),
     targeting: false,
+    dropCell: null,
     onLay: null,
-    onTakeBack: null,
+    bindings: null,
 };
 
 describe("Board", () => {
@@ -48,32 +50,26 @@ describe("Board", () => {
         expect(markup).not.toContain("tile-value");
     });
 
-    it("renders pending tiles as take-back buttons with the dashed mark", () => {
+    it("renders pending tiles as grasp buttons with the dashed mark", () => {
         const pending = new Map<number, Tile>([[CENTER, aTile({ letter: "K" })]]);
         const markup = renderToStaticMarkup(
-            <Board
-                board={aBoard()}
-                pending={pending}
-                targeting={false}
-                onLay={() => undefined}
-                onTakeBack={() => undefined}
-            />,
+            <Board {...PASSIVE} board={aBoard()} pending={pending} bindings={stubBindings()} />,
         );
         expect(markup).toContain('data-pending="true"');
         expect(markup).toContain('role="group"');
-        expect(markup).toContain('aria-label="Square 8·8"');
+        expect(markup).toContain('data-region="board"');
     });
 
     it("marks empty cells as targets while a tile is lifted", () => {
         const markup = renderToStaticMarkup(
-            <Board
-                board={aBoard()}
-                pending={new Map<number, Tile>()}
-                targeting={true}
-                onLay={() => undefined}
-                onTakeBack={null}
-            />,
+            <Board {...PASSIVE} board={aBoard()} targeting={true} onLay={() => undefined} />,
         );
         expect(markup).toContain("cell-target");
+        expect(markup).toContain('aria-label="Square 8·8"');
+    });
+
+    it("rings the computed drop cell while carrying", () => {
+        const markup = renderToStaticMarkup(<Board {...PASSIVE} board={aBoard()} dropCell={CENTER} />);
+        expect(markup).toContain('data-drop="true"');
     });
 });

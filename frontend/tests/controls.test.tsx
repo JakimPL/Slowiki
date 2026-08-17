@@ -4,8 +4,9 @@ import { describe, expect, it } from "vitest";
 import { Controls } from "../src/table/Controls";
 
 const QUIET = {
-    onPlay: (): void => undefined,
+    onPrimary: (): void => undefined,
     onRecall: (): void => undefined,
+    onShuffle: (): void => undefined,
     onPass: (): void => undefined,
 };
 
@@ -13,16 +14,18 @@ describe("Controls", () => {
     it("arms the primary button when a play is ready", () => {
         const markup = renderToStaticMarkup(
             <Controls
-                caption="Play"
+                caption="Play · 34"
                 armed={true}
                 premove={false}
                 busy={false}
                 canRecall={true}
+                canShuffle={true}
                 canPass={true}
                 {...QUIET}
             />,
         );
-        expect(markup).toContain(">Play</button>");
+        expect(markup).toContain(">Play · 34</button>");
+        expect(markup).toContain(">Shuffle</button>");
         expect(markup).not.toContain("disabled");
         expect(markup).not.toContain("data-premove");
     });
@@ -30,17 +33,34 @@ describe("Controls", () => {
     it("shows the premove styling off turn", () => {
         const markup = renderToStaticMarkup(
             <Controls
-                caption="Premove"
+                caption="Premove · 21"
                 armed={true}
                 premove={true}
                 busy={false}
                 canRecall={false}
+                canShuffle={true}
                 canPass={true}
                 {...QUIET}
             />,
         );
-        expect(markup).toContain(">Premove</button>");
+        expect(markup).toContain(">Premove · 21</button>");
         expect(markup).toContain('data-premove="true"');
+    });
+
+    it("carries an exchange caption for a staged tray", () => {
+        const markup = renderToStaticMarkup(
+            <Controls
+                caption="Exchange 3"
+                armed={true}
+                premove={false}
+                busy={false}
+                canRecall={false}
+                canShuffle={true}
+                canPass={true}
+                {...QUIET}
+            />,
+        );
+        expect(markup).toContain(">Exchange 3</button>");
     });
 
     it("disables everything while a command is in flight", () => {
@@ -51,10 +71,11 @@ describe("Controls", () => {
                 premove={false}
                 busy={true}
                 canRecall={true}
+                canShuffle={true}
                 canPass={true}
                 {...QUIET}
             />,
         );
-        expect(markup.match(/disabled/g)).toHaveLength(3);
+        expect(markup.match(/disabled/g)).toHaveLength(4);
     });
 });

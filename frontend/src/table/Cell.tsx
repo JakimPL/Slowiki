@@ -1,44 +1,79 @@
 import type { CSSProperties, ReactElement } from "react";
 
 import type { Bonus, Tile } from "../api/views";
+import type { TileBindings } from "./bindings";
+import { GraspTile } from "./GraspTile";
 import { slugOf } from "./theme";
 import { TileFace } from "./TileFace";
 
 export interface CellProps {
+    readonly cell: number;
     readonly bonus: Bonus | null;
     readonly tile: Tile | null;
     readonly star: boolean;
     readonly pending: Tile | null;
     readonly target: boolean;
+    readonly drop: boolean;
     readonly label: string;
-    readonly onTap: (() => void) | null;
+    readonly onLay: ((cell: number) => void) | null;
+    readonly bindings: TileBindings | null;
 }
 
 const STAR_GLYPH = "✦";
 
-export function Cell({ bonus, tile, star, pending, target, label, onTap }: CellProps): ReactElement {
+export function Cell({
+    cell,
+    bonus,
+    tile,
+    star,
+    pending,
+    target,
+    drop,
+    label,
+    onLay,
+    bindings,
+}: CellProps): ReactElement {
     if (tile !== null) {
         return (
-            <div className="cell">
+            <div className="cell" data-drop={drop ? "true" : undefined}>
                 <TileFace tile={tile} />
             </div>
         );
     }
-    if (pending !== null) {
+    if (pending !== null && bindings !== null) {
         return (
-            <button type="button" className="cell cell-button" aria-label={label} onClick={onTap ?? undefined}>
-                <TileFace tile={pending} pending={true} />
-            </button>
+            <span className="cell" data-drop={drop ? "true" : undefined}>
+                <GraspTile tile={pending} spot={{ kind: "cell", cell }} lifted={false} pending={true} bindings={bindings} />
+            </span>
         );
     }
-    if (target) {
+    if (pending !== null) {
         return (
-            <button type="button" className="cell cell-button cell-target" aria-label={label} onClick={onTap ?? undefined}>
+            <div className="cell" data-drop={drop ? "true" : undefined}>
+                <TileFace tile={pending} pending={true} />
+            </div>
+        );
+    }
+    if (target && onLay !== null) {
+        return (
+            <button
+                type="button"
+                className="cell cell-button cell-target"
+                data-drop={drop ? "true" : undefined}
+                aria-label={label}
+                onClick={(): void => {
+                    onLay(cell);
+                }}
+            >
                 {ground(bonus, star)}
             </button>
         );
     }
-    return <div className="cell">{ground(bonus, star)}</div>;
+    return (
+        <div className="cell" data-drop={drop ? "true" : undefined}>
+            {ground(bonus, star)}
+        </div>
+    );
 }
 
 function ground(bonus: Bonus | null, star: boolean): ReactElement | null {
