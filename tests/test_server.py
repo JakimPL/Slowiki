@@ -100,23 +100,6 @@ async def test_description_hides_code_from_spectators(client: httpx.AsyncClient)
     assert missing.status_code == 404
 
 
-async def test_word_analyses_endpoint(client: httpx.AsyncClient) -> None:
-    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2})
-    table_id = created.json()["table_id"]
-    response = await client.get(f"/tables/{table_id}/word/kot")
-    assert response.status_code == 200
-    body = response.json()
-    assert body["word"] == "KOT"
-    assert {"rzeczownik"} <= {analysis["part"] for analysis in body["analyses"]}
-    assert any(analysis["lemma"].startswith("KOT:") for analysis in body["analyses"])
-
-    absent = await client.get(f"/tables/{table_id}/word/xyzzydom")
-    assert absent.status_code == 200
-    assert absent.json()["analyses"] == []
-    missing = await client.get("/tables/absent/word/kot")
-    assert missing.status_code == 404
-
-
 async def test_create_table_and_view(client: httpx.AsyncClient) -> None:
     response = await client.post("/tables", json={"scheme": "literaki", "seats": 2})
     assert response.status_code == 200

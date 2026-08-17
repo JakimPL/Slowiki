@@ -116,7 +116,6 @@ def test_text_lexicon_round_trip(tmp_path: Path) -> None:
     assert isinstance(lexicon, TextLexicon)
     assert lexicon.words == ("DOM", "KOT", "KOTA")
     assert not lexicon.class_infos("kot")
-    assert lexicon.analysis_rows("kot") == ()
 
 
 def test_loader_rejects_malformed_payloads(tmp_path: Path) -> None:

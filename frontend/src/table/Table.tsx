@@ -419,7 +419,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
                 ) : null}
                 {gathering ? null : (
                     <div className="docket">
-                        <MoveLog log={state.log} company={state.company} tableId={arrival.seat.table} />
+                        <MoveLog log={state.log} company={state.company} />
                         {tally === null ? null : <RemainingTiles tally={tally} />}
                     </div>
                 )}

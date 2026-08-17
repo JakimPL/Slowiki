@@ -174,23 +174,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/tables/{table_id}/word/{word}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Word Analyses */
-        get: operations["word_analyses_tables__table_id__word__word__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -206,28 +189,6 @@ export interface components {
             /** Primary */
             primary: string;
         };
-        /** Analysis */
-        Analysis: {
-            /** Lemma */
-            lemma: string;
-            part: components["schemas"]["PartOfSpeech"];
-            /**
-             * Qualifiers
-             * @default []
-             */
-            qualifiers: string[];
-            source: components["schemas"]["MorphSource"];
-            /** Surface */
-            surface: string;
-            /** Tag */
-            tag: string;
-            tags: components["schemas"]["MorphTags"];
-        };
-        /**
-         * Aspect
-         * @enum {string}
-         */
-        Aspect: "dokonany" | "niedokonany";
         /** Board */
         Board: {
             /** Bonuses */
@@ -261,11 +222,6 @@ export interface components {
          * @enum {string}
          */
         BonusKind: "word_multiplier" | "letter_multiplier" | "category_multiplier";
-        /**
-         * Case
-         * @enum {string}
-         */
-        Case: "mianownik" | "dopełniacz" | "celownik" | "biernik" | "narzędnik" | "miejscownik" | "wołacz";
         /** ChromeTokens */
         ChromeTokens: {
             /** Edge */
@@ -295,11 +251,6 @@ export interface components {
             /** Seats */
             seats: components["schemas"]["SeatView"][];
         };
-        /**
-         * Degree
-         * @enum {string}
-         */
-        Degree: "równy" | "wyższy" | "najwyższy";
         /**
          * DictionaryName
          * @enum {string}
@@ -347,11 +298,6 @@ export interface components {
          * @enum {string}
          */
         GameName: "literaki" | "scrabble";
-        /**
-         * Gender
-         * @enum {string}
-         */
-        Gender: "męskoosobowy" | "męskozwierzęcy" | "męskorzeczowy" | "żeński" | "nijaki";
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -370,54 +316,6 @@ export interface components {
             symbol: string;
             /** Value */
             value: number;
-        };
-        /**
-         * Mood
-         * @enum {string}
-         */
-        Mood: "oznajmujący" | "rozkazujący" | "przypuszczający";
-        /**
-         * MorphSource
-         * @enum {string}
-         */
-        MorphSource: "sgjp" | "polimorf";
-        /** MorphTags */
-        MorphTags: {
-            /**
-             * Aspects
-             * @default []
-             */
-            aspects: components["schemas"]["Aspect"][];
-            /**
-             * Cases
-             * @default []
-             */
-            cases: components["schemas"]["Case"][];
-            degree?: components["schemas"]["Degree"] | null;
-            /**
-             * Deprecative
-             * @default false
-             */
-            deprecative: boolean;
-            /**
-             * Extras
-             * @default []
-             */
-            extras: string[];
-            /**
-             * Genders
-             * @default []
-             */
-            genders: components["schemas"]["Gender"][];
-            mood?: components["schemas"]["Mood"] | null;
-            /** Negation */
-            negation?: boolean | null;
-            number?: components["schemas"]["Number"] | null;
-            numeral_type?: components["schemas"]["NumeralType"] | null;
-            person?: components["schemas"]["Person"] | null;
-            pronoun_type?: components["schemas"]["PronounType"] | null;
-            tense?: components["schemas"]["Tense"] | null;
-            verb_form?: components["schemas"]["VerbForm"] | null;
         };
         /** Move */
         Move: {
@@ -442,16 +340,6 @@ export interface components {
              */
             premove: boolean;
         };
-        /**
-         * Number
-         * @enum {string}
-         */
-        Number: "pojedyncza" | "mnoga";
-        /**
-         * NumeralType
-         * @enum {string}
-         */
-        NumeralType: "główny" | "porządkowy" | "zbiorowy" | "ułamkowy" | "nieokreślony";
         /** Offering */
         Offering: {
             dictionary: components["schemas"]["DictionaryName"];
@@ -468,11 +356,6 @@ export interface components {
             /** Offerings */
             offerings: components["schemas"]["Offering"][];
         };
-        /**
-         * PartOfSpeech
-         * @enum {string}
-         */
-        PartOfSpeech: "rzeczownik" | "przymiotnik" | "czasownik" | "przysłówek" | "liczebnik" | "zaimek" | "przyimek" | "spójnik" | "partykuła" | "wykrzyknik" | "inny";
         /** Pass */
         Pass: {
             /**
@@ -481,11 +364,6 @@ export interface components {
              */
             kind: "pass";
         };
-        /**
-         * Person
-         * @enum {string}
-         */
-        Person: "pierwsza" | "druga" | "trzecia";
         /**
          * Phase
          * @enum {string}
@@ -567,11 +445,6 @@ export interface components {
             /** Label */
             label: string;
         };
-        /**
-         * PronounType
-         * @enum {string}
-         */
-        PronounType: "osobowy" | "zwrotny" | "dzierżawczy" | "wskazujący" | "pytajny" | "względny" | "nieokreślony" | "przeczący";
         /**
          * RejectionCode
          * @enum {string}
@@ -695,11 +568,6 @@ export interface components {
             seq: number;
             view: components["schemas"]["PositionView"];
         };
-        /**
-         * Tense
-         * @enum {string}
-         */
-        Tense: "teraźniejszy" | "przeszły" | "przyszły";
         /** ThemeTokens */
         ThemeTokens: {
             accents: components["schemas"]["AccentTokens"];
@@ -764,18 +632,6 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
-        };
-        /**
-         * VerbForm
-         * @enum {string}
-         */
-        VerbForm: "bezokolicznik" | "forma osobowa" | "forma przeszła" | "rozkaźnik" | "bezosobnik" | "imiesłów czynny" | "imiesłów bierny" | "imiesłów współczesny" | "imiesłów uprzedni" | "odsłownik" | "końcówka ruchoma" | "predykatyw" | "winien";
-        /** WordAnalyses */
-        WordAnalyses: {
-            /** Analyses */
-            analyses: components["schemas"]["Analysis"][];
-            /** Word */
-            word: string;
         };
     };
     responses: never;
@@ -1145,47 +1001,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TableViewResponse"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorBody"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    word_analyses_tables__table_id__word__word__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                table_id: string;
-                word: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WordAnalyses"];
                 };
             };
             /** @description Not Found */

@@ -15,7 +15,7 @@ import type {
     TableDescription,
     TableRequest,
 } from "./tables";
-import type { Schemas, StyleTokens, TableViewResponse } from "./views";
+import type { StyleTokens, TableViewResponse } from "./views";
 
 const JSON_HEADERS: Record<string, string> = { "Content-Type": "application/json" };
 
@@ -35,11 +35,6 @@ export async function readOfferings(): Promise<readonly Offering[]> {
 export async function readStyle(): Promise<StyleTokens> {
     const response = await answered(await fetch("/style"));
     return parsed<StyleTokens>(response);
-}
-
-export async function readWordAnalyses(tableId: string, word: string): Promise<Schemas["WordAnalyses"]> {
-    const response = await answered(await fetch(`/tables/${tableId}/word/${encodeURIComponent(word)}`));
-    return parsed<Schemas["WordAnalyses"]>(response);
 }
 
 export async function createTable(request: TableRequest): Promise<TableAdmission> {

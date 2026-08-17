@@ -27,9 +27,6 @@ class TextLexicon(BaseFrozen):
     def class_infos(self, _word: str) -> tuple[WordClass, ...]:
         return ()
 
-    def analysis_rows(self, _word: str) -> tuple[tuple[str, str, str], ...]:
-        return ()
-
     @classmethod
     def from_words(cls, words: Iterable[str]) -> TextLexicon:
         normalized = sorted({word.upper() for word in words})
