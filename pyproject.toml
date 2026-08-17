@@ -8,6 +8,7 @@ dependencies = ["pydantic>=2.9"]
 
 [project.optional-dependencies]
 server = ["fastapi>=0.115", "uvicorn[standard]>=0.30", "pyyaml>=6.0"]
+morphology = ["morfeusz2==1.99.15", "pyyaml>=6.0"]
 
 [dependency-groups]
 dev = [

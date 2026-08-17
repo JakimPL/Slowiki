@@ -183,7 +183,18 @@ analyses from `pl.sgjp.sgjp-2026.06.01`. The full stratified corpus
 (4,156 words: a 60k-word uniform pool drawn with seed 20260817, proportional
 per-POS quotas, min 2 per observed tag prefix, 671 UNKNOWN specimens by
 design) lives in the gitignored `dictionaries/specimens/specimens.yaml` for
-broad regression runs. Both are regenerable from the documented seed.
+broad regression runs.
+
+Both files regenerate deterministically from the SJP archive and the pinned
+analyzer:
+
+```
+uv sync --extra morphology
+uv run python scripts/specimens.py
+```
+
+The script (`scripts/specimens.py`) draws the same seed, the same pool, and
+the same stress list, so regeneration reproduces both files byte for byte.
 
 ## Patterns reused from the ContextGraph project
 
@@ -247,6 +258,9 @@ LLM-assisted pipeline and contributes patterns for the optional review tool
   level).
 - PoliMorf-rescued analyses merge paradigm-level homonyms (lemma-level data);
   the `source` flag records the lower fidelity.
+- The pinned `morfeusz2==1.99.15` wheel fixes the dictionary data version; a
+  dictionary upgrade changes the reference analyses and re-runs specimen
+  regeneration deliberately.
 - Memory footprint of `MorphLexicon` at server startup; mitigation options
   listed above.
 - WSJP API access remains to confirm; paradigm-level scope holds for now.
