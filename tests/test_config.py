@@ -1,9 +1,12 @@
 import pytest
 from pydantic import ValidationError
 
+from lexica.names import DictionaryName
 from wordcore.board.preset import board_from_preset
-from wordtable.catalogue import list_schemes, resolve_scheme
+from wordtable import paths
+from wordtable.catalogue import list_schemes, offerings, resolve_scheme
 from wordtable.config import StyleTokens, legacy_style, load_style_tokens, read_config
+from wordtable.lexicons import dictionary_ready
 from wordtable.paths import CONFIG_DIR
 
 
@@ -20,6 +23,23 @@ def test_read_config() -> None:
 def test_schemes_are_listed() -> None:
     schemes = list_schemes(CONFIG_DIR)
     assert {"literaki", "scrabble", "solo-literaki"} <= set(schemes)
+
+
+def test_catalogue_offers_every_scheme() -> None:
+    by_name = {offering.name: offering for offering in offerings(CONFIG_DIR)}
+    assert {"literaki", "scrabble", "solo-literaki"} <= set(by_name)
+    assert by_name["scrabble"].dictionary == DictionaryName.ENGLISH
+    assert by_name["literaki"].dictionary == DictionaryName.SJP
+
+
+def test_dictionary_readiness_follows_files(tmp_path, monkeypatch) -> None:
+    monkeypatch.setattr(paths, "DICTIONARIES_DIR", tmp_path)
+    assert dictionary_ready(DictionaryName.ENGLISH) is False
+    (tmp_path / "english.zip").touch()
+    assert dictionary_ready(DictionaryName.ENGLISH) is True
+    (tmp_path / "english.zip").unlink()
+    (tmp_path / f"english.v{paths.LEXICON_FORMAT}.lexicon").touch()
+    assert dictionary_ready(DictionaryName.ENGLISH) is True
 
 
 def test_resolve_scheme_builds_board() -> None:

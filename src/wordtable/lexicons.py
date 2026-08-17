@@ -1,19 +1,28 @@
 import asyncio
+from pathlib import Path
 
 from lexica.compile import compile_lexicon, load_compiled_lexicon
-from lexica.dictionaries.sjp import iter_sjp_words
+from lexica.dictionaries.catalog import iter_dictionary_words
 from lexica.names import DictionaryName
 from wordcore.lexicon.protocol import Lexicon
 from wordtable.paths import dictionary_archive, dictionary_compiled
 
 
-def load_lexicon(name: DictionaryName) -> Lexicon:
+def dictionary_ready(name: DictionaryName) -> bool:
+    return dictionary_compiled(name).is_file() or dictionary_archive(name).is_file()
+
+
+def compile_dictionary(name: DictionaryName) -> Path:
     archive = dictionary_archive(name)
     compiled = dictionary_compiled(name)
     if not compiled.is_file():
-        compile_lexicon(iter_sjp_words(archive), compiled)
+        compile_lexicon(iter_dictionary_words(name, archive), compiled)
 
-    return load_compiled_lexicon(compiled)
+    return compiled
+
+
+def load_lexicon(name: DictionaryName) -> Lexicon:
+    return load_compiled_lexicon(compile_dictionary(name))
 
 
 class LexiconService:

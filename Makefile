@@ -5,7 +5,7 @@ install:
 	uv run pre-commit install
 
 dictionary:
-	uv run python -m lexica.cli compile dictionaries/sjp-20260803.zip dictionaries/sjp-20260803.lexicon
+	uv run python -m wordtable.cli dictionary --name sjp
 
 check:
 	uv run pre-commit run --all-files

@@ -168,6 +168,8 @@ def test_openapi_document_carries_schemas(app) -> None:
         "TableViewResponse",
         "OfferingsResponse",
         "Offering",
+        "TableDescription",
+        "RuleParameters",
         "MoveAccepted",
         "MoveRequest",
         "Tile",

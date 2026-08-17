@@ -2,7 +2,6 @@ from pathlib import Path
 from typing import Final
 
 from lexica.names import DictionaryName
-from wordcore.exceptions import InvalidConfiguration
 
 LEXICON_FORMAT: Final = 2
 
@@ -23,16 +22,18 @@ def configuration_file(kind: Path, name: str) -> Path:
 
 
 def dictionary_archive(name: DictionaryName) -> Path:
-    match name:
-        case DictionaryName.SJP:
-            return DICTIONARIES_DIR / "sjp-20260803.zip"
-        case _:
-            raise InvalidConfiguration(f"unknown dictionary: {name}")
+    return DICTIONARIES_DIR / f"{_dictionary_stem(name)}.zip"
 
 
 def dictionary_compiled(name: DictionaryName) -> Path:
+    return DICTIONARIES_DIR / f"{_dictionary_stem(name)}.v{LEXICON_FORMAT}.lexicon"
+
+
+def _dictionary_stem(name: DictionaryName) -> str:
     match name:
         case DictionaryName.SJP:
-            return DICTIONARIES_DIR / f"sjp-20260803.v{LEXICON_FORMAT}.lexicon"
-        case _:
-            raise InvalidConfiguration(f"unknown dictionary: {name}")
+            return "sjp-20260803"
+        case DictionaryName.OSPS:
+            return "osps"
+        case DictionaryName.ENGLISH:
+            return "english"

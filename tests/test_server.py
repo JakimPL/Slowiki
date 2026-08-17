@@ -4,6 +4,7 @@ import random
 import httpx
 import pytest
 
+from lexica.names import DictionaryName
 from wordcore.games.game import Game
 from wordcore.lexicon.lexicon import TextLexicon
 from wordcore.moves.action import Pass
@@ -28,11 +29,75 @@ async def client(app):
         yield client
 
 
-async def test_offerings(client: httpx.AsyncClient) -> None:
+async def test_offerings_list_ready_dictionaries(
+    client: httpx.AsyncClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(
+        "wordserver.app.dictionary_ready",
+        lambda name: name == DictionaryName.SJP,
+    )
     response = await client.get("/offerings")
     assert response.status_code == 200
+    served = response.json()["offerings"]
+    names = {offering["name"] for offering in served}
+    assert {"literaki", "solo-literaki"} <= names
+    assert "scrabble" not in names
+    assert all(offering["dictionary"] == "sjp" for offering in served)
+
+
+async def test_offerings_grow_when_a_dictionary_arrives(
+    client: httpx.AsyncClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr("wordserver.app.dictionary_ready", lambda name: True)
+    response = await client.get("/offerings")
     names = {offering["name"] for offering in response.json()["offerings"]}
-    assert {"literaki", "scrabble", "solo-literaki"} <= names
+    assert "scrabble" in names
+
+
+async def test_scrabble_creation_refused_without_dictionary(
+    client: httpx.AsyncClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(
+        "wordserver.app.dictionary_ready",
+        lambda name: name == DictionaryName.SJP,
+    )
+    response = await client.post("/tables", json={"scheme": "scrabble", "seats": 2})
+    assert response.status_code == 422
+    assert response.json()["code"] == "dictionary_unavailable"
+
+
+async def test_description_serves_rules_and_alphabet(client: httpx.AsyncClient) -> None:
+    created = await client.post("/tables", json={"scheme": "literaki", "seats": 3})
+    data = created.json()
+    described = await client.get(
+        f"/tables/{data['table_id']}", headers={"X-Seat-Token": data["token"]}
+    )
+    assert described.status_code == 200
+    body = described.json()
+    assert body["code"] == data["code"]
+    assert body["scheme"] == "literaki"
+    assert body["seats"] == 3
+    assert body["dictionary"] == "sjp"
+    parameters = body["parameters"]
+    assert parameters["rack_size"] == 7
+    assert parameters["exchange_limit"] == 3
+    assert parameters["exchange_min_bag"] == 7
+    assert parameters["bingo_bonus"] == 50
+    assert parameters["premoves_allowed"] is True
+    symbols = [letter["symbol"] for letter in body["alphabet"]]
+    assert symbols[:4] == ["A", "Ą", "B", "C"]
+    assert sum(body["distribution"].values()) + body["blanks"] == 100
+    assert body["blanks"] == 2
+
+
+async def test_description_hides_code_from_spectators(client: httpx.AsyncClient) -> None:
+    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2})
+    table_id = created.json()["table_id"]
+    described = await client.get(f"/tables/{table_id}")
+    assert described.status_code == 200
+    assert described.json()["code"] is None
+    missing = await client.get("/tables/absent")
+    assert missing.status_code == 404
 
 
 async def test_create_table_and_view(client: httpx.AsyncClient) -> None:

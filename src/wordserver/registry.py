@@ -1,12 +1,15 @@
 from wordcore.models.base import BaseFrozen
 from wordgames.names import GameName
 from wordserver.session import TableSession
+from wordtable.catalogue import ResolvedScheme
 
 
 class TableMeta(BaseFrozen):
     scheme: str
     game: GameName
     max_players: int
+    code: str
+    resolved: ResolvedScheme
 
 
 class TableRegistry:

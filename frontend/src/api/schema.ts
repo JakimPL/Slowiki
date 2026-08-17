@@ -89,6 +89,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/tables/{table_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Describe Table */
+        get: operations["describe_table_tables__table_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/tables/{table_id}/events": {
         parameters: {
             query?: never;
@@ -224,6 +241,11 @@ export interface components {
             seats: components["schemas"]["SeatView"][];
         };
         /**
+         * DictionaryName
+         * @enum {string}
+         */
+        DictionaryName: "sjp" | "osps" | "english";
+        /**
          * EntryKind
          * @enum {string}
          */
@@ -275,6 +297,15 @@ export interface components {
             /** Name */
             name?: string | null;
         };
+        /** Letter */
+        Letter: {
+            /** Category */
+            category: string;
+            /** Symbol */
+            symbol: string;
+            /** Value */
+            value: number;
+        };
         /** Move */
         Move: {
             /** Action */
@@ -300,6 +331,7 @@ export interface components {
         };
         /** Offering */
         Offering: {
+            dictionary: components["schemas"]["DictionaryName"];
             game: components["schemas"]["GameName"];
             /** Max Players */
             max_players: number;
@@ -399,6 +431,28 @@ export interface components {
             /** Tile Ids */
             tile_ids: number[];
         };
+        /** RuleParameters */
+        RuleParameters: {
+            /** Bingo Bonus */
+            bingo_bonus: number;
+            /** Exchange Limit */
+            exchange_limit: number | null;
+            /** Exchange Min Bag */
+            exchange_min_bag: number;
+            /** Pass Allowed */
+            pass_allowed: boolean;
+            /** Pass End Limit */
+            pass_end_limit: number | null;
+            /** Premoves Allowed */
+            premoves_allowed: boolean;
+            /** Rack Size */
+            rack_size: number | null;
+            /** Scoreless End Limit */
+            scoreless_end_limit: number | null;
+            time: components["schemas"]["TimeConfig"];
+            /** Validate On Play */
+            validate_on_play: boolean;
+        };
         /** SeatView */
         SeatView: {
             /** Claimed */
@@ -453,6 +507,26 @@ export interface components {
             table_id: string;
             /** Token */
             token: string;
+        };
+        /** TableDescription */
+        TableDescription: {
+            /** Alphabet */
+            alphabet: components["schemas"]["Letter"][];
+            /** Blanks */
+            blanks: number;
+            /** Code */
+            code: string | null;
+            dictionary: components["schemas"]["DictionaryName"];
+            /** Distribution */
+            distribution: {
+                [key: string]: number;
+            };
+            game: components["schemas"]["GameName"];
+            parameters: components["schemas"]["RuleParameters"];
+            /** Scheme */
+            scheme: string;
+            /** Seats */
+            seats: number;
         };
         /** TableRequest */
         TableRequest: {
@@ -513,6 +587,15 @@ export interface components {
             face_tint: number;
             /** Text */
             text: string;
+        };
+        /** TimeConfig */
+        TimeConfig: {
+            /** Increment Seconds */
+            increment_seconds: number;
+            /** Per Turn Seconds */
+            per_turn_seconds: number | null;
+            /** Total Seconds */
+            total_seconds: number | null;
         };
         /** ValidationError */
         ValidationError: {
@@ -673,6 +756,46 @@ export interface operations {
             };
             /** @description Conflict */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    describe_table_tables__table_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                table_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TableDescription"];
+                };
+            };
+            /** @description Not Found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

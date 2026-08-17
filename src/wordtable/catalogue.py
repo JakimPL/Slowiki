@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from lexica.names import DictionaryName
 from wordcore.board.preset import BoardPreset
 from wordcore.models.base import BaseFrozen
 from wordcore.tiles.tile import TilePreset
@@ -11,6 +12,7 @@ from wordtable.paths import CONFIGURATION_SCHEMES_PATH
 class Offering(BaseFrozen):
     name: str
     game: GameName
+    dictionary: DictionaryName
     min_players: int
     max_players: int
 
@@ -33,6 +35,7 @@ def offerings(directory: Path) -> tuple[Offering, ...]:
         Offering(
             name=name,
             game=scheme.game,
+            dictionary=scheme.dictionary,
             min_players=scheme.min_players,
             max_players=scheme.max_players,
         )

@@ -11,11 +11,13 @@ from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import Field
 
+from lexica.names import DictionaryName
 from wordcore.exceptions import WordcoreError
 from wordcore.games.game import Game
 from wordcore.models.base import BaseFrozen
 from wordcore.moves.move import Move
 from wordcore.views.events import EventView
+from wordserver.describe import table_description
 from wordserver.errors import (
     ErrorBody,
     ErrorCode,
@@ -29,6 +31,7 @@ from wordserver.models import (
     MoveAccepted,
     OfferingsResponse,
     TableAdmission,
+    TableDescription,
     TableViewResponse,
 )
 from wordserver.registry import TableMeta, TableRegistry
@@ -42,7 +45,7 @@ from wordtable.config import (
     load_style_tokens,
     read_config,
 )
-from wordtable.lexicons import LexiconService
+from wordtable.lexicons import LexiconService, dictionary_ready
 from wordtable.paths import CONFIG_DIR, FRONTEND_DIST_DIR, RUN_CONFIG_FILE
 
 MAX_PLAYER_NAME_LENGTH: Final = 32
@@ -100,6 +103,15 @@ def _ensure_seats_in_range(scheme: SchemeConfig, seats: int) -> None:
         raise Refusal(422, "seats outside the scheme range", ErrorCode.SEATS_OUT_OF_RANGE)
 
 
+def _ensure_dictionary_available(dictionary: DictionaryName) -> None:
+    if not dictionary_ready(dictionary):
+        raise Refusal(
+            422,
+            f"dictionary '{dictionary}' is unavailable",
+            ErrorCode.DICTIONARY_UNAVAILABLE,
+        )
+
+
 async def _built_game(
     service: LexiconService,
     resolved: ResolvedScheme,
@@ -132,7 +144,13 @@ def _open_table(
 ) -> TableAdmission:
     identity = _minted_identity(body.seats)
     creator = _cleaned_name(body.name)
-    meta = TableMeta(scheme=body.scheme, game=resolved.scheme.game, max_players=body.seats)
+    meta = TableMeta(
+        scheme=body.scheme,
+        game=resolved.scheme.game,
+        max_players=body.seats,
+        code=identity.code,
+        resolved=resolved,
+    )
     session = TableSession(
         game,
         identity.tokens,
@@ -249,9 +267,19 @@ def create_app() -> FastAPI:
             raise Refusal(404, "unknown table", ErrorCode.UNKNOWN_TABLE)
         return session
 
+    def table_with_meta(table_id: str) -> tuple[TableSession, TableMeta]:
+        session = registry.get(table_id)
+        meta = registry.meta_for(table_id)
+        if session is None or meta is None:
+            raise Refusal(404, "unknown table", ErrorCode.UNKNOWN_TABLE)
+        return session, meta
+
     @app.get("/offerings")
     def list_offerings() -> OfferingsResponse:
-        return OfferingsResponse(offerings=offerings(CONFIG_DIR))
+        ready = tuple(
+            offering for offering in offerings(CONFIG_DIR) if dictionary_ready(offering.dictionary)
+        )
+        return OfferingsResponse(offerings=ready)
 
     @app.get("/style")
     def read_style() -> StyleTokens:
@@ -264,6 +292,7 @@ def create_app() -> FastAPI:
     async def create_table(body: TableRequest) -> TableAdmission:
         resolved = _resolved_offering(body.scheme)
         _ensure_seats_in_range(resolved.scheme, body.seats)
+        _ensure_dictionary_available(resolved.scheme.dictionary)
         game = await _built_game(service, resolved, tuple(range(body.seats)))
         return _open_table(registry, game, resolved, body)
 
@@ -279,6 +308,12 @@ def create_app() -> FastAPI:
         name = _cleaned_name(body.name if body is not None else None)
         seat, token = await _claimed_seat(session, name)
         return _admission(table_id, code.upper(), meta, seat=seat, token=token, name=name)
+
+    @app.get("/tables/{table_id}", responses={404: {"model": ErrorBody}})
+    def describe_table(table_id: str, request: Request) -> TableDescription:
+        session, meta = table_with_meta(table_id)
+        observer = session.observer_for(request.headers.get("X-Seat-Token"))
+        return table_description(meta, observer)
 
     @app.get("/tables/{table_id}/view", responses={404: {"model": ErrorBody}})
     def table_view(table_id: str, request: Request) -> TableViewResponse:
