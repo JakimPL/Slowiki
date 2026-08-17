@@ -17,7 +17,7 @@ export interface TableHold {
     readonly refresh: () => Promise<number | null>;
 }
 
-export function useTable(table: string, token: string | null): TableHold {
+export function useTable(table: string, token: string | null, awake: boolean): TableHold {
     const [connection, setConnection] = useState<Connection>("joining");
     const [state, setState] = useState<TableState | null>(null);
     const [clock, setClock] = useState<ClockView | null>(null);
@@ -58,7 +58,7 @@ export function useTable(table: string, token: string | null): TableHold {
                 setClock(response.clock);
                 setState(openedFrom(response));
                 let heldBefore = false;
-                release = whileInView(document, () => {
+                const hold = (): (() => void) => {
                     if (heldBefore) {
                         void refresh();
                     }
@@ -88,7 +88,8 @@ export function useTable(table: string, token: string | null): TableHold {
                             setTrouble(reason);
                         },
                     });
-                });
+                };
+                release = awake ? hold() : whileInView(document, hold);
             })
             .catch((error: unknown) => {
                 if (alive) {
@@ -102,7 +103,7 @@ export function useTable(table: string, token: string | null): TableHold {
                 release();
             }
         };
-    }, [table, token]);
+    }, [table, token, awake]);
 
     const refresh = useCallback((): Promise<number | null> => refreshRef.current(), []);
 

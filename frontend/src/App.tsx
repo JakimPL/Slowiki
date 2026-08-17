@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 import { useEffect, useState } from "react";
 
 import { readStyle } from "./api/client";
+import { useNotices } from "./play/useNotices";
 import type { Arrival } from "./play/useStanding";
 import { useStanding } from "./play/useStanding";
 import { useTable } from "./play/useTable";
@@ -41,7 +42,12 @@ interface TableScreenProps {
 }
 
 function TableScreen({ arrival }: TableScreenProps): ReactElement {
-    const { connection, state, clock, trouble, refresh } = useTable(arrival.seat.table, arrival.seat.token);
+    const notices = useNotices();
+    const { connection, state, clock, trouble, refresh } = useTable(
+        arrival.seat.table,
+        arrival.seat.token,
+        notices.wanted,
+    );
     if (state === null) {
         return (
             <main className="waiting">
@@ -56,6 +62,7 @@ function TableScreen({ arrival }: TableScreenProps): ReactElement {
             state={state}
             clock={clock}
             trouble={trouble}
+            notices={notices}
             onOutdated={refresh}
         />
     );

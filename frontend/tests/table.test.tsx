@@ -20,6 +20,7 @@ describe("Table", () => {
                 state={openedFrom(response)}
                 clock={null}
                 trouble={null}
+                notices={{ wanted: false, flip: () => undefined }}
                 onOutdated={() => Promise.resolve(null)}
             />,
         );
@@ -40,6 +41,7 @@ describe("Table", () => {
                 state={openedFrom(response)}
                 clock={null}
                 trouble={null}
+                notices={{ wanted: false, flip: () => undefined }}
                 onOutdated={() => Promise.resolve(null)}
             />,
         );
@@ -57,6 +59,7 @@ describe("Table", () => {
                 state={openedFrom(response)}
                 clock={null}
                 trouble={null}
+                notices={{ wanted: false, flip: () => undefined }}
                 onOutdated={() => Promise.resolve(null)}
             />,
         );
@@ -70,6 +73,8 @@ describe("Table", () => {
         expect(markup).toContain('aria-label="Players"');
         expect(markup).toContain("--row-count:1");
         expect(markup).toContain('name="docket"');
+        expect(markup).toContain("Notify me when my turn comes while this tab rests");
+        expect(markup).toContain('aria-pressed="false"');
     });
 
     it("mirrors a queued premove as ghosts, a chip with Cancel, and a resting rack", () => {
@@ -91,6 +96,7 @@ describe("Table", () => {
                 state={openedFrom(response)}
                 clock={null}
                 trouble={null}
+                notices={{ wanted: false, flip: () => undefined }}
                 onOutdated={() => Promise.resolve(null)}
             />,
         );
@@ -109,6 +115,7 @@ describe("Table", () => {
                 state={openedFrom(response)}
                 clock={null}
                 trouble={null}
+                notices={{ wanted: false, flip: () => undefined }}
                 onOutdated={() => Promise.resolve(null)}
             />,
         );
@@ -137,6 +144,7 @@ describe("Table", () => {
                 state={state}
                 clock={null}
                 trouble={null}
+                notices={{ wanted: false, flip: () => undefined }}
                 onOutdated={() => Promise.resolve(null)}
             />,
         );
@@ -157,6 +165,7 @@ describe("Table", () => {
                 state={openedFrom(response)}
                 clock={null}
                 trouble={null}
+                notices={{ wanted: false, flip: () => undefined }}
                 onOutdated={() => Promise.resolve(null)}
             />,
         );
@@ -173,6 +182,7 @@ describe("Table", () => {
                 state={openedFrom(response)}
                 clock={null}
                 trouble={null}
+                notices={{ wanted: false, flip: () => undefined }}
                 onOutdated={() => Promise.resolve(null)}
             />,
         );
@@ -189,6 +199,7 @@ describe("Table", () => {
                 state={openedFrom(response)}
                 clock={null}
                 trouble="stream lost"
+                notices={{ wanted: false, flip: () => undefined }}
                 onOutdated={() => Promise.resolve(null)}
             />,
         );

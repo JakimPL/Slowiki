@@ -3,7 +3,7 @@ import type { ReactElement } from "react";
 import type { CompanyView, PositionView, SeatView } from "../api/views";
 import type { Urgency } from "../play/clock";
 import { tintFor } from "../play/tints";
-import { fallbackNameFor, OPEN_SEAT_LABEL, PLAYERS_LABEL, YOU_MARKER } from "./strings";
+import { EMPTY_CLOCK, fallbackNameFor, OPEN_SEAT_LABEL, PLAYERS_LABEL, YOU_MARKER } from "./strings";
 
 export interface SeatCountdown {
     readonly seat: number;
@@ -16,9 +16,10 @@ export interface PlaquesProps {
     readonly company: CompanyView;
     readonly mySeat: number | null;
     readonly countdown: SeatCountdown | null;
+    readonly clocked: boolean;
 }
 
-export function Plaques({ view, company, mySeat, countdown }: PlaquesProps): ReactElement {
+export function Plaques({ view, company, mySeat, countdown, clocked }: PlaquesProps): ReactElement {
     return (
         <ul className="plaques" aria-label={PLAYERS_LABEL}>
             {company.seats.map((seated) => (
@@ -28,6 +29,7 @@ export function Plaques({ view, company, mySeat, countdown }: PlaquesProps): Rea
                     view={view}
                     mine={seated.seat === mySeat}
                     countdown={countdown?.seat === seated.seat ? countdown : null}
+                    clocked={clocked}
                 />
             ))}
         </ul>
@@ -39,9 +41,10 @@ interface PlaqueProps {
     readonly view: PositionView;
     readonly mine: boolean;
     readonly countdown: SeatCountdown | null;
+    readonly clocked: boolean;
 }
 
-function Plaque({ seated, view, mine, countdown }: PlaqueProps): ReactElement {
+function Plaque({ seated, view, mine, countdown, clocked }: PlaqueProps): ReactElement {
     const acting = view.to_act.includes(seated.seat);
     const premoved = view.pending_premoves.includes(seated.seat);
     const score = view.scores[String(seated.seat)] ?? 0;
@@ -61,14 +64,12 @@ function Plaque({ seated, view, mine, countdown }: PlaqueProps): ReactElement {
                 {mine ? <em className="plaque-you">{YOU_MARKER}</em> : null}
                 {premoved ? <i className="plaque-premove" aria-hidden="true" /> : null}
             </span>
-            <span className="plaque-score">
-                {score}
-                {countdown === null ? null : (
-                    <span className="plaque-clock" data-urgency={countdown.urgency}>
-                        {countdown.caption}
-                    </span>
-                )}
-            </span>
+            <span className="plaque-score">{score}</span>
+            {clocked ? (
+                <span className="plaque-clock" data-urgency={countdown?.urgency}>
+                    {countdown?.caption ?? EMPTY_CLOCK}
+                </span>
+            ) : null}
         </li>
     );
 }

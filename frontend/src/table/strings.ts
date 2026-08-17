@@ -56,7 +56,13 @@ export const LOG_LABEL = "Recent moves";
 export const REMAINING_LABEL = "Remaining tiles";
 export const PLAYERS_LABEL = "Players";
 export const BLANK_ROW_MARK = "◇";
+export const EMPTY_CLOCK = "—";
 export const MODE_LABEL = "Color mode";
+export const NOTICE_LABEL = "Notify me when my turn comes while this tab rests";
+export const NOTICE_CAPTIONS: Record<"off" | "on", string> = {
+    off: "🔔 Off",
+    on: "🔔 On",
+};
 export const MODE_CAPTIONS: Record<"system" | "light" | "dark", string> = {
     system: "◐ Auto",
     light: "○ Light",

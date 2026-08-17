@@ -43,7 +43,9 @@ keeps a single code path:
 - Credentials in the URL hash fragment, so reloads and deep links rejoin a table.
 - Safe-area insets and `prefers-reduced-motion` in the stylesheet.
 - The stream pauses while the page is hidden (`play/viewing.ts`), which matches mobile lifecycle
-  expectations.
+  expectations. Switching the turn notice on keeps it connected while hidden, which serves a
+  desktop tab well; a backgrounded phone suspends the page either way, so store builds get their
+  turn alerts from a push plugin instead.
 - One fixed scale: the viewport meta pins `maximum-scale=1` and the table surface allows panning
   only, so pinch and double-tap zoom stay out of the way of dragging tiles. In a Capacitor shell the
   same result comes from the platform WebView — Android sets `setBuiltInZoomControls(false)` on the

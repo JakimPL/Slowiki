@@ -33,6 +33,7 @@ import { useCountdown } from "../play/useCountdown";
 import { useDescription } from "../play/useDescription";
 import { useDesk } from "../play/useDesk";
 import { useJudgements } from "../play/useJudgements";
+import type { NoticeHold } from "../play/useNotices";
 import { usePlay } from "../play/usePlay";
 import type { Arrival } from "../play/useStanding";
 import type { TileBindings } from "./bindings";
@@ -47,6 +48,7 @@ import type { KeyHandlers } from "./keys";
 import { boundKeys } from "./keys";
 import { ModeToggle } from "./ModeToggle";
 import { MoveLog } from "./MoveLog";
+import { NoticeToggle } from "./NoticeToggle";
 import { Plaques } from "./Plaques";
 import { Rack } from "./Rack";
 import { RemainingTiles } from "./RemainingTiles";
@@ -67,6 +69,7 @@ import {
     PRODUCT_NAME,
     queuedCaption,
     STALE_NOTICE,
+    YOUR_TURN_CAPTION,
 } from "./strings";
 import { targetsFrom } from "./targets";
 import { TileFace } from "./TileFace";
@@ -79,6 +82,7 @@ export interface TableProps {
     readonly state: TableState;
     readonly clock: ClockView | null;
     readonly trouble: string | null;
+    readonly notices: NoticeHold;
     readonly onOutdated: () => Promise<number | null>;
 }
 
@@ -87,7 +91,7 @@ interface BlankChoice {
     readonly tile: Tile;
 }
 
-export function Table({ arrival, connection, state, clock, trouble, onOutdated }: TableProps): ReactElement {
+export function Table({ arrival, connection, state, clock, trouble, notices, onOutdated }: TableProps): ReactElement {
     const mySeat = arrival.seated ?? seatedAs(state.view);
     const description = useDescription(arrival.seat);
     const remaining = useCountdown(clock);
@@ -125,7 +129,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
         performDesk(effect);
     };
     const [blankChoice, setBlankChoice] = useState<BlankChoice | null>(null);
-    useAlerts(story.kind === "acting", PRODUCT_NAME);
+    useAlerts(story.kind === "acting", PRODUCT_NAME, notices.wanted, YOUR_TURN_CAPTION);
 
     const lastPlay = state.view.last_play;
     const freshCells = new Set(lastPlay?.indices ?? []);
@@ -361,9 +365,16 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
                         {CONNECTION_CAPTIONS[connection]}
                     </span>
                 )}
+                <NoticeToggle wanted={notices.wanted} onFlip={notices.flip} />
                 <ModeToggle />
             </header>
-            <Plaques view={state.view} company={state.company} mySeat={mySeat} countdown={countdown} />
+            <Plaques
+                view={state.view}
+                company={state.company}
+                mySeat={mySeat}
+                countdown={countdown}
+                clocked={clock !== null}
+            />
             <div className="board-region">
                 <Board
                     board={state.view.board}

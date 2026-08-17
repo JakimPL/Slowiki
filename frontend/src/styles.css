@@ -433,7 +433,8 @@ select {
 
 .plaque {
     display: flex;
-    gap: 8px;
+    flex-wrap: wrap;
+    gap: 2px 8px;
     align-items: center;
     min-width: 0;
     padding: 4px 9px;
@@ -446,6 +447,24 @@ select {
     border-color: var(--tint);
     background: color-mix(in srgb, var(--tint) 16%, transparent);
     box-shadow: 0 0 0 2px color-mix(in srgb, var(--tint) 30%, transparent);
+    animation: plaque-breath 2.6s ease-in-out infinite;
+}
+
+@keyframes plaque-breath {
+    0%,
+    100% {
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--tint) 30%, transparent);
+    }
+
+    50% {
+        box-shadow: 0 0 0 6px color-mix(in srgb, var(--tint) 18%, transparent);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .plaque[data-acting] {
+        animation: none;
+    }
 }
 
 .plaque[data-open] {
@@ -514,24 +533,21 @@ select {
 }
 
 .plaque-clock {
-    margin-left: auto;
-    padding: 1px 7px;
-    border: 1px solid var(--chrome-edge);
-    border-radius: 999px;
+    flex-basis: 100%;
+    color: var(--chrome-muted);
     font-size: 12px;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
+    text-align: right;
 }
 
 .plaque-clock[data-urgency="low"] {
-    border-color: var(--accent-primary);
     color: var(--accent-primary);
 }
 
 .plaque-clock[data-urgency="critical"] {
-    border-color: var(--accent-danger);
-    background: var(--accent-danger);
-    color: var(--accent-on-primary);
+    color: var(--accent-danger);
+    font-weight: 900;
 }
 
 .board-region {
@@ -977,6 +993,10 @@ select {
 
     .plaque-score {
         font-size: 16px;
+    }
+
+    .plaque-clock {
+        flex-basis: auto;
     }
 }
 

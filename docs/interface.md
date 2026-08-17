@@ -40,9 +40,12 @@ grid areas only: the board sits height-bound on the left; the right column stack
 feedback line, rack, tray, controls, and the docket at its foot.
 
 - **Status strip** — turn banner ("Your turn" at accent strength; "Ola is thinking — 1:12" quiet),
-  clock, bag count, join-code chip (a click copies the code), connection state.
+  clock, bag count, join-code chip (a click copies the code), connection state, and two quiet
+  toggles: the turn notice and the color mode.
 - **Plaques** — one per player, one to eight: tint dot, name, score, acting ring at full tint
-  strength, premove diamond, clock on the acting plaque.
+  strength that breathes while the seat is on turn, premove diamond, and — on a timed table — a
+  clock line under the name, counting down on the acting seat and holding a dash elsewhere so the
+  row keeps its height through every turn.
 - **Board** — 15 × 15 (size is data), premium squares with `×3` / `2×` / `3×` glyphs, the center
   star, fresh-play rings in the mover's tint, pending tiles raised above their neighbours with a
   solid accent ring, premove ghosts at reduced opacity in the premove accent.
@@ -91,7 +94,9 @@ sheet with the scheme's own alphabet.
 ## State vocabulary
 
 - **Turn**: `acting` (me ∈ to_act) versus `watching`; acting flips the banner to accent strength,
-  rings the board frame and my plaque, retitles the tab, and may vibrate.
+  rings the board frame and my plaque, retitles the tab, and may vibrate. The turn-notice toggle
+  adds a page notification for the moment my turn opens while the tab rests, and keeps the event
+  stream connected while the page is hidden so that moment arrives.
 - **Premove**: plays and exchanges queue while off turn; a pass always plays on the turn.
   `queued` (the committed tiles leave the rack and stand as board ghosts in the premove accent,
   beside a "Premove queued — Cancel" chip; submitting again replaces the queue) → `applied`
