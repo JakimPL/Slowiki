@@ -55,7 +55,9 @@ function Plaque({ seated, view, mine, countdown }: PlaqueProps): ReactElement {
         >
             <span className="plaque-name">
                 <i className="plaque-dot" aria-hidden="true" />
-                {seated.claimed ? (seated.name ?? fallbackNameFor(seated.seat)) : OPEN_SEAT_LABEL}
+                <span className="plaque-name-text">
+                    {seated.claimed ? (seated.name ?? fallbackNameFor(seated.seat)) : OPEN_SEAT_LABEL}
+                </span>
                 {mine ? <em className="plaque-you">{YOU_MARKER}</em> : null}
                 {premoved ? <i className="plaque-premove" aria-hidden="true" /> : null}
             </span>

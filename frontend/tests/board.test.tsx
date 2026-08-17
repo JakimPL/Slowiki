@@ -9,6 +9,7 @@ import { aBoard, aTile } from "./positions";
 const CENTER = 112;
 const PASSIVE = {
     pending: new Map<number, Tile>(),
+    ghosts: new Map<number, Tile>(),
     targeting: false,
     dropCell: null,
     fresh: new Set<number>(),
@@ -68,6 +69,15 @@ describe("Board", () => {
         );
         expect(markup).toContain("cell-target");
         expect(markup).toContain('aria-label="Square 8·8"');
+    });
+
+    it("renders queued premove ghosts as untargetable translucent faces", () => {
+        const ghosts = new Map<number, Tile>([[CENTER, aTile({ letter: "K" })]]);
+        const markup = renderToStaticMarkup(
+            <Board {...PASSIVE} board={aBoard()} ghosts={ghosts} targeting={true} onLay={() => undefined} />,
+        );
+        expect(markup).toContain('data-ghost="true"');
+        expect(markup).not.toContain('aria-label="Square 8·8"');
     });
 
     it("rings the computed drop cell while carrying", () => {

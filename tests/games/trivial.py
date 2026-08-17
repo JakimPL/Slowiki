@@ -2,7 +2,7 @@ import random
 
 from wordcore.board.board import Board
 from wordcore.errors.exceptions import IllegalMove
-from wordcore.moves.action import Pass
+from wordcore.moves.action import Exchange, Pass
 from wordcore.moves.move import Move
 from wordcore.positions.position import Position
 from wordcore.states.state import Phase, WordState
@@ -30,10 +30,10 @@ class TrivialRules:
         )
 
     def validate(self, position: Position, move: Move) -> None:
-        if not isinstance(move.action, Pass):
-            raise IllegalMove("only pass is allowed")
+        if not isinstance(move.action, (Pass, Exchange)):
+            raise IllegalMove("only pass and exchange are allowed")
         if move.player == self.reject_seat:
-            raise IllegalMove("pass is disallowed for this seat")
+            raise IllegalMove("the move is disallowed for this seat")
 
     def apply(self, position: Position, move: Move, rng: random.Random) -> Position:
         state = position.state

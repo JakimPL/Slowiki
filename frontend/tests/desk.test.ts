@@ -85,11 +85,22 @@ describe("desk", () => {
             { kind: "lay", cell: 112, tile: KAY, letter: null },
             { kind: "lift", tile: TEE, from: "rack" },
         );
-        expect(reconciledDesk(desk, [KAY, OH, TEE], aBoard())).toBe(desk);
-        const shrunk = reconciledDesk(desk, [KAY, TEE], aBoard());
+        const free = new Set<number>();
+        expect(reconciledDesk(desk, [KAY, OH, TEE], aBoard(), free)).toBe(desk);
+        const shrunk = reconciledDesk(desk, [KAY, TEE], aBoard(), free);
         expect(shrunk.tray).toEqual([]);
         expect(shrunk.arrangement).toEqual([7, 9]);
-        const emptied = reconciledDesk(desk, null, aBoard());
+        const emptied = reconciledDesk(desk, null, aBoard(), free);
         expect(emptied).toEqual(EMPTY_DESK);
+    });
+
+    it("releases drafted and lifted tiles once a premove commits them", () => {
+        const desk = performed(
+            { kind: "lay", cell: 112, tile: KAY, letter: null },
+            { kind: "lift", tile: TEE, from: "rack" },
+        );
+        const committed = reconciledDesk(desk, [KAY, OH, TEE], aBoard(), new Set([KAY.identifier, TEE.identifier]));
+        expect(committed.draft).toEqual([]);
+        expect(committed.lift).toBeNull();
     });
 });

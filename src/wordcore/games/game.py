@@ -69,6 +69,7 @@ class Game:
         self._ensure_member(position, move.player)
         if premove and move.player not in position.state.to_act:
             self._ensure_premoves_allowed()
+            self._ensure_queueable(move)
             return self._queue_premove(position, move)
 
         return self._play_move(position, move)
@@ -105,6 +106,17 @@ class Game:
         if not self._premoves_allowed:
             raise IllegalMove("premoves are disabled at this table")
 
+    def _ensure_queueable(self, move: Move) -> None:
+        if move.action.kind not in (ActionKind.PLAY, ActionKind.EXCHANGE):
+            raise IllegalMove("only a play or an exchange can be queued as a premove")
+
+    def _ensure_on_turn(self, position: Position, move: Move) -> None:
+        if move.action.kind == ActionKind.REORDER:
+            return
+
+        if move.player not in position.state.to_act:
+            raise NotYourTurn("player is not on turn")
+
     def _queue_premove(self, position: Position, move: Move) -> JournalEntry:
         self._rules.validate(position, move)
         return self._record(
@@ -116,9 +128,7 @@ class Game:
         )
 
     def _play_move(self, position: Position, move: Move) -> JournalEntry:
-        if move.player not in position.state.to_act:
-            raise NotYourTurn("player is not on turn")
-
+        self._ensure_on_turn(position, move)
         self._rules.validate(position, move)
         entry = self._record(
             kind=EntryKind.MOVE,

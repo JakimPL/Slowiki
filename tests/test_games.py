@@ -329,3 +329,28 @@ def test_engine_reorder_does_not_advance_turn() -> None:
     game.submit(Move(player=0, action=Reorder(tile_ids=reordered)), base_seq=0)
     assert game.position.state.to_act == frozenset({0})
     assert [tile.identifier for tile in game.position.state.racks[0]] == list(reordered)
+
+
+def test_engine_reorder_applies_off_turn() -> None:
+    rules = make_rules(TextLexicon.from_words(["ab"]))
+    game = Game(rules, random.Random(0), premoves_allowed=True)
+    rack = [tile.identifier for tile in game.position.state.racks[1]]
+    reordered = tuple(reversed(rack))
+    game.submit(Move(player=1, action=Reorder(tile_ids=reordered)), base_seq=0)
+    assert game.position.state.to_act == frozenset({0})
+    assert [tile.identifier for tile in game.position.state.racks[1]] == list(reordered)
+
+
+def test_pass_leaves_the_exchange_budget_alone() -> None:
+    rules = make_rules(TextLexicon.from_words(["ab"]))
+    position = make_position(
+        racks={
+            0: (make_tile(1, "a", 1, "yellow"),),
+            1: (make_tile(2, "b", 2, "green"),),
+        },
+        bag=(),
+    )
+    passed = rules.apply(position, Move(player=0, action=Pass()), random.Random(0))
+    assert passed.state.exchange_counts == position.state.exchange_counts
+    assert passed.state.consecutive_passes == 1
+    assert passed.state.scoreless_turns == 1

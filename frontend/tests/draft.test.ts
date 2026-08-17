@@ -51,9 +51,16 @@ describe("draft", () => {
     it("keeps pending tiles while they stay in the rack and the cell stays free", () => {
         const draft = laidDown(laidDown(EMPTY_DRAFT, KAY), BLANK);
         const rack = [KAY.tile, BLANK.tile];
-        expect(reconciledDraft(draft, rack, aBoard())).toBe(draft);
-        expect(reconciledDraft(draft, [KAY.tile], aBoard())).toEqual([KAY]);
-        expect(reconciledDraft(draft, rack, aBoard({ 112: aTile() }))).toEqual([BLANK]);
-        expect(reconciledDraft(draft, null, aBoard())).toEqual([]);
+        const free = new Set<number>();
+        expect(reconciledDraft(draft, rack, aBoard(), free)).toBe(draft);
+        expect(reconciledDraft(draft, [KAY.tile], aBoard(), free)).toEqual([KAY]);
+        expect(reconciledDraft(draft, rack, aBoard({ 112: aTile() }), free)).toEqual([BLANK]);
+        expect(reconciledDraft(draft, null, aBoard(), free)).toEqual([]);
+    });
+
+    it("hands committed tiles over to the premove mirror", () => {
+        const draft = laidDown(laidDown(EMPTY_DRAFT, KAY), BLANK);
+        const rack = [KAY.tile, BLANK.tile];
+        expect(reconciledDraft(draft, rack, aBoard(), new Set([KAY.tile.identifier]))).toEqual([BLANK]);
     });
 });

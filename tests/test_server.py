@@ -241,7 +241,9 @@ async def test_opponent_premove_leaves_the_deadline_alone() -> None:
     first = session.clock()
     assert first is not None
     clock.moment = 1050.0
-    move = Move(player=1, action=Pass())
+    other_rack = session.view(1).racks[1]
+    assert other_rack is not None
+    move = Move(player=1, action=Exchange(tile_ids=[other_rack[0].identifier]))
     await session.submit(move, base_seq=0, premove=True, token="token-b")
     queued = session.clock()
     assert queued is not None

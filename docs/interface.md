@@ -46,13 +46,16 @@ feedback line, rack, tray, controls, and the docket at its foot.
 - **Board** — 15 × 15 (size is data), premium squares with `×3` / `2×` / `3×` glyphs, the center
   star, fresh-play rings in the mover's tint, pending tiles raised above their neighbours with a
   solid accent ring, premove ghosts at reduced opacity in the premove accent.
-- **Feedback line** — one fixed-height slot showing the formed-word chips (points and status dot
-  each) while a draft stands, and the guidance or refusal sentence (`role="status"`) otherwise.
+- **Feedback line** — one fixed-height slot showing, in order of precedence: the refusal or
+  notice sentence, the formed-word chips (points and status dot each) while a draft stands, the
+  returned-premove explanation, the queued-premove chip with its Cancel action, or the guidance
+  hint (`role="status"`).
 - **Rack and tray** — the rack row holds the hand; the recessed tray beneath stages exchanges and
   doubles as parking space while thinking.
-- **Controls** — three fixed slots: quiet Pass on the left, the primary contextual button
-  (`Play · 34`, `Premove · 21`, `Exchange 3`) centered, and a quiet toggle on the right that reads
-  Recall while pending tiles stand on the board and Shuffle when the rack is whole.
+- **Controls** — three fixed slots: quiet Pass on the left, armed while the seat is acting, the
+  primary contextual button (`Play · 34`, `Premove · 21`, `Exchange 3`) centered, and a quiet
+  toggle on the right that reads Recall while pending tiles stand on the board and Shuffle when
+  the rack is whole.
 - **Docket** — two one-line summaries side by side: the latest move (opening the recent-move list)
   and the remaining-tile count (opening the letter tally); both panels pop above the summaries.
 
@@ -81,8 +84,11 @@ when it is armed. The blank picker is a sheet with the scheme's own alphabet.
 
 - **Turn**: `acting` (me ∈ to_act) versus `watching`; acting flips the banner to accent strength,
   rings the board frame and my plaque, retitles the tab, and may vibrate.
-- **Premove**: `queued` (ghost tiles + a "Premove queued — Cancel" chip) → `applied` (tiles become
-  real with the fresh-play flash) or `returned` (tiles back on the rack with the reason).
+- **Premove**: plays and exchanges queue while off turn; a pass always plays on the turn.
+  `queued` (the committed tiles leave the rack and stand as board ghosts in the premove accent,
+  beside a "Premove queued — Cancel" chip; submitting again replaces the queue) → `applied`
+  (tiles become real with the fresh-play flash) or `returned` (tiles back on the rack with the
+  reason in the feedback line).
 - **Word status**: `unknown` (hollow dot) · `valid` · `invalid` (danger, with the dictionary's
   sentence in the guidance line) · `standing` (reserved for challenge schemes).
 - **Exchange**: tiles in the tray arm `Exchange N`; the guidance line carries the remaining

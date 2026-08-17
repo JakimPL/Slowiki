@@ -12,6 +12,7 @@ export interface CellProps {
     readonly tile: Tile | null;
     readonly star: boolean;
     readonly pending: Tile | null;
+    readonly ghost: Tile | null;
     readonly target: boolean;
     readonly drop: boolean;
     readonly fresh: boolean;
@@ -28,6 +29,7 @@ export function Cell({
     tile,
     star,
     pending,
+    ghost,
     target,
     drop,
     fresh,
@@ -59,6 +61,13 @@ export function Cell({
         return (
             <div className="cell" data-drop={drop ? "true" : undefined}>
                 <TileFace tile={pending} pending={true} />
+            </div>
+        );
+    }
+    if (ghost !== null) {
+        return (
+            <div className="cell">
+                <TileFace tile={ghost} ghost={true} />
             </div>
         );
     }

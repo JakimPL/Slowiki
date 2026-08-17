@@ -9,6 +9,7 @@ import { BOARD_LABEL, squareCaption } from "./strings";
 export interface BoardProps {
     readonly board: BoardView;
     readonly pending: ReadonlyMap<number, Tile>;
+    readonly ghosts: ReadonlyMap<number, Tile>;
     readonly targeting: boolean;
     readonly dropCell: number | null;
     readonly fresh: ReadonlySet<number>;
@@ -22,6 +23,7 @@ const CENTER_DIVISOR = 2;
 export function Board({
     board,
     pending,
+    ghosts,
     targeting,
     dropCell,
     fresh,
@@ -44,6 +46,7 @@ export function Board({
         >
             {board.tiles.map((tile, index) => {
                 const shown = pending.get(index) ?? null;
+                const shadowed = tile === null && shown === null ? (ghosts.get(index) ?? null) : null;
                 return (
                     <Cell
                         key={index}
@@ -52,7 +55,8 @@ export function Board({
                         bonus={board.bonuses[index] ?? null}
                         star={index === center}
                         pending={shown}
-                        target={targeting && tile === null && shown === null && onLay !== null}
+                        ghost={shadowed}
+                        target={targeting && tile === null && shown === null && shadowed === null && onLay !== null}
                         drop={dropCell === index}
                         fresh={fresh.has(index)}
                         label={squareCaption(rowOf(board.size, index), columnOf(board.size, index))}

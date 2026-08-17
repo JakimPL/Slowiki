@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { sendMove } from "../api/client";
 import { reorderMove } from "../api/moves";
@@ -8,6 +8,7 @@ import type { Desk, DeskEffect } from "./desk";
 import { affected, EMPTY_DESK, reconciledDesk } from "./desk";
 import { draftedIdentifiers } from "./draft";
 import type { TableState } from "./events";
+import { NO_COMMITTED_TILES, queuedPremoveOf } from "./premoves";
 
 export interface DeskHold {
     readonly desk: Desk;
@@ -20,6 +21,10 @@ export function useDesk(state: TableState, mySeat: number | null, seat: Seat, ac
     const [desk, setDesk] = useState<Desk>(EMPTY_DESK);
     const rack = mySeat === null ? null : (state.view.racks[String(mySeat)] ?? null);
     const board = state.view.board;
+    const committed = useMemo(
+        () => queuedPremoveOf(state.view, mySeat)?.committed ?? NO_COMMITTED_TILES,
+        [state.view, mySeat],
+    );
     const seqRef = useRef(state.seq);
 
     useEffect(() => {
@@ -27,8 +32,8 @@ export function useDesk(state: TableState, mySeat: number | null, seat: Seat, ac
     }, [state.seq]);
 
     useEffect(() => {
-        setDesk((current) => reconciledDesk(current, rack, board));
-    }, [rack, board]);
+        setDesk((current) => reconciledDesk(current, rack, board, committed));
+    }, [rack, board, committed]);
 
     useEffect(() => {
         if (!active || mySeat === null || rack === null) {

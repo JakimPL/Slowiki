@@ -14,7 +14,7 @@ export interface TableHold {
     readonly state: TableState | null;
     readonly clock: ClockView | null;
     readonly trouble: string | null;
-    readonly refresh: () => void;
+    readonly refresh: () => Promise<number | null>;
 }
 
 export function useTable(table: string, token: string | null): TableHold {
@@ -23,29 +23,30 @@ export function useTable(table: string, token: string | null): TableHold {
     const [clock, setClock] = useState<ClockView | null>(null);
     const [trouble, setTrouble] = useState<string | null>(null);
     const sinceRef = useRef(0);
-    const refreshRef = useRef<() => void>(() => undefined);
+    const refreshRef = useRef<() => Promise<number | null>>(() => Promise.resolve(null));
 
     useEffect(() => {
         let alive = true;
         let release: (() => void) | null = null;
         let wasGathered = false;
         const seat: Seat = { table, token };
-        const refresh = (): void => {
+        const refresh = (): Promise<number | null> =>
             readView(seat)
                 .then((response) => {
                     if (!alive) {
-                        return;
+                        return null;
                     }
                     sinceRef.current = Math.max(sinceRef.current, response.seq);
                     setClock(response.clock);
                     setState((current) => (current === null ? openedFrom(response) : refreshed(current, response)));
+                    return response.seq;
                 })
                 .catch((error: unknown) => {
                     if (alive) {
                         setTrouble(reasonOf(error));
                     }
+                    return null;
                 });
-        };
         refreshRef.current = refresh;
         readView(seat)
             .then((response) => {
@@ -56,8 +57,13 @@ export function useTable(table: string, token: string | null): TableHold {
                 wasGathered = gathered(response.company);
                 setClock(response.clock);
                 setState(openedFrom(response));
-                release = whileInView(document, () =>
-                    followEvents(seat, sinceRef.current, {
+                let heldBefore = false;
+                release = whileInView(document, () => {
+                    if (heldBefore) {
+                        void refresh();
+                    }
+                    heldBefore = true;
+                    return followEvents(seat, sinceRef.current, {
                         onOpen: (): void => {
                             setConnection("live");
                             setTrouble(null);
@@ -69,7 +75,7 @@ export function useTable(table: string, token: string | null): TableHold {
                         onPresence: (company): void => {
                             const nowGathered = gathered(company);
                             if (nowGathered && !wasGathered) {
-                                refresh();
+                                void refresh();
                             }
                             wasGathered = nowGathered;
                             setState((current) => (current === null ? current : accompanied(current, company)));
@@ -81,8 +87,8 @@ export function useTable(table: string, token: string | null): TableHold {
                             setConnection("resuming");
                             setTrouble(reason);
                         },
-                    }),
-                );
+                    });
+                });
             })
             .catch((error: unknown) => {
                 if (alive) {
@@ -98,9 +104,7 @@ export function useTable(table: string, token: string | null): TableHold {
         };
     }, [table, token]);
 
-    const refresh = useCallback((): void => {
-        refreshRef.current();
-    }, []);
+    const refresh = useCallback((): Promise<number | null> => refreshRef.current(), []);
 
     return { connection, state, clock, trouble, refresh };
 }

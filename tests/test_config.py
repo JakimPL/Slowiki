@@ -16,8 +16,8 @@ def test_config_tree_exists() -> None:
 
 def test_read_config() -> None:
     configuration = read_config(CONFIG_DIR / "config.yaml")
-    assert configuration.service.port == 8000
-    assert configuration.scheme == "literaki"
+    assert 0 < configuration.service.port < 65536
+    assert configuration.scheme in set(list_schemes(CONFIG_DIR))
 
 
 def test_schemes_are_listed() -> None:

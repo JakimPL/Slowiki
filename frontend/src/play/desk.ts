@@ -64,11 +64,16 @@ export function affected(desk: Desk, effect: DeskEffect): Desk {
     }
 }
 
-export function reconciledDesk(desk: Desk, rack: readonly Tile[] | null, board: Board): Desk {
-    const draft = reconciledDraft(desk.draft, rack, board);
+export function reconciledDesk(
+    desk: Desk,
+    rack: readonly Tile[] | null,
+    board: Board,
+    committed: ReadonlySet<number>,
+): Desk {
+    const draft = reconciledDraft(desk.draft, rack, board, committed);
     const tray = reconciledTray(desk.tray, rack);
     const arrangement = reconciledArrangement(desk.arrangement, rack);
-    const lift = liftStillHeld(desk.lift, rack) ? desk.lift : null;
+    const lift = liftStillHeld(desk.lift, rack, committed) ? desk.lift : null;
     if (draft === desk.draft && tray === desk.tray && arrangement === desk.arrangement && lift === desk.lift) {
         return desk;
     }
@@ -111,11 +116,11 @@ function liftWithout(lift: Lift | null, id: number): Lift | null {
     return lift;
 }
 
-function liftStillHeld(lift: Lift | null, rack: readonly Tile[] | null): boolean {
+function liftStillHeld(lift: Lift | null, rack: readonly Tile[] | null, committed: ReadonlySet<number>): boolean {
     if (lift === null) {
         return true;
     }
-    if (rack === null) {
+    if (rack === null || committed.has(lift.tile.identifier)) {
         return false;
     }
     return rack.some((tile) => tile.identifier === lift.tile.identifier);

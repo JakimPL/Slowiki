@@ -53,7 +53,11 @@ async def test_premove_queue_and_cancel_over_http(client: httpx.AsyncClient) -> 
     data = created.json()
     joined = await client.post(f"/tables/{data['code']}/join")
     other = joined.json()
-    move = {"player": 1, "action": {"kind": "pass"}}
+    seen = await client.get(
+        f"/tables/{data['table_id']}/view", headers={"X-Seat-Token": other["token"]}
+    )
+    rack = seen.json()["view"]["racks"]["1"]
+    move = {"player": 1, "action": {"kind": "exchange", "tile_ids": [rack[0]["identifier"]]}}
     queued = await client.post(
         f"/tables/{data['table_id']}/moves",
         json={"move": move, "base_seq": 0, "premove": True},
@@ -61,6 +65,13 @@ async def test_premove_queue_and_cancel_over_http(client: httpx.AsyncClient) -> 
     )
     assert queued.status_code == 200
     assert queued.json()["seq"] == 1
+    refused = await client.post(
+        f"/tables/{data['table_id']}/moves",
+        json={"move": {"player": 1, "action": {"kind": "pass"}}, "base_seq": 1, "premove": True},
+        headers={"X-Seat-Token": other["token"]},
+    )
+    assert refused.status_code == 409
+    assert refused.json()["code"] == "illegal_move"
     view = await client.get(
         f"/tables/{data['table_id']}/view", headers={"X-Seat-Token": other["token"]}
     )

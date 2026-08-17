@@ -14,6 +14,7 @@ describe("Rack", () => {
                 tiles={TILES}
                 capacity={7}
                 liftedId={null}
+                locked={new Set<number>()}
                 bindings={null}
                 returnable={false}
                 onReturn={() => undefined}
@@ -29,6 +30,7 @@ describe("Rack", () => {
                 tiles={TILES}
                 capacity={7}
                 liftedId={2}
+                locked={new Set<number>()}
                 bindings={stubBindings()}
                 returnable={false}
                 onReturn={() => undefined}
@@ -49,12 +51,30 @@ describe("Rack", () => {
                 tiles={TILES}
                 capacity={7}
                 liftedId={9}
+                locked={new Set<number>()}
                 bindings={stubBindings()}
                 returnable={true}
                 onReturn={() => undefined}
             />,
         );
         expect(markup).toContain("Return here");
+    });
+
+    it("shows committed tiles as inert ghost faces", () => {
+        const markup = renderToStaticMarkup(
+            <Rack
+                tiles={TILES}
+                capacity={7}
+                liftedId={null}
+                locked={new Set([1])}
+                bindings={stubBindings()}
+                returnable={false}
+                onReturn={() => undefined}
+            />,
+        );
+        expect(markup).toContain('data-ghost="true"');
+        expect(markup).not.toContain('data-tile="1"');
+        expect(markup).toContain('data-tile="2"');
     });
 
     it("names blank tiles for assistive tech", () => {
@@ -64,6 +84,7 @@ describe("Rack", () => {
                 tiles={[blank]}
                 capacity={7}
                 liftedId={null}
+                locked={new Set<number>()}
                 bindings={stubBindings()}
                 returnable={false}
                 onReturn={() => undefined}

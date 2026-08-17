@@ -15,7 +15,7 @@ from wordcore.errors.rejections import RejectionCode
 from wordcore.games.game import Game
 from wordcore.games.journal import EntryKind, JournalEntry
 from wordcore.lexicon.lexicon import TextLexicon
-from wordcore.moves.action import Pass, Play, PlayPlacement, Reorder
+from wordcore.moves.action import Exchange, Pass, Play, PlayPlacement, Reorder
 from wordcore.moves.move import Move
 from wordcore.tiles.bag import build_tiles, deal_racks, shuffled_bag
 from wordcore.tiles.tile import LetterSpec, Tile, TilePreset
@@ -105,6 +105,10 @@ def test_text_lexicon() -> None:
     assert not lexicon.has_prefix("dome")
 
 
+def queued_exchange() -> Move:
+    return Move(player=1, action=Exchange(tile_ids=(9,)))
+
+
 def test_engine_submit_and_turn() -> None:
     game = Game(TrivialRules(), random.Random(0), premoves_allowed=True)
     assert game.seq == 0
@@ -139,8 +143,8 @@ def test_engine_illegal_move() -> None:
 
 def test_engine_premove_executes() -> None:
     game = Game(TrivialRules(), random.Random(0), premoves_allowed=True)
-    game.submit(Move(player=1, action=Pass()), base_seq=0, premove=True)
-    assert game.position.state.premoves == {1: Move(player=1, action=Pass())}
+    game.submit(queued_exchange(), base_seq=0, premove=True)
+    assert game.position.state.premoves == {1: queued_exchange()}
     game.submit(Move(player=0, action=Pass()), base_seq=1)
     assert game.position.state.premoves == {1: None}
     assert game.position.state.to_act == frozenset({0})
@@ -150,7 +154,7 @@ def test_engine_premove_executes() -> None:
 def test_engine_premove_discarded_when_invalid() -> None:
     rules = TrivialRules()
     game = Game(rules, random.Random(0), premoves_allowed=True)
-    game.submit(Move(player=1, action=Pass()), base_seq=0, premove=True)
+    game.submit(queued_exchange(), base_seq=0, premove=True)
     rules.reject_seat = 1
     game.submit(Move(player=0, action=Pass()), base_seq=1)
     assert game.position.state.premoves == {1: None}
@@ -161,13 +165,28 @@ def test_engine_premove_discarded_when_invalid() -> None:
 def test_premoves_can_be_disabled() -> None:
     game = Game(TrivialRules(), random.Random(0), premoves_allowed=False)
     with pytest.raises(IllegalMove):
+        game.submit(queued_exchange(), base_seq=0, premove=True)
+    assert game.seq == 0
+
+
+def test_engine_refuses_a_queued_pass() -> None:
+    game = Game(TrivialRules(), random.Random(0), premoves_allowed=True)
+    with pytest.raises(IllegalMove):
         game.submit(Move(player=1, action=Pass()), base_seq=0, premove=True)
+    assert game.seq == 0
+    assert game.position.state.premoves == {}
+
+
+def test_engine_refuses_a_queued_reorder() -> None:
+    game = Game(TrivialRules(), random.Random(0), premoves_allowed=True)
+    with pytest.raises(IllegalMove):
+        game.submit(Move(player=1, action=Reorder(tile_ids=())), base_seq=0, premove=True)
     assert game.seq == 0
 
 
 def test_cancel_premove_records_a_transaction() -> None:
     game = Game(TrivialRules(), random.Random(0), premoves_allowed=True)
-    game.submit(Move(player=1, action=Pass()), base_seq=0, premove=True)
+    game.submit(queued_exchange(), base_seq=0, premove=True)
     entry = game.cancel_premove(1, base_seq=1)
     assert game.seq == 2
     assert entry.kind == EntryKind.PREMOVE_CLEARED
@@ -188,16 +207,16 @@ def test_cancel_premove_requires_a_queued_premove() -> None:
 
 def test_cancel_premove_requires_current_sequence() -> None:
     game = Game(TrivialRules(), random.Random(0), premoves_allowed=True)
-    game.submit(Move(player=1, action=Pass()), base_seq=0, premove=True)
+    game.submit(queued_exchange(), base_seq=0, premove=True)
     with pytest.raises(StalePosition):
         game.cancel_premove(1, base_seq=0)
 
 
 def test_projection_shows_own_premove_and_public_pending() -> None:
     game = Game(TrivialRules(), random.Random(0), premoves_allowed=True)
-    game.submit(Move(player=1, action=Pass()), base_seq=0, premove=True)
+    game.submit(queued_exchange(), base_seq=0, premove=True)
     owner = game.view(observer=1)
-    assert owner.premove == Move(player=1, action=Pass())
+    assert owner.premove == queued_exchange()
     assert owner.pending_premoves == frozenset({1})
     other = game.view(observer=0)
     assert other.premove is None
@@ -209,11 +228,11 @@ def test_projection_shows_own_premove_and_public_pending() -> None:
 
 def test_events_mask_premove_content_per_observer() -> None:
     game = Game(TrivialRules(), random.Random(0), premoves_allowed=True)
-    game.submit(Move(player=1, action=Pass()), base_seq=0, premove=True)
+    game.submit(queued_exchange(), base_seq=0, premove=True)
     owned = game.events(observer=1, since=0)[0]
     assert owned.kind == EntryKind.PREMOVE_SET
     assert owned.actor == 1
-    assert owned.move == Move(player=1, action=Pass())
+    assert owned.move == queued_exchange()
     other = game.events(observer=0, since=0)[0]
     assert other.kind == EntryKind.PREMOVE_SET
     assert other.actor == 1
@@ -225,7 +244,7 @@ def test_events_mask_premove_content_per_observer() -> None:
 def test_discard_reason_reaches_owner_only() -> None:
     rules = TrivialRules()
     game = Game(rules, random.Random(0), premoves_allowed=True)
-    game.submit(Move(player=1, action=Pass()), base_seq=0, premove=True)
+    game.submit(queued_exchange(), base_seq=0, premove=True)
     rules.reject_seat = 1
     game.submit(Move(player=0, action=Pass()), base_seq=1)
     owned = game.events(observer=1, since=2)[0]
@@ -240,12 +259,12 @@ def test_discard_reason_reaches_owner_only() -> None:
 
 def test_settled_premove_becomes_public_move() -> None:
     game = Game(TrivialRules(), random.Random(0), premoves_allowed=True)
-    game.submit(Move(player=1, action=Pass()), base_seq=0, premove=True)
+    game.submit(queued_exchange(), base_seq=0, premove=True)
     game.submit(Move(player=0, action=Pass()), base_seq=1)
     settled = game.events(observer=0, since=2)[0]
     assert settled.kind == EntryKind.MOVE
     assert settled.actor == 1
-    assert settled.move == Move(player=1, action=Pass())
+    assert settled.move == queued_exchange()
 
 
 def test_reorder_content_stays_with_its_owner() -> None:
@@ -266,7 +285,7 @@ def test_reorder_content_stays_with_its_owner() -> None:
 def test_late_subscriber_reads_the_same_masked_history() -> None:
     rules = TrivialRules()
     game = Game(rules, random.Random(0), premoves_allowed=True)
-    game.submit(Move(player=1, action=Pass()), base_seq=0, premove=True)
+    game.submit(queued_exchange(), base_seq=0, premove=True)
     game.submit(Move(player=0, action=Pass()), base_seq=1)
     live = game.events(observer=0, since=0)
     resumed = game.events(observer=0, since=0)[:1] + game.events(observer=0, since=1)

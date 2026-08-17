@@ -303,8 +303,9 @@ select {
 }
 
 .action:disabled {
+    background: color-mix(in srgb, var(--chrome-text) 8%, transparent);
+    color: color-mix(in srgb, var(--chrome-muted) 75%, transparent);
     cursor: default;
-    opacity: 0.5;
 }
 
 .table {
@@ -447,11 +448,17 @@ select {
     gap: 5px;
     align-items: center;
     min-width: 0;
-    overflow: hidden;
     color: var(--chrome-muted);
     font-size: 12.5px;
     font-weight: 600;
     white-space: nowrap;
+}
+
+.plaque-name-text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .plaque-you {
@@ -469,7 +476,7 @@ select {
     flex: none;
     width: 7px;
     height: 7px;
-    margin-left: auto;
+    margin-right: 2px;
     background: var(--accent-premove);
     transform: rotate(45deg);
 }
@@ -983,6 +990,12 @@ select {
     transform: scale(1.06);
 }
 
+.tile[data-ghost] {
+    opacity: 0.55;
+    outline: 2px solid color-mix(in srgb, var(--accent-premove) 70%, transparent);
+    outline-offset: 0;
+}
+
 .words {
     display: flex;
     gap: 8px;
@@ -1076,6 +1089,45 @@ select {
     min-width: 0;
 }
 
+.queued {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+}
+
+.queued-caption {
+    color: var(--accent-premove);
+    font-size: 13.5px;
+    font-weight: 600;
+}
+
+.queued-caption::before {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-right: 7px;
+    background: var(--accent-premove);
+    content: "";
+    transform: rotate(45deg);
+}
+
+.queued-cancel {
+    padding: 4px 13px;
+    border: 1px solid color-mix(in srgb, var(--accent-premove) 55%, transparent);
+    border-radius: 999px;
+    background: none;
+    color: var(--accent-premove);
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.queued-cancel:disabled {
+    cursor: default;
+    opacity: 0.5;
+}
+
 .controls {
     display: flex;
     gap: 10px;
@@ -1090,6 +1142,10 @@ select {
 
 .control-primary[data-premove] {
     background: var(--accent-premove);
+}
+
+.control-primary:disabled {
+    background: color-mix(in srgb, var(--chrome-text) 8%, transparent);
 }
 
 .control-quiet {
@@ -1284,6 +1340,7 @@ select {
 .chip-mode:focus-visible,
 .home-switch:focus-visible,
 .docket summary:focus-visible,
+.queued-cancel:focus-visible,
 .invitation-copy:focus-visible {
     outline: 2px solid var(--accent-primary);
     outline-offset: 2px;

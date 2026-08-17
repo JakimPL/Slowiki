@@ -3,6 +3,7 @@ import type { Connection } from "../play/connection";
 import type { ExchangeBlock } from "../play/exchange";
 import type { Guidance } from "../play/guidance";
 import type { LogEntry } from "../play/log";
+import type { PremoveKind } from "../play/premoves";
 import type { Story } from "../play/story";
 
 export const PRODUCT_NAME = "Literabble";
@@ -40,6 +41,9 @@ export const BOARD_LABEL = "Board";
 export const RACK_LABEL = "Your tiles";
 export const PLAY_BUTTON = "Play";
 export const PREMOVE_BUTTON = "Premove";
+export const PREMOVE_QUEUED = "Premove queued";
+export const EXCHANGE_QUEUED = "Exchange queued";
+export const CANCEL_PREMOVE = "Cancel";
 export const PASS_BUTTON = "Pass";
 export const RECALL_BUTTON = "Recall";
 export const SHUFFLE_BUTTON = "Shuffle";
@@ -98,6 +102,17 @@ export function exchangeGuidance(block: ExchangeBlock, remaining: number | null,
 
 export function bingoCaption(bonus: number): string {
     return `Bingo +${String(bonus)}`;
+}
+
+export function queuedCaption(kind: PremoveKind): string {
+    return kind === "play" ? PREMOVE_QUEUED : EXCHANGE_QUEUED;
+}
+
+export function premoveReturnedCaption(reason: string | null): string {
+    if (reason === null) {
+        return "Premove returned to your rack.";
+    }
+    return `Premove returned — ${reason.replaceAll("_", " ")}.`;
 }
 
 export function logCaption(entry: LogEntry): string {

@@ -18,7 +18,14 @@ describe("tray model", () => {
 describe("Tray", () => {
     it("hints while empty and idle", () => {
         const markup = renderToStaticMarkup(
-            <Tray tiles={[]} liftedId={null} bindings={stubBindings()} parkable={false} onPark={() => undefined} />,
+            <Tray
+                tiles={[]}
+                liftedId={null}
+                locked={new Set<number>()}
+                bindings={stubBindings()}
+                parkable={false}
+                onPark={() => undefined}
+            />,
         );
         expect(markup).toContain('data-region="tray"');
         expect(markup).toContain("Set tiles aside here");
@@ -27,7 +34,14 @@ describe("Tray", () => {
 
     it("offers a park slot while a rack tile is lifted", () => {
         const markup = renderToStaticMarkup(
-            <Tray tiles={[]} liftedId={7} bindings={stubBindings()} parkable={true} onPark={() => undefined} />,
+            <Tray
+                tiles={[]}
+                liftedId={7}
+                locked={new Set<number>()}
+                bindings={stubBindings()}
+                parkable={true}
+                onPark={() => undefined}
+            />,
         );
         expect(markup).toContain("Park here");
         expect(markup).not.toContain("Set tiles aside here");
@@ -38,6 +52,7 @@ describe("Tray", () => {
             <Tray
                 tiles={[aTile({ identifier: 4, letter: "W" })]}
                 liftedId={null}
+                locked={new Set<number>()}
                 bindings={stubBindings()}
                 parkable={false}
                 onPark={() => undefined}

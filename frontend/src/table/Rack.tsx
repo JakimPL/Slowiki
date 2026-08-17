@@ -11,12 +11,13 @@ export interface RackProps {
     readonly tiles: readonly Tile[];
     readonly capacity: number;
     readonly liftedId: number | null;
+    readonly locked: ReadonlySet<number>;
     readonly bindings: TileBindings | null;
     readonly returnable: boolean;
     readonly onReturn: () => void;
 }
 
-export function Rack({ tiles, capacity, liftedId, bindings, returnable, onReturn }: RackProps): ReactElement {
+export function Rack({ tiles, capacity, liftedId, locked, bindings, returnable, onReturn }: RackProps): ReactElement {
     if (bindings === null) {
         return (
             <div
@@ -39,15 +40,19 @@ export function Rack({ tiles, capacity, liftedId, bindings, returnable, onReturn
             data-region="rack"
             style={rowCountStyle(Math.max(capacity, tiles.length + (returnable ? 1 : 0)))}
         >
-            {tiles.map((tile) => (
-                <GraspTile
-                    key={tile.identifier}
-                    tile={tile}
-                    spot={{ kind: "rack" }}
-                    lifted={tile.identifier === liftedId}
-                    bindings={bindings}
-                />
-            ))}
+            {tiles.map((tile) =>
+                locked.has(tile.identifier) ? (
+                    <TileFace key={tile.identifier} tile={tile} ghost={true} />
+                ) : (
+                    <GraspTile
+                        key={tile.identifier}
+                        tile={tile}
+                        spot={{ kind: "rack" }}
+                        lifted={tile.identifier === liftedId}
+                        bindings={bindings}
+                    />
+                ),
+            )}
             {returnable ? (
                 <button type="button" className="slot-action" onClick={onReturn}>
                     {RETURN_HERE}

@@ -15,6 +15,7 @@ import { seatedAs } from "../play/events";
 import { exchangeProspectOf } from "../play/exchange";
 import { invalidTextsOf, wordStatusFor } from "../play/feedback";
 import { guidanceFor } from "../play/guidance";
+import { NO_COMMITTED_TILES, queuedPremoveOf, returnedPremoveOf } from "../play/premoves";
 import { prospectOf } from "../play/prospects";
 import { remainingTally } from "../play/remaining";
 import { rulesFrom } from "../play/rules";
@@ -48,14 +49,17 @@ import type { StatusTone } from "./StatusLine";
 import { StatusLine } from "./StatusLine";
 import {
     bagCaption,
+    CANCEL_PREMOVE,
     captionFor,
     clockCaption,
     CONNECTION_CAPTIONS,
     exchangeCaption,
     exchangeGuidance,
     guidanceCaption,
+    premoveReturnedCaption,
     primaryCaption,
     PRODUCT_NAME,
+    queuedCaption,
     STALE_NOTICE,
 } from "./strings";
 import type { DropTarget } from "./targets";
@@ -70,7 +74,7 @@ export interface TableProps {
     readonly state: TableState;
     readonly clock: ClockView | null;
     readonly trouble: string | null;
-    readonly onOutdated: () => void;
+    readonly onOutdated: () => Promise<number | null>;
 }
 
 interface BlankChoice {
@@ -96,9 +100,23 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
     const mayAct = atDesk && (acting || rules.premovesAllowed);
 
     const { desk, perform: performDesk } = useDesk(state, mySeat, arrival.seat, atDesk);
-    const { busy, notice, noticeCode, send, clear } = usePlay(arrival.seat, state.seq, onOutdated);
+    const { busy, notice, noticeCode, send, revoke, clear } = usePlay(arrival.seat, state.seq, onOutdated);
+    const queued = queuedPremoveOf(state.view, mySeat);
+    const ghosts: ReadonlyMap<number, Tile> = new Map((queued?.ghosts ?? []).map((ghost) => [ghost.cell, ghost.tile]));
+    const committed = queued?.committed ?? NO_COMMITTED_TILES;
+    const ghosted = queued !== null && queued.kind === "play" ? queued.committed : NO_COMMITTED_TILES;
+    const returned = returnedPremoveOf(state.log, mySeat);
+    const [returnedSeen, setReturnedSeen] = useState(-1);
+    const returnedNotice =
+        returned !== null && returned.seq > returnedSeen ? premoveReturnedCaption(returned.reason) : null;
+    const dismissReturned = (): void => {
+        if (returned !== null) {
+            setReturnedSeen(returned.seq);
+        }
+    };
     const perform = (effect: DeskEffect): void => {
         clear();
+        dismissReturned();
         performDesk(effect);
     };
     const [blankChoice, setBlankChoice] = useState<BlankChoice | null>(null);
@@ -121,7 +139,9 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
     const heldBack = draftedIdentifiers(desk.draft);
     const parked = new Set(desk.tray);
     const arranged = rack === null ? [] : arrangedTiles(desk.arrangement, rack);
-    const rackRow = arranged.filter((tile) => !heldBack.has(tile.identifier) && !parked.has(tile.identifier));
+    const rackRow = arranged.filter(
+        (tile) => !heldBack.has(tile.identifier) && !parked.has(tile.identifier) && !ghosted.has(tile.identifier),
+    );
     const trayRow = rack === null ? [] : trayTilesOf(desk.tray, rack);
 
     const exchanging = desk.draft.length === 0 && desk.tray.length > 0;
@@ -135,14 +155,39 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
         status: wordStatusFor(rules.feedback, word.text, invalidTexts),
     }));
     const shownNotice = noticeCode === STALE_POSITION_CODE ? STALE_NOTICE : notice;
-    const guidance =
-        shownNotice ??
-        (exchanging && exchange !== null
+    const hint =
+        exchanging && exchange !== null
             ? exchangeGuidance(exchange.block, exchange.remaining, rules.exchangeMinBag)
-            : guidanceCaption(guidanceFor(prospect.verdict, desk.lift !== null)));
+            : guidanceCaption(guidanceFor(prospect.verdict, desk.lift !== null));
+    const feedback = (): ReactElement => {
+        if (shownNotice !== null) {
+            return danger(shownNotice);
+        }
+        if (chips.length > 0) {
+            return <Words chips={chips} bingo={prospect.bingo ? rules.bingoBonus : 0} />;
+        }
+        if (returnedNotice !== null) {
+            return danger(returnedNotice);
+        }
+        if (queued !== null) {
+            return (
+                <div className="queued" role="status">
+                    <span className="queued-caption">{queuedCaption(queued.kind)}</span>
+                    <button type="button" className="queued-cancel" disabled={busy} onClick={revoke}>
+                        {CANCEL_PREMOVE}
+                    </button>
+                </div>
+            );
+        }
+        return (
+            <p className="guidance" role="status" data-tone="hint">
+                {hint}
+            </p>
+        );
+    };
 
     const lay = (cell: number, tile: Tile): void => {
-        if (!mayAct || state.view.board.tiles[cell] !== null) {
+        if (!mayAct || state.view.board.tiles[cell] !== null || ghosts.has(cell)) {
             return;
         }
         if (tile.blank) {
@@ -166,6 +211,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
         if (!primaryArmed || busy || mySeat === null) {
             return;
         }
+        dismissReturned();
         if (exchanging) {
             send(exchangeMove(mySeat, desk.tray), asPremove);
             return;
@@ -173,8 +219,9 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
         send(playMove(mySeat, placementsOf(desk.draft, state.view.board.size)), asPremove);
     };
     const pass = (): void => {
-        if (mayAct && !busy) {
-            send(passMove(mySeat), asPremove);
+        if (acting && !busy) {
+            dismissReturned();
+            send(passMove(mySeat), false);
         }
     };
     const shuffle = (): void => {
@@ -193,12 +240,13 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
         perform(tapEffect(desk.lift, grasp));
     };
     const drop = (grasp: Grasp, target: DropTarget | null): void => {
-        for (const effect of dropEffects(grasp, target, mayAct)) {
+        const resolved = target?.kind === "cell" && ghosts.has(target.cell) ? null : target;
+        for (const effect of dropEffects(grasp, resolved, mayAct)) {
             perform(effect);
         }
-        if (target?.kind === "cell" && grasp.spot.kind !== "cell" && grasp.tile.blank) {
-            if (mayAct && state.view.board.tiles[target.cell] === null) {
-                setBlankChoice({ cell: target.cell, tile: grasp.tile });
+        if (resolved?.kind === "cell" && grasp.spot.kind !== "cell" && grasp.tile.blank) {
+            if (mayAct && state.view.board.tiles[resolved.cell] === null) {
+                setBlankChoice({ cell: resolved.cell, tile: grasp.tile });
             }
         }
     };
@@ -290,8 +338,11 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
                 <Board
                     board={state.view.board}
                     pending={pendingFacesOf(desk.draft)}
+                    ghosts={ghosts}
                     targeting={mayAct && desk.lift !== null}
-                    dropCell={carry?.target?.kind === "cell" ? carry.target.cell : null}
+                    dropCell={
+                        carry?.target?.kind === "cell" && !ghosts.has(carry.target.cell) ? carry.target.cell : null
+                    }
                     fresh={freshCells}
                     freshTint={freshTint}
                     onLay={mayAct ? layLifted : null}
@@ -307,23 +358,14 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
                         total={state.company.seats.length}
                     />
                 ) : null}
-                {atDesk ? (
-                    <div className="feedback">
-                        {shownNotice === null && chips.length > 0 ? (
-                            <Words chips={chips} bingo={prospect.bingo ? rules.bingoBonus : 0} />
-                        ) : (
-                            <p className="guidance" role="status" data-tone={shownNotice !== null ? "danger" : "hint"}>
-                                {guidance}
-                            </p>
-                        )}
-                    </div>
-                ) : null}
+                {atDesk ? <div className="feedback">{feedback()}</div> : null}
                 {atDesk ? (
                     <>
                         <Rack
                             tiles={rackRow}
                             capacity={rules.rackSize ?? rackRow.length}
                             liftedId={liftedIdentifier(desk.lift)}
+                            locked={committed}
                             bindings={bindings}
                             returnable={desk.lift !== null && desk.lift.from === "tray"}
                             onReturn={(): void => {
@@ -335,6 +377,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
                         <Tray
                             tiles={trayRow}
                             liftedId={liftedIdentifier(desk.lift)}
+                            locked={committed}
                             bindings={bindings}
                             parkable={desk.lift !== null && desk.lift.from === "rack"}
                             onPark={(): void => {
@@ -354,7 +397,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
                             busy={busy}
                             canRecall={desk.draft.length > 0 || desk.lift !== null}
                             canShuffle={rackRow.length > 1}
-                            canPass={mayAct && rules.passAllowed}
+                            canPass={acting && rules.passAllowed}
                             onPrimary={primary}
                             onRecall={(): void => {
                                 perform({ kind: "recall" });
@@ -368,6 +411,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
                         tiles={rack}
                         capacity={rules.rackSize ?? rack.length}
                         liftedId={null}
+                        locked={NO_COMMITTED_TILES}
                         bindings={null}
                         returnable={false}
                         onReturn={() => undefined}
@@ -471,6 +515,14 @@ function trayDropEffects(spot: DeskSpot, tile: Tile, before: number | null): rea
 
 function pendingFacesOf(draft: Draft): ReadonlyMap<number, Tile> {
     return new Map(draft.map((pending) => [pending.cell, shownTile(pending)]));
+}
+
+function danger(text: string): ReactElement {
+    return (
+        <p className="guidance" role="status" data-tone="danger">
+            {text}
+        </p>
+    );
 }
 
 function toneOf(kind: StoryKind): StatusTone {

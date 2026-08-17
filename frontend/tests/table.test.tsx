@@ -20,7 +20,7 @@ describe("Table", () => {
                 state={openedFrom(response)}
                 clock={null}
                 trouble={null}
-                onOutdated={() => undefined}
+                onOutdated={() => Promise.resolve(null)}
             />,
         );
         expect(markup).toContain("Gathering players — 1 of 2 at the table");
@@ -40,7 +40,7 @@ describe("Table", () => {
                 state={openedFrom(response)}
                 clock={null}
                 trouble={null}
-                onOutdated={() => undefined}
+                onOutdated={() => Promise.resolve(null)}
             />,
         );
         expect(markup).toContain("Your turn");
@@ -57,7 +57,7 @@ describe("Table", () => {
                 state={openedFrom(response)}
                 clock={null}
                 trouble={null}
-                onOutdated={() => undefined}
+                onOutdated={() => Promise.resolve(null)}
             />,
         );
         expect(markup).toContain(">Play</button>");
@@ -69,6 +69,77 @@ describe("Table", () => {
         expect(markup).toContain('class="side"');
         expect(markup).toContain('aria-label="Players"');
         expect(markup).toContain("--row-count:1");
+    });
+
+    it("mirrors a queued premove as ghosts, a chip with Cancel, and a resting rack", () => {
+        const response = aTableResponse({
+            view: aView({
+                to_act: [1],
+                racks: { 0: [aTile({ identifier: 7, letter: "K" }), aTile({ identifier: 9, letter: "O" })], 1: null },
+                premove: {
+                    player: 0,
+                    action: { kind: "play", placements: [{ tile_id: 7, row: 7, column: 7, letter: null }] },
+                },
+                pending_premoves: [0],
+            }),
+        });
+        const markup = renderToStaticMarkup(
+            <Table
+                arrival={ARRIVAL}
+                connection="live"
+                state={openedFrom(response)}
+                clock={null}
+                trouble={null}
+                onOutdated={() => Promise.resolve(null)}
+            />,
+        );
+        expect(markup).toContain('data-ghost="true"');
+        expect(markup).toContain("Premove queued");
+        expect(markup).toContain(">Cancel</button>");
+        expect(markup).not.toContain('data-tile="7"');
+    });
+
+    it("keeps Pass for the acting turn only", () => {
+        const response = aTableResponse({ view: aView({ to_act: [1] }) });
+        const markup = renderToStaticMarkup(
+            <Table
+                arrival={ARRIVAL}
+                connection="live"
+                state={openedFrom(response)}
+                clock={null}
+                trouble={null}
+                onOutdated={() => Promise.resolve(null)}
+            />,
+        );
+        expect(markup).toContain('disabled="">Pass</button>');
+    });
+
+    it("surfaces a returned premove with its humanized reason", () => {
+        const response = aTableResponse({ view: aView({ to_act: [0] }) });
+        const state = {
+            ...openedFrom(response),
+            log: [
+                {
+                    seq: 3,
+                    actor: 0,
+                    kind: "premove-returned" as const,
+                    words: [],
+                    points: null,
+                    reason: "invalid_word",
+                },
+            ],
+        };
+        const markup = renderToStaticMarkup(
+            <Table
+                arrival={ARRIVAL}
+                connection="live"
+                state={state}
+                clock={null}
+                trouble={null}
+                onOutdated={() => Promise.resolve(null)}
+            />,
+        );
+        expect(markup).toContain("Premove returned — invalid word.");
     });
 
     it("rings the last play in the mover's tint", () => {
@@ -85,7 +156,7 @@ describe("Table", () => {
                 state={openedFrom(response)}
                 clock={null}
                 trouble={null}
-                onOutdated={() => undefined}
+                onOutdated={() => Promise.resolve(null)}
             />,
         );
         expect(markup).toContain('data-fresh="true"');
@@ -101,7 +172,7 @@ describe("Table", () => {
                 state={openedFrom(response)}
                 clock={null}
                 trouble={null}
-                onOutdated={() => undefined}
+                onOutdated={() => Promise.resolve(null)}
             />,
         );
         expect(markup).not.toContain(">Play</button>");
@@ -117,7 +188,7 @@ describe("Table", () => {
                 state={openedFrom(response)}
                 clock={null}
                 trouble="stream lost"
-                onOutdated={() => undefined}
+                onOutdated={() => Promise.resolve(null)}
             />,
         );
         expect(markup).toContain("Reconnecting");
