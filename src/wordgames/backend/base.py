@@ -118,6 +118,8 @@ class WordGameRules(Rules):
             self._lexicon,
             words,
             self._parameters.validate_on_play,
+            self._parameters.allowed_pos,
+            self._parameters.base_form_only,
         )
 
     def _validate_exchange(

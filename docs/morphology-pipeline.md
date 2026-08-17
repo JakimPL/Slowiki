@@ -245,7 +245,9 @@ LLM-assisted pipeline and contributes patterns for the optional review tool
 3. Artifact v2 and `MorphLexicon`; parity and round-trip tests (completed
    2026-08-17: versioned marshal envelope, interned raw tuples, aligned
    surface→classes index, referential loader validation).
-4. Play-validation filters through schemes and `validate_words`.
+4. Play-validation filters through schemes and `validate_words` (completed
+   2026-08-17: `allowed_pos` and `base_form_only`, config-validated, exposed
+   in the table description).
 5. UI class info (server surface and frontend annotation).
 6. Incremental operations: digests, `lexica analyze/compile/report/diff`,
    overrides; the optional DeepSeek review tool for `UNKNOWN` follows as a
@@ -263,8 +265,8 @@ LLM-assisted pipeline and contributes patterns for the optional review tool
 - The pinned `morfeusz2==1.99.15` wheel fixes the dictionary data version; a
   dictionary upgrade changes the reference analyses and re-runs specimen
   regeneration deliberately.
-- Memory footprint of `MorphLexicon` at server startup; the compile-time peak
-  measured 21.8 GB with pydantic variant records, so the artifact serializes
-  raw interned tuples and derives `in_dictionary` from the surface index.
-  Mitigation options remain (slimmed tags, lazy class table).
+- Memory footprint of `MorphLexicon` at server startup: the interned raw
+  artifact loads in 7.7 s at 1.5 GiB resident and compiles in 3 min 51 s at
+  3.4 GB peak (down from the 21.8 GB pydantic prototype). Mitigation options
+  remain (slimmed tags, lazy class table).
 - WSJP API access remains to confirm; paradigm-level scope holds for now.

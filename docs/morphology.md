@@ -332,6 +332,20 @@ one lemma carries several verb or adjective tag prefixes within a single
 class. The zaimek count stays small because the tagset classifies most
 pronouns as adjectives (a lemma-level refinement).
 
+### Compiled artifact v2 (Phase 3, full corpus)
+
+`lexica compile` over all 3,240,429 forms with PoliMorf rescue:
+
+| Metric | Value |
+|---|---|
+| Compile wall time / peak memory | 3 min 51 s / 3.4 GB |
+| Artifact size | 216 MB |
+| Load time / resident memory | 7.7 s / 1.5 GB |
+| Artifact contents | 3,240,429 surfaces, 201,821 classes, 343,447 UNKNOWN |
+
+`BRONIĄ` resolves to both classes (`czasownik:BRONIĆ`, `rzeczownik:BROŃ`) with
+correct bases; the surface index keeps `judge`/`has_prefix` at bisect speed.
+
 ## Source decision (Phase 0)
 
 - Primary analysis source: morfeusz2 with the bundled SGJP 2026.06.01 —

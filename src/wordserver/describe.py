@@ -38,6 +38,8 @@ def _rule_parameters(
         premoves_allowed=scheme.premoves,
         pass_end_limit=scheme.pass_end_limit,
         scoreless_end_limit=scheme.scoreless_end_limit,
+        allowed_pos=scheme.allowed_pos,
+        base_form_only=scheme.base_form_only,
         time=scheme.time,
     )
 

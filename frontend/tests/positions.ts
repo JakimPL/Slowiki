@@ -80,6 +80,8 @@ export function someParameters(overrides: Partial<RuleParameters> = {}): RulePar
         premoves_allowed: true,
         pass_end_limit: 2,
         scoreless_end_limit: null,
+        allowed_pos: null,
+        base_form_only: false,
         time: { per_turn_seconds: null, increment_seconds: 0, total_seconds: null },
         ...overrides,
     };
