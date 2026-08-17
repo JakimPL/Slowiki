@@ -6,11 +6,15 @@ import { reasonOf } from "../api/refusal";
 import type { Offering, TableAdmission } from "../api/tables";
 import type { Tile } from "../api/views";
 import { rememberName, storedName } from "../play/identity";
+import { MOVE_INCREMENTS, timeRequestOf, TURN_BUDGETS } from "../play/timing";
 import { ModeToggle } from "./ModeToggle";
 import {
+    budgetCaption,
     CODE_LABEL,
     CREATE_BUTTON,
     CREATE_HEADING,
+    INCREMENT_LABEL,
+    incrementCaption,
     JOIN_BUTTON,
     JOIN_HEADING,
     NAME_LABEL,
@@ -23,6 +27,8 @@ import {
     SEATS_LABEL,
     SWITCH_TO_CREATE,
     SWITCH_TO_JOIN,
+    TIME_LABEL,
+    UNTIMED_CAPTION,
 } from "./strings";
 import { TileFace } from "./TileFace";
 
@@ -46,6 +52,8 @@ export function Home({ invitedCode, themeNote, onArrive }: HomeProps): ReactElem
     const [code, setCode] = useState(invitedCode ?? "");
     const [schemeName, setSchemeName] = useState<string | null>(null);
     const [seats, setSeats] = useState<number | null>(null);
+    const [budget, setBudget] = useState<number | null>(null);
+    const [increment, setIncrement] = useState(0);
     const [joining, setJoining] = useState(false);
     const [busy, setBusy] = useState(false);
     const [trouble, setTrouble] = useState<string | null>(null);
@@ -100,7 +108,8 @@ export function Home({ invitedCode, themeNote, onArrive }: HomeProps): ReactElem
         if (chosen === null) {
             return;
         }
-        void settle(() => createTable({ scheme: chosen.name, seats: chosenSeats, name: cleanedName }));
+        const time = timeRequestOf({ totalSeconds: budget, incrementSeconds: increment });
+        void settle(() => createTable({ scheme: chosen.name, seats: chosenSeats, name: cleanedName, time }));
     };
 
     const join: SubmitEventHandler<HTMLFormElement> = (submission) => {
@@ -201,6 +210,39 @@ export function Home({ invitedCode, themeNote, onArrive }: HomeProps): ReactElem
                                               ))}
                                     </select>
                                 </label>
+                                <label className="field">
+                                    <span>{TIME_LABEL}</span>
+                                    <select
+                                        value={budget ?? ""}
+                                        onChange={(change): void => {
+                                            setBudget(change.target.value === "" ? null : Number(change.target.value));
+                                        }}
+                                    >
+                                        <option value="">{UNTIMED_CAPTION}</option>
+                                        {TURN_BUDGETS.map((seconds) => (
+                                            <option key={seconds} value={seconds}>
+                                                {budgetCaption(seconds)}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </label>
+                                {budget === null ? null : (
+                                    <label className="field">
+                                        <span>{INCREMENT_LABEL}</span>
+                                        <select
+                                            value={increment}
+                                            onChange={(change): void => {
+                                                setIncrement(Number(change.target.value));
+                                            }}
+                                        >
+                                            {MOVE_INCREMENTS.map((seconds) => (
+                                                <option key={seconds} value={seconds}>
+                                                    {incrementCaption(seconds)}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </label>
+                                )}
                             </>
                         )}
                         <button type="submit" className="action" disabled={busy || chosen === null}>

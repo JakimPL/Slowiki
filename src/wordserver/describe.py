@@ -2,7 +2,7 @@ from wordcore.tiles.tile import Letter, TilePreset
 from wordserver.models.rule_parameters import RuleParameters
 from wordserver.models.table_description import TableDescription
 from wordserver.registry import TableMeta
-from wordtable.config import SchemeConfig
+from wordtable.config import SchemeConfig, TimeConfig
 from wordtable.lexicons import dictionary_ready
 
 
@@ -22,7 +22,7 @@ def table_description(
         game=meta.game,
         seats=meta.max_players,
         dictionary=scheme.dictionary,
-        parameters=_rule_parameters(scheme, tiles),
+        parameters=_rule_parameters(scheme, tiles, meta.time),
         alphabet=_alphabet(tiles),
         distribution=_distribution(tiles),
         blanks=tiles.blanks,
@@ -32,6 +32,7 @@ def table_description(
 def _rule_parameters(
     scheme: SchemeConfig,
     tiles: TilePreset,
+    time: TimeConfig,
 ) -> RuleParameters:
     return RuleParameters(
         rack_size=tiles.rack_size,
@@ -44,7 +45,7 @@ def _rule_parameters(
         premoves_allowed=scheme.premoves,
         pass_end_limit=scheme.pass_end_limit,
         scoreless_end_limit=scheme.scoreless_end_limit,
-        time=scheme.time,
+        time=time,
     )
 
 

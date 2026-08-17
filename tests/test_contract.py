@@ -181,6 +181,40 @@ async def test_word_check_refuses_an_overlong_request(client: httpx.AsyncClient)
     assert response.json()["code"] == "too_many_words"
 
 
+async def test_created_table_carries_the_asked_time_control(client: httpx.AsyncClient) -> None:
+    created = await client.post(
+        "/tables",
+        json={
+            "scheme": "literaki",
+            "seats": 2,
+            "time": {"total_seconds": 600, "increment_seconds": 15},
+        },
+    )
+    data = created.json()
+    described = await client.get(f"/tables/{data['table_id']}")
+    assert described.json()["parameters"]["time"] == {
+        "per_turn_seconds": None,
+        "increment_seconds": 15,
+        "total_seconds": 600,
+    }
+    await client.post(f"/tables/{data['code']}/join")
+    view = await client.get(
+        f"/tables/{data['table_id']}/view", headers={"X-Seat-Token": data["token"]}
+    )
+    clock = view.json()["clock"]
+    assert clock is not None
+    assert clock["remaining"] == {"0": 600.0, "1": 600.0}
+    assert clock["seat"] == 0
+
+
+async def test_time_control_stays_within_bounds(client: httpx.AsyncClient) -> None:
+    response = await client.post(
+        "/tables",
+        json={"scheme": "literaki", "seats": 2, "time": {"total_seconds": 5}},
+    )
+    assert response.status_code == 422
+
+
 async def test_responses_validate_against_models(client: httpx.AsyncClient) -> None:
     created = await client.post("/tables", json={"scheme": "literaki", "seats": 2})
     admission = TableAdmission.model_validate(created.json())

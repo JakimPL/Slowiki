@@ -47,6 +47,12 @@ export default tseslint.config(
         },
     },
     {
+        files: ["src/play/timing.ts"],
+        rules: {
+            "@typescript-eslint/no-magic-numbers": "off",
+        },
+    },
+    {
         files: ["src/api/parsing.ts"],
         rules: {
             "@typescript-eslint/no-unnecessary-type-parameters": "off",

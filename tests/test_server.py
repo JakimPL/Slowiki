@@ -212,12 +212,21 @@ class _FakeClock:
 
 
 def _timed_session(seconds: int | None, clock: _FakeClock) -> TableSession:
+    timed = TimeConfig(per_turn_seconds=seconds, increment_seconds=0, total_seconds=None)
+    return _session_with(timed, clock)
+
+
+def _budgeted_session(total: int, increment: int, clock: _FakeClock) -> TableSession:
+    budgeted = TimeConfig(per_turn_seconds=None, increment_seconds=increment, total_seconds=total)
+    return _session_with(budgeted, clock)
+
+
+def _session_with(time: TimeConfig, clock: _FakeClock) -> TableSession:
     resolved = resolve_scheme(CONFIG_DIR, "literaki")
     rules = build_rules(resolved, (0, 1), TextLexicon.from_words(["aa"]))
     game = Game(rules, random.Random(0), premoves_allowed=True)
-    timed = TimeConfig(per_turn_seconds=seconds, increment_seconds=0, total_seconds=None)
     names: dict[int, str | None] = {0: None, 1: None}
-    return TableSession(game, {0: "token-a", 1: "token-b"}, timed, names, clock)
+    return TableSession(game, {0: "token-a", 1: "token-b"}, time, names, clock)
 
 
 async def test_clock_arms_when_the_table_gathers() -> None:
@@ -230,7 +239,51 @@ async def test_clock_arms_when_the_table_gathers() -> None:
     assert armed.seat == 0
     assert armed.deadline == 1090.0
     assert armed.server_time == 1000.0
-    assert armed.per_turn_seconds == 90
+    assert armed.remaining == {}
+    session.close()
+
+
+async def test_budget_charges_the_thinking_seat_and_pays_the_increment() -> None:
+    clock = _FakeClock()
+    session = _budgeted_session(300, 10, clock)
+    await session.claim(None)
+    opened = session.clock()
+    assert opened is not None
+    assert opened.deadline == 1300.0
+    assert opened.remaining == {"0": 300.0, "1": 300.0}
+    clock.moment = 1040.0
+    rack = session.view(0).racks[0]
+    assert rack is not None
+    exchange = Move(player=0, action=Exchange(tile_ids=[rack[0].identifier]))
+    await session.submit(exchange, base_seq=0, premove=False, token="token-a")
+    rearmed = session.clock()
+    assert rearmed is not None
+    assert rearmed.seat == 1
+    assert rearmed.remaining == {"0": 270.0, "1": 300.0}
+    assert rearmed.deadline == 1340.0
+    session.close()
+
+
+async def test_a_pass_earns_no_increment() -> None:
+    clock = _FakeClock()
+    session = _budgeted_session(300, 10, clock)
+    await session.claim(None)
+    clock.moment = 1030.0
+    await session.submit(Move(player=0, action=Pass()), base_seq=0, premove=False, token="token-a")
+    spent = session.clock()
+    assert spent is not None
+    assert spent.remaining == {"0": 270.0, "1": 300.0}
+    session.close()
+
+
+async def test_a_table_of_spent_budgets_rests_instead_of_passing_forever() -> None:
+    clock = _FakeClock()
+    session = _budgeted_session(0, 0, clock)
+    await session.claim(None)
+    await asyncio.sleep(0.2)
+    assert session.clock() is None
+    assert session.seq == 0
+    assert session.view(None).phase == "turn"
     session.close()
 
 

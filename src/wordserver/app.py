@@ -31,12 +31,13 @@ from wordserver.models.offerings import OfferingsResponse
 from wordserver.models.table import TableViewResponse
 from wordserver.models.table_admission import TableAdmission
 from wordserver.models.table_description import TableDescription
+from wordserver.models.table_time import TableTimeRequest
 from wordserver.models.word_verdicts import WordVerdicts
 from wordserver.registry import TableMeta, TableRegistry
 from wordserver.session import TableSession
 from wordtable.build import build_rules
 from wordtable.catalogue import ResolvedScheme, offerings, resolve_scheme
-from wordtable.config import SchemeConfig, StyleTokens, load_style_tokens, read_config
+from wordtable.config import SchemeConfig, StyleTokens, TimeConfig, load_style_tokens, read_config
 from wordtable.lexicons import LexiconService, dictionary_ready
 from wordtable.paths import ASSETS_DIR, CONFIG_DIR, FRONTEND_DIST_DIR, RUN_CONFIG_FILE
 
@@ -48,6 +49,7 @@ class TableRequest(BaseFrozen):
     scheme: str
     seats: int
     name: str | None = Field(default=None, max_length=MAX_PLAYER_NAME_LENGTH)
+    time: TableTimeRequest | None = None
 
 
 class JoinRequest(BaseFrozen):
@@ -164,6 +166,17 @@ def _creator_names(seats: int, creator: str | None) -> dict[int, str | None]:
     return names
 
 
+def _table_time(scheme: SchemeConfig, asked: TableTimeRequest | None) -> TimeConfig:
+    if asked is None:
+        return scheme.time
+
+    return TimeConfig(
+        per_turn_seconds=None,
+        increment_seconds=asked.increment_seconds,
+        total_seconds=asked.total_seconds,
+    )
+
+
 def _open_table(
     registry: TableRegistry,
     game: Game,
@@ -172,17 +185,19 @@ def _open_table(
 ) -> TableAdmission:
     identity = _minted_identity(body.seats)
     creator = _cleaned_name(body.name)
+    played_time = _table_time(resolved.scheme, body.time)
     meta = TableMeta(
         scheme=body.scheme,
         game=resolved.scheme.game,
         max_players=body.seats,
         code=identity.code,
         resolved=resolved,
+        time=played_time,
     )
     session = TableSession(
         game,
         identity.tokens,
-        resolved.scheme.time,
+        played_time,
         _creator_names(body.seats, creator),
         time.time,
     )

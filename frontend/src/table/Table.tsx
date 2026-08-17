@@ -3,9 +3,9 @@ import { useEffect, useRef, useState } from "react";
 
 import { exchangeMove, passMove, playMove } from "../api/moves";
 import { STALE_POSITION_CODE } from "../api/refusal";
-import type { ClockView, Tile } from "../api/views";
+import type { ClockView, CompanyView, Tile } from "../api/views";
 import { arrangedTiles, shuffledArrangement } from "../play/arrangement";
-import { urgencyOf } from "../play/clock";
+import { remainingFor, urgencyOf } from "../play/clock";
 import type { Connection } from "../play/connection";
 import type { DeskEffect } from "../play/desk";
 import type { Draft } from "../play/draft";
@@ -49,6 +49,7 @@ import { boundKeys } from "./keys";
 import { ModeToggle } from "./ModeToggle";
 import { MoveLog } from "./MoveLog";
 import { NoticeToggle } from "./NoticeToggle";
+import type { SeatClock } from "./Plaques";
 import { Plaques } from "./Plaques";
 import { Rack } from "./Rack";
 import { RemainingTiles } from "./RemainingTiles";
@@ -134,14 +135,7 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
     const lastPlay = state.view.last_play;
     const freshCells = new Set(lastPlay?.indices ?? []);
     const freshTint = lastPlay === null ? null : tintFor(lastPlay.player).hex;
-    const countdown =
-        clock === null || remaining === null || state.view.phase !== "turn"
-            ? null
-            : {
-                  seat: clock.seat,
-                  caption: clockCaption(remaining),
-                  urgency: urgencyOf(remaining, clock.per_turn_seconds),
-              };
+    const clocks = seatClocks(state.company, clock, remaining, state.view.phase === "turn");
     const tally = description === null ? null : remainingTally(description, state.view.board, rack);
 
     const prospect = prospectOf(state.view.board, desk.draft, rules);
@@ -372,7 +366,7 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
                 view={state.view}
                 company={state.company}
                 mySeat={mySeat}
-                countdown={countdown}
+                clocks={clocks}
                 clocked={clock !== null}
             />
             <div className="board-region">
@@ -481,6 +475,25 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
             {story.kind === "over" ? <GameOver view={state.view} company={state.company} story={story} /> : null}
         </div>
     );
+}
+
+function seatClocks(
+    company: CompanyView,
+    clock: ClockView | null,
+    running: number | null,
+    playing: boolean,
+): ReadonlyMap<number, SeatClock> {
+    const clocks = new Map<number, SeatClock>();
+    if (clock === null || !playing) {
+        return clocks;
+    }
+    for (const seated of company.seats) {
+        const seconds = remainingFor(clock, seated.seat, running);
+        if (seconds !== null) {
+            clocks.set(seated.seat, { caption: clockCaption(seconds), urgency: urgencyOf(seconds) });
+        }
+    }
+    return clocks;
 }
 
 function pendingFacesOf(draft: Draft): ReadonlyMap<number, Tile> {

@@ -22,7 +22,9 @@ by amending it. The palette is the *Lniany* proposition chosen from the phase-0 
 ## Screens
 
 - **Arrive** — a single card: creating a table (scheme picker bounded by the offering's real
-  player range) with a quiet switch to the join card for holders of a code. An invitation link
+  player range, seat count, and the clock: a time budget per player from one minute to an hour, or
+  untimed, with an optional bonus added after every play or exchange) and a quiet switch to the
+  join card for holders of a code. An invitation link
   opens straight onto the join card with the code prefilled. The name field persists in local
   storage across visits. Credentials live in the URL fragment; a reload rejoins by token.
 - **Table** — the one screen where the game lives. Until every seat is claimed it doubles as the
@@ -44,8 +46,9 @@ feedback line, rack, tray, controls, and the docket at its foot.
   toggles: the turn notice and the color mode.
 - **Plaques** — one per player, one to eight: tint dot, name, score, acting ring at full tint
   strength that breathes while the seat is on turn, premove diamond, and — on a timed table — a
-  clock line under the name, counting down on the acting seat and holding a dash elsewhere so the
-  row keeps its height through every turn.
+  clock line under the name: the thinking seat counts down live, everyone else shows the budget
+  they have banked, and a seat without a clock of its own holds a dash so the row keeps its height
+  through every turn.
 - **Board** — 15 × 15 (size is data), premium squares with `×3` / `2×` / `3×` glyphs, the center
   star, fresh-play rings in the mover's tint, pending tiles raised above their neighbours with a
   solid accent ring, premove ghosts at reduced opacity in the premove accent.

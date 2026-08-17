@@ -6,10 +6,12 @@ from typing import Final
 
 from wordcore.games.game import Game
 from wordcore.moves.action import Pass
+from wordcore.moves.kind import ActionKind
 from wordcore.moves.move import Move
 from wordcore.states.phase import Phase
 from wordcore.views.events import EventView
 from wordcore.views.projection import PositionView
+from wordserver.clocks import TurnClock
 from wordserver.errors.exceptions import SeatTokenMismatch, TableGathering
 from wordserver.models.clock import ClockView
 from wordserver.models.company import CompanyView
@@ -38,17 +40,14 @@ class TableSession:
     ) -> None:
         self._game = game
         self._tokens = tokens
-        self._time = time
         self._names = names
         self._now = now
+        self._clock = TurnClock(time, tokens, now)
         self._condition = asyncio.Condition()
         self._timer_task: asyncio.Task[None] | None = None
         self._claimed: set[int] = {0}
         self._streams: dict[int, int] = {}
         self._company_version = 0
-        self._deadline: float | None = None
-        self._deadline_seat: int | None = None
-        self._clock_version = 0
         if not self.gathering():
             self._schedule_timer()
 
@@ -57,9 +56,7 @@ class TableSession:
         return self._game.seq
 
     def close(self) -> None:
-        if self._timer_task is not None:
-            self._timer_task.cancel()
-            self._timer_task = None
+        self._cancel_timer()
 
     def observer_for(self, token: str | None) -> int | None:
         if token is None:
@@ -109,16 +106,7 @@ class TableSession:
         return self._game.view(observer)
 
     def clock(self) -> ClockView | None:
-        seconds = self._time.per_turn_seconds
-        if self._deadline is None or self._deadline_seat is None or seconds is None:
-            return None
-
-        return ClockView(
-            server_time=self._now(),
-            deadline=self._deadline,
-            seat=self._deadline_seat,
-            per_turn_seconds=seconds,
-        )
+        return self._clock.view()
 
     async def submit(
         self,
@@ -137,6 +125,7 @@ class TableSession:
             before = self._turn_cursor()
             self._game.submit(move, base_seq=base_seq, premove=premove)
             if self._turn_cursor() != before:
+                self._clock.settle(earns_increment=self._earns_increment(move))
                 self._schedule_timer()
 
             self._condition.notify_all()
@@ -198,8 +187,8 @@ class TableSession:
                 cursor.seen_company = self._company_version
                 frames.append(_format_presence(self.company()))
 
-            if cursor.seen_clock != self._clock_version:
-                cursor.seen_clock = self._clock_version
+            if cursor.seen_clock != self._clock.version:
+                cursor.seen_clock = self._clock.version
                 clock = self.clock()
                 if clock is not None:
                     frames.append(_format_clock(clock))
@@ -231,33 +220,36 @@ class TableSession:
             self._company_version += 1
             self._condition.notify_all()
 
-    def _schedule_timer(self) -> None:
+    def _earns_increment(self, move: Move) -> bool:
+        if move.player != self._clock.armed_seat():
+            return False
+
+        return move.action.kind in (ActionKind.PLAY, ActionKind.EXCHANGE)
+
+    def _cancel_timer(self) -> None:
         if self._timer_task is not None:
             self._timer_task.cancel()
             self._timer_task = None
 
+    def _schedule_timer(self) -> None:
+        self._cancel_timer()
         position = self._game.position
-        seconds = self._time.per_turn_seconds
-        if seconds is None:
-            return
-
         if position.state.phase == Phase.GAME_OVER or len(position.state.to_act) != 1:
-            self._clear_deadline()
+            self._clock.disarm()
             return
 
         seat = next(iter(position.state.to_act))
-        self._deadline = self._now() + seconds
-        self._deadline_seat = seat
-        self._clock_version += 1
-        self._timer_task = asyncio.create_task(self._timeout(seat, seconds))
+        if self._clock.flagged(seat) and self._clock.all_flagged():
+            self._clock.disarm()
+            return
 
-    def _clear_deadline(self) -> None:
-        if self._deadline is not None:
-            self._deadline = None
-            self._deadline_seat = None
-            self._clock_version += 1
+        budget = self._clock.arm(seat)
+        if budget is None:
+            return
 
-    async def _timeout(self, seat: int, seconds: int) -> None:
+        self._timer_task = asyncio.create_task(self._timeout(seat, budget))
+
+    async def _timeout(self, seat: int, seconds: float) -> None:
         await asyncio.sleep(seconds)
         async with self._condition:
             position = self._game.position
@@ -267,6 +259,7 @@ class TableSession:
             if position.state.to_act != frozenset({seat}):
                 return
 
+            self._clock.settle(earns_increment=False)
             self._game.submit(
                 Move(player=seat, action=Pass()),
                 base_seq=self._game.seq,

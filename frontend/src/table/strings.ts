@@ -23,6 +23,9 @@ export const CREATE_HEADING = "Start a table";
 export const JOIN_HEADING = "Join a table";
 export const SCHEME_LABEL = "Game";
 export const SEATS_LABEL = "Players";
+export const TIME_LABEL = "Time per player";
+export const INCREMENT_LABEL = "Bonus per move";
+export const UNTIMED_CAPTION = "Untimed";
 export const CODE_LABEL = "Table code";
 export const CREATE_BUTTON = "Start the table";
 export const JOIN_BUTTON = "Join the table";
@@ -90,6 +93,15 @@ export const BLANK_TILE_CAPTION = "Blank tile";
 export function primaryCaption(premove: boolean, points: number | null): string {
     const base = premove ? PREMOVE_BUTTON : PLAY_BUTTON;
     return points === null ? base : `${base} · ${String(points)}`;
+}
+
+export function budgetCaption(seconds: number): string {
+    const minutes = Math.round(seconds / SECONDS_PER_MINUTE);
+    return `${String(minutes)} min`;
+}
+
+export function incrementCaption(seconds: number): string {
+    return seconds === 0 ? "None" : `+${String(seconds)} s`;
 }
 
 export function exchangeCaption(count: number): string {

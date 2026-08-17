@@ -77,6 +77,17 @@ under `lexica.dictionaries`, one module per source.
 - `/artwork` — the generated asset tree (icons, brand art, board specimens);
   `/favicon.ico` serves from it.
 
+## Clocks
+
+Wall-clock time is session state, never position state. `TurnClock`
+(`wordserver/clocks.py`) holds what each seat has left and the deadline of the
+seat on turn: arming a turn takes the shorter of the scheme's per-turn budget and
+the seat's own remaining time, settling a turn charges the thinking time and adds
+the increment after a play or an exchange, and a spent budget flags its seat, so
+the session auto-passes for it while any opponent still has time. A table asks for
+its own control at creation (`TableRequest.time`), which replaces the scheme's
+default and rides in the description as `parameters.time`.
+
 ## Concurrency
 
 The server runs on a single asyncio event loop. Per-table state is guarded by an

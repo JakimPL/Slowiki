@@ -2,6 +2,7 @@ from wordcore.models.base import BaseFrozen
 from wordgames.names import GameName
 from wordserver.session import TableSession
 from wordtable.catalogue import ResolvedScheme
+from wordtable.config import TimeConfig
 
 
 class TableMeta(BaseFrozen):
@@ -10,6 +11,7 @@ class TableMeta(BaseFrozen):
     max_players: int
     code: str
     resolved: ResolvedScheme
+    time: TimeConfig
 
 
 class TableRegistry:

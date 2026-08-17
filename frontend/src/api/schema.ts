@@ -258,8 +258,10 @@ export interface components {
         ClockView: {
             /** Deadline */
             deadline: number;
-            /** Per Turn Seconds */
-            per_turn_seconds: number;
+            /** Remaining */
+            remaining: {
+                [key: string]: number;
+            };
             /** Seat */
             seat: number;
             /** Server Time */
@@ -576,6 +578,17 @@ export interface components {
             scheme: string;
             /** Seats */
             seats: number;
+            time?: components["schemas"]["TableTimeRequest"] | null;
+        };
+        /** TableTimeRequest */
+        TableTimeRequest: {
+            /**
+             * Increment Seconds
+             * @default 0
+             */
+            increment_seconds: number;
+            /** Total Seconds */
+            total_seconds?: number | null;
         };
         /** TableViewResponse */
         TableViewResponse: {
