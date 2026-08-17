@@ -1,5 +1,5 @@
 import marshal
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from pathlib import Path
 from typing import Final, cast
 
@@ -28,6 +28,7 @@ def compile_morph_lexicon(
     analyzer: MorfeuszAnalyzer,
     polimorf_path: Path | None,
     destination: Path,
+    overrides: Mapping[str, tuple[tuple[str, str], ...]] | None = None,
 ) -> None:
     interned: dict[str, str] = {}
     rows_by_class: dict[str, list[tuple[str, str]]] = {}
@@ -36,13 +37,23 @@ def compile_morph_lexicon(
     class_sources: dict[str, str] = {}
     entry_classes: dict[str, set[str]] = {}
     unknown: list[str] = []
+    overridden_unknown: set[str] = set()
     lemmas_for_generation: dict[str, str] = {}
+    overrides_by_form = dict(overrides) if overrides is not None else {}
 
     def intern(value: str) -> str:
         return interned.setdefault(value, value)
 
     for word in words:
-        analyses = analyse_word_entries(analyzer, word.lower())
+        override = overrides_by_form.get(word)
+        if override is not None:
+            if not override:
+                unknown.append(word)
+                overridden_unknown.add(word)
+                continue
+            analyses = tuple((lemma, lemma, tag) for (lemma, tag) in override)
+        else:
+            analyses = analyse_word_entries(analyzer, word.lower())
         if not analyses:
             unknown.append(word)
             continue
@@ -55,13 +66,20 @@ def compile_morph_lexicon(
             class_sources.setdefault(class_id, "sgjp")
             rows_by_class.setdefault(class_id, []).append((intern(word), intern(tag)))
             ids.add(class_id)
-            lemmas_for_generation[lemma_upper] = lemma_original
+            if override is None:
+                lemmas_for_generation[lemma_upper] = lemma_original
         entry_classes[word] = ids
 
     if polimorf_path is not None and unknown:
-        rescued = rescue_rows(polimorf_path, frozenset(word.lower() for word in unknown))
+        rescue_targets = frozenset(
+            word.lower() for word in unknown if word not in overridden_unknown
+        )
+        rescued = rescue_rows(polimorf_path, rescue_targets)
         still_unknown: list[str] = []
         for word in unknown:
+            if word in overridden_unknown:
+                still_unknown.append(word)
+                continue
             rescued_rows = rescued.get(word.lower())
             if rescued_rows is None:
                 still_unknown.append(word)

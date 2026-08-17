@@ -151,16 +151,21 @@ def test_loader_rejects_malformed_payloads(tmp_path: Path) -> None:
 def test_compile_dictionary_dispatches_by_name(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    morph_calls: list[tuple[tuple[str, ...], Path | None, Path]] = []
+    morph_calls: list[tuple[tuple[str, ...], Path | None, Path, object]] = []
     text_calls: list[tuple[tuple[str, ...], Path]] = []
+
+    class _StubAnalyzer:
+        def dict_id(self) -> str:
+            return "stub"
 
     def fake_morph(
         words: tuple[str, ...],
         _analyzer: object,
         polimorf: Path | None,
         destination: Path,
+        _overrides: object,
     ) -> None:
-        morph_calls.append((words, polimorf, destination))
+        morph_calls.append((words, polimorf, destination, _overrides))
         destination.write_bytes(b"")
 
     def fake_text(words: Iterable[str], destination: Path) -> None:
@@ -169,16 +174,21 @@ def test_compile_dictionary_dispatches_by_name(
 
     monkeypatch.setattr(lexicons_module, "compile_morph_lexicon", fake_morph)
     monkeypatch.setattr(lexicons_module, "compile_lexicon", fake_text)
+    monkeypatch.setattr(lexicons_module, "build_morfeusz_analyzer", lambda: _StubAnalyzer())
     monkeypatch.setattr(paths_module, "DICTIONARIES_DIR", tmp_path)
 
     with zipfile.ZipFile(tmp_path / "sjp-20260803.zip", "w") as archive:
         archive.writestr("slowa.txt", "kot\nkota\n")
     destination = lexicons_module.compile_dictionary(names_module.DictionaryName.SJP)
-    words, polimorf, morph_destination = morph_calls[0]
+    words, polimorf, morph_destination, _ = morph_calls[0]
     assert words == ("KOT", "KOTA")
     assert polimorf is None
     assert destination == tmp_path / "sjp-20260803.v2.lexicon"
     assert morph_destination == destination
+
+    destination_again = lexicons_module.compile_dictionary(names_module.DictionaryName.SJP)
+    assert destination_again == destination
+    assert len(morph_calls) == 1
 
     with zipfile.ZipFile(tmp_path / "english.zip", "w") as archive:
         archive.writestr("words.txt", "cat\ndog\n")

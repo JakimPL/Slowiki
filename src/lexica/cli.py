@@ -3,11 +3,13 @@ import itertools
 import json
 from pathlib import Path
 
-from lexica.compile import compile_lexicon, compile_morph_lexicon
+from lexica.compile import compile_lexicon, compile_morph_lexicon, load_compiled_lexicon
 from lexica.dictionaries.sjp import iter_sjp_words
+from lexica.morph.diff import diff_lexicons
 from lexica.morph.index import analyse_dictionary
-from lexica.morph.report import build_report
+from lexica.morph.report import build_artifact_report, build_report
 from lexica.morph.sources.sgjp import build_morfeusz_analyzer
+from wordcore.lexicon.morph import MorphLexicon
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -26,6 +28,11 @@ def build_parser() -> argparse.ArgumentParser:
     analyze_parser.add_argument("archive", type=Path)
     analyze_parser.add_argument("--polimorf", type=Path, default=None)
     analyze_parser.add_argument("--limit", type=int, default=None)
+    report_parser = subparsers.add_parser("report")
+    report_parser.add_argument("artifact", type=Path)
+    diff_parser = subparsers.add_parser("diff")
+    diff_parser.add_argument("old", type=Path)
+    diff_parser.add_argument("new", type=Path)
     fetch_osps = subparsers.add_parser("fetch-osps")
     fetch_osps.add_argument("output", type=Path)
     fetch_english = subparsers.add_parser("fetch-english")
@@ -57,6 +64,20 @@ def main(argv: list[str] | None = None) -> None:
 
         case "analyze":
             _run_analyze(args)
+
+        case "report":
+            lexicon = load_compiled_lexicon(args.artifact)
+            if not isinstance(lexicon, MorphLexicon):
+                raise SystemExit("the artifact carries no morphology data")
+            report = build_artifact_report(lexicon)
+            print(json.dumps(report.model_dump(), indent=1, ensure_ascii=False))
+
+        case "diff":
+            old = load_compiled_lexicon(args.old)
+            new = load_compiled_lexicon(args.new)
+            if not isinstance(old, MorphLexicon) or not isinstance(new, MorphLexicon):
+                raise SystemExit("both artifacts must carry morphology data")
+            print(json.dumps(diff_lexicons(old, new).model_dump(), indent=1, ensure_ascii=False))
 
         case "fetch-osps":
             print("download the OSPS list from https://www.pfs.org.pl and write it to", args.output)

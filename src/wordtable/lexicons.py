@@ -4,10 +4,19 @@ from pathlib import Path
 from lexica.compile import compile_lexicon, compile_morph_lexicon, load_compiled_lexicon
 from lexica.dictionaries.catalog import iter_dictionary_words
 from lexica.dictionaries.sjp import iter_sjp_words
+from lexica.morph.manifest import compile_input_digests, load_manifest, write_manifest
+from lexica.morph.mapping import MAPPING_VERSION
+from lexica.morph.overrides import parse_overrides
 from lexica.morph.sources.sgjp import build_morfeusz_analyzer
 from lexica.names import DictionaryName
 from wordcore.lexicon.protocol import Lexicon
-from wordtable.paths import dictionary_archive, dictionary_compiled, polimorf_source
+from wordtable.paths import (
+    dictionary_archive,
+    dictionary_compiled,
+    lexicon_manifest,
+    morph_overrides,
+    polimorf_source,
+)
 
 
 def dictionary_ready(name: DictionaryName) -> bool:
@@ -17,21 +26,35 @@ def dictionary_ready(name: DictionaryName) -> bool:
 def compile_dictionary(name: DictionaryName) -> Path:
     archive = dictionary_archive(name)
     compiled = dictionary_compiled(name)
-    if compiled.is_file():
-        return compiled
-
     if name is DictionaryName.SJP:
-        source = polimorf_source()
-        compile_morph_lexicon(
-            tuple(iter_sjp_words(archive)),
-            build_morfeusz_analyzer(),
-            source if source.is_file() else None,
-            compiled,
-        )
-    else:
+        _compile_sjp(archive, compiled)
+    elif not compiled.is_file():
         compile_lexicon(iter_dictionary_words(name, archive), compiled)
 
     return compiled
+
+
+def _compile_sjp(archive: Path, compiled: Path) -> None:
+    source = polimorf_source()
+    source_path = source if source.is_file() else None
+    overrides_path = morph_overrides(DictionaryName.SJP)
+    overrides_present = overrides_path.is_file()
+    analyzer = build_morfeusz_analyzer()
+    words = tuple(iter_sjp_words(archive))
+    digests = compile_input_digests(
+        archive,
+        source_path,
+        overrides_path if overrides_present else None,
+        analyzer.dict_id(),
+        MAPPING_VERSION,
+    )
+    manifest_path = lexicon_manifest(DictionaryName.SJP)
+    if compiled.is_file() and load_manifest(manifest_path) == digests:
+        return
+
+    overrides = parse_overrides(overrides_path, frozenset(words)) if overrides_present else {}
+    compile_morph_lexicon(words, analyzer, source_path, compiled, overrides)
+    write_manifest(manifest_path, digests)
 
 
 def load_lexicon(name: DictionaryName) -> Lexicon:

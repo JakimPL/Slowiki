@@ -1,4 +1,5 @@
 from lexica.morph.index import AnalysisResult
+from wordcore.lexicon.morph import MorphLexicon
 from wordcore.models.base import BaseFrozen
 
 
@@ -12,6 +13,50 @@ class CoverageReport(BaseFrozen):
     max_classes_per_form: int
     classes_per_part: dict[str, int]
     unknown_examples: tuple[str, ...]
+
+
+class ArtifactReport(BaseFrozen):
+    total_forms: int
+    unknown: int
+    class_count: int
+    sgjp_classes: int
+    polimorf_classes: int
+    multi_class_forms: int
+    max_classes_per_form: int
+    classes_per_part: dict[str, int]
+    unknown_examples: tuple[str, ...]
+
+
+def build_artifact_report(lexicon: MorphLexicon) -> ArtifactReport:
+    classes_per_part: dict[str, int] = {}
+    sgjp_classes = 0
+    polimorf_classes = 0
+    for record in lexicon.classes.values():
+        classes_per_part[record.part] = classes_per_part.get(record.part, 0) + 1
+        if record.source == "polimorf":
+            polimorf_classes += 1
+        else:
+            sgjp_classes += 1
+
+    multi_class_forms = 0
+    max_classes_per_form = 0
+    for class_ids in lexicon.entries:
+        count = len(class_ids)
+        if count > 1:
+            multi_class_forms += 1
+        max_classes_per_form = max(max_classes_per_form, count)
+
+    return ArtifactReport(
+        total_forms=len(lexicon.surfaces),
+        unknown=len(lexicon.unknown),
+        class_count=len(lexicon.classes),
+        sgjp_classes=sgjp_classes,
+        polimorf_classes=polimorf_classes,
+        multi_class_forms=multi_class_forms,
+        max_classes_per_form=max_classes_per_form,
+        classes_per_part=dict(sorted(classes_per_part.items())),
+        unknown_examples=lexicon.unknown[:50],
+    )
 
 
 def build_report(result: AnalysisResult) -> CoverageReport:

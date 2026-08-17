@@ -137,12 +137,14 @@ inputs produces byte-identical artifacts.
 
 Corrections follow three visible channels:
 
-- an overrides YAML (`dictionaries/sjp-20260803.morph.yaml`) forces analyses
-  for specific forms — additions and removals — and fails loudly when a
-  target form is absent from the dictionary or a marker matches twice,
+- an overrides YAML (`dictionaries/sjp-20260803.morph.yaml`, gitignored) forces
+  analyses for specific forms — additions and removals — and fails loudly when
+  a target form is absent from the dictionary or a marker appears twice; an
+  empty `analyses` list forces the form to UNKNOWN and skips PoliMorf rescue,
 - the `UNKNOWN` report lists every uncovered form instead of guessing,
-- `lexica diff <old> <new>` shows added, removed, and changed entries and
-  classes between artifact versions.
+- `lexica diff <old> <new>` shows added, removed, and changed surfaces and
+  classes between artifact versions; `lexica report <artifact>` prints the
+  artifact statistics.
 
 An optional review tool may later assist with the `UNKNOWN` report; its
 proposals land in the overrides file after approval. The shipped path remains
@@ -150,11 +152,15 @@ independent of any model.
 
 ## Incremental processing
 
-- The compile step records input digests: sha256 over słowa.txt bytes, the
-  source data version, the mapping table version, and the overrides file. A
-  compile with unchanged digests skips; `--force` recompiles.
+- The compile step records input digests in a manifest
+  (`dictionaries/sjp-20260803.manifest.json`, gitignored): sha256 over the
+  archive bytes, the PoliMorf source, the overrides file, the analyzer
+  dictionary identity, and the mapping table version. A compile with
+  unchanged digests and an existing artifact skips; edits to the overrides
+  file or a dictionary upgrade invalidate the artifact.
 - The analysis pass is cheap (in-memory lookups), so the full pass recomputes
-  on change; the diff report exposes exactly what changed.
+  on change; `lexica diff` exposes exactly what changed and a rerun over the
+  same inputs produces byte-identical artifacts.
 - Words removed from the dictionary leave the surface index automatically;
   classes rebuilt from current forms drop members that vanish, and classes
   with zero remaining dictionary members are pruned. Grammar completeness of
@@ -252,8 +258,9 @@ LLM-assisted pipeline and contributes patterns for the optional review tool
    2026-08-17: `GET /tables/{id}/word/{word}` plus tappable word chips in the
    move log).
 6. Incremental operations: digests, `lexica analyze/compile/report/diff`,
-   overrides; the optional DeepSeek review tool for `UNKNOWN` follows as a
-   separate change.
+   overrides (completed 2026-08-17: manifest skip, fail-loud overrides,
+   byte-identical reruns); the optional DeepSeek review tool for `UNKNOWN`
+   follows as a separate change.
 
 ## Risks and open questions
 

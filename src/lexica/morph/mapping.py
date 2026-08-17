@@ -17,6 +17,8 @@ from lexica.morph.tags import (
     VerbForm,
 )
 
+MAPPING_VERSION: Final = 1
+
 _TAG_TO_PART: Final[dict[str, PartOfSpeech]] = {
     "subst": PartOfSpeech.RZECZOWNIK,
     "depr": PartOfSpeech.RZECZOWNIK,
