@@ -34,6 +34,27 @@ describe("Table", () => {
         expect(markup).not.toContain("Gathering players");
     });
 
+    it("offers the desk controls to a seated player", () => {
+        const response = aTableResponse({ view: aView({ to_act: [0] }) });
+        const markup = renderToStaticMarkup(
+            <Table arrival={ARRIVAL} connection="live" state={openedFrom(response)} trouble={null} />,
+        );
+        expect(markup).toContain(">Play</button>");
+        expect(markup).toContain(">Pass</button>");
+        expect(markup).toContain(">Recall</button>");
+        expect(markup).toContain('class="rack" role="group"');
+    });
+
+    it("keeps the desk away from spectators", () => {
+        const response = aTableResponse({ view: aView({ racks: { 0: null, 1: null } }) });
+        const spectator = { seat: { table: "t1", token: null }, code: null, seated: null };
+        const markup = renderToStaticMarkup(
+            <Table arrival={spectator} connection="live" state={openedFrom(response)} trouble={null} />,
+        );
+        expect(markup).not.toContain(">Play</button>");
+        expect(markup).not.toContain("rack-tile");
+    });
+
     it("surfaces the connection chip when the stream drops", () => {
         const response = aTableResponse();
         const markup = renderToStaticMarkup(

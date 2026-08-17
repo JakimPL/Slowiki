@@ -7,7 +7,14 @@ import type { Seat } from "./seat";
 import { headersFor } from "./seat";
 import type { Streamed } from "./streaming";
 import { follow } from "./streaming";
-import type { JoinRequest, Offering, OfferingsResponse, TableAdmission, TableRequest } from "./tables";
+import type {
+    JoinRequest,
+    Offering,
+    OfferingsResponse,
+    TableAdmission,
+    TableDescription,
+    TableRequest,
+} from "./tables";
 import type { StyleTokens, TableViewResponse } from "./views";
 
 const JSON_HEADERS: Record<string, string> = { "Content-Type": "application/json" };
@@ -50,6 +57,13 @@ export async function joinTable(code: string, request: JoinRequest): Promise<Tab
         }),
     );
     return parsed<TableAdmission>(response);
+}
+
+export async function readDescription(seat: Seat): Promise<TableDescription> {
+    const response = await answered(
+        await fetch(`/tables/${encodeURIComponent(seat.table)}`, { headers: headersFor(seat) }),
+    );
+    return parsed<TableDescription>(response);
 }
 
 export async function readView(seat: Seat): Promise<TableViewResponse> {

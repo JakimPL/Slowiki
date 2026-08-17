@@ -1,5 +1,6 @@
-import type { CompanyView } from "../api/views";
+import type { CompanyView, Tile } from "../api/views";
 import type { Connection } from "../play/connection";
+import type { Guidance } from "../play/guidance";
 import type { Story } from "../play/story";
 
 export const PRODUCT_NAME = "Literabble";
@@ -32,6 +33,45 @@ export const INVITE_BUTTON = "Copy invitation";
 export const INVITE_COPIED = "Invitation copied";
 export const BOARD_LABEL = "Board";
 export const RACK_LABEL = "Your tiles";
+export const PLAY_BUTTON = "Play";
+export const PREMOVE_BUTTON = "Premove";
+export const PASS_BUTTON = "Pass";
+export const RECALL_BUTTON = "Recall";
+export const BLANK_PICKER_HEADING = "Choose the blank's letter";
+export const BLANK_PICKER_CLOSE = "Close the letter picker";
+export const BLANK_INPUT_LABEL = "Letter";
+export const BLANK_CONFIRM = "Assign the letter";
+export const BLANK_TILE_CAPTION = "Blank tile";
+
+export function tileCaption(tile: Tile): string {
+    if (tile.blank) {
+        return BLANK_TILE_CAPTION;
+    }
+    return `Tile ${tile.letter} · ${String(tile.value)}`;
+}
+
+export function squareCaption(row: number, column: number): string {
+    return `Square ${String(row + 1)}·${String(column + 1)}`;
+}
+
+export function guidanceCaption(guidance: Guidance): string | null {
+    switch (guidance) {
+        case null:
+            return null;
+        case "place":
+            return "Tap an empty square to place the tile.";
+        case "opening-short":
+            return "The first word needs at least two tiles.";
+        case "off-center":
+            return "The first word must cross the center star.";
+        case "detached":
+            return "Connect the word to the tiles on the board.";
+        case "scattered":
+            return "Keep the word in a single row or column.";
+        case "gapped":
+            return "Fill every gap in the word.";
+    }
+}
 
 export function fallbackNameFor(seat: number): string {
     return `Player ${String(seat + 1)}`;

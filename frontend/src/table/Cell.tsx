@@ -8,11 +8,15 @@ export interface CellProps {
     readonly bonus: Bonus | null;
     readonly tile: Tile | null;
     readonly star: boolean;
+    readonly pending: Tile | null;
+    readonly target: boolean;
+    readonly label: string;
+    readonly onTap: (() => void) | null;
 }
 
 const STAR_GLYPH = "✦";
 
-export function Cell({ bonus, tile, star }: CellProps): ReactElement {
+export function Cell({ bonus, tile, star, pending, target, label, onTap }: CellProps): ReactElement {
     if (tile !== null) {
         return (
             <div className="cell">
@@ -20,16 +24,32 @@ export function Cell({ bonus, tile, star }: CellProps): ReactElement {
             </div>
         );
     }
-    if (bonus !== null) {
+    if (pending !== null) {
         return (
-            <div className="cell">
-                <i className="cell-premium" style={premiumStyleFor(bonus)}>
-                    {star ? STAR_GLYPH : glyphFor(bonus)}
-                </i>
-            </div>
+            <button type="button" className="cell cell-button" aria-label={label} onClick={onTap ?? undefined}>
+                <TileFace tile={pending} pending={true} />
+            </button>
         );
     }
-    return <div className="cell">{star ? <i className="cell-star">{STAR_GLYPH}</i> : null}</div>;
+    if (target) {
+        return (
+            <button type="button" className="cell cell-button cell-target" aria-label={label} onClick={onTap ?? undefined}>
+                {ground(bonus, star)}
+            </button>
+        );
+    }
+    return <div className="cell">{ground(bonus, star)}</div>;
+}
+
+function ground(bonus: Bonus | null, star: boolean): ReactElement | null {
+    if (bonus !== null) {
+        return (
+            <i className="cell-premium" style={premiumStyleFor(bonus)}>
+                {star ? STAR_GLYPH : glyphFor(bonus)}
+            </i>
+        );
+    }
+    return star ? <i className="cell-star">{STAR_GLYPH}</i> : null;
 }
 
 function premiumStyleFor(bonus: Bonus): CSSProperties {
