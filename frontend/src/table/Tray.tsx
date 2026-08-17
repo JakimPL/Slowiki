@@ -1,42 +1,42 @@
 import type { ReactElement } from "react";
 
 import type { Tile } from "../api/views";
+import type { Incoming } from "../play/landing";
+import { landedRow } from "../play/landing";
+import type { DeskSpot } from "../play/spot";
 import type { TileBindings } from "./bindings";
-import { GraspTile } from "./GraspTile";
+import { tileSlots } from "./slots";
 import { PARK_HERE, TRAY_HINT, TRAY_LABEL } from "./strings";
-import { TileFace } from "./TileFace";
 
 export interface TrayProps {
     readonly tiles: readonly Tile[];
-    readonly liftedId: number | null;
     readonly locked: ReadonlySet<number>;
+    readonly incoming: Incoming | null;
     readonly bindings: TileBindings;
     readonly parkable: boolean;
     readonly onPark: () => void;
 }
 
-export function Tray({ tiles, liftedId, locked, bindings, parkable, onPark }: TrayProps): ReactElement {
+const TRAY_SPOT: DeskSpot = { kind: "tray" };
+
+export function Tray({ tiles, locked, incoming, bindings, parkable, onPark }: TrayProps): ReactElement {
+    const row = landedRow(tiles, incoming);
+    const bare = row.tiles.length === 0 && row.shadowAt === null && !parkable;
     return (
-        <div className="tray" role="group" aria-label={TRAY_LABEL} data-region="tray">
-            {tiles.map((tile) =>
-                locked.has(tile.identifier) ? (
-                    <TileFace key={tile.identifier} tile={tile} ghost={true} />
-                ) : (
-                    <GraspTile
-                        key={tile.identifier}
-                        tile={tile}
-                        spot={{ kind: "tray" }}
-                        lifted={tile.identifier === liftedId}
-                        bindings={bindings}
-                    />
-                ),
-            )}
+        <div
+            className="tray"
+            role="group"
+            aria-label={TRAY_LABEL}
+            data-region="tray"
+            data-drop={incoming === null ? undefined : "true"}
+        >
+            {tileSlots(row, locked, TRAY_SPOT, bindings)}
             {parkable ? (
                 <button type="button" className="slot-action" onClick={onPark}>
                     {PARK_HERE}
                 </button>
             ) : null}
-            {tiles.length === 0 && !parkable ? <p className="tray-hint">{TRAY_HINT}</p> : null}
+            {bare ? <p className="tray-hint">{TRAY_HINT}</p> : null}
         </div>
     );
 }

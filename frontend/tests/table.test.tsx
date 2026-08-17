@@ -69,6 +69,7 @@ describe("Table", () => {
         expect(markup).toContain('class="side"');
         expect(markup).toContain('aria-label="Players"');
         expect(markup).toContain("--row-count:1");
+        expect(markup).toContain('name="docket"');
     });
 
     it("mirrors a queued premove as ghosts, a chip with Cancel, and a resting rack", () => {

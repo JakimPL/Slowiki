@@ -63,6 +63,18 @@ describe("Board", () => {
         expect(markup).toContain('data-region="board"');
     });
 
+    it("raises a lifted pending tile and dims a carried one", () => {
+        const pending = new Map<number, Tile>([[CENTER, aTile({ identifier: 7, letter: "K" })]]);
+        const lifted = renderToStaticMarkup(
+            <Board {...PASSIVE} board={aBoard()} pending={pending} bindings={stubBindings(7)} />,
+        );
+        expect(lifted).toContain('data-lifted="true"');
+        const carried = renderToStaticMarkup(
+            <Board {...PASSIVE} board={aBoard()} pending={pending} bindings={stubBindings(null, 7)} />,
+        );
+        expect(carried).toContain('data-carried="true"');
+    });
+
     it("marks empty cells as targets while a tile is lifted", () => {
         const markup = renderToStaticMarkup(
             <Board {...PASSIVE} board={aBoard()} targeting={true} onLay={() => undefined} />,

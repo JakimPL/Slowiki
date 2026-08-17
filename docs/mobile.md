@@ -44,3 +44,7 @@ keeps a single code path:
 - Safe-area insets and `prefers-reduced-motion` in the stylesheet.
 - The stream pauses while the page is hidden (`play/viewing.ts`), which matches mobile lifecycle
   expectations.
+- One fixed scale: the viewport meta pins `maximum-scale=1` and the table surface allows panning
+  only, so pinch and double-tap zoom stay out of the way of dragging tiles. In a Capacitor shell the
+  same result comes from the platform WebView — Android sets `setBuiltInZoomControls(false)` on the
+  `WebSettings`, iOS keeps the default `WKWebView` behavior with this viewport.

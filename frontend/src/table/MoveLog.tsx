@@ -3,7 +3,7 @@ import type { CSSProperties, ReactElement } from "react";
 import type { CompanyView } from "../api/views";
 import type { LogEntry } from "../play/log";
 import { tintFor } from "../play/tints";
-import { LOG_LABEL, logCaption, nameFor } from "./strings";
+import { DOCKET_GROUP, LOG_LABEL, logCaption, nameFor } from "./strings";
 
 export interface MoveLogProps {
     readonly log: readonly LogEntry[];
@@ -14,7 +14,7 @@ export function MoveLog({ log, company }: MoveLogProps): ReactElement {
     const newestFirst = [...log].reverse();
     const latest = newestFirst[0] ?? null;
     return (
-        <details className="log">
+        <details className="log" name={DOCKET_GROUP}>
             <summary>
                 {latest === null ? (
                     LOG_LABEL

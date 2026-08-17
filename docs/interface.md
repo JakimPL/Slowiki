@@ -40,7 +40,7 @@ grid areas only: the board sits height-bound on the left; the right column stack
 feedback line, rack, tray, controls, and the docket at its foot.
 
 - **Status strip** — turn banner ("Your turn" at accent strength; "Ola is thinking — 1:12" quiet),
-  clock, bag count, join-code chip, connection state.
+  clock, bag count, join-code chip (a click copies the code), connection state.
 - **Plaques** — one per player, one to eight: tint dot, name, score, acting ring at full tint
   strength, premove diamond, clock on the acting plaque.
 - **Board** — 15 × 15 (size is data), premium squares with `×3` / `2×` / `3×` glyphs, the center
@@ -57,13 +57,17 @@ feedback line, rack, tray, controls, and the docket at its foot.
   toggle on the right that reads Recall while pending tiles stand on the board and Shuffle when
   the rack is whole.
 - **Docket** — two one-line summaries side by side: the latest move (opening the recent-move list)
-  and the remaining-tile count (opening the letter tally); both panels pop above the summaries.
+  and the remaining-tile count (opening the letter tally); both panels pop above the summaries, and
+  opening one closes the other.
 
 ## Gesture vocabulary
 
 One pointer code path serves mouse and touch: press-and-release within 6 px is a tap, further
 travel is a drag. On touch, the carried tile ghosts above the finger and the computed target cell
-shows a high-contrast ring.
+shows a high-contrast ring. While a tile travels, its resting place dims to a shadow, and the row it
+would join — rack or tray — carries an accent ring with a tile-shaped landing slot at the insertion
+point. The page holds one scale: pinch zoom, double-tap zoom, and the long-press callout stay off, so
+a gesture over the board is always a game gesture.
 
 Desk effects — the only mutation vocabulary, shared by tap and drag:
 
@@ -77,8 +81,12 @@ Desk effects — the only mutation vocabulary, shared by tap and drag:
 | `recall` | return every pending tile to the rack |
 | `shuffle` | randomize the local rack order |
 
-One tile is lifted at a time. Escape clears the lift, then recalls; Enter fires the primary action
-when it is armed. The blank picker is a sheet with the scheme's own alphabet.
+Tap and drag reach the same places. A tap lifts the tile it lands on — rack, tray, or a pending
+board square — and the next tap sets it down: an empty square moves it, a rack tile inserts it
+before that tile, a tray tile parks it there, and the "Return here" and "Park here" slots take it at
+the end of a row. Tapping the lifted tile again puts it back. One tile is lifted at a time. Escape
+clears the lift, then recalls; Enter fires the primary action when it is armed. The blank picker is a
+sheet with the scheme's own alphabet.
 
 ## State vocabulary
 

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { CARRY_THRESHOLD, isCarry } from "../src/table/dragging";
 import type { TargetMap } from "../src/table/targets";
-import { resolveTarget } from "../src/table/targets";
+import { landingAt } from "../src/table/targets";
 
 const MAP: TargetMap = {
     size: 15,
@@ -16,23 +16,23 @@ const MAP: TargetMap = {
     traySlots: [{ id: 9, rect: { left: 10, top: 380, width: 40, height: 50 } }],
 };
 
-describe("resolveTarget", () => {
+describe("landingAt", () => {
     it("maps board points onto cells by grid arithmetic", () => {
-        expect(resolveTarget(MAP, 10, 10)).toEqual({ kind: "cell", cell: 0 });
-        expect(resolveTarget(MAP, 150, 150)).toEqual({ kind: "cell", cell: 7 * 15 + 7 });
-        expect(resolveTarget(MAP, 299, 299)).toEqual({ kind: "cell", cell: 224 });
+        expect(landingAt(MAP, 10, 10)).toEqual({ kind: "cell", cell: 0 });
+        expect(landingAt(MAP, 150, 150)).toEqual({ kind: "cell", cell: 7 * 15 + 7 });
+        expect(landingAt(MAP, 299, 299)).toEqual({ kind: "cell", cell: 224 });
     });
 
     it("finds the rack insertion point by tile midpoints", () => {
-        expect(resolveTarget(MAP, 5, 340)).toEqual({ kind: "rack", before: 1 });
-        expect(resolveTarget(MAP, 55, 340)).toEqual({ kind: "rack", before: 2 });
-        expect(resolveTarget(MAP, 200, 340)).toEqual({ kind: "rack", before: null });
+        expect(landingAt(MAP, 5, 340)).toEqual({ kind: "rack", before: 1 });
+        expect(landingAt(MAP, 55, 340)).toEqual({ kind: "rack", before: 2 });
+        expect(landingAt(MAP, 200, 340)).toEqual({ kind: "rack", before: null });
     });
 
     it("targets the tray row and the void beyond", () => {
-        expect(resolveTarget(MAP, 5, 400)).toEqual({ kind: "tray", before: 9 });
-        expect(resolveTarget(MAP, 200, 400)).toEqual({ kind: "tray", before: null });
-        expect(resolveTarget(MAP, 200, 500)).toBeNull();
+        expect(landingAt(MAP, 5, 400)).toEqual({ kind: "tray", before: 9 });
+        expect(landingAt(MAP, 200, 400)).toEqual({ kind: "tray", before: null });
+        expect(landingAt(MAP, 200, 500)).toBeNull();
     });
 });
 

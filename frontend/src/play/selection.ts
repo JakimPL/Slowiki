@@ -1,13 +1,12 @@
 import type { Tile } from "../api/views";
-
-export type LiftSource = "rack" | "tray";
+import type { DeskSpot } from "./spot";
 
 export interface Lift {
     readonly tile: Tile;
-    readonly from: LiftSource;
+    readonly from: DeskSpot;
 }
 
-export function toggledLift(lift: Lift | null, tile: Tile, from: LiftSource): Lift | null {
+export function toggledLift(lift: Lift | null, tile: Tile, from: DeskSpot): Lift | null {
     if (lift !== null && lift.tile.identifier === tile.identifier) {
         return null;
     }

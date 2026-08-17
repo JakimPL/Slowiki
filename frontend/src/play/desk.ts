@@ -3,8 +3,9 @@ import type { Arrangement } from "./arrangement";
 import { EMPTY_ARRANGEMENT, movedBefore, reconciledArrangement } from "./arrangement";
 import type { Draft, Pending } from "./draft";
 import { EMPTY_DRAFT, laidDown, pendingAt, reconciledDraft, takenBack } from "./draft";
-import type { Lift, LiftSource } from "./selection";
+import type { Lift } from "./selection";
 import { toggledLift } from "./selection";
+import type { DeskSpot } from "./spot";
 import type { Tray } from "./tray";
 import { EMPTY_TRAY, parkedTray, reconciledTray, retrievedTray } from "./tray";
 
@@ -23,7 +24,7 @@ export const EMPTY_DESK: Desk = {
 };
 
 export type DeskEffect =
-    | { readonly kind: "lift"; readonly tile: Tile; readonly from: LiftSource }
+    | { readonly kind: "lift"; readonly tile: Tile; readonly from: DeskSpot }
     | { readonly kind: "lay"; readonly cell: number; readonly tile: Tile; readonly letter: string | null }
     | { readonly kind: "relay"; readonly from: number; readonly to: number }
     | { readonly kind: "take-back"; readonly cell: number }
@@ -43,7 +44,7 @@ export function affected(desk: Desk, effect: DeskEffect): Desk {
         case "relay":
             return relaid(desk, effect.from, effect.to);
         case "take-back":
-            return { ...desk, draft: takenBack(desk.draft, effect.cell) };
+            return takenBackFrom(desk, effect.cell);
         case "park":
             return parked(desk, effect.id, effect.before);
         case "retrieve":
@@ -54,7 +55,11 @@ export function affected(desk: Desk, effect: DeskEffect): Desk {
                 lift: liftWithout(desk.lift, effect.id),
             };
         case "reorder":
-            return { ...desk, arrangement: movedBefore(desk.arrangement, effect.id, effect.before) };
+            return {
+                ...desk,
+                arrangement: movedBefore(desk.arrangement, effect.id, effect.before),
+                lift: liftWithout(desk.lift, effect.id),
+            };
         case "arrange":
             return { ...desk, arrangement: effect.arrangement };
         case "recall":
@@ -98,7 +103,23 @@ function relaid(desk: Desk, from: number, to: number): Desk {
         return desk;
     }
     const moved: Pending = { ...pending, cell: to };
-    return { ...desk, draft: laidDown(takenBack(desk.draft, from), moved) };
+    return {
+        ...desk,
+        draft: laidDown(takenBack(desk.draft, from), moved),
+        lift: liftWithout(desk.lift, pending.tile.identifier),
+    };
+}
+
+function takenBackFrom(desk: Desk, cell: number): Desk {
+    const pending = pendingAt(desk.draft, cell);
+    if (pending === null) {
+        return desk;
+    }
+    return {
+        ...desk,
+        draft: takenBack(desk.draft, cell),
+        lift: liftWithout(desk.lift, pending.tile.identifier),
+    };
 }
 
 function parked(desk: Desk, id: number, before: number | null): Desk {

@@ -20,8 +20,8 @@ describe("Tray", () => {
         const markup = renderToStaticMarkup(
             <Tray
                 tiles={[]}
-                liftedId={null}
                 locked={new Set<number>()}
+                incoming={null}
                 bindings={stubBindings()}
                 parkable={false}
                 onPark={() => undefined}
@@ -32,13 +32,13 @@ describe("Tray", () => {
         expect(markup).not.toContain("Park here");
     });
 
-    it("offers a park slot while a rack tile is lifted", () => {
+    it("offers a park slot while a tile rests elsewhere", () => {
         const markup = renderToStaticMarkup(
             <Tray
                 tiles={[]}
-                liftedId={7}
                 locked={new Set<number>()}
-                bindings={stubBindings()}
+                incoming={null}
+                bindings={stubBindings(7)}
                 parkable={true}
                 onPark={() => undefined}
             />,
@@ -51,8 +51,8 @@ describe("Tray", () => {
         const markup = renderToStaticMarkup(
             <Tray
                 tiles={[aTile({ identifier: 4, letter: "W" })]}
-                liftedId={null}
                 locked={new Set<number>()}
+                incoming={null}
                 bindings={stubBindings()}
                 parkable={false}
                 onPark={() => undefined}
@@ -60,5 +60,21 @@ describe("Tray", () => {
         );
         expect(markup).toContain('data-tile="4"');
         expect(markup).toContain(">W<");
+    });
+
+    it("opens a landing slot for a tile carried in from the rack", () => {
+        const markup = renderToStaticMarkup(
+            <Tray
+                tiles={[]}
+                locked={new Set<number>()}
+                incoming={{ carried: 4, before: null }}
+                bindings={stubBindings(null, 4)}
+                parkable={false}
+                onPark={() => undefined}
+            />,
+        );
+        expect(markup).toContain('data-drop="true"');
+        expect(markup).toContain("slot-shadow");
+        expect(markup).not.toContain("Set tiles aside here");
     });
 });

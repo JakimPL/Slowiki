@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactElement } from "react";
 
 import type { RemainingTally } from "../play/remaining";
-import { BLANK_ROW_MARK, REMAINING_LABEL } from "./strings";
+import { BLANK_ROW_MARK, DOCKET_GROUP, REMAINING_LABEL } from "./strings";
 import { slugOf } from "./theme";
 
 export interface RemainingTilesProps {
@@ -10,7 +10,7 @@ export interface RemainingTilesProps {
 
 export function RemainingTiles({ tally }: RemainingTilesProps): ReactElement {
     return (
-        <details className="remaining">
+        <details className="remaining" name={DOCKET_GROUP}>
             <summary>{REMAINING_LABEL}</summary>
             <ul className="remaining-grid">
                 {tally.letters.map((letter) => (

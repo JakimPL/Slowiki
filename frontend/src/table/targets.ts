@@ -1,3 +1,5 @@
+import type { Landing } from "../play/landing";
+
 export interface Rect {
     readonly left: number;
     readonly top: number;
@@ -19,11 +21,6 @@ export interface TargetMap {
     readonly traySlots: readonly SlotRect[];
 }
 
-export type DropTarget =
-    | { readonly kind: "cell"; readonly cell: number }
-    | { readonly kind: "rack"; readonly before: number | null }
-    | { readonly kind: "tray"; readonly before: number | null };
-
 export function targetsFrom(root: HTMLElement, size: number): TargetMap {
     return {
         size,
@@ -35,7 +32,7 @@ export function targetsFrom(root: HTMLElement, size: number): TargetMap {
     };
 }
 
-export function resolveTarget(targets: TargetMap, x: number, y: number): DropTarget | null {
+export function landingAt(targets: TargetMap, x: number, y: number): Landing | null {
     if (targets.board !== null && within(targets.board, x, y)) {
         return { kind: "cell", cell: cellAt(targets.board, targets.size, x, y) };
     }

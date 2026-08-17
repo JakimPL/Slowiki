@@ -1,23 +1,28 @@
 import type { ReactElement } from "react";
 
 import type { Tile } from "../api/views";
+import type { Incoming } from "../play/landing";
+import { landedRow } from "../play/landing";
+import type { DeskSpot } from "../play/spot";
 import type { TileBindings } from "./bindings";
-import { GraspTile } from "./GraspTile";
 import { rowCountStyle } from "./sizing";
+import { tileSlots } from "./slots";
 import { RACK_LABEL, RETURN_HERE } from "./strings";
 import { TileFace } from "./TileFace";
 
 export interface RackProps {
     readonly tiles: readonly Tile[];
     readonly capacity: number;
-    readonly liftedId: number | null;
     readonly locked: ReadonlySet<number>;
+    readonly incoming: Incoming | null;
     readonly bindings: TileBindings | null;
     readonly returnable: boolean;
     readonly onReturn: () => void;
 }
 
-export function Rack({ tiles, capacity, liftedId, locked, bindings, returnable, onReturn }: RackProps): ReactElement {
+const RACK_SPOT: DeskSpot = { kind: "rack" };
+
+export function Rack({ tiles, capacity, locked, incoming, bindings, returnable, onReturn }: RackProps): ReactElement {
     if (bindings === null) {
         return (
             <div
@@ -32,27 +37,18 @@ export function Rack({ tiles, capacity, liftedId, locked, bindings, returnable, 
             </div>
         );
     }
+    const row = landedRow(tiles, incoming);
+    const slots = row.tiles.length + (row.shadowAt === null ? 0 : 1) + (returnable ? 1 : 0);
     return (
         <div
             className="rack"
             role="group"
             aria-label={RACK_LABEL}
             data-region="rack"
-            style={rowCountStyle(Math.max(capacity, tiles.length + (returnable ? 1 : 0)))}
+            data-drop={incoming === null ? undefined : "true"}
+            style={rowCountStyle(Math.max(capacity, slots))}
         >
-            {tiles.map((tile) =>
-                locked.has(tile.identifier) ? (
-                    <TileFace key={tile.identifier} tile={tile} ghost={true} />
-                ) : (
-                    <GraspTile
-                        key={tile.identifier}
-                        tile={tile}
-                        spot={{ kind: "rack" }}
-                        lifted={tile.identifier === liftedId}
-                        bindings={bindings}
-                    />
-                ),
-            )}
+            {tileSlots(row, locked, RACK_SPOT, bindings)}
             {returnable ? (
                 <button type="button" className="slot-action" onClick={onReturn}>
                     {RETURN_HERE}

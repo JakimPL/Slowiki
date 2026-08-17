@@ -1,9 +1,8 @@
 import type { Tile } from "../api/views";
-import type { DropTarget, TargetMap } from "./targets";
-import { resolveTarget } from "./targets";
-
-export type DeskSpot =
-    { readonly kind: "rack" } | { readonly kind: "tray" } | { readonly kind: "cell"; readonly cell: number };
+import type { Landing } from "../play/landing";
+import type { DeskSpot } from "../play/spot";
+import type { TargetMap } from "./targets";
+import { landingAt } from "./targets";
 
 export interface Grasp {
     readonly spot: DeskSpot;
@@ -19,7 +18,7 @@ export interface Carry {
     readonly tile: Tile;
     readonly point: DragPoint;
     readonly touch: boolean;
-    readonly target: DropTarget | null;
+    readonly target: Landing | null;
 }
 
 export interface GraspSession {
@@ -42,6 +41,6 @@ export function carriedTo(session: GraspSession, point: DragPoint): Carry {
         tile: session.grasp.tile,
         point,
         touch: session.touch,
-        target: resolveTarget(session.targets, point.x, point.y),
+        target: landingAt(session.targets, point.x, point.y),
     };
 }

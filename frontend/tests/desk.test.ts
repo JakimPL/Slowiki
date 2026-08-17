@@ -14,17 +14,17 @@ function performed(...effects: readonly DeskEffect[]): Desk {
 
 describe("desk", () => {
     it("toggles the lift and remembers its source", () => {
-        const lifted = performed({ kind: "lift", tile: KAY, from: "rack" });
-        expect(lifted.lift).toEqual({ tile: KAY, from: "rack" });
-        const switched = affected(lifted, { kind: "lift", tile: OH, from: "tray" });
-        expect(switched.lift).toEqual({ tile: OH, from: "tray" });
-        expect(affected(switched, { kind: "lift", tile: OH, from: "tray" }).lift).toBeNull();
+        const lifted = performed({ kind: "lift", tile: KAY, from: { kind: "rack" } });
+        expect(lifted.lift).toEqual({ tile: KAY, from: { kind: "rack" } });
+        const switched = affected(lifted, { kind: "lift", tile: OH, from: { kind: "tray" } });
+        expect(switched.lift).toEqual({ tile: OH, from: { kind: "tray" } });
+        expect(affected(switched, { kind: "lift", tile: OH, from: { kind: "tray" } }).lift).toBeNull();
     });
 
     it("lays a tile, settling the hand and leaving the tray", () => {
         const desk = performed(
             { kind: "park", id: KAY.identifier, before: null },
-            { kind: "lift", tile: KAY, from: "tray" },
+            { kind: "lift", tile: KAY, from: { kind: "tray" } },
             { kind: "lay", cell: 112, tile: KAY, letter: null },
         );
         expect(desk.draft).toEqual([{ cell: 112, tile: KAY, letter: null }]);
@@ -49,6 +49,21 @@ describe("desk", () => {
         expect(affected(desk, { kind: "relay", from: 113, to: 113 }).draft).toEqual(desk.draft);
     });
 
+    it("sets the tile down wherever the lift ends", () => {
+        const lifted = performed(
+            { kind: "lay", cell: 112, tile: KAY, letter: null },
+            { kind: "lift", tile: KAY, from: { kind: "cell", cell: 112 } },
+        );
+        expect(affected(lifted, { kind: "relay", from: 112, to: 113 }).lift).toBeNull();
+        expect(affected(lifted, { kind: "take-back", cell: 112 }).lift).toBeNull();
+        const held = performed(
+            { kind: "arrange", arrangement: [7, 8] },
+            { kind: "lift", tile: KAY, from: { kind: "rack" } },
+        );
+        expect(affected(held, { kind: "reorder", id: 7, before: 8 }).lift).toBeNull();
+        expect(affected(held, { kind: "take-back", cell: 112 }).lift).toEqual(held.lift);
+    });
+
     it("parks, retrieves, and reorders by identifier", () => {
         const parkedDesk = performed(
             { kind: "arrange", arrangement: [7, 8, 9] },
@@ -69,7 +84,7 @@ describe("desk", () => {
         const messy = affected(affected(laid, { kind: "park", id: OH.identifier, before: null }), {
             kind: "lift",
             tile: TEE,
-            from: "rack",
+            from: { kind: "rack" },
         });
         const recalled = affected(messy, { kind: "recall" });
         expect(recalled.draft).toEqual([]);
@@ -83,7 +98,7 @@ describe("desk", () => {
             { kind: "arrange", arrangement: [9, 7, 8] },
             { kind: "park", id: 8, before: null },
             { kind: "lay", cell: 112, tile: KAY, letter: null },
-            { kind: "lift", tile: TEE, from: "rack" },
+            { kind: "lift", tile: TEE, from: { kind: "rack" } },
         );
         const free = new Set<number>();
         expect(reconciledDesk(desk, [KAY, OH, TEE], aBoard(), free)).toBe(desk);
@@ -97,7 +112,7 @@ describe("desk", () => {
     it("releases drafted and lifted tiles once a premove commits them", () => {
         const desk = performed(
             { kind: "lay", cell: 112, tile: KAY, letter: null },
-            { kind: "lift", tile: TEE, from: "rack" },
+            { kind: "lift", tile: TEE, from: { kind: "rack" } },
         );
         const committed = reconciledDesk(desk, [KAY, OH, TEE], aBoard(), new Set([KAY.identifier, TEE.identifier]));
         expect(committed.draft).toEqual([]);

@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactElement } from "react";
+import type { CSSProperties, PointerEvent as ReactPointerEvent, ReactElement } from "react";
 import { useEffect, useRef, useState } from "react";
 
 import { exchangeMove, passMove, playMove } from "../api/moves";
@@ -9,17 +9,21 @@ import { urgencyOf } from "../play/clock";
 import type { Connection } from "../play/connection";
 import type { DeskEffect } from "../play/desk";
 import type { Draft } from "../play/draft";
-import { draftedIdentifiers, placementsOf, shownTile } from "../play/draft";
+import { draftedIdentifiers, pendingAt, placementsOf, shownTile } from "../play/draft";
 import type { TableState } from "../play/events";
 import { seatedAs } from "../play/events";
 import { exchangeProspectOf } from "../play/exchange";
 import { invalidTextsOf, wordStatusFor } from "../play/feedback";
+import { blankLanding, dropEffects, tapEffects } from "../play/gestures";
 import { guidanceFor } from "../play/guidance";
+import type { Incoming, Landing, RowRegion } from "../play/landing";
+import { incomingOf } from "../play/landing";
 import { NO_COMMITTED_TILES, queuedPremoveOf, returnedPremoveOf } from "../play/premoves";
 import { prospectOf } from "../play/prospects";
 import { remainingTally } from "../play/remaining";
 import { rulesFrom } from "../play/rules";
 import { liftedIdentifier } from "../play/selection";
+import type { DeskSpot } from "../play/spot";
 import type { StoryKind } from "../play/story";
 import { storyFor } from "../play/story";
 import { tintFor } from "../play/tints";
@@ -33,8 +37,9 @@ import type { Arrival } from "../play/useStanding";
 import type { TileBindings } from "./bindings";
 import { BlankPicker } from "./BlankPicker";
 import { Board } from "./Board";
+import { CodeChip } from "./CodeChip";
 import { Controls } from "./Controls";
-import type { Carry, DeskSpot, Grasp, GraspSession } from "./dragging";
+import type { Carry, Grasp, GraspSession } from "./dragging";
 import { carriedTo, isCarry } from "./dragging";
 import { GameOver } from "./GameOver";
 import type { KeyHandlers } from "./keys";
@@ -62,7 +67,6 @@ import {
     queuedCaption,
     STALE_NOTICE,
 } from "./strings";
-import type { DropTarget } from "./targets";
 import { targetsFrom } from "./targets";
 import { TileFace } from "./TileFace";
 import { Tray } from "./Tray";
@@ -186,19 +190,26 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
         );
     };
 
-    const lay = (cell: number, tile: Tile): void => {
-        if (!mayAct || state.view.board.tiles[cell] !== null || ghosts.has(cell)) {
-            return;
+    const boardFree = (cell: number): boolean => state.view.board.tiles[cell] === null && !ghosts.has(cell);
+    const reached = (landing: Landing | null): Landing | null => {
+        if (landing?.kind !== "cell") {
+            return landing;
         }
-        if (tile.blank) {
-            setBlankChoice({ cell, tile });
-            return;
+        return boardFree(landing.cell) ? landing : null;
+    };
+    const land = (spot: DeskSpot, tile: Tile, landing: Landing | null): void => {
+        const target = reached(landing);
+        for (const effect of dropEffects(spot, tile, target, mayAct)) {
+            perform(effect);
         }
-        perform({ kind: "lay", cell, tile, letter: null });
+        const asking = blankLanding(spot, tile, target);
+        if (asking !== null && mayAct && pendingAt(desk.draft, asking) === null) {
+            setBlankChoice({ cell: asking, tile });
+        }
     };
     const layLifted = (cell: number): void => {
         if (desk.lift !== null) {
-            lay(cell, desk.lift.tile);
+            land(desk.lift.from, desk.lift.tile, { kind: "cell", cell });
         }
     };
     const pick = (symbol: string): void => {
@@ -237,17 +248,8 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
     };
 
     const tap = (grasp: Grasp): void => {
-        perform(tapEffect(desk.lift, grasp));
-    };
-    const drop = (grasp: Grasp, target: DropTarget | null): void => {
-        const resolved = target?.kind === "cell" && ghosts.has(target.cell) ? null : target;
-        for (const effect of dropEffects(grasp, resolved, mayAct)) {
+        for (const effect of tapEffects(desk.lift, grasp.spot, grasp.tile)) {
             perform(effect);
-        }
-        if (resolved?.kind === "cell" && grasp.spot.kind !== "cell" && grasp.tile.blank) {
-            if (mayAct && state.view.board.tiles[resolved.cell] === null) {
-                setBlankChoice({ cell: resolved.cell, tile: grasp.tile });
-            }
         }
     };
 
@@ -255,51 +257,61 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
     const sessionRef = useRef<GraspSession | null>(null);
     const [carry, setCarry] = useState<Carry | null>(null);
     const bindings: TileBindings = {
+        lifted: liftedIdentifier(desk.lift),
+        carried: carry?.tile.identifier ?? null,
         onTap: tap,
         onDown: (grasp, event): void => {
-            if (rootRef.current === null) {
+            const root = rootRef.current;
+            if (root === null) {
                 return;
             }
-            event.currentTarget.setPointerCapture(event.pointerId);
+            root.setPointerCapture(event.pointerId);
             sessionRef.current = {
                 grasp,
                 start: { x: event.clientX, y: event.clientY },
                 touch: event.pointerType === "touch",
-                targets: targetsFrom(rootRef.current, state.view.board.size),
+                targets: targetsFrom(root, state.view.board.size),
                 carrying: false,
             };
         },
-        onMove: (event): void => {
-            const session = sessionRef.current;
-            if (session === null) {
-                return;
-            }
-            const point = { x: event.clientX, y: event.clientY };
-            if (!session.carrying && isCarry(session.start, point)) {
-                session.carrying = true;
-            }
-            if (session.carrying) {
-                setCarry(carriedTo(session, point));
-            }
-        },
-        onUp: (event): void => {
-            const session = sessionRef.current;
-            sessionRef.current = null;
-            setCarry(null);
-            if (session === null) {
-                return;
-            }
-            if (session.carrying) {
-                drop(session.grasp, carriedTo(session, { x: event.clientX, y: event.clientY }).target);
-                return;
-            }
-            tap(session.grasp);
-        },
-        onCancel: (): void => {
-            sessionRef.current = null;
-            setCarry(null);
-        },
     };
+    const travel = (event: ReactPointerEvent<HTMLDivElement>): void => {
+        const session = sessionRef.current;
+        if (session === null) {
+            return;
+        }
+        const point = { x: event.clientX, y: event.clientY };
+        if (!session.carrying && isCarry(session.start, point)) {
+            session.carrying = true;
+        }
+        if (session.carrying) {
+            setCarry(carriedTo(session, point));
+        }
+    };
+    const release = (event: ReactPointerEvent<HTMLDivElement>): void => {
+        const session = sessionRef.current;
+        sessionRef.current = null;
+        setCarry(null);
+        if (session === null) {
+            return;
+        }
+        if (session.carrying) {
+            land(
+                session.grasp.spot,
+                session.grasp.tile,
+                carriedTo(session, { x: event.clientX, y: event.clientY }).target,
+            );
+            return;
+        }
+        tap(session.grasp);
+    };
+    const abandon = (): void => {
+        sessionRef.current = null;
+        setCarry(null);
+    };
+
+    const incoming = (region: RowRegion): Incoming | null =>
+        carry === null ? null : incomingOf(carry.target, carry.tile.identifier, region);
 
     const keysRef = useRef<KeyHandlers>({ onEscape: () => undefined, onEnter: () => undefined });
     useEffect(() => {
@@ -319,13 +331,19 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
     );
 
     return (
-        <div ref={rootRef} className="table" data-acting={story.kind === "acting" ? "true" : undefined} style={style}>
+        <div
+            ref={rootRef}
+            className="table"
+            data-acting={story.kind === "acting" ? "true" : undefined}
+            style={style}
+            onPointerMove={travel}
+            onPointerUp={release}
+            onPointerCancel={abandon}
+        >
             <header className="status-strip">
                 <StatusLine text={captionFor(story, state.company)} tone={toneOf(story.kind)} />
                 <span className="status-meta">{bagCaption(state.view.bag_count)}</span>
-                {description !== null && description.code !== null ? (
-                    <span className="status-code">{description.code}</span>
-                ) : null}
+                {description !== null && description.code !== null ? <CodeChip code={description.code} /> : null}
                 {connection === "live" ? null : (
                     <span className="chip chip-connection" data-connection={connection}>
                         {CONNECTION_CAPTIONS[connection]}
@@ -364,25 +382,25 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
                         <Rack
                             tiles={rackRow}
                             capacity={rules.rackSize ?? rackRow.length}
-                            liftedId={liftedIdentifier(desk.lift)}
                             locked={committed}
+                            incoming={incoming("rack")}
                             bindings={bindings}
-                            returnable={desk.lift !== null && desk.lift.from === "tray"}
+                            returnable={desk.lift !== null && desk.lift.from.kind !== "rack"}
                             onReturn={(): void => {
                                 if (desk.lift !== null) {
-                                    perform({ kind: "retrieve", id: desk.lift.tile.identifier, before: null });
+                                    land(desk.lift.from, desk.lift.tile, { kind: "rack", before: null });
                                 }
                             }}
                         />
                         <Tray
                             tiles={trayRow}
-                            liftedId={liftedIdentifier(desk.lift)}
                             locked={committed}
+                            incoming={incoming("tray")}
                             bindings={bindings}
-                            parkable={desk.lift !== null && desk.lift.from === "rack"}
+                            parkable={desk.lift !== null && desk.lift.from.kind !== "tray"}
                             onPark={(): void => {
                                 if (desk.lift !== null) {
-                                    perform({ kind: "park", id: desk.lift.tile.identifier, before: null });
+                                    land(desk.lift.from, desk.lift.tile, { kind: "tray", before: null });
                                 }
                             }}
                         />
@@ -410,8 +428,8 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
                     <Rack
                         tiles={rack}
                         capacity={rules.rackSize ?? rack.length}
-                        liftedId={null}
                         locked={NO_COMMITTED_TILES}
+                        incoming={null}
                         bindings={null}
                         returnable={false}
                         onReturn={() => undefined}
@@ -446,71 +464,6 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
             {story.kind === "over" ? <GameOver view={state.view} company={state.company} story={story} /> : null}
         </div>
     );
-}
-
-function tapEffect(lift: { readonly tile: Tile; readonly from: "rack" | "tray" } | null, grasp: Grasp): DeskEffect {
-    if (grasp.spot.kind === "cell") {
-        return { kind: "take-back", cell: grasp.spot.cell };
-    }
-    if (grasp.spot.kind === "rack") {
-        if (lift !== null && lift.from === "tray" && lift.tile.identifier !== grasp.tile.identifier) {
-            return { kind: "retrieve", id: lift.tile.identifier, before: grasp.tile.identifier };
-        }
-        return { kind: "lift", tile: grasp.tile, from: "rack" };
-    }
-    if (lift !== null && lift.from === "rack" && lift.tile.identifier !== grasp.tile.identifier) {
-        return { kind: "park", id: lift.tile.identifier, before: grasp.tile.identifier };
-    }
-    return { kind: "lift", tile: grasp.tile, from: "tray" };
-}
-
-function dropEffects(grasp: Grasp, target: DropTarget | null, mayAct: boolean): readonly DeskEffect[] {
-    if (target === null) {
-        return grasp.spot.kind === "cell" ? [{ kind: "take-back", cell: grasp.spot.cell }] : [];
-    }
-    if (target.kind === "cell") {
-        return cellDropEffects(grasp, target.cell, mayAct);
-    }
-    if (target.kind === "rack") {
-        return rackDropEffects(grasp.spot, grasp.tile, target.before);
-    }
-    return trayDropEffects(grasp.spot, grasp.tile, target.before);
-}
-
-function cellDropEffects(grasp: Grasp, cell: number, mayAct: boolean): readonly DeskEffect[] {
-    if (!mayAct) {
-        return [];
-    }
-    if (grasp.spot.kind === "cell") {
-        return grasp.spot.cell === cell ? [] : [{ kind: "relay", from: grasp.spot.cell, to: cell }];
-    }
-    if (grasp.tile.blank) {
-        return [];
-    }
-    return [{ kind: "lay", cell, tile: grasp.tile, letter: null }];
-}
-
-function rackDropEffects(spot: DeskSpot, tile: Tile, before: number | null): readonly DeskEffect[] {
-    if (spot.kind === "cell") {
-        return [
-            { kind: "take-back", cell: spot.cell },
-            { kind: "reorder", id: tile.identifier, before },
-        ];
-    }
-    if (spot.kind === "tray") {
-        return [{ kind: "retrieve", id: tile.identifier, before }];
-    }
-    return [{ kind: "reorder", id: tile.identifier, before }];
-}
-
-function trayDropEffects(spot: DeskSpot, tile: Tile, before: number | null): readonly DeskEffect[] {
-    if (spot.kind === "cell") {
-        return [
-            { kind: "take-back", cell: spot.cell },
-            { kind: "park", id: tile.identifier, before },
-        ];
-    }
-    return [{ kind: "park", id: tile.identifier, before }];
 }
 
 function pendingFacesOf(draft: Draft): ReadonlyMap<number, Tile> {
