@@ -59,7 +59,8 @@ feedback line, rack, tray, controls, and the docket at its foot.
 - **Feedback line** — one fixed-height slot showing, in order of precedence: the refusal or
   notice sentence, the formed-word chips (points and status dot each) while a draft stands, the
   returned-premove explanation, the queued-premove chip with its Cancel action, or the guidance
-  hint (`role="status"`).
+  hint (`role="status"`). Each word chip is a button opening the word panel; the bingo chip reads as a
+  plain label.
 - **Rack and tray** — the rack row holds the hand; the recessed tray beneath stages exchanges and
   doubles as parking space while thinking.
 - **Controls** — three fixed slots: quiet Pass on the left, armed while the seat is acting, the
@@ -69,6 +70,34 @@ feedback line, rack, tray, controls, and the docket at its foot.
 - **Docket** — two one-line summaries side by side: the latest move (opening the recent-move list)
   and the remaining-tile count (opening the letter tally); both panels pop above the summaries, and
   opening one closes the other.
+
+## Word panel
+
+A word chip answers whether the table accepts the word; the panel it opens answers what the word is. It
+stands in the sheet stratum the blank picker uses — scrim beneath the sheet, both beneath the game-over
+overlay — and reads at two depths.
+
+- **Chip card** — the word, its points, its dictionary state, and one block per **reading**: the part of
+  speech, the base form, and the odmiana of the form as it stands. A word with several readings stacks
+  them, which is the case the panel exists for: PIŁA is a noun and a past form of *pić*. Each block
+  carries a `Cała odmiana` control.
+- **Odmiana sheet** — the chosen reading's whole paradigm: case × number for nouns, numerals and
+  pronouns; case × gender titled by number and degree for adjectives; person × number for finite verb
+  forms and gender × number for past forms, both titled by mood and tense, with the infinitive,
+  participles and gerund as lists beside them; degree rows for adverbs; one list for invariant parts.
+  Forms the table's dictionary accepts read as playable, the rest carry a struck-through treatment, and
+  the form standing on the board reads in the accent. A reading strip switches readings and a back
+  control returns to the card.
+
+The panel holds the word it opened for, so a move arriving from another seat leaves it standing and
+honest. Escape steps the sheet back to the card, the card to closed, and reaches the lift and recall
+vocabulary only after that; the primary action rests while the panel stands. A long paradigm scrolls
+inside the sheet, so the board keeps its size at every depth. The chips are the way in, so the panel is
+available wherever the feedback line stands.
+
+Grammar terms arrive as data in Polish — `rzeczownik`, `mianownik`, `pojedyncza` — and print as they
+arrive. The frame around them is interface text, and the asked word prints in the canonical uppercase the
+tiles carry while base forms and paradigm cells print lowercase.
 
 ## Gesture vocabulary
 
@@ -111,6 +140,10 @@ sheet with the scheme's own alphabet.
   reason in the feedback line).
 - **Word status**: `unknown` (hollow dot) · `valid` (success accent) · `invalid` (danger, with the
   dictionary's sentence in the guidance line) · `standing` (reserved for challenge schemes).
+- **Word insight**: `absent` (the dictionary refuses the word) · `unclassified` (the word plays, and the
+  morphology sources carry no analysis for it) · `read` (readings arrived). Sample data carries a badge
+  and marks its own forms unplayable, so the single claim a sample card makes is the dictionary's verdict
+  on the asked word. Each paradigm form carries `playable`, and the form on the board carries `standing`.
 - **Exchange**: tiles in the tray arm `Exchange N`; the guidance line carries the remaining
   exchange budget and the bag minimum.
 - **Connection**: `joining` · `live` · `resuming` · `lost`, shown as a quiet chip in the status
