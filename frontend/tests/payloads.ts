@@ -19,7 +19,13 @@ function aTheme(surface: string): ThemeTokens {
             face_tint: 0.15,
             bands: { yellow: "#d9a226", red: "#ac4029" },
         },
-        accents: { primary: "#7c3f4e", on_primary: "#fcf7ec", danger: "#9a2f1f", premove: "#6d5e8e" },
+        accents: {
+            primary: "#7c3f4e",
+            on_primary: "#fcf7ec",
+            danger: "#9a2f1f",
+            success: "#3f7a4b",
+            premove: "#6d5e8e",
+        },
     };
 }
 

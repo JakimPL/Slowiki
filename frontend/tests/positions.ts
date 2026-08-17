@@ -77,6 +77,7 @@ export function someParameters(overrides: Partial<RuleParameters> = {}): RulePar
         pass_allowed: true,
         bingo_bonus: 50,
         validate_on_play: true,
+        word_check: false,
         premoves_allowed: true,
         pass_end_limit: 2,
         scoreless_end_limit: null,

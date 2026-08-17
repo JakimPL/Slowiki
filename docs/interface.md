@@ -97,8 +97,8 @@ sheet with the scheme's own alphabet.
   beside a "Premove queued — Cancel" chip; submitting again replaces the queue) → `applied`
   (tiles become real with the fresh-play flash) or `returned` (tiles back on the rack with the
   reason in the feedback line).
-- **Word status**: `unknown` (hollow dot) · `valid` · `invalid` (danger, with the dictionary's
-  sentence in the guidance line) · `standing` (reserved for challenge schemes).
+- **Word status**: `unknown` (hollow dot) · `valid` (success accent) · `invalid` (danger, with the
+  dictionary's sentence in the guidance line) · `standing` (reserved for challenge schemes).
 - **Exchange**: tiles in the tray arm `Exchange N`; the guidance line carries the remaining
   exchange budget and the bag minimum.
 - **Connection**: `joining` · `live` · `resuming` · `lost`, shown as a quiet chip in the status
@@ -109,10 +109,13 @@ sheet with the scheme's own alphabet.
 ## Feedback policy
 
 Derived from the table description, consumed as data. Action legality (line, gaps, anchoring, the
-center rule) is always computed live on the client. Word verdicts follow the policy: `submit`
-(today — the server answers on submission), `live` (a word-check endpoint fills statuses as words
-form), `challenge` (reserved: plays stand until contested). The word-status vocabulary above is the
-seam that lets challenge schemes arrive without redesign.
+center rule) is always computed live on the client. Word verdicts follow the policy: `live` (the table
+answers word checks, so each formed word carries its verdict as it stands), `submit` (the server
+answers on submission), `challenge` (reserved: plays stand until contested). A table advertises the
+live path through `parameters.word_check`, which holds while the scheme validates on play and its
+dictionary is loaded; the interface asks `GET /tables/{id}/words` for the words it shows and
+remembers every answer. The word-status vocabulary above is the seam that lets challenge schemes
+arrive without redesign.
 
 ## Theming and tokens
 
@@ -125,7 +128,7 @@ least 40 px wide, board cells degrade to a 20 px floor.
 Token vocabulary (per variant): `chrome` (surface, panel, edge, text, muted) · `board` (surface,
 grid, frame, star) · `premiums.word_2/word_3/letter_2/letter_3` (fill, label) ·
 `category_premiums.yellow/green/blue/red` (fill, label) · `tiles` (face, edge, text, face_tint;
-band per category) · `accents` (primary, on_primary, danger, premove).
+band per category) · `accents` (primary, on_primary, danger, success, premove).
 
 Each category's tile face is derived, per variant, as `mix(tiles.face, tiles.band[category],
 tiles.face_tint)` — a linear per-channel sRGB blend — so tiles carry a wash of the color they hold.
@@ -180,6 +183,7 @@ says whose turn.
 | accents.primary | `#7C3F4E` | `#B36A79` |
 | accents.on_primary | `#FCF7EC` | `#2A161B` |
 | accents.danger | `#9A2F1F` | `#D96A50` |
+| accents.success | `#3F7A4B` | `#7FBF8C` |
 | accents.premove | `#6D5E8E` | `#8E7FB5` |
 
 Premium cells carry a fill and a label glyph; tiles keep a light face in both variants — physical

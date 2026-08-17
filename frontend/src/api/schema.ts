@@ -174,6 +174,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/tables/{table_id}/words": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Judge Words */
+        get: operations["judge_words_tables__table_id__words_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -188,6 +205,8 @@ export interface components {
             premove: string;
             /** Primary */
             primary: string;
+            /** Success */
+            success: string;
         };
         /** Board */
         Board: {
@@ -271,7 +290,7 @@ export interface components {
          * ErrorCode
          * @enum {string}
          */
-        ErrorCode: "illegal_move" | "not_your_turn" | "stale_position" | "invalid_word" | "game_over" | "no_premove" | "invalid_configuration" | "rejected" | "unknown_table" | "unknown_code" | "unknown_scheme" | "table_full" | "seats_out_of_range" | "seat_token_mismatch" | "gathering" | "dictionary_unavailable";
+        ErrorCode: "illegal_move" | "not_your_turn" | "stale_position" | "invalid_word" | "game_over" | "no_premove" | "invalid_configuration" | "rejected" | "unknown_table" | "unknown_code" | "unknown_scheme" | "table_full" | "seats_out_of_range" | "seat_token_mismatch" | "gathering" | "dictionary_unavailable" | "word_check_unavailable" | "too_many_words";
         /** EventView */
         EventView: {
             /** Actor */
@@ -481,6 +500,8 @@ export interface components {
             time: components["schemas"]["TimeConfig"];
             /** Validate On Play */
             validate_on_play: boolean;
+            /** Word Check */
+            word_check: boolean;
         };
         /** ScoredWord */
         ScoredWord: {
@@ -628,6 +649,20 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
+        };
+        /** WordVerdict */
+        WordVerdict: {
+            /** Allowed */
+            allowed: boolean;
+            /** Reason */
+            reason?: string | null;
+        };
+        /** WordVerdicts */
+        WordVerdicts: {
+            /** Verdicts */
+            verdicts: {
+                [key: string]: components["schemas"]["WordVerdict"];
+            };
         };
     };
     responses: never;
@@ -1015,6 +1050,48 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    judge_words_tables__table_id__words_get: {
+        parameters: {
+            query: {
+                words: string[];
+            };
+            header?: never;
+            path: {
+                table_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WordVerdicts"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
                 };
             };
         };

@@ -26,4 +26,9 @@ describe("rulesFrom", () => {
         const description = aDescription({ parameters: someParameters({ validate_on_play: false }) });
         expect(rulesFrom(description).feedback).toBe("challenge");
     });
+
+    it("goes live once the table offers word checks", () => {
+        const description = aDescription({ parameters: someParameters({ word_check: true }) });
+        expect(rulesFrom(description).feedback).toBe("live");
+    });
 });

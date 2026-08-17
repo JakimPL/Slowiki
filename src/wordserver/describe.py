@@ -3,6 +3,11 @@ from wordserver.models.rule_parameters import RuleParameters
 from wordserver.models.table_description import TableDescription
 from wordserver.registry import TableMeta
 from wordtable.config import SchemeConfig
+from wordtable.lexicons import dictionary_ready
+
+
+def word_check_offered(scheme: SchemeConfig) -> bool:
+    return scheme.validate_on_play and dictionary_ready(scheme.dictionary)
 
 
 def table_description(
@@ -35,6 +40,7 @@ def _rule_parameters(
         pass_allowed=scheme.pass_allowed,
         bingo_bonus=scheme.bingo_bonus,
         validate_on_play=scheme.validate_on_play,
+        word_check=word_check_offered(scheme),
         premoves_allowed=scheme.premoves,
         pass_end_limit=scheme.pass_end_limit,
         scoreless_end_limit=scheme.scoreless_end_limit,

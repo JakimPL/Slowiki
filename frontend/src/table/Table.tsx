@@ -32,6 +32,7 @@ import { useAlerts } from "../play/useAlerts";
 import { useCountdown } from "../play/useCountdown";
 import { useDescription } from "../play/useDescription";
 import { useDesk } from "../play/useDesk";
+import { useJudgements } from "../play/useJudgements";
 import { usePlay } from "../play/usePlay";
 import type { Arrival } from "../play/useStanding";
 import type { TileBindings } from "./bindings";
@@ -154,9 +155,14 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
     const primaryArmed = exchanging ? mayAct && (exchange?.allowed ?? false) : playArmed;
 
     const invalidTexts = invalidTextsOf(noticeCode, notice);
+    const judged = useJudgements(
+        arrival.seat,
+        prospect.words.map((word) => word.text),
+        rules.feedback === "live" && blankChoice === null,
+    );
     const chips = prospect.words.map((word) => ({
         ...word,
-        status: wordStatusFor(rules.feedback, word.text, invalidTexts),
+        status: wordStatusFor(rules.feedback, word.text, invalidTexts, judged),
     }));
     const shownNotice = noticeCode === STALE_POSITION_CODE ? STALE_NOTICE : notice;
     const hint =

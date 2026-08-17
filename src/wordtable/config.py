@@ -84,6 +84,7 @@ class AccentTokens(BaseFrozen):
     primary: HexColor
     on_primary: HexColor
     danger: HexColor
+    success: HexColor
     premove: HexColor
 
 

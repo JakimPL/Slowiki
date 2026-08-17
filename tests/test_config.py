@@ -93,6 +93,14 @@ def test_default_palette_keeps_premiums_apart() -> None:
         assert theme.board.surface not in set(theme.tiles.bands.values())
 
 
+def test_default_palette_separates_the_success_accent() -> None:
+    tokens = load_style_tokens(CONFIG_DIR, "default")
+    for theme in (tokens.light, tokens.dark):
+        accents = theme.accents
+        assert accents.success not in {accents.primary, accents.danger, accents.premove}
+        assert accents.success not in set(theme.tiles.bands.values())
+
+
 def test_default_palette_covers_literaki_categories() -> None:
     resolved = resolve_scheme(CONFIG_DIR, "literaki")
     categories = {letter.category for letter in resolved.tiles.letters}

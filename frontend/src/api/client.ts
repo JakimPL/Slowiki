@@ -16,6 +16,7 @@ import type {
     TableRequest,
 } from "./tables";
 import type { StyleTokens, TableViewResponse } from "./views";
+import type { WordVerdicts } from "./words";
 
 const JSON_HEADERS: Record<string, string> = { "Content-Type": "application/json" };
 
@@ -64,6 +65,14 @@ export async function readDescription(seat: Seat): Promise<TableDescription> {
         await fetch(`/tables/${encodeURIComponent(seat.table)}`, { headers: headersFor(seat) }),
     );
     return parsed<TableDescription>(response);
+}
+
+export async function readWordVerdicts(seat: Seat, words: readonly string[]): Promise<WordVerdicts> {
+    const asked = words.map((word) => `words=${encodeURIComponent(word)}`).join("&");
+    const response = await answered(
+        await fetch(`/tables/${encodeURIComponent(seat.table)}/words?${asked}`, { headers: headersFor(seat) }),
+    );
+    return parsed<WordVerdicts>(response);
 }
 
 export async function readView(seat: Seat): Promise<TableViewResponse> {

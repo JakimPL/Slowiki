@@ -31,6 +31,7 @@ export function declarationsFor(theme: ThemeTokens): readonly string[] {
         `--accent-primary: ${theme.accents.primary};`,
         `--accent-on-primary: ${theme.accents.on_primary};`,
         `--accent-danger: ${theme.accents.danger};`,
+        `--accent-success: ${theme.accents.success};`,
         `--accent-premove: ${theme.accents.premove};`,
     ];
     for (const [name, premium] of Object.entries(theme.premiums)) {

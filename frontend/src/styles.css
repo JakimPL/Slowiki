@@ -14,6 +14,7 @@
     --accent-primary: #7c3f4e;
     --accent-on-primary: #fcf7ec;
     --accent-danger: #9a2f1f;
+    --accent-success: #3f7a4b;
     --accent-premove: #6d5e8e;
     --band-yellow: #d9a226;
     --band-green: #67903f;
@@ -42,6 +43,7 @@
         --accent-primary: #b36a79;
         --accent-on-primary: #2a161b;
         --accent-danger: #d96a50;
+        --accent-success: #7fbf8c;
         --accent-premove: #8e7fb5;
         --band-yellow: #e0ab2b;
         --band-green: #7ba34c;
@@ -66,6 +68,7 @@
     --accent-primary: #b36a79;
     --accent-on-primary: #2a161b;
     --accent-danger: #d96a50;
+    --accent-success: #7fbf8c;
     --accent-premove: #8e7fb5;
     --band-yellow: #e0ab2b;
     --band-green: #7ba34c;
@@ -1092,9 +1095,14 @@ select {
     content: "";
 }
 
+.word-chip[data-status="valid"] {
+    border-color: color-mix(in srgb, var(--accent-success) 55%, transparent);
+    color: var(--accent-success);
+}
+
 .word-chip[data-status="valid"]::before {
-    border-color: var(--accent-primary);
-    background: var(--accent-primary);
+    border-color: var(--accent-success);
+    background: var(--accent-success);
 }
 
 .word-chip[data-status="standing"]::before {
@@ -1227,6 +1235,10 @@ select {
 .control-quiet:disabled {
     cursor: default;
     opacity: 0.5;
+}
+
+.sheet-region {
+    display: contents;
 }
 
 .sheet-scrim {

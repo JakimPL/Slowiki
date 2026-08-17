@@ -69,6 +69,8 @@ under `lexica.dictionaries`, one module per source.
   distribution, and the join code for seat holders.
 - `GET /tables/{table_id}/view` — the per-observer projection with the company
   and the turn clock.
+- `GET /tables/{table_id}/words` — dictionary verdicts for up to sixteen words,
+  offered while the scheme validates on play (`parameters.word_check`).
 - `POST /tables/{table_id}/moves`, `DELETE /tables/{table_id}/premove` — play.
 - `GET /tables/{table_id}/events` — the SSE stream: numbered journal frames plus
   unnumbered `presence` and `clock` frames.

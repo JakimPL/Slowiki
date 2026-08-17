@@ -7,9 +7,9 @@ import secrets
 import time
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import Final, NamedTuple
+from typing import Annotated, Final, NamedTuple
 
-from fastapi import FastAPI, Header, Request
+from fastapi import FastAPI, Header, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -21,7 +21,7 @@ from wordcore.games.game import Game
 from wordcore.models.base import BaseFrozen
 from wordcore.moves.move import Move
 from wordcore.views.events import EventView
-from wordserver.describe import table_description
+from wordserver.describe import table_description, word_check_offered
 from wordserver.errors.body import ErrorBody
 from wordserver.errors.code import ErrorCode, code_for
 from wordserver.errors.exceptions import SeatTokenMismatch, TableGathering
@@ -31,6 +31,7 @@ from wordserver.models.offerings import OfferingsResponse
 from wordserver.models.table import TableViewResponse
 from wordserver.models.table_admission import TableAdmission
 from wordserver.models.table_description import TableDescription
+from wordserver.models.word_verdicts import WordVerdicts
 from wordserver.registry import TableMeta, TableRegistry
 from wordserver.session import TableSession
 from wordtable.build import build_rules
@@ -40,6 +41,7 @@ from wordtable.lexicons import LexiconService, dictionary_ready
 from wordtable.paths import ASSETS_DIR, CONFIG_DIR, FRONTEND_DIST_DIR, RUN_CONFIG_FILE
 
 MAX_PLAYER_NAME_LENGTH: Final = 32
+MAX_JUDGED_WORDS: Final = 16
 
 
 class TableRequest(BaseFrozen):
@@ -105,6 +107,33 @@ def _ensure_dictionary_available(dictionary: DictionaryName) -> None:
             f"dictionary '{dictionary}' is unavailable",
             ErrorCode.DICTIONARY_UNAVAILABLE,
         )
+
+
+def _ensure_word_check_offered(scheme: SchemeConfig) -> None:
+    if not word_check_offered(scheme):
+        raise Refusal(
+            422,
+            "this table judges words on submission only",
+            ErrorCode.WORD_CHECK_UNAVAILABLE,
+        )
+
+
+def _ensure_words_within_limit(words: tuple[str, ...]) -> None:
+    if len(words) > MAX_JUDGED_WORDS:
+        raise Refusal(
+            422,
+            f"at most {MAX_JUDGED_WORDS} words per request",
+            ErrorCode.TOO_MANY_WORDS,
+        )
+
+
+def _canonical_words(words: list[str]) -> tuple[str, ...]:
+    asked: dict[str, None] = {}
+    for word in words:
+        stripped = word.strip().upper()
+        if stripped:
+            asked[stripped] = None
+    return tuple(asked)
 
 
 async def _built_game(
@@ -323,6 +352,22 @@ def create_app() -> FastAPI:
         session, meta = table_with_meta(table_id)
         observer = session.observer_for(request.headers.get("X-Seat-Token"))
         return table_description(meta, observer)
+
+    @app.get(
+        "/tables/{table_id}/words",
+        responses={404: {"model": ErrorBody}, 422: {"model": ErrorBody}},
+    )
+    async def judge_words(
+        table_id: str,
+        words: Annotated[list[str], Query()],
+    ) -> WordVerdicts:
+        _, meta = table_with_meta(table_id)
+        scheme = meta.resolved.scheme
+        _ensure_word_check_offered(scheme)
+        asked = _canonical_words(words)
+        _ensure_words_within_limit(asked)
+        lexicon = await service.get(scheme.dictionary)
+        return WordVerdicts(verdicts={word: lexicon.judge(word) for word in asked})
 
     @app.get("/tables/{table_id}/view", responses={404: {"model": ErrorBody}})
     def table_view(table_id: str, request: Request) -> TableViewResponse:

@@ -21,6 +21,8 @@ class ErrorCode(StrEnum):
     SEAT_TOKEN_MISMATCH = "seat_token_mismatch"
     GATHERING = "gathering"
     DICTIONARY_UNAVAILABLE = "dictionary_unavailable"
+    WORD_CHECK_UNAVAILABLE = "word_check_unavailable"
+    TOO_MANY_WORDS = "too_many_words"
 
 
 def code_for(error: WordcoreError) -> ErrorCode:

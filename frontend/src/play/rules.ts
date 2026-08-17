@@ -36,7 +36,7 @@ export function rulesFrom(description: TableDescription | null): TableRules {
         passAllowed: parameters.pass_allowed,
         bingoBonus: parameters.bingo_bonus,
         premovesAllowed: parameters.premoves_allowed,
-        feedback: policyOf(parameters.validate_on_play),
+        feedback: policyOf(parameters.validate_on_play, parameters.word_check),
         alphabet: description.alphabet,
     };
 }

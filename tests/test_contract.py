@@ -4,9 +4,10 @@ import httpx
 import pytest
 from scripts.openapi import main
 
-from wordserver.app import create_app
+from wordserver.app import MAX_JUDGED_WORDS, create_app
 from wordserver.models.table import TableViewResponse
 from wordserver.models.table_admission import TableAdmission
+from wordserver.models.word_verdicts import WordVerdicts
 from wordtable.config import StyleTokens
 
 
@@ -158,6 +159,28 @@ async def test_style_endpoint_serves_tokens(client: httpx.AsyncClient) -> None:
     assert tokens.light.board.surface != tokens.dark.board.surface
 
 
+async def test_word_check_judges_asked_words(client: httpx.AsyncClient) -> None:
+    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2})
+    table_id = created.json()["table_id"]
+    described = await client.get(f"/tables/{table_id}")
+    assert described.json()["parameters"]["word_check"] is True
+    response = await client.get(f"/tables/{table_id}/words", params={"words": ["dom", "kotz", " "]})
+    assert response.status_code == 200
+    verdicts = WordVerdicts.model_validate(response.json())
+    assert set(verdicts.verdicts) == {"DOM", "KOTZ"}
+    assert verdicts.verdicts["DOM"].allowed is True
+    assert verdicts.verdicts["KOTZ"].allowed is False
+
+
+async def test_word_check_refuses_an_overlong_request(client: httpx.AsyncClient) -> None:
+    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2})
+    table_id = created.json()["table_id"]
+    asked = [f"WORD{index}" for index in range(MAX_JUDGED_WORDS + 1)]
+    response = await client.get(f"/tables/{table_id}/words", params={"words": asked})
+    assert response.status_code == 422
+    assert response.json()["code"] == "too_many_words"
+
+
 async def test_responses_validate_against_models(client: httpx.AsyncClient) -> None:
     created = await client.post("/tables", json={"scheme": "literaki", "seats": 2})
     admission = TableAdmission.model_validate(created.json())
@@ -184,6 +207,8 @@ def test_openapi_document_carries_schemas(app) -> None:
         "RuleParameters",
         "MoveAccepted",
         "MoveRequest",
+        "WordVerdict",
+        "WordVerdicts",
         "Tile",
         "Board",
     }
