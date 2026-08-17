@@ -18,6 +18,14 @@ Source: <https://sjp.pl/sl/growy/>
 artifact the server loads at startup. The `dictionaries/` directory is
 gitignored.
 
+## Morphology
+
+The planned Polish morphology pipeline annotates the SJP list with parts of
+speech and inflection classes. The grammar reference and data-source survey
+live in `docs/morphology.md`; the pipeline design (equivalence classes,
+homonym handling, artifact v2, incremental re-runs) lives in
+`docs/morphology-pipeline.md`.
+
 ## Board layout sources
 
 - Literaki board: recovered from two agreeing open-source implementations

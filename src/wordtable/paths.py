@@ -3,7 +3,7 @@ from typing import Final
 
 from lexica.names import DictionaryName
 
-LEXICON_FORMAT: Final = 2
+LEXICON_FORMAT: Final = 1
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 CONFIG_DIR = PROJECT_ROOT / "config"

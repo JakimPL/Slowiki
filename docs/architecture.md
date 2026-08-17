@@ -37,7 +37,8 @@ P7. Letters are canonical. Every letter inside the system is uppercase; dictiona
 - `wordgames` — game presets: shared rules and the literaki/scrabble backends.
 - `wordserver` — the FastAPI adapter: tables, sessions, SSE, identity, time.
 - `wordtable` — configuration, paths, lexicon service, and CLI entry points.
-- `lexica` — dictionary building: word entries, SJP loader, compilation.
+- `lexica` — dictionary building: word entries, SJP loader, compilation, and
+  the morphology pipeline (`docs/morphology.md`, `docs/morphology-pipeline.md`).
 - `wordbots` — automated player stubs.
 - `wordassets` — asset generation: an SVG element tree, board specimens, and the
   build CLI writing gitignored `assets/` plus committed specimen copies in
