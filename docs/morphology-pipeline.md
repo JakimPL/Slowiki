@@ -248,7 +248,9 @@ LLM-assisted pipeline and contributes patterns for the optional review tool
 4. Play-validation filters through schemes and `validate_words` (completed
    2026-08-17: `allowed_pos` and `base_form_only`, config-validated, exposed
    in the table description).
-5. UI class info (server surface and frontend annotation).
+5. UI class info (server surface and frontend annotation; completed
+   2026-08-17: `GET /tables/{id}/word/{word}` plus tappable word chips in the
+   move log).
 6. Incremental operations: digests, `lexica analyze/compile/report/diff`,
    overrides; the optional DeepSeek review tool for `UNKNOWN` follows as a
    separate change.

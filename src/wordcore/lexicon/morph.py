@@ -13,6 +13,13 @@ class MorphClass(BaseFrozen):
     source: str
     variants: tuple[str, ...]
 
+    def variants_for(self, form: str) -> tuple[str, ...]:
+        return tuple(
+            self.variants[index + 1]
+            for index in range(0, len(self.variants), 2)
+            if self.variants[index] == form
+        )
+
 
 class MorphLexicon(BaseFrozen):
     surfaces: tuple[str, ...]
@@ -47,3 +54,17 @@ class MorphLexicon(BaseFrozen):
             )
             for class_id in self.entries[index]
         )
+
+    def analysis_rows(self, word: str) -> tuple[tuple[str, str, str], ...]:
+        normalized = word.upper()
+        index = bisect_left(self.surfaces, normalized)
+        if index >= len(self.surfaces) or self.surfaces[index] != normalized:
+            return ()
+
+        rows: list[tuple[str, str, str]] = []
+        for class_id in self.entries[index]:
+            record = self.classes[class_id]
+            rows.extend(
+                (record.lemma, record.source, tag) for tag in record.variants_for(normalized)
+            )
+        return tuple(rows)

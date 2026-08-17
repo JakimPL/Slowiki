@@ -793,6 +793,39 @@ select {
     font-weight: 600;
 }
 
+.move-log-words {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.word-analysis {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 8px 0 0;
+    padding: 8px;
+    border: 1px solid var(--chrome-edge);
+    border-radius: 10px;
+    font-size: 13px;
+}
+
+.word-analysis-word {
+    font-weight: 700;
+}
+
+.word-analysis ul {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0;
+    padding-left: 16px;
+}
+
+.word-analysis-empty {
+    color: var(--chrome-muted);
+}
+
 .remaining-grid {
     position: absolute;
     right: 0;

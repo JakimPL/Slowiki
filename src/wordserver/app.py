@@ -15,6 +15,8 @@ from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import Field
 
+from lexica.morph.mapping import build_analysis
+from lexica.morph.models import MorphSource
 from lexica.names import DictionaryName
 from wordcore.errors.exceptions import WordcoreError
 from wordcore.games.game import Game
@@ -31,6 +33,7 @@ from wordserver.models.offerings import OfferingsResponse
 from wordserver.models.table import TableViewResponse
 from wordserver.models.table_admission import TableAdmission
 from wordserver.models.table_description import TableDescription
+from wordserver.models.word_analyses import WordAnalyses
 from wordserver.registry import TableMeta, TableRegistry
 from wordserver.session import TableSession
 from wordtable.build import build_rules
@@ -334,6 +337,20 @@ def create_app() -> FastAPI:
             company=session.company(),
             clock=session.clock(),
         )
+
+    @app.get(
+        "/tables/{table_id}/word/{word}",
+        responses={404: {"model": ErrorBody}},
+    )
+    async def word_analyses(table_id: str, word: str) -> WordAnalyses:
+        _, meta = table_with_meta(table_id)
+        lexicon = await service.get(meta.resolved.scheme.dictionary)
+        surface = word.upper()
+        analyses = tuple(
+            build_analysis(surface, lemma, tag, MorphSource(source), ())
+            for (lemma, source, tag) in lexicon.analysis_rows(surface)
+        )
+        return WordAnalyses(word=surface, analyses=analyses)
 
     @app.post(
         "/tables/{table_id}/moves",

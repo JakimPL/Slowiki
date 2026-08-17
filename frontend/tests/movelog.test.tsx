@@ -13,7 +13,7 @@ const LOG: readonly LogEntry[] = [
 
 describe("MoveLog", () => {
     it("lists the newest entry first with names and figures", () => {
-        const markup = renderToStaticMarkup(<MoveLog log={LOG} company={aCompany()} />);
+        const markup = renderToStaticMarkup(<MoveLog log={LOG} company={aCompany()} tableId={null} />);
         expect(markup).toContain('aria-label="Recent moves"');
         expect(markup).toContain("WÓZ · 34");
         expect(markup).toContain("passed");
@@ -21,5 +21,11 @@ describe("MoveLog", () => {
         expect(markup.indexOf("premove returned")).toBeLessThan(markup.indexOf("WÓZ · 34"));
         expect(markup).toContain("Ala");
         expect(markup).toContain("Ola");
+    });
+
+    it("renders each played word as an inspectable chip", () => {
+        const markup = renderToStaticMarkup(<MoveLog log={LOG} company={aCompany()} tableId={null} />);
+        expect(markup).toContain('class="word-chip"');
+        expect(markup).toContain(">WÓZ</button>");
     });
 });

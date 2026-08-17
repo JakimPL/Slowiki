@@ -92,6 +92,10 @@ def test_morph_lexicon_round_trip(tmp_path: Path) -> None:
     assert "KOTÓW" in variant_forms
     assert "KOTA" in variant_forms
 
+    assert lexicon.analysis_rows("KOT") == (("KOT:SM1", "sgjp", "subst:sg:nom:m1"),)
+    assert lexicon.analysis_rows("AALBORSCY") == ()
+    assert lexicon.analysis_rows("xyz") == ()
+
 
 def test_morph_lexicon_parity_with_text_lexicon(tmp_path: Path) -> None:
     words = ("KOT", "KOTA", "KOTEM", "KOCIE", "KOTY", "AALBORSCY", "NIC")
@@ -112,6 +116,7 @@ def test_text_lexicon_round_trip(tmp_path: Path) -> None:
     assert isinstance(lexicon, TextLexicon)
     assert lexicon.words == ("DOM", "KOT", "KOTA")
     assert not lexicon.class_infos("kot")
+    assert lexicon.analysis_rows("kot") == ()
 
 
 def test_loader_rejects_malformed_payloads(tmp_path: Path) -> None:

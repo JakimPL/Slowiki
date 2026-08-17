@@ -50,6 +50,7 @@ export const SHUFFLE_BUTTON = "Shuffle";
 export const WORDS_LABEL = "Formed words";
 export const TRAY_LABEL = "Exchange tray";
 export const LOG_LABEL = "Recent moves";
+export const WORD_CLASS_EMPTY_LABEL = "Unclassified word";
 export const REMAINING_LABEL = "Remaining tiles";
 export const PLAYERS_LABEL = "Players";
 export const BLANK_ROW_MARK = "◇";
