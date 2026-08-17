@@ -24,6 +24,8 @@ export default defineConfig({
             "/offerings": backend,
             "/style": backend,
             "/tables": backend,
+            "/artwork": backend,
+            "/favicon.ico": backend,
         },
     },
     test: {

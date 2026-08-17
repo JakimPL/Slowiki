@@ -1,0 +1,33 @@
+{
+    "name": "Literabble",
+    "short_name": "Literabble",
+    "description": "A configurable Literaki and Scrabble table.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#F3EDDF",
+    "theme_color": "#F3EDDF",
+    "icons": [
+        {
+            "src": "/artwork/icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/artwork/icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "/artwork/icons/icon-maskable-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "/artwork/icons/icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}

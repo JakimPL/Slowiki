@@ -1,8 +1,11 @@
 import shutil
 from pathlib import Path
+from typing import Final
 
 from wordassets.board import SPECIMEN_WORDS, board_specimen
+from wordassets.brand import og_image, splash
 from wordassets.drawing.node import document
+from wordassets.icons import favicon_ico_bytes, icon_png_bytes, icon_svg_element
 from wordassets.manifest import AssetRecord, write_manifest
 from wordtable.catalogue import list_schemes
 from wordtable.config import (
@@ -15,10 +18,18 @@ from wordtable.config import (
 )
 from wordtable.paths import CONFIG_DIR, RUN_CONFIG_FILE
 
+_ICON_SVG_SIZE: Final = 512.0
+_ICON_PNG_SIZES: Final = (192, 512)
+_OG_TILES: Final = "literaki"
+
 
 def build_assets(output: Path, docs: Path | None) -> tuple[AssetRecord, ...]:
     tokens = load_style_tokens(CONFIG_DIR, read_config(RUN_CONFIG_FILE).style)
-    records = _specimen_records(output, tokens)
+    records = (
+        *_specimen_records(output, tokens),
+        *_icon_records(output, tokens),
+        *_brand_records(output, tokens),
+    )
     write_manifest(records, output)
     if docs is not None:
         _copy_specimens(records, output, docs)
@@ -36,6 +47,46 @@ def _specimen_records(output: Path, tokens: StyleTokens) -> tuple[AssetRecord, .
         records.append(
             AssetRecord(path=str(destination.relative_to(output)), kind="board-specimen")
         )
+    return tuple(records)
+
+
+def _icon_records(output: Path, tokens: StyleTokens) -> tuple[AssetRecord, ...]:
+    icons = output / "icons"
+    icons.mkdir(parents=True, exist_ok=True)
+    theme = tokens.light
+    written: list[tuple[str, bytes | str]] = [
+        ("icon.svg", document(icon_svg_element(_ICON_SVG_SIZE, theme, maskable=False))),
+        ("favicon.svg", document(icon_svg_element(_ICON_SVG_SIZE, theme, maskable=False))),
+        ("favicon.ico", favicon_ico_bytes(theme)),
+    ]
+    for size in _ICON_PNG_SIZES:
+        written.append((f"icon-{size}.png", icon_png_bytes(size, theme, maskable=False)))
+        written.append((f"icon-maskable-{size}.png", icon_png_bytes(size, theme, maskable=True)))
+
+    records: list[AssetRecord] = []
+    for name, body in written:
+        destination = icons / name
+        if isinstance(body, str):
+            destination.write_text(body, encoding="utf-8")
+        else:
+            destination.write_bytes(body)
+        records.append(AssetRecord(path=str(destination.relative_to(output)), kind="icon"))
+    return tuple(records)
+
+
+def _brand_records(output: Path, tokens: StyleTokens) -> tuple[AssetRecord, ...]:
+    brand = output / "brand"
+    brand.mkdir(parents=True, exist_ok=True)
+    tiles = load_tile_preset(CONFIG_DIR, _OG_TILES)
+    written = (
+        ("og-image.svg", document(og_image(tokens.light, tiles))),
+        ("splash.svg", document(splash(tokens.light))),
+    )
+    records: list[AssetRecord] = []
+    for name, body in written:
+        destination = brand / name
+        destination.write_text(body, encoding="utf-8")
+        records.append(AssetRecord(path=str(destination.relative_to(output)), kind="brand"))
     return tuple(records)
 
 

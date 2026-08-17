@@ -1,14 +1,21 @@
 import json
 import re
+import struct
+
+from fastapi.testclient import TestClient
 
 from wordassets.board import SPECIMEN_WORDS, board_specimen
+from wordassets.brand import og_image, splash
 from wordassets.build import build_assets
-from wordassets.colors import mixed_hex
+from wordassets.colors import channels_of, mixed_hex
 from wordassets.drawing.node import Element, document, rendered
+from wordassets.drawing.raster import rendered_rows
 from wordassets.drawing.shapes import polygon, rect
 from wordassets.geometry import star_points
+from wordassets.icons import favicon_ico_bytes, icon_painting, icon_png_bytes, icon_svg_element
 from wordassets.slugs import letter_slug
 from wordgames.names import GameName
+from wordserver.app import create_app
 from wordtable.catalogue import resolve_scheme
 from wordtable.config import ThemeTokens, load_style_tokens
 from wordtable.paths import CONFIG_DIR
@@ -114,3 +121,72 @@ def test_build_assets_writes_specimens_and_manifest(tmp_path) -> None:
     assert (output / "specimens" / "board-literaki.svg").is_file()
     assert (output / "specimens" / "board-scrabble.svg").is_file()
     assert (docs / "board-literaki.svg").is_file()
+    assert (output / "icons" / "favicon.ico").is_file()
+    assert (output / "brand" / "og-image.svg").is_file()
+
+
+def _light_theme() -> ThemeTokens:
+    return load_style_tokens(CONFIG_DIR, "default").light
+
+
+def test_icon_png_carries_the_right_signature_and_size() -> None:
+    body = icon_png_bytes(24, _light_theme(), maskable=False)
+    assert body.startswith(b"\x89PNG\r\n\x1a\n")
+    width, height = struct.unpack(">II", body[16:24])
+    assert (width, height) == (24, 24)
+
+
+def test_maskable_icon_keeps_the_safe_zone_clear() -> None:
+    theme = _light_theme()
+    size = 40
+    rows = rendered_rows(
+        size, size, theme.chrome.surface, icon_painting(size, theme, maskable=True)
+    )
+    surface = channels_of(theme.chrome.surface)
+    for row, column in ((1, 1), (1, size - 2), (size - 2, 1), (size - 2, size - 2)):
+        offset = column * 4
+        pixel = tuple(rows[row][offset : offset + 3])
+        assert pixel == surface
+
+
+def test_icon_svg_mirrors_the_raster_geometry() -> None:
+    theme = _light_theme()
+    markup = rendered(icon_svg_element(64, theme, maskable=False))
+    assert f'fill="{theme.board.star}"' in markup
+    for category in ("yellow", "green", "blue", "red"):
+        assert f'fill="{theme.tiles.bands[category]}"' in markup
+
+
+def test_favicon_ico_wraps_png_images() -> None:
+    body = favicon_ico_bytes(_light_theme())
+    kind, count = struct.unpack("<HH", body[2:6])
+    assert kind == 1
+    assert count == 3
+    first_offset = struct.unpack("<I", body[18:22])[0]
+    assert body[first_offset : first_offset + 8] == b"\x89PNG\r\n\x1a\n"
+
+
+def test_brand_pages_carry_the_product_name() -> None:
+    theme = _light_theme()
+    tiles = resolve_scheme(CONFIG_DIR, "literaki").tiles
+    og_markup = document(og_image(theme, tiles))
+    assert ">Literabble</text>" in og_markup
+    for letter in "SŁOWA":
+        assert f">{letter}</text>" in og_markup
+    splash_markup = document(splash(theme))
+    assert ">Literabble</text>" in splash_markup
+    assert "translate(" in splash_markup
+
+
+def test_artwork_is_served_when_built(tmp_path, monkeypatch) -> None:
+    output = tmp_path / "assets"
+    build_assets(output, None)
+    monkeypatch.setattr("wordserver.app.ASSETS_DIR", output)
+    application = create_app()
+    with TestClient(application) as client:
+        manifest = client.get("/artwork/manifest.json")
+        assert manifest.status_code == 200
+        assert "assets" in manifest.json()
+        favicon = client.get("/favicon.ico")
+        assert favicon.status_code == 200
+        assert favicon.content[:4] == b"\x00\x00\x01\x00"

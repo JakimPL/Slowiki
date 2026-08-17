@@ -47,7 +47,7 @@ from wordtable.config import (
     read_config,
 )
 from wordtable.lexicons import LexiconService, dictionary_ready
-from wordtable.paths import CONFIG_DIR, FRONTEND_DIST_DIR, RUN_CONFIG_FILE
+from wordtable.paths import ASSETS_DIR, CONFIG_DIR, FRONTEND_DIST_DIR, RUN_CONFIG_FILE
 
 MAX_PLAYER_NAME_LENGTH: Final = 32
 
@@ -380,6 +380,15 @@ def create_app() -> FastAPI:
             session.events(observer, since),
             media_type="text/event-stream",
         )
+
+    if ASSETS_DIR.is_dir():
+        app.mount("/artwork", StaticFiles(directory=ASSETS_DIR), name="artwork")
+        favicon = ASSETS_DIR / "icons" / "favicon.ico"
+        if favicon.is_file():
+
+            @app.get("/favicon.ico", include_in_schema=False)
+            def serve_favicon() -> FileResponse:
+                return FileResponse(favicon)
 
     if FRONTEND_DIST_DIR.is_dir():
         app.mount(
