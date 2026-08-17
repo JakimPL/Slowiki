@@ -39,6 +39,9 @@ P7. Letters are canonical. Every letter inside the system is uppercase; dictiona
 - `wordtable` — configuration, paths, lexicon service, and CLI entry points.
 - `lexica` — dictionary building: word entries, SJP loader, compilation.
 - `wordbots` — automated player stubs.
+- `wordassets` — asset generation: an SVG element tree, board specimens, and the
+  build CLI writing gitignored `assets/` plus committed specimen copies in
+  `docs/media/`.
 
 ## Module layout
 

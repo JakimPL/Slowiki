@@ -12,7 +12,7 @@ check:
 	uv run mypy src scripts
 	uv run pylint src scripts
 	uv run lint-imports
-	uv run pytest --cov=wordcore --cov=wordgames --cov=wordserver --cov=wordtable --cov=lexica --cov=wordbots --cov-fail-under=80
+	uv run pytest --cov=wordcore --cov=wordgames --cov=wordserver --cov=wordtable --cov=lexica --cov=wordbots --cov=wordassets --cov-fail-under=80
 
 test:
 	uv run pytest

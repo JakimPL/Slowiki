@@ -39,6 +39,7 @@ packages = [
     "src/wordtable",
     "src/lexica",
     "src/wordbots",
+    "src/wordassets",
 ]
 
 [tool.black]
@@ -84,6 +85,7 @@ root_packages = [
     "wordtable",
     "lexica",
     "wordbots",
+    "wordassets",
 ]
 
 [[tool.importlinter.contracts]]
@@ -96,12 +98,13 @@ forbidden_modules = [
     "wordtable",
     "lexica",
     "wordbots",
+    "wordassets",
 ]
 
 [[tool.importlinter.contracts]]
 name = "Rules are transport-free"
 type = "forbidden"
-source_modules = ["wordcore", "wordgames", "lexica", "wordbots"]
+source_modules = ["wordcore", "wordgames", "lexica", "wordbots", "wordassets"]
 forbidden_modules = ["fastapi", "uvicorn", "httpx"]
 
 [[tool.importlinter.contracts]]
