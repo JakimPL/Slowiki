@@ -3,6 +3,7 @@ import type { Board, Tile } from "../api/views";
 
 export interface RemainingLetter {
     readonly symbol: string;
+    readonly category: string;
     readonly count: number;
 }
 
@@ -38,6 +39,7 @@ export function remainingTally(
     return {
         letters: description.alphabet.map((letter) => ({
             symbol: letter.symbol,
+            category: letter.category,
             count: Math.max(0, counts.get(letter.symbol) ?? 0),
         })),
         blanks: Math.max(0, blanks),

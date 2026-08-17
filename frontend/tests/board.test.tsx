@@ -48,7 +48,7 @@ describe("Board", () => {
     it("marks blanks with a hollow diamond and hides the zero value", () => {
         const board = aBoard({ 0: aTile({ letter: "", value: 0, blank: true }) });
         const markup = renderToStaticMarkup(<Board board={board} {...PASSIVE} />);
-        expect(markup).toContain("◇");
+        expect(markup).toContain("tile-blank");
         expect(markup).not.toContain("tile-value");
     });
 

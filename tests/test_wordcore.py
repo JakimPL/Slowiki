@@ -9,9 +9,9 @@ from wordcore.errors.exceptions import (
     IllegalMove,
     NoPremove,
     NotYourTurn,
-    RejectionCode,
     StalePosition,
 )
+from wordcore.errors.rejections import RejectionCode
 from wordcore.games.game import Game
 from wordcore.games.journal import EntryKind, JournalEntry
 from wordcore.lexicon.lexicon import TextLexicon

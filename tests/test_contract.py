@@ -5,7 +5,8 @@ import pytest
 from scripts.openapi import main
 
 from wordserver.app import create_app
-from wordserver.models import TableAdmission, TableViewResponse
+from wordserver.models.table import TableViewResponse
+from wordserver.models.table_admission import TableAdmission
 from wordtable.config import StyleTokens
 
 

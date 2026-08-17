@@ -19,10 +19,10 @@
     --band-green: #67903f;
     --band-blue: #38719b;
     --band-red: #ac4029;
-    --tile-face-yellow: color-mix(in srgb, var(--tile-face) 85%, var(--band-yellow) 15%);
-    --tile-face-green: color-mix(in srgb, var(--tile-face) 85%, var(--band-green) 15%);
-    --tile-face-blue: color-mix(in srgb, var(--tile-face) 85%, var(--band-blue) 15%);
-    --tile-face-red: color-mix(in srgb, var(--tile-face) 85%, var(--band-red) 15%);
+    --tile-face-yellow: color-mix(in srgb, var(--tile-face) 75%, var(--band-yellow) 25%);
+    --tile-face-green: color-mix(in srgb, var(--tile-face) 75%, var(--band-green) 25%);
+    --tile-face-blue: color-mix(in srgb, var(--tile-face) 75%, var(--band-blue) 25%);
+    --tile-face-red: color-mix(in srgb, var(--tile-face) 75%, var(--band-red) 25%);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -143,22 +143,32 @@ select {
 .tile-letter {
     font-style: normal;
     line-height: 1;
+    transform: translateY(-0.09em);
 }
 
 .tile-value {
     position: absolute;
-    right: 6%;
-    bottom: 16%;
+    top: 7%;
+    right: 8%;
     font-size: 0.4em;
     font-style: normal;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
     line-height: 1;
+    opacity: 0.82;
+}
+
+.tile-blank {
+    width: 26%;
+    height: 26%;
+    border: 2px solid currentcolor;
+    opacity: 0.55;
+    transform: rotate(45deg) translateY(-0.06em);
 }
 
 .tile-mark {
     position: absolute;
-    top: 6%;
+    top: 7%;
     left: 8%;
     font-size: 0.38em;
     font-style: normal;
@@ -167,6 +177,7 @@ select {
 }
 
 .home {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -309,13 +320,17 @@ select {
     margin: 0;
     padding: 8px 14px;
     border-radius: 10px;
+    overflow: hidden;
     font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .status-line[data-tone="acting"] {
     background: var(--accent-primary);
     box-shadow: 0 2px 8px rgb(0 0 0 / 18%);
     color: var(--accent-on-primary);
+    font-weight: 800;
 }
 
 .status-line[data-tone="quiet"] {
@@ -342,29 +357,60 @@ select {
     color: var(--accent-danger);
 }
 
+.chip-mode {
+    color: var(--chrome-muted);
+    cursor: pointer;
+}
+
+.status-meta {
+    color: var(--chrome-muted);
+    font-size: 13px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.status-code {
+    padding: 4px 9px;
+    border: 1px solid var(--chrome-edge);
+    border-radius: 7px;
+    color: var(--chrome-muted);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    white-space: nowrap;
+}
+
+.home-mode {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+}
+
 .plaques {
-    display: flex;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(108px, 1fr));
+    gap: 6px;
     margin: 0;
     padding: 0;
-    overflow-x: auto;
     list-style: none;
 }
 
 .plaque {
     display: flex;
-    align-items: center;
-    gap: 7px;
-    padding: 7px 11px;
-    border: 1px solid var(--chrome-edge);
-    border-radius: 11px;
-    background: var(--chrome-panel);
-    white-space: nowrap;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    padding: 5px 8px 4px;
+    border: 1.5px solid color-mix(in srgb, var(--tint) 38%, transparent);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--tint) 10%, transparent);
 }
 
 .plaque[data-acting] {
     border-color: var(--tint);
-    box-shadow: 0 0 0 2px var(--tint);
+    background: color-mix(in srgb, var(--tint) 16%, transparent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--tint) 30%, transparent);
 }
 
 .plaque[data-open] {
@@ -372,8 +418,9 @@ select {
 }
 
 .plaque-dot {
-    width: 10px;
-    height: 10px;
+    flex: none;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     box-shadow: inset 0 0 0 2px var(--tint);
 }
@@ -383,34 +430,47 @@ select {
 }
 
 .plaque-name {
-    font-size: 14px;
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    overflow: hidden;
+    color: var(--chrome-muted);
+    font-size: 12.5px;
     font-weight: 600;
+    white-space: nowrap;
 }
 
 .plaque-you {
-    padding: 1px 7px;
+    flex: none;
+    padding: 0 6px;
     border-radius: 999px;
     background: var(--tint);
     color: var(--chrome-surface);
-    font-size: 11px;
+    font-size: 10.5px;
     font-style: normal;
     font-weight: 600;
 }
 
 .plaque-premove {
-    width: 8px;
-    height: 8px;
+    flex: none;
+    width: 7px;
+    height: 7px;
+    margin-left: auto;
     background: var(--accent-premove);
     transform: rotate(45deg);
 }
 
 .plaque-score {
-    font-size: 15px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 16px;
     font-weight: 900;
     font-variant-numeric: tabular-nums;
 }
 
 .plaque-clock {
+    margin-left: auto;
     padding: 1px 7px;
     border: 1px solid var(--chrome-edge);
     border-radius: 999px;
@@ -447,21 +507,22 @@ select {
     gap: 1px;
     aspect-ratio: 1;
     width: min(100cqw, 100cqh);
-    padding: 1px;
-    border: 3px solid var(--board-frame);
+    padding: 3px;
+    border: 2px solid var(--board-frame);
     border-radius: 8px;
     background: var(--board-grid);
     container-type: inline-size;
 }
 
 .table[data-acting] .board {
-    box-shadow: 0 0 0 3px var(--tint, var(--accent-primary));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--tint, var(--accent-primary)) 45%, transparent);
 }
 
 .cell {
     position: relative;
     min-width: 0;
     min-height: 0;
+    border-radius: 2px;
     background: var(--board-surface);
 }
 
@@ -471,11 +532,12 @@ select {
     display: flex;
     align-items: center;
     justify-content: center;
+    border-radius: inherit;
     background: var(--fill);
     color: var(--label);
     font-size: calc(var(--cell) * 0.34);
     font-style: normal;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .cell-star {
@@ -504,8 +566,9 @@ select {
 }
 
 .rack {
-    --tile-width: clamp(40px, calc((100% - (var(--row-count, 7) - 1) * 6px) / var(--row-count, 7)), 46px);
+    --tile-width: clamp(40px, calc((100cqw - (var(--row-count, 7) - 1) * 6px) / var(--row-count, 7)), 46px);
 
+    container-type: inline-size;
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
@@ -516,15 +579,21 @@ select {
 .rack .tile {
     width: var(--tile-width, 46px);
     height: calc(var(--tile-width, 46px) + 4px);
-    font-size: 22px;
+    font-size: calc(var(--tile-width, 46px) * 0.48);
 }
 
 .rack-tile {
+    position: relative;
+    flex: none;
     padding: 0;
     border: 0;
     background: none;
     cursor: pointer;
     touch-action: none;
+}
+
+.rack-tile[data-lifted] {
+    z-index: 1;
 }
 
 .tray {
@@ -533,11 +602,11 @@ select {
     gap: 6px;
     align-items: center;
     justify-content: center;
-    min-height: 46px;
+    min-height: 58px;
     padding: 6px;
-    border: 1px dashed var(--chrome-edge);
+    border: 1.5px dashed var(--chrome-edge);
     border-radius: 12px;
-    background: var(--chrome-panel);
+    background: color-mix(in srgb, var(--chrome-text) 4%, transparent);
 }
 
 .tray .tile {
@@ -618,7 +687,7 @@ select {
     display: flex;
     flex-direction: column;
     gap: 4px;
-    max-height: 96px;
+    height: 96px;
     margin: 0;
     padding: 0;
     overflow-y: auto;
@@ -659,6 +728,7 @@ select {
 }
 
 .remaining {
+    position: relative;
     border: 1px solid var(--chrome-edge);
     border-radius: 12px;
     background: var(--chrome-panel);
@@ -673,11 +743,20 @@ select {
 }
 
 .remaining-grid {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 6px);
+    left: 0;
+    z-index: 5;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
     gap: 4px;
     margin: 0;
-    padding: 0 10px 10px;
+    padding: 10px;
+    border: 1px solid var(--chrome-edge);
+    border-radius: 12px;
+    background: var(--chrome-panel);
+    box-shadow: 0 10px 26px rgb(0 0 0 / 28%);
     list-style: none;
 }
 
@@ -688,7 +767,8 @@ select {
     justify-content: center;
     padding: 4px 0;
     border-radius: 8px;
-    background: var(--chrome-surface);
+    background: var(--face, var(--tile-face));
+    color: var(--tile-text);
     font-size: 13px;
     font-variant-numeric: tabular-nums;
 }
@@ -701,20 +781,20 @@ select {
     opacity: 0.45;
 }
 
-@media (width < 900px) and (height <= 760px) {
+@media (width < 900px) and (orientation: portrait) and (height <= 760px) {
     .move-log {
         display: none;
     }
 }
 
-@media (width < 900px) and (height <= 700px) {
+@media (width < 900px) and (orientation: portrait) and (height <= 700px) {
     .plaque-dot,
     .plaque-premove {
         display: none;
     }
 
     .plaque {
-        padding: 4px 9px;
+        padding: 3px 8px 2px;
     }
 
     .remaining {
@@ -722,7 +802,7 @@ select {
     }
 }
 
-@media (width < 900px) and (height <= 640px) {
+@media (width < 900px) and (orientation: portrait) and (height <= 640px) {
     .words {
         display: none;
     }
@@ -732,9 +812,29 @@ select {
     }
 }
 
-@media (width < 900px) and (height <= 590px) {
+@media (width < 900px) and (orientation: portrait) and (height <= 590px) {
+    .table {
+        gap: 6px;
+    }
+
+    .plaque {
+        flex-direction: row;
+        gap: 6px;
+        align-items: center;
+        padding: 3px 8px;
+    }
+
+    .plaque-score {
+        margin-left: auto;
+        font-size: 14px;
+    }
+
+    .guidance {
+        display: none;
+    }
+
     .tray {
-        min-height: 38px;
+        min-height: 45px;
         padding: 3px;
     }
 
@@ -745,7 +845,7 @@ select {
     }
 }
 
-@media (width >= 900px) {
+@media (width >= 900px), (orientation: landscape) and (height <= 590px) {
     .table {
         display: grid;
         grid-template:
@@ -762,7 +862,6 @@ select {
     }
 
     .plaques {
-        flex-wrap: wrap;
         grid-area: plaques;
     }
 
@@ -780,8 +879,8 @@ select {
     }
 
     .side .move-log {
-        max-height: none;
         flex: 1;
+        height: auto;
         min-height: 40px;
     }
 }
@@ -811,6 +910,12 @@ select {
     touch-action: none;
 }
 
+.cell .cell-button {
+    position: absolute;
+    inset: 0;
+    background: none;
+}
+
 .cell-target:focus-visible,
 .cell-button:focus-visible {
     outline: 2px solid var(--accent-primary);
@@ -836,16 +941,18 @@ select {
 
 .words {
     display: flex;
-    flex-wrap: wrap;
     gap: 8px;
-    justify-content: center;
+    justify-content: safe center;
+    min-height: 34px;
     margin: 0;
     padding: 0;
+    overflow-x: auto;
     list-style: none;
 }
 
 .word-chip {
     display: inline-flex;
+    flex: none;
     align-items: center;
     gap: 7px;
     padding: 5px 11px;
@@ -853,7 +960,7 @@ select {
     border-radius: 999px;
     background: var(--chrome-panel);
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 900;
     letter-spacing: 0.04em;
 }
 
@@ -886,7 +993,8 @@ select {
 }
 
 .word-points {
-    font-weight: 900;
+    color: var(--chrome-muted);
+    font-weight: 600;
     font-variant-numeric: tabular-nums;
 }
 
@@ -895,11 +1003,15 @@ select {
 }
 
 .guidance {
+    min-height: 21px;
     margin: 0;
+    overflow: hidden;
     color: var(--chrome-muted);
     font-size: 14px;
     font-weight: 600;
     text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .guidance[data-tone="danger"] {
@@ -913,7 +1025,9 @@ select {
 }
 
 .control-primary {
-    min-width: 140px;
+    flex: 1;
+    min-width: 0;
+    font-weight: 800;
 }
 
 .control-primary[data-premove] {
@@ -921,10 +1035,11 @@ select {
 }
 
 .control-quiet {
-    padding: 12px 16px;
-    border: 1px solid var(--chrome-edge);
+    padding: 12px 14px;
+    border: 1.5px solid var(--chrome-edge);
     border-radius: 12px;
-    background: var(--chrome-panel);
+    background: none;
+    color: var(--chrome-muted);
     font-weight: 600;
     cursor: pointer;
 }
@@ -1102,6 +1217,7 @@ select {
 .sheet-letter:focus-visible,
 .control-quiet:focus-visible,
 .control-primary:focus-visible,
+.chip-mode:focus-visible,
 .invitation-copy:focus-visible {
     outline: 2px solid var(--accent-primary);
     outline-offset: 2px;

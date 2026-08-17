@@ -10,7 +10,14 @@ const TILES = [aTile({ identifier: 1, letter: "K" }), aTile({ identifier: 2, let
 describe("Rack", () => {
     it("stays passive without bindings", () => {
         const markup = renderToStaticMarkup(
-            <Rack tiles={TILES} liftedId={null} bindings={null} returnable={false} onReturn={() => undefined} />,
+            <Rack
+                tiles={TILES}
+                capacity={7}
+                liftedId={null}
+                bindings={null}
+                returnable={false}
+                onReturn={() => undefined}
+            />,
         );
         expect(markup).toContain('role="img"');
         expect(markup).not.toContain("<button");
@@ -18,7 +25,14 @@ describe("Rack", () => {
 
     it("offers each tile as a grasp button and marks the lifted one", () => {
         const markup = renderToStaticMarkup(
-            <Rack tiles={TILES} liftedId={2} bindings={stubBindings()} returnable={false} onReturn={() => undefined} />,
+            <Rack
+                tiles={TILES}
+                capacity={7}
+                liftedId={2}
+                bindings={stubBindings()}
+                returnable={false}
+                onReturn={() => undefined}
+            />,
         );
         expect(markup).toContain('role="group"');
         expect(markup).toContain('data-region="rack"');
@@ -31,7 +45,14 @@ describe("Rack", () => {
 
     it("offers a return slot while a tray tile is lifted", () => {
         const markup = renderToStaticMarkup(
-            <Rack tiles={TILES} liftedId={9} bindings={stubBindings()} returnable={true} onReturn={() => undefined} />,
+            <Rack
+                tiles={TILES}
+                capacity={7}
+                liftedId={9}
+                bindings={stubBindings()}
+                returnable={true}
+                onReturn={() => undefined}
+            />,
         );
         expect(markup).toContain("Return here");
     });
@@ -41,6 +62,7 @@ describe("Rack", () => {
         const markup = renderToStaticMarkup(
             <Rack
                 tiles={[blank]}
+                capacity={7}
                 liftedId={null}
                 bindings={stubBindings()}
                 returnable={false}

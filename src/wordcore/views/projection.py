@@ -2,8 +2,8 @@ from wordcore.board.board import Board
 from wordcore.models.base import BaseFrozen
 from wordcore.moves.move import Move
 from wordcore.positions.position import Position
+from wordcore.states.phase import Phase
 from wordcore.states.record import PlayRecord
-from wordcore.states.state import Phase
 from wordcore.tiles.tile import Tile
 
 

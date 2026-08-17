@@ -9,16 +9,22 @@ import { TileFace } from "./TileFace";
 
 export interface RackProps {
     readonly tiles: readonly Tile[];
+    readonly capacity: number;
     readonly liftedId: number | null;
     readonly bindings: TileBindings | null;
     readonly returnable: boolean;
     readonly onReturn: () => void;
 }
 
-export function Rack({ tiles, liftedId, bindings, returnable, onReturn }: RackProps): ReactElement {
+export function Rack({ tiles, capacity, liftedId, bindings, returnable, onReturn }: RackProps): ReactElement {
     if (bindings === null) {
         return (
-            <div className="rack" role="img" aria-label={RACK_LABEL} style={rowCountStyle(tiles.length)}>
+            <div
+                className="rack"
+                role="img"
+                aria-label={RACK_LABEL}
+                style={rowCountStyle(Math.max(capacity, tiles.length))}
+            >
                 {tiles.map((tile) => (
                     <TileFace key={tile.identifier} tile={tile} />
                 ))}
@@ -31,7 +37,7 @@ export function Rack({ tiles, liftedId, bindings, returnable, onReturn }: RackPr
             role="group"
             aria-label={RACK_LABEL}
             data-region="rack"
-            style={rowCountStyle(tiles.length + (returnable ? 1 : 0))}
+            style={rowCountStyle(Math.max(capacity, tiles.length + (returnable ? 1 : 0)))}
         >
             {tiles.map((tile) => (
                 <GraspTile

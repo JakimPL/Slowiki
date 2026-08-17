@@ -41,7 +41,7 @@ light:
     face: "#FAF3E1"
     edge: "#CFC3A4"
     text: "#241E14"
-    face_tint: 0.15
+    face_tint: 0.25
     bands:
       yellow: "#D9A226"
       green: "#67903F"
@@ -94,7 +94,7 @@ dark:
     face: "#F2E7CB"
     edge: "#B7A784"
     text: "#241C10"
-    face_tint: 0.15
+    face_tint: 0.25
     bands:
       yellow: "#E0AB2B"
       green: "#7BA34C"

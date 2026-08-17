@@ -46,6 +46,12 @@ export const LOG_LABEL = "Recent moves";
 export const REMAINING_LABEL = "Remaining tiles";
 export const PLAYERS_LABEL = "Players";
 export const BLANK_ROW_MARK = "◇";
+export const MODE_LABEL = "Color mode";
+export const MODE_CAPTIONS: Record<"system" | "light" | "dark", string> = {
+    system: "◐ Auto",
+    light: "○ Light",
+    dark: "● Dark",
+};
 
 const SECONDS_PER_MINUTE = 60;
 const CLOCK_PAD_WIDTH = 2;

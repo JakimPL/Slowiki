@@ -37,6 +37,7 @@ import { carriedTo, isCarry } from "./dragging";
 import { GameOver } from "./GameOver";
 import type { KeyHandlers } from "./keys";
 import { boundKeys } from "./keys";
+import { ModeToggle } from "./ModeToggle";
 import { MoveLog } from "./MoveLog";
 import { Plaques } from "./Plaques";
 import { Rack } from "./Rack";
@@ -265,12 +266,16 @@ export function Table({ arrival, connection, state, clock, trouble }: TableProps
         <div ref={rootRef} className="table" data-acting={story.kind === "acting" ? "true" : undefined} style={style}>
             <header className="status-strip">
                 <StatusLine text={captionFor(story, state.company)} tone={toneOf(story.kind)} />
-                <span className="chip">{bagCaption(state.view.bag_count)}</span>
+                <span className="status-meta">{bagCaption(state.view.bag_count)}</span>
+                {description !== null && description.code !== null ? (
+                    <span className="status-code">{description.code}</span>
+                ) : null}
                 {connection === "live" ? null : (
                     <span className="chip chip-connection" data-connection={connection}>
                         {CONNECTION_CAPTIONS[connection]}
                     </span>
                 )}
+                <ModeToggle />
             </header>
             <Plaques view={state.view} company={state.company} mySeat={mySeat} countdown={countdown} />
             <div className="board-region">
@@ -294,10 +299,8 @@ export function Table({ arrival, connection, state, clock, trouble }: TableProps
                         total={state.company.seats.length}
                     />
                 ) : null}
-                {atDesk && chips.length > 0 ? (
-                    <Words chips={chips} bingo={prospect.bingo ? rules.bingoBonus : 0} />
-                ) : null}
-                {atDesk && guidance !== null ? (
+                {atDesk ? <Words chips={chips} bingo={prospect.bingo ? rules.bingoBonus : 0} /> : null}
+                {atDesk ? (
                     <p className="guidance" role="status" data-tone={notice !== null ? "danger" : "hint"}>
                         {guidance}
                     </p>
@@ -306,6 +309,7 @@ export function Table({ arrival, connection, state, clock, trouble }: TableProps
                     <>
                         <Rack
                             tiles={rackRow}
+                            capacity={rules.rackSize ?? rackRow.length}
                             liftedId={liftedIdentifier(desk.lift)}
                             bindings={bindings}
                             returnable={desk.lift !== null && desk.lift.from === "tray"}
@@ -347,9 +351,16 @@ export function Table({ arrival, connection, state, clock, trouble }: TableProps
                         />
                     </>
                 ) : rack !== null && rack.length > 0 ? (
-                    <Rack tiles={rack} liftedId={null} bindings={null} returnable={false} onReturn={() => undefined} />
+                    <Rack
+                        tiles={rack}
+                        capacity={rules.rackSize ?? rack.length}
+                        liftedId={null}
+                        bindings={null}
+                        returnable={false}
+                        onReturn={() => undefined}
+                    />
                 ) : null}
-                {state.log.length > 0 ? <MoveLog log={state.log} company={state.company} /> : null}
+                {gathering ? null : <MoveLog log={state.log} company={state.company} />}
                 {tally === null || gathering ? null : <RemainingTiles tally={tally} />}
                 {trouble !== null && connection !== "live" ? <p className="trouble">{trouble}</p> : null}
             </div>

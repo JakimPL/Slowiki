@@ -16,6 +16,7 @@ export function TileFace({ tile, pending = false }: TileFaceProps): ReactElement
         "--face": `var(--tile-face-${slug}, var(--tile-face))`,
         "--band": `var(--band-${slug}, transparent)`,
     };
+    const unassigned = tile.blank && tile.letter === "";
     return (
         <span
             className="tile"
@@ -23,9 +24,13 @@ export function TileFace({ tile, pending = false }: TileFaceProps): ReactElement
             data-pending={pending ? "true" : undefined}
             style={style}
         >
-            <b className="tile-letter">{tile.letter}</b>
+            {unassigned ? (
+                <i className="tile-blank" aria-hidden="true" />
+            ) : (
+                <b className="tile-letter">{tile.letter}</b>
+            )}
             {tile.value > 0 ? <i className="tile-value">{tile.value}</i> : null}
-            {tile.blank ? (
+            {tile.blank && !unassigned ? (
                 <i className="tile-mark" aria-hidden="true">
                     {BLANK_MARK}
                 </i>

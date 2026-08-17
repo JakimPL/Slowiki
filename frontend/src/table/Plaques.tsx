@@ -53,18 +53,20 @@ function Plaque({ seated, view, mine, countdown }: PlaqueProps): ReactElement {
             data-connected={seated.connected ? "true" : undefined}
             style={{ "--tint": tintFor(seated.seat).hex }}
         >
-            <i className="plaque-dot" aria-hidden="true" />
             <span className="plaque-name">
+                <i className="plaque-dot" aria-hidden="true" />
                 {seated.claimed ? (seated.name ?? fallbackNameFor(seated.seat)) : OPEN_SEAT_LABEL}
+                {mine ? <em className="plaque-you">{YOU_MARKER}</em> : null}
+                {premoved ? <i className="plaque-premove" aria-hidden="true" /> : null}
             </span>
-            {mine ? <em className="plaque-you">{YOU_MARKER}</em> : null}
-            {premoved ? <i className="plaque-premove" aria-hidden="true" /> : null}
-            {countdown === null ? null : (
-                <span className="plaque-clock" data-urgency={countdown.urgency}>
-                    {countdown.caption}
-                </span>
-            )}
-            <span className="plaque-score">{score}</span>
+            <span className="plaque-score">
+                {score}
+                {countdown === null ? null : (
+                    <span className="plaque-clock" data-urgency={countdown.urgency}>
+                        {countdown.caption}
+                    </span>
+                )}
+            </span>
         </li>
     );
 }

@@ -15,8 +15,8 @@ describe("remainingTally", () => {
         const rack = [aTile({ identifier: 3, letter: "K" }), aTile({ identifier: 4, letter: "A" })];
         const tally = remainingTally(description, board, rack);
         expect(tally.letters).toEqual([
-            { symbol: "A", count: 7 },
-            { symbol: "K", count: 2 },
+            { symbol: "A", category: "yellow", count: 7 },
+            { symbol: "K", category: "green", count: 2 },
         ]);
         expect(tally.blanks).toBe(1);
     });
@@ -29,8 +29,8 @@ describe("remainingTally", () => {
         });
         const tally = remainingTally(description, board, null);
         expect(tally.letters).toEqual([
-            { symbol: "A", count: 0 },
-            { symbol: "K", count: 0 },
+            { symbol: "A", category: "yellow", count: 0 },
+            { symbol: "K", category: "green", count: 0 },
         ]);
         expect(tally.blanks).toBe(0);
     });
@@ -40,8 +40,8 @@ describe("RemainingTiles", () => {
     it("lists every letter with its count and dims the spent ones", () => {
         const tally = {
             letters: [
-                { symbol: "A", count: 7 },
-                { symbol: "K", count: 0 },
+                { symbol: "A", category: "yellow", count: 7 },
+                { symbol: "K", category: "red", count: 0 },
             ],
             blanks: 2,
         };
@@ -51,5 +51,6 @@ describe("RemainingTiles", () => {
         expect(markup).toContain(">7</span>");
         expect(markup).toContain('data-spent="true"');
         expect(markup).toContain(">◇</b>");
+        expect(markup).toContain("--face:var(--tile-face-yellow, var(--tile-face))");
     });
 });

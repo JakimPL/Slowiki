@@ -5,6 +5,7 @@ import { createTable, joinTable, readOfferings } from "../api/client";
 import { reasonOf } from "../api/refusal";
 import type { Offering, TableAdmission } from "../api/tables";
 import type { Tile } from "../api/views";
+import { ModeToggle } from "./ModeToggle";
 import {
     CODE_LABEL,
     CREATE_BUTTON,
@@ -101,6 +102,9 @@ export function Home({ invitedCode, themeNote, onArrive }: HomeProps): ReactElem
 
     return (
         <main className="home">
+            <div className="home-mode">
+                <ModeToggle />
+            </div>
             <header className="brand">
                 <div className="specimen" aria-hidden="true">
                     {SPECIMEN.map((tile) => (

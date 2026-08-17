@@ -407,4 +407,11 @@ def create_app() -> FastAPI:
         def serve_index() -> FileResponse:
             return FileResponse(FRONTEND_DIST_DIR / "index.html")
 
+        @app.get("/manifest.webmanifest", include_in_schema=False)
+        def serve_manifest() -> FileResponse:
+            return FileResponse(
+                FRONTEND_DIST_DIR / "manifest.webmanifest",
+                media_type="application/manifest+json",
+            )
+
     return app
