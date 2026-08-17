@@ -434,7 +434,7 @@ select {
     display: grid;
     flex: 1;
     place-items: center;
-    min-height: 0;
+    min-height: 220px;
     container-type: size;
 }
 
@@ -499,7 +499,13 @@ select {
         0 1px 2px rgb(0 0 0 / 25%);
 }
 
+.side {
+    display: contents;
+}
+
 .rack {
+    --tile-width: clamp(40px, calc((100% - (var(--row-count, 7) - 1) * 6px) / var(--row-count, 7)), 46px);
+
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
@@ -508,8 +514,8 @@ select {
 }
 
 .rack .tile {
-    width: 46px;
-    height: 50px;
+    width: var(--tile-width, 46px);
+    height: calc(var(--tile-width, 46px) + 4px);
     font-size: 22px;
 }
 
@@ -693,6 +699,91 @@ select {
 
 .remaining-cell[data-spent] {
     opacity: 0.45;
+}
+
+@media (width < 900px) and (height <= 760px) {
+    .move-log {
+        display: none;
+    }
+}
+
+@media (width < 900px) and (height <= 700px) {
+    .plaque-dot,
+    .plaque-premove {
+        display: none;
+    }
+
+    .plaque {
+        padding: 4px 9px;
+    }
+
+    .remaining {
+        display: none;
+    }
+}
+
+@media (width < 900px) and (height <= 640px) {
+    .words {
+        display: none;
+    }
+
+    .guidance {
+        font-size: 13px;
+    }
+}
+
+@media (width < 900px) and (height <= 590px) {
+    .tray {
+        min-height: 38px;
+        padding: 3px;
+    }
+
+    .tray .tile {
+        width: 34px;
+        height: 37px;
+        font-size: 16px;
+    }
+}
+
+@media (width >= 900px) {
+    .table {
+        display: grid;
+        grid-template:
+            "board status" auto
+            "board plaques" auto
+            "board side" minmax(0, 1fr)
+            / minmax(0, 1fr) minmax(320px, 420px);
+        column-gap: 16px;
+        max-width: 1280px;
+    }
+
+    .status-strip {
+        grid-area: status;
+    }
+
+    .plaques {
+        flex-wrap: wrap;
+        grid-area: plaques;
+    }
+
+    .board-region {
+        grid-area: board;
+    }
+
+    .side {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        grid-area: side;
+        min-height: 0;
+        overflow-y: auto;
+    }
+
+    .side .move-log {
+        max-height: none;
+        flex: 1;
+        min-height: 40px;
+    }
 }
 
 .rack-tile .tile {
@@ -1004,4 +1095,14 @@ select {
 .standing-score {
     font-weight: 900;
     font-variant-numeric: tabular-nums;
+}
+
+.rack-tile:focus-visible,
+.slot-action:focus-visible,
+.sheet-letter:focus-visible,
+.control-quiet:focus-visible,
+.control-primary:focus-visible,
+.invitation-copy:focus-visible {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 2px;
 }

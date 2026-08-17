@@ -3,6 +3,7 @@ import type { ReactElement } from "react";
 import type { Tile } from "../api/views";
 import type { TileBindings } from "./bindings";
 import { GraspTile } from "./GraspTile";
+import { rowCountStyle } from "./sizing";
 import { RACK_LABEL, RETURN_HERE } from "./strings";
 import { TileFace } from "./TileFace";
 
@@ -17,7 +18,7 @@ export interface RackProps {
 export function Rack({ tiles, liftedId, bindings, returnable, onReturn }: RackProps): ReactElement {
     if (bindings === null) {
         return (
-            <div className="rack" role="img" aria-label={RACK_LABEL}>
+            <div className="rack" role="img" aria-label={RACK_LABEL} style={rowCountStyle(tiles.length)}>
                 {tiles.map((tile) => (
                     <TileFace key={tile.identifier} tile={tile} />
                 ))}
@@ -25,7 +26,13 @@ export function Rack({ tiles, liftedId, bindings, returnable, onReturn }: RackPr
         );
     }
     return (
-        <div className="rack" role="group" aria-label={RACK_LABEL} data-region="rack">
+        <div
+            className="rack"
+            role="group"
+            aria-label={RACK_LABEL}
+            data-region="rack"
+            style={rowCountStyle(tiles.length + (returnable ? 1 : 0))}
+        >
             {tiles.map((tile) => (
                 <GraspTile
                     key={tile.identifier}

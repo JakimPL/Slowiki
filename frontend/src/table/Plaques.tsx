@@ -3,7 +3,7 @@ import type { ReactElement } from "react";
 import type { CompanyView, PositionView, SeatView } from "../api/views";
 import type { Urgency } from "../play/clock";
 import { tintFor } from "../play/tints";
-import { fallbackNameFor, OPEN_SEAT_LABEL, YOU_MARKER } from "./strings";
+import { fallbackNameFor, OPEN_SEAT_LABEL, PLAYERS_LABEL, YOU_MARKER } from "./strings";
 
 export interface SeatCountdown {
     readonly seat: number;
@@ -20,7 +20,7 @@ export interface PlaquesProps {
 
 export function Plaques({ view, company, mySeat, countdown }: PlaquesProps): ReactElement {
     return (
-        <ul className="plaques">
+        <ul className="plaques" aria-label={PLAYERS_LABEL}>
             {company.seats.map((seated) => (
                 <Plaque
                     key={seated.seat}

@@ -262,12 +262,7 @@ export function Table({ arrival, connection, state, clock, trouble }: TableProps
     );
 
     return (
-        <div
-            ref={rootRef}
-            className="table"
-            data-acting={story.kind === "acting" ? "true" : undefined}
-            style={style}
-        >
+        <div ref={rootRef} className="table" data-acting={story.kind === "acting" ? "true" : undefined} style={style}>
             <header className="status-strip">
                 <StatusLine text={captionFor(story, state.company)} tone={toneOf(story.kind)} />
                 <span className="chip">{bagCaption(state.view.bag_count)}</span>
@@ -290,70 +285,74 @@ export function Table({ arrival, connection, state, clock, trouble }: TableProps
                     bindings={atDesk ? bindings : null}
                 />
             </div>
-            {gathering ? (
-                <Room
-                    table={arrival.seat.table}
-                    code={arrival.code}
-                    present={present}
-                    total={state.company.seats.length}
-                />
-            ) : null}
-            {atDesk && chips.length > 0 ? <Words chips={chips} bingo={prospect.bingo ? rules.bingoBonus : 0} /> : null}
-            {atDesk && guidance !== null ? (
-                <p className="guidance" role="status" data-tone={notice !== null ? "danger" : "hint"}>
-                    {guidance}
-                </p>
-            ) : null}
-            {atDesk ? (
-                <>
-                    <Rack
-                        tiles={rackRow}
-                        liftedId={liftedIdentifier(desk.lift)}
-                        bindings={bindings}
-                        returnable={desk.lift !== null && desk.lift.from === "tray"}
-                        onReturn={(): void => {
-                            if (desk.lift !== null) {
-                                perform({ kind: "retrieve", id: desk.lift.tile.identifier, before: null });
+            <div className="side">
+                {gathering ? (
+                    <Room
+                        table={arrival.seat.table}
+                        code={arrival.code}
+                        present={present}
+                        total={state.company.seats.length}
+                    />
+                ) : null}
+                {atDesk && chips.length > 0 ? (
+                    <Words chips={chips} bingo={prospect.bingo ? rules.bingoBonus : 0} />
+                ) : null}
+                {atDesk && guidance !== null ? (
+                    <p className="guidance" role="status" data-tone={notice !== null ? "danger" : "hint"}>
+                        {guidance}
+                    </p>
+                ) : null}
+                {atDesk ? (
+                    <>
+                        <Rack
+                            tiles={rackRow}
+                            liftedId={liftedIdentifier(desk.lift)}
+                            bindings={bindings}
+                            returnable={desk.lift !== null && desk.lift.from === "tray"}
+                            onReturn={(): void => {
+                                if (desk.lift !== null) {
+                                    perform({ kind: "retrieve", id: desk.lift.tile.identifier, before: null });
+                                }
+                            }}
+                        />
+                        <Tray
+                            tiles={trayRow}
+                            liftedId={liftedIdentifier(desk.lift)}
+                            bindings={bindings}
+                            parkable={desk.lift !== null && desk.lift.from === "rack"}
+                            onPark={(): void => {
+                                if (desk.lift !== null) {
+                                    perform({ kind: "park", id: desk.lift.tile.identifier, before: null });
+                                }
+                            }}
+                        />
+                        <Controls
+                            caption={
+                                exchanging
+                                    ? exchangeCaption(desk.tray.length)
+                                    : primaryCaption(asPremove, playArmed ? prospect.points : null)
                             }
-                        }}
-                    />
-                    <Tray
-                        tiles={trayRow}
-                        liftedId={liftedIdentifier(desk.lift)}
-                        bindings={bindings}
-                        parkable={desk.lift !== null && desk.lift.from === "rack"}
-                        onPark={(): void => {
-                            if (desk.lift !== null) {
-                                perform({ kind: "park", id: desk.lift.tile.identifier, before: null });
-                            }
-                        }}
-                    />
-                    <Controls
-                        caption={
-                            exchanging
-                                ? exchangeCaption(desk.tray.length)
-                                : primaryCaption(asPremove, playArmed ? prospect.points : null)
-                        }
-                        armed={primaryArmed}
-                        premove={asPremove}
-                        busy={busy}
-                        canRecall={desk.draft.length > 0 || desk.lift !== null}
-                        canShuffle={rackRow.length > 1}
-                        canPass={mayAct && rules.passAllowed}
-                        onPrimary={primary}
-                        onRecall={(): void => {
-                            perform({ kind: "recall" });
-                        }}
-                        onShuffle={shuffle}
-                        onPass={pass}
-                    />
-                </>
-            ) : rack !== null && rack.length > 0 ? (
-                <Rack tiles={rack} liftedId={null} bindings={null} returnable={false} onReturn={() => undefined} />
-            ) : null}
-            {state.log.length > 0 ? <MoveLog log={state.log} company={state.company} /> : null}
-            {tally === null || gathering ? null : <RemainingTiles tally={tally} />}
-            {trouble !== null && connection !== "live" ? <p className="trouble">{trouble}</p> : null}
+                            armed={primaryArmed}
+                            premove={asPremove}
+                            busy={busy}
+                            canRecall={desk.draft.length > 0 || desk.lift !== null}
+                            canShuffle={rackRow.length > 1}
+                            canPass={mayAct && rules.passAllowed}
+                            onPrimary={primary}
+                            onRecall={(): void => {
+                                perform({ kind: "recall" });
+                            }}
+                            onShuffle={shuffle}
+                            onPass={pass}
+                        />
+                    </>
+                ) : rack !== null && rack.length > 0 ? (
+                    <Rack tiles={rack} liftedId={null} bindings={null} returnable={false} onReturn={() => undefined} />
+                ) : null}
+                {state.log.length > 0 ? <MoveLog log={state.log} company={state.company} /> : null}
+                {tally === null || gathering ? null : <RemainingTiles tally={tally} />}
+                {trouble !== null && connection !== "live" ? <p className="trouble">{trouble}</p> : null}
+            </div>
             {carry === null ? null : (
                 <div
                     className="carry-ghost"

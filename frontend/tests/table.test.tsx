@@ -45,6 +45,9 @@ describe("Table", () => {
         expect(markup).toContain(">Shuffle</button>");
         expect(markup).toContain('class="rack" role="group"');
         expect(markup).toContain('data-region="tray"');
+        expect(markup).toContain('class="side"');
+        expect(markup).toContain('aria-label="Players"');
+        expect(markup).toContain("--row-count:1");
     });
 
     it("rings the last play in the mover's tint", () => {
