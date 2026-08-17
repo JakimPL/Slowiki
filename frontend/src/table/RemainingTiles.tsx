@@ -11,7 +11,7 @@ export interface RemainingTilesProps {
 export function RemainingTiles({ tally }: RemainingTilesProps): ReactElement {
     return (
         <details className="remaining">
-            <summary className="remaining-summary">{REMAINING_LABEL}</summary>
+            <summary>{REMAINING_LABEL}</summary>
             <ul className="remaining-grid">
                 {tally.letters.map((letter) => (
                     <li

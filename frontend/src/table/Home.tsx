@@ -5,6 +5,7 @@ import { createTable, joinTable, readOfferings } from "../api/client";
 import { reasonOf } from "../api/refusal";
 import type { Offering, TableAdmission } from "../api/tables";
 import type { Tile } from "../api/views";
+import { rememberName, storedName } from "../play/identity";
 import { ModeToggle } from "./ModeToggle";
 import {
     CODE_LABEL,
@@ -20,6 +21,8 @@ import {
     PRODUCT_TAGLINE,
     SCHEME_LABEL,
     SEATS_LABEL,
+    SWITCH_TO_CREATE,
+    SWITCH_TO_JOIN,
 } from "./strings";
 import { TileFace } from "./TileFace";
 
@@ -39,14 +42,21 @@ const SPECIMEN: readonly Tile[] = [
 
 export function Home({ invitedCode, themeNote, onArrive }: HomeProps): ReactElement {
     const [offerings, setOfferings] = useState<readonly Offering[] | null>(null);
-    const [name, setName] = useState("");
+    const [name, setName] = useState(() => (typeof window === "undefined" ? "" : storedName(window.localStorage)));
     const [code, setCode] = useState(invitedCode ?? "");
     const [schemeName, setSchemeName] = useState<string | null>(null);
     const [seats, setSeats] = useState<number | null>(null);
+    const [joining, setJoining] = useState(false);
     const [busy, setBusy] = useState(false);
     const [trouble, setTrouble] = useState<string | null>(null);
 
+    const invited = invitedCode !== null;
+    const showJoin = invited || joining;
+
     useEffect(() => {
+        if (invited) {
+            return;
+        }
         let alive = true;
         readOfferings()
             .then((served) => {
@@ -62,7 +72,7 @@ export function Home({ invitedCode, themeNote, onArrive }: HomeProps): ReactElem
         return (): void => {
             alive = false;
         };
-    }, []);
+    }, [invited]);
 
     const chosen = offerings?.find((offering) => offering.name === schemeName) ?? offerings?.[0] ?? null;
     const chosenSeats = boundedSeats(seats, chosen);
@@ -75,7 +85,9 @@ export function Home({ invitedCode, themeNote, onArrive }: HomeProps): ReactElem
         setBusy(true);
         setTrouble(null);
         try {
-            onArrive(await action());
+            const admission = await action();
+            rememberName(cleanedName, window.localStorage);
+            onArrive(admission);
         } catch (error: unknown) {
             setTrouble(reasonOf(error));
         } finally {
@@ -126,70 +138,88 @@ export function Home({ invitedCode, themeNote, onArrive }: HomeProps): ReactElem
                 />
             </label>
             <div className="home-panels">
-                <form className="panel" onSubmit={join}>
-                    <h2>{JOIN_HEADING}</h2>
-                    <label className="field">
-                        <span>{CODE_LABEL}</span>
-                        <input
-                            type="text"
-                            className="code-input"
-                            value={code}
-                            autoCapitalize="characters"
-                            onChange={(change): void => {
-                                setCode(change.target.value.toUpperCase());
-                            }}
-                        />
-                    </label>
-                    <button type="submit" className="action" disabled={busy || code.trim() === ""}>
-                        {JOIN_BUTTON}
-                    </button>
-                </form>
-                <form className="panel" onSubmit={create}>
-                    <h2>{CREATE_HEADING}</h2>
-                    {offerings === null ? (
-                        <p className="panel-note">{OFFERINGS_LOADING}</p>
-                    ) : (
-                        <>
-                            <label className="field">
-                                <span>{SCHEME_LABEL}</span>
-                                <select
-                                    value={chosen?.name ?? ""}
-                                    onChange={(change): void => {
-                                        setSchemeName(change.target.value);
-                                        setSeats(null);
-                                    }}
-                                >
-                                    {offerings.map((offering) => (
-                                        <option key={offering.name} value={offering.name}>
-                                            {offeringCaption(offering.name, offering.min_players, offering.max_players)}
-                                        </option>
-                                    ))}
-                                </select>
-                            </label>
-                            <label className="field">
-                                <span>{SEATS_LABEL}</span>
-                                <select
-                                    value={chosenSeats}
-                                    onChange={(change): void => {
-                                        setSeats(Number(change.target.value));
-                                    }}
-                                >
-                                    {chosen === null
-                                        ? null
-                                        : spanOf(chosen.min_players, chosen.max_players).map((count) => (
-                                              <option key={count} value={count}>
-                                                  {count}
-                                              </option>
-                                          ))}
-                                </select>
-                            </label>
-                        </>
-                    )}
-                    <button type="submit" className="action" disabled={busy || chosen === null}>
-                        {CREATE_BUTTON}
-                    </button>
-                </form>
+                {showJoin ? (
+                    <form className="panel" onSubmit={join}>
+                        <h2>{JOIN_HEADING}</h2>
+                        <label className="field">
+                            <span>{CODE_LABEL}</span>
+                            <input
+                                type="text"
+                                className="code-input"
+                                value={code}
+                                autoCapitalize="characters"
+                                onChange={(change): void => {
+                                    setCode(change.target.value.toUpperCase());
+                                }}
+                            />
+                        </label>
+                        <button type="submit" className="action" disabled={busy || code.trim() === ""}>
+                            {JOIN_BUTTON}
+                        </button>
+                    </form>
+                ) : (
+                    <form className="panel" onSubmit={create}>
+                        <h2>{CREATE_HEADING}</h2>
+                        {offerings === null ? (
+                            <p className="panel-note">{OFFERINGS_LOADING}</p>
+                        ) : (
+                            <>
+                                <label className="field">
+                                    <span>{SCHEME_LABEL}</span>
+                                    <select
+                                        value={chosen?.name ?? ""}
+                                        onChange={(change): void => {
+                                            setSchemeName(change.target.value);
+                                            setSeats(null);
+                                        }}
+                                    >
+                                        {offerings.map((offering) => (
+                                            <option key={offering.name} value={offering.name}>
+                                                {offeringCaption(
+                                                    offering.name,
+                                                    offering.min_players,
+                                                    offering.max_players,
+                                                )}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </label>
+                                <label className="field">
+                                    <span>{SEATS_LABEL}</span>
+                                    <select
+                                        value={chosenSeats}
+                                        onChange={(change): void => {
+                                            setSeats(Number(change.target.value));
+                                        }}
+                                    >
+                                        {chosen === null
+                                            ? null
+                                            : spanOf(chosen.min_players, chosen.max_players).map((count) => (
+                                                  <option key={count} value={count}>
+                                                      {count}
+                                                  </option>
+                                              ))}
+                                    </select>
+                                </label>
+                            </>
+                        )}
+                        <button type="submit" className="action" disabled={busy || chosen === null}>
+                            {CREATE_BUTTON}
+                        </button>
+                    </form>
+                )}
             </div>
+            {invited ? null : (
+                <button
+                    type="button"
+                    className="home-switch"
+                    onClick={(): void => {
+                        setJoining(!joining);
+                    }}
+                >
+                    {joining ? SWITCH_TO_CREATE : SWITCH_TO_JOIN}
+                </button>
+            )}
             {trouble === null ? null : (
                 <p className="trouble" role="alert">
                     {trouble}

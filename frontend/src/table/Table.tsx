@@ -2,6 +2,7 @@ import type { CSSProperties, ReactElement } from "react";
 import { useEffect, useRef, useState } from "react";
 
 import { exchangeMove, passMove, playMove } from "../api/moves";
+import { STALE_POSITION_CODE } from "../api/refusal";
 import type { ClockView, Tile } from "../api/views";
 import { arrangedTiles, shuffledArrangement } from "../play/arrangement";
 import { urgencyOf } from "../play/clock";
@@ -55,6 +56,7 @@ import {
     guidanceCaption,
     primaryCaption,
     PRODUCT_NAME,
+    STALE_NOTICE,
 } from "./strings";
 import type { DropTarget } from "./targets";
 import { targetsFrom } from "./targets";
@@ -68,6 +70,7 @@ export interface TableProps {
     readonly state: TableState;
     readonly clock: ClockView | null;
     readonly trouble: string | null;
+    readonly onOutdated: () => void;
 }
 
 interface BlankChoice {
@@ -75,7 +78,7 @@ interface BlankChoice {
     readonly tile: Tile;
 }
 
-export function Table({ arrival, connection, state, clock, trouble }: TableProps): ReactElement {
+export function Table({ arrival, connection, state, clock, trouble, onOutdated }: TableProps): ReactElement {
     const mySeat = arrival.seated ?? seatedAs(state.view);
     const description = useDescription(arrival.seat);
     const remaining = useCountdown(clock);
@@ -92,8 +95,12 @@ export function Table({ arrival, connection, state, clock, trouble }: TableProps
     const atDesk = mySeat !== null && rack !== null && !gathering && state.view.phase === "turn";
     const mayAct = atDesk && (acting || rules.premovesAllowed);
 
-    const { desk, perform } = useDesk(state, mySeat, arrival.seat, atDesk);
-    const { busy, notice, noticeCode, send } = usePlay(arrival.seat, state.seq);
+    const { desk, perform: performDesk } = useDesk(state, mySeat, arrival.seat, atDesk);
+    const { busy, notice, noticeCode, send, clear } = usePlay(arrival.seat, state.seq, onOutdated);
+    const perform = (effect: DeskEffect): void => {
+        clear();
+        performDesk(effect);
+    };
     const [blankChoice, setBlankChoice] = useState<BlankChoice | null>(null);
     useAlerts(story.kind === "acting", PRODUCT_NAME);
 
@@ -127,8 +134,9 @@ export function Table({ arrival, connection, state, clock, trouble }: TableProps
         ...word,
         status: wordStatusFor(rules.feedback, word.text, invalidTexts),
     }));
+    const shownNotice = noticeCode === STALE_POSITION_CODE ? STALE_NOTICE : notice;
     const guidance =
-        notice ??
+        shownNotice ??
         (exchanging && exchange !== null
             ? exchangeGuidance(exchange.block, exchange.remaining, rules.exchangeMinBag)
             : guidanceCaption(guidanceFor(prospect.verdict, desk.lift !== null)));
@@ -299,11 +307,16 @@ export function Table({ arrival, connection, state, clock, trouble }: TableProps
                         total={state.company.seats.length}
                     />
                 ) : null}
-                {atDesk ? <Words chips={chips} bingo={prospect.bingo ? rules.bingoBonus : 0} /> : null}
                 {atDesk ? (
-                    <p className="guidance" role="status" data-tone={notice !== null ? "danger" : "hint"}>
-                        {guidance}
-                    </p>
+                    <div className="feedback">
+                        {shownNotice === null && chips.length > 0 ? (
+                            <Words chips={chips} bingo={prospect.bingo ? rules.bingoBonus : 0} />
+                        ) : (
+                            <p className="guidance" role="status" data-tone={shownNotice !== null ? "danger" : "hint"}>
+                                {guidance}
+                            </p>
+                        )}
+                    </div>
                 ) : null}
                 {atDesk ? (
                     <>
@@ -360,8 +373,12 @@ export function Table({ arrival, connection, state, clock, trouble }: TableProps
                         onReturn={() => undefined}
                     />
                 ) : null}
-                {gathering ? null : <MoveLog log={state.log} company={state.company} />}
-                {tally === null || gathering ? null : <RemainingTiles tally={tally} />}
+                {gathering ? null : (
+                    <div className="docket">
+                        <MoveLog log={state.log} company={state.company} />
+                        {tally === null ? null : <RemainingTiles tally={tally} />}
+                    </div>
+                )}
                 {trouble !== null && connection !== "live" ? <p className="trouble">{trouble}</p> : null}
             </div>
             {carry === null ? null : (

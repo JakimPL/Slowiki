@@ -12,18 +12,34 @@ export interface MoveLogProps {
 
 export function MoveLog({ log, company }: MoveLogProps): ReactElement {
     const newestFirst = [...log].reverse();
+    const latest = newestFirst[0] ?? null;
     return (
-        <ol className="move-log" aria-label={LOG_LABEL}>
-            {newestFirst.map((entry) => {
-                const style: CSSProperties = { "--tint": tintFor(entry.actor).hex };
-                return (
-                    <li key={entry.seq} className="move-log-entry" data-kind={entry.kind} style={style}>
+        <details className="log">
+            <summary>
+                {latest === null ? (
+                    LOG_LABEL
+                ) : (
+                    <>
+                        <i className="move-log-dot" aria-hidden="true" style={tinted(latest.actor)} />
+                        <span className="log-latest">
+                            {nameFor(company, latest.actor)} · {logCaption(latest)}
+                        </span>
+                    </>
+                )}
+            </summary>
+            <ol className="log-list" aria-label={LOG_LABEL}>
+                {newestFirst.map((entry) => (
+                    <li key={entry.seq} className="move-log-entry" data-kind={entry.kind} style={tinted(entry.actor)}>
                         <i className="move-log-dot" aria-hidden="true" />
                         <span className="move-log-name">{nameFor(company, entry.actor)}</span>
                         <span className="move-log-what">{logCaption(entry)}</span>
                     </li>
-                );
-            })}
-        </ol>
+                ))}
+            </ol>
+        </details>
     );
+}
+
+function tinted(actor: number): CSSProperties {
+    return { "--tint": tintFor(actor).hex };
 }

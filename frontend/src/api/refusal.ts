@@ -1,6 +1,7 @@
 import { bodyOf } from "./parsing";
 
 export const UNKNOWN_CODE = "unknown";
+export const STALE_POSITION_CODE = "stale_position";
 export const CONFLICT_STATUS = 409;
 
 export class Refused extends Error {

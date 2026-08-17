@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { followEvents, readView } from "../api/client";
 import { reasonOf } from "../api/refusal";
@@ -14,6 +14,7 @@ export interface TableHold {
     readonly state: TableState | null;
     readonly clock: ClockView | null;
     readonly trouble: string | null;
+    readonly refresh: () => void;
 }
 
 export function useTable(table: string, token: string | null): TableHold {
@@ -22,6 +23,7 @@ export function useTable(table: string, token: string | null): TableHold {
     const [clock, setClock] = useState<ClockView | null>(null);
     const [trouble, setTrouble] = useState<string | null>(null);
     const sinceRef = useRef(0);
+    const refreshRef = useRef<() => void>(() => undefined);
 
     useEffect(() => {
         let alive = true;
@@ -44,6 +46,7 @@ export function useTable(table: string, token: string | null): TableHold {
                     }
                 });
         };
+        refreshRef.current = refresh;
         readView(seat)
             .then((response) => {
                 if (!alive) {
@@ -95,5 +98,9 @@ export function useTable(table: string, token: string | null): TableHold {
         };
     }, [table, token]);
 
-    return { connection, state, clock, trouble };
+    const refresh = useCallback((): void => {
+        refreshRef.current();
+    }, []);
+
+    return { connection, state, clock, trouble, refresh };
 }

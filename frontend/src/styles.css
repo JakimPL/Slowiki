@@ -81,6 +81,7 @@ html,
 body {
     height: 100%;
     margin: 0;
+    overscroll-behavior: none;
 }
 
 body {
@@ -89,6 +90,10 @@ body {
     font-family: Lato, "Segoe UI", system-ui, sans-serif;
     font-size: 16px;
     line-height: 1.5;
+}
+
+body:has(.table) {
+    overflow: hidden;
 }
 
 #root {
@@ -227,13 +232,18 @@ select {
     display: grid;
     grid-template-columns: 1fr;
     gap: 14px;
-    width: min(100%, 680px);
+    width: min(100%, 420px);
 }
 
-@media (width >= 640px) {
-    .home-panels {
-        grid-template-columns: 1fr 1fr;
-    }
+.home-switch {
+    padding: 4px 8px;
+    border: 0;
+    background: none;
+    color: var(--chrome-muted);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
 }
 
 .panel {
@@ -300,12 +310,14 @@ select {
 .table {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     max-width: 1100px;
     height: 100dvh;
     margin: 0 auto;
-    padding: 10px;
-    padding-bottom: calc(10px + env(safe-area-inset-bottom));
+    padding: 8px;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
+    user-select: none;
+    touch-action: manipulation;
 }
 
 .status-strip {
@@ -398,10 +410,10 @@ select {
 
 .plaque {
     display: flex;
-    flex-direction: column;
-    gap: 2px;
+    gap: 8px;
+    align-items: center;
     min-width: 0;
-    padding: 5px 8px 4px;
+    padding: 4px 9px;
     border: 1.5px solid color-mix(in srgb, var(--tint) 38%, transparent);
     border-radius: 10px;
     background: color-mix(in srgb, var(--tint) 10%, transparent);
@@ -431,8 +443,10 @@ select {
 
 .plaque-name {
     display: flex;
+    flex: 1;
     gap: 5px;
     align-items: center;
+    min-width: 0;
     overflow: hidden;
     color: var(--chrome-muted);
     font-size: 12.5px;
@@ -462,9 +476,10 @@ select {
 
 .plaque-score {
     display: flex;
+    flex: none;
     gap: 6px;
     align-items: center;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 900;
     font-variant-numeric: tabular-nums;
 }
@@ -602,11 +617,12 @@ select {
     gap: 6px;
     align-items: center;
     justify-content: center;
-    min-height: 58px;
-    padding: 6px;
-    border: 1.5px dashed var(--chrome-edge);
+    min-height: 54px;
+    padding: 5px 6px;
+    border: 1px solid var(--chrome-edge);
     border-radius: 12px;
-    background: color-mix(in srgb, var(--chrome-text) 4%, transparent);
+    background: color-mix(in srgb, var(--chrome-text) 5%, transparent);
+    box-shadow: inset 0 2px 5px rgb(0 0 0 / 10%);
 }
 
 .tray .tile {
@@ -622,10 +638,10 @@ select {
 }
 
 .slot-action {
-    padding: 8px 12px;
-    border: 1px dashed var(--accent-primary);
+    padding: 9px 13px;
+    border: 0;
     border-radius: 10px;
-    background: none;
+    background: color-mix(in srgb, var(--accent-primary) 13%, transparent);
     color: var(--accent-primary);
     font-size: 13px;
     font-weight: 600;
@@ -683,14 +699,57 @@ select {
     }
 }
 
-.move-log {
+.docket {
+    position: relative;
+    display: flex;
+    gap: 8px;
+}
+
+.docket > details {
+    flex: 1;
+    min-width: 0;
+    border: 1px solid var(--chrome-edge);
+    border-radius: 12px;
+    background: var(--chrome-panel);
+}
+
+.docket summary {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    padding: 8px 12px;
+    overflow: hidden;
+    color: var(--chrome-muted);
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    list-style: none;
+    cursor: pointer;
+}
+
+.log-latest {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.log-list {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 6px);
+    left: 0;
+    z-index: 5;
     display: flex;
     flex-direction: column;
     gap: 4px;
-    height: 96px;
+    max-height: 45dvh;
     margin: 0;
-    padding: 0;
+    padding: 10px;
     overflow-y: auto;
+    overscroll-behavior: contain;
+    border: 1px solid var(--chrome-edge);
+    border-radius: 12px;
+    background: var(--chrome-panel);
+    box-shadow: 0 10px 26px rgb(0 0 0 / 28%);
     list-style: none;
 }
 
@@ -725,21 +784,6 @@ select {
 .move-log-entry[data-kind="play"] .move-log-what {
     color: var(--chrome-text);
     font-weight: 600;
-}
-
-.remaining {
-    position: relative;
-    border: 1px solid var(--chrome-edge);
-    border-radius: 12px;
-    background: var(--chrome-panel);
-}
-
-.remaining-summary {
-    padding: 8px 12px;
-    color: var(--chrome-muted);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
 }
 
 .remaining-grid {
@@ -782,8 +826,22 @@ select {
 }
 
 @media (width < 900px) and (orientation: portrait) and (height <= 760px) {
-    .move-log {
-        display: none;
+    .table {
+        gap: 6px;
+    }
+
+    .rack {
+        padding: 2px 0;
+    }
+
+    .tray {
+        min-height: 46px;
+    }
+
+    .tray .tile {
+        width: 36px;
+        height: 40px;
+        font-size: 17px;
     }
 }
 
@@ -794,54 +852,27 @@ select {
     }
 
     .plaque {
-        padding: 3px 8px 2px;
-    }
-
-    .remaining {
-        display: none;
-    }
-}
-
-@media (width < 900px) and (orientation: portrait) and (height <= 640px) {
-    .words {
-        display: none;
-    }
-
-    .guidance {
-        font-size: 13px;
-    }
-}
-
-@media (width < 900px) and (orientation: portrait) and (height <= 590px) {
-    .table {
-        gap: 6px;
-    }
-
-    .plaque {
-        flex-direction: row;
-        gap: 6px;
-        align-items: center;
         padding: 3px 8px;
     }
 
-    .plaque-score {
-        margin-left: auto;
-        font-size: 14px;
-    }
-
-    .guidance {
+    .docket {
         display: none;
     }
 
-    .tray {
-        min-height: 45px;
-        padding: 3px;
+    .controls > button {
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+}
+
+@media (width < 900px) and (orientation: portrait) and (height <= 620px) {
+    .feedback {
+        display: none;
     }
 
-    .tray .tile {
-        width: 34px;
-        height: 37px;
-        font-size: 16px;
+    .status-meta,
+    .status-code {
+        display: none;
     }
 }
 
@@ -878,10 +909,21 @@ select {
         overflow-y: auto;
     }
 
-    .side .move-log {
-        flex: 1;
-        height: auto;
-        min-height: 40px;
+    .side .docket {
+        margin-top: auto;
+    }
+}
+
+@media (width >= 900px) {
+    .plaque {
+        flex-direction: column;
+        gap: 2px;
+        align-items: stretch;
+        padding: 5px 8px 4px;
+    }
+
+    .plaque-score {
+        font-size: 16px;
     }
 }
 
@@ -935,8 +977,10 @@ select {
 }
 
 .tile[data-pending] {
-    outline: 2px dashed var(--accent-primary);
-    outline-offset: -2px;
+    z-index: 1;
+    outline: 2px solid color-mix(in srgb, var(--accent-primary) 75%, transparent);
+    outline-offset: 0;
+    transform: scale(1.06);
 }
 
 .words {
@@ -999,7 +1043,8 @@ select {
 }
 
 .word-bingo {
-    border-style: dashed;
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
 }
 
 .guidance {
@@ -1016,6 +1061,19 @@ select {
 
 .guidance[data-tone="danger"] {
     color: var(--accent-danger);
+}
+
+.feedback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+}
+
+.feedback > .words,
+.feedback > .guidance {
+    flex: 1;
+    min-width: 0;
 }
 
 .controls {
@@ -1035,12 +1093,15 @@ select {
 }
 
 .control-quiet {
-    padding: 12px 14px;
+    flex: none;
+    width: 88px;
+    padding: 12px 0;
     border: 1.5px solid var(--chrome-edge);
     border-radius: 12px;
     background: none;
     color: var(--chrome-muted);
     font-weight: 600;
+    text-align: center;
     cursor: pointer;
 }
 
@@ -1052,6 +1113,7 @@ select {
 .sheet-scrim {
     position: fixed;
     inset: 0;
+    z-index: 14;
     padding: 0;
     border: 0;
     background: rgb(0 0 0 / 35%);
@@ -1062,6 +1124,7 @@ select {
     right: 0;
     bottom: 0;
     left: 0;
+    z-index: 15;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -1115,7 +1178,7 @@ select {
     justify-content: center;
     gap: 10px;
     padding: 10px 14px;
-    border: 1px dashed var(--chrome-edge);
+    border: 1px solid var(--chrome-edge);
     border-radius: 12px;
     background: var(--chrome-panel);
 }
@@ -1157,6 +1220,7 @@ select {
 .game-over {
     position: fixed;
     inset: 0;
+    z-index: 20;
     display: grid;
     place-items: center;
     padding: 20px;
@@ -1218,6 +1282,8 @@ select {
 .control-quiet:focus-visible,
 .control-primary:focus-visible,
 .chip-mode:focus-visible,
+.home-switch:focus-visible,
+.docket summary:focus-visible,
 .invitation-copy:focus-visible {
     outline: 2px solid var(--accent-primary);
     outline-offset: 2px;

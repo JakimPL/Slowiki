@@ -25,9 +25,39 @@ describe("Controls", () => {
             />,
         );
         expect(markup).toContain(">Play · 34</button>");
-        expect(markup).toContain(">Shuffle</button>");
         expect(markup).not.toContain("disabled");
         expect(markup).not.toContain("data-premove");
+    });
+
+    it("offers Recall while tiles sit on the board and Shuffle otherwise", () => {
+        const drafting = renderToStaticMarkup(
+            <Controls
+                caption="Play"
+                armed={true}
+                premove={false}
+                busy={false}
+                canRecall={true}
+                canShuffle={true}
+                canPass={true}
+                {...QUIET}
+            />,
+        );
+        expect(drafting).toContain(">Recall</button>");
+        expect(drafting).not.toContain(">Shuffle</button>");
+        const resting = renderToStaticMarkup(
+            <Controls
+                caption="Play"
+                armed={false}
+                premove={false}
+                busy={false}
+                canRecall={false}
+                canShuffle={true}
+                canPass={true}
+                {...QUIET}
+            />,
+        );
+        expect(resting).toContain(">Shuffle</button>");
+        expect(resting).not.toContain(">Recall</button>");
     });
 
     it("shows the premove styling off turn", () => {
@@ -76,6 +106,6 @@ describe("Controls", () => {
                 {...QUIET}
             />,
         );
-        expect(markup.match(/disabled/g)).toHaveLength(4);
+        expect(markup.match(/disabled/g)).toHaveLength(3);
     });
 });

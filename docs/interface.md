@@ -21,9 +21,10 @@ by amending it. The palette is the *Lniany* proposition chosen from the phase-0 
 
 ## Screens
 
-- **Arrive** — name, join code (auto-filled from an invitation link), or create a table with a
-  scheme picker bounded by the offering's real player range. Credentials live in the URL fragment;
-  a reload rejoins by token.
+- **Arrive** — a single card: creating a table (scheme picker bounded by the offering's real
+  player range) with a quiet switch to the join card for holders of a code. An invitation link
+  opens straight onto the join card with the code prefilled. The name field persists in local
+  storage across visits. Credentials live in the URL fragment; a reload rejoins by token.
 - **Table** — the one screen where the game lives. Until every seat is claimed it doubles as the
   room: a gathering banner with the join code, a copy-invitation control, and claimed/empty
   plaques.
@@ -32,24 +33,28 @@ by amending it. The palette is the *Lniany* proposition chosen from the phase-0 
 
 ## Table regions
 
-Portrait (primary): status strip → plaques ribbon → board → word line → rack → exchange tray →
-controls, inside a `100dvh` grid with safe-area insets. Landscape and desktop reshuffle grid areas
-only: the board sits height-bound on the left; the right column stacks status, plaques, move log,
-word line, rack, tray, and controls.
+Portrait (primary): status strip → plaques ribbon → board → feedback line → rack → exchange tray
+→ controls → docket, inside a `100dvh` grid with safe-area insets and the page scroll locked (the
+gesture surface owns every touch; long panels scroll internally). Landscape and desktop reshuffle
+grid areas only: the board sits height-bound on the left; the right column stacks status, plaques,
+feedback line, rack, tray, controls, and the docket at its foot.
 
 - **Status strip** — turn banner ("Your turn" at accent strength; "Ola is thinking — 1:12" quiet),
   clock, bag count, join-code chip, connection state.
 - **Plaques** — one per player, one to eight: tint dot, name, score, acting ring at full tint
   strength, premove diamond, clock on the acting plaque.
 - **Board** — 15 × 15 (size is data), premium squares with `×3` / `2×` / `3×` glyphs, the center
-  star, fresh-play rings in the mover's tint, pending tiles with dashed accent rings, premove
-  ghosts at reduced opacity with dotted rings.
-- **Word line** — a chip per formed word with its points and status dot, beside a one-sentence
-  guidance line (`role="status"`).
-- **Rack and tray** — the rack row holds the hand; the tray beneath stages exchanges and doubles as
-  parking space while thinking.
-- **Controls** — one primary contextual button (`Play · 34`, `Premove · 21`, `Exchange 3`) plus
-  quiet Recall, Shuffle, and Pass.
+  star, fresh-play rings in the mover's tint, pending tiles raised above their neighbours with a
+  solid accent ring, premove ghosts at reduced opacity in the premove accent.
+- **Feedback line** — one fixed-height slot showing the formed-word chips (points and status dot
+  each) while a draft stands, and the guidance or refusal sentence (`role="status"`) otherwise.
+- **Rack and tray** — the rack row holds the hand; the recessed tray beneath stages exchanges and
+  doubles as parking space while thinking.
+- **Controls** — three fixed slots: quiet Pass on the left, the primary contextual button
+  (`Play · 34`, `Premove · 21`, `Exchange 3`) centered, and a quiet toggle on the right that reads
+  Recall while pending tiles stand on the board and Shuffle when the rack is whole.
+- **Docket** — two one-line summaries side by side: the latest move (opening the recent-move list)
+  and the remaining-tile count (opening the letter tally); both panels pop above the summaries.
 
 ## Gesture vocabulary
 

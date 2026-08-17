@@ -31,6 +31,9 @@ export function Controls({
 }: ControlsProps): ReactElement {
     return (
         <div className="controls">
+            <button type="button" className="control-quiet" disabled={!canPass || busy} onClick={onPass}>
+                {PASS_BUTTON}
+            </button>
             <button
                 type="button"
                 className="action control-primary"
@@ -40,14 +43,13 @@ export function Controls({
             >
                 {caption}
             </button>
-            <button type="button" className="control-quiet" disabled={!canRecall || busy} onClick={onRecall}>
-                {RECALL_BUTTON}
-            </button>
-            <button type="button" className="control-quiet" disabled={!canShuffle || busy} onClick={onShuffle}>
-                {SHUFFLE_BUTTON}
-            </button>
-            <button type="button" className="control-quiet" disabled={!canPass || busy} onClick={onPass}>
-                {PASS_BUTTON}
+            <button
+                type="button"
+                className="control-quiet"
+                disabled={busy || (!canRecall && !canShuffle)}
+                onClick={canRecall ? onRecall : onShuffle}
+            >
+                {canRecall ? RECALL_BUTTON : SHUFFLE_BUTTON}
             </button>
         </div>
     );

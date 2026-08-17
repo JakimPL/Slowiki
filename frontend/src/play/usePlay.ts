@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from "react";
 
 import { sendMove } from "../api/client";
 import type { Move } from "../api/moves";
-import { reasonOf, Refused, UNKNOWN_CODE } from "../api/refusal";
+import { reasonOf, Refused, STALE_POSITION_CODE, UNKNOWN_CODE } from "../api/refusal";
 import type { Seat } from "../api/seat";
 import { delivered } from "./sending";
 
@@ -11,9 +11,10 @@ export interface PlayHold {
     readonly notice: string | null;
     readonly noticeCode: string | null;
     readonly send: (move: Move, premove: boolean) => void;
+    readonly clear: () => void;
 }
 
-export function usePlay(seat: Seat, baseSeq: number): PlayHold {
+export function usePlay(seat: Seat, baseSeq: number, onOutdated: () => void): PlayHold {
     const [busy, setBusy] = useState(false);
     const [notice, setNotice] = useState<string | null>(null);
     const [noticeCode, setNoticeCode] = useState<string | null>(null);
@@ -30,6 +31,9 @@ export function usePlay(seat: Seat, baseSeq: number): PlayHold {
             setNoticeCode(null);
             void delivered(() => sendMove(seat, move, baseSeq, premove))
                 .catch((trouble: unknown) => {
+                    if (trouble instanceof Refused && trouble.code === STALE_POSITION_CODE) {
+                        onOutdated();
+                    }
                     setNotice(reasonOf(trouble));
                     setNoticeCode(trouble instanceof Refused ? trouble.code : UNKNOWN_CODE);
                 })
@@ -38,8 +42,13 @@ export function usePlay(seat: Seat, baseSeq: number): PlayHold {
                     setBusy(false);
                 });
         },
-        [seat, baseSeq],
+        [seat, baseSeq, onOutdated],
     );
 
-    return { busy, notice, noticeCode, send };
+    const clear = useCallback((): void => {
+        setNotice(null);
+        setNoticeCode(null);
+    }, []);
+
+    return { busy, notice, noticeCode, send, clear };
 }

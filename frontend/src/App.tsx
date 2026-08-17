@@ -41,7 +41,7 @@ interface TableScreenProps {
 }
 
 function TableScreen({ arrival }: TableScreenProps): ReactElement {
-    const { connection, state, clock, trouble } = useTable(arrival.seat.table, arrival.seat.token);
+    const { connection, state, clock, trouble, refresh } = useTable(arrival.seat.table, arrival.seat.token);
     if (state === null) {
         return (
             <main className="waiting">
@@ -49,5 +49,14 @@ function TableScreen({ arrival }: TableScreenProps): ReactElement {
             </main>
         );
     }
-    return <Table arrival={arrival} connection={connection} state={state} clock={clock} trouble={trouble} />;
+    return (
+        <Table
+            arrival={arrival}
+            connection={connection}
+            state={state}
+            clock={clock}
+            trouble={trouble}
+            onOutdated={refresh}
+        />
+    );
 }
