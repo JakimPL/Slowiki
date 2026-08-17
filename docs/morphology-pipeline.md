@@ -94,7 +94,7 @@ Verified facts from the source-and-license gate:
 Frozen Pydantic models in a new `lexica/morph/` subpackage (one concept per
 module):
 
-- `PartOfSpeech` — StrEnum with the ten Polish names plus `OTHER`.
+- `PartOfSpeech` — StrEnum with the ten Polish names plus `INNY`.
 - Tag enums — `Przypadek`, `Liczba`, `Rodzaj` (m1/m2/m3/f/n), `Osoba`,
   `Czas`, `Tryb`, `Aspekt`, `Stopien`, `CzasownikForm`, `LiczebnikTyp`,
   `ZaimekTyp`.

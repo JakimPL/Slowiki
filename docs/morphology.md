@@ -40,7 +40,7 @@ The canonical school set divides into odmienne (inflected) and nieodmienne
 | PARTYKUŁA | particle | nieodmienna | — |
 | WYKRZYKNIK | interjection | nieodmienna | — |
 
-The pipeline additionally uses `OTHER` for tokens outside the canonical ten
+The pipeline additionally uses `INNY` for tokens outside the canonical ten
 (skróty, symbole), so that every dictionary entry carries a label while the
 canonical classification stays pure.
 
@@ -267,8 +267,8 @@ carry several).
 | adjp | PRZYMIOTNIK | 6,232 | subtype (poprzyimkowy) |
 | adjc | PRZYMIOTNIK | 11 | subtype |
 | adv | PRZYSŁÓWEK | 26,141 | degree where present |
-| comp | PRZYSŁÓWEK | 166 | comparative form |
-| num | LICZEBNIK | 569 | type |
+| comp | PARTYKUŁA | 166 | the conditional particle (by, bym, byś); comparative adverbs carry `adv:com` |
+| num | LICZEBNIK | 569 | główny; collective forms carry `:col` → ZBIOROWY |
 | frag | LICZEBNIK | 90 | fragment of a multiword numeral |
 | ppron12, ppron3, siebie | ZAIMEK | 100 | subtype |
 | prep | PRZYIMEK | 167 | governed case |
@@ -276,16 +276,21 @@ carry several).
 | part | PARTYKUŁA | 297,406 | the 2026 tagset names particles `part` (classic `qub`) |
 | interj | WYKRZYKNIK | 378 | |
 | fin, bedzie, aglt, praet, impt, imps, inf, pcon, pant, pact, ppas, ger | CZASOWNIK | 2,193,530 | form subtype, aspect, person, tense |
-| winien | CZASOWNIK | 56 | winien/powinien paradigm |
+| winien | CZASOWNIK | 56 | defective verb (winien/powinien) |
 | pred | CZASOWNIK | 30 | czasownik niewłaściwy |
-| brev | OTHER | 24 | skrót |
-| romandig | OTHER | 3 | Roman numeral |
-| ign, xx | OTHER | — | unrecognized → UNKNOWN report |
+| brev | INNY | 24 | skrót |
+| romandig | INNY | 3 | Roman numeral |
+| ign, xx | INNY | — | unrecognized → UNKNOWN report |
+
+Liczebniki porządkowe (piąty, drugi) carry the adjective tagset (`adj` with
+the lemma qualifier `:A`) and classify as PRZYMIOTNIK; the school-level
+ordinal reading is a lemma-level refinement.
 
 Tag dimensions observed: case nom/gen/dat/acc/inst/loc/voc (with combined
 values like nom.acc); number sg/pl; gender m1/m2/m3/f/n (with combined values
 like m1.m2.m3.f.n); person pri/sec/ter; degree pos/com/sup; aspect
-imperf/perf; negation aff/neg.
+imperf/perf (with the combined value imperf.perf); negation aff/neg; extras
+ncol, col, pt, rec, congr, wok, nwok, akc, nakc, praep, npraep, nagl, npun.
 
 ## Measured coverage (Phase 0, 2026-08-17)
 
