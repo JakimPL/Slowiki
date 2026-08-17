@@ -1,20 +1,34 @@
 import type { ReactElement } from "react";
 
 import type { CompanyView, PositionView, SeatView } from "../api/views";
+import type { Urgency } from "../play/clock";
 import { tintFor } from "../play/tints";
 import { fallbackNameFor, OPEN_SEAT_LABEL, YOU_MARKER } from "./strings";
+
+export interface SeatCountdown {
+    readonly seat: number;
+    readonly caption: string;
+    readonly urgency: Urgency;
+}
 
 export interface PlaquesProps {
     readonly view: PositionView;
     readonly company: CompanyView;
     readonly mySeat: number | null;
+    readonly countdown: SeatCountdown | null;
 }
 
-export function Plaques({ view, company, mySeat }: PlaquesProps): ReactElement {
+export function Plaques({ view, company, mySeat, countdown }: PlaquesProps): ReactElement {
     return (
         <ul className="plaques">
             {company.seats.map((seated) => (
-                <Plaque key={seated.seat} seated={seated} view={view} mine={seated.seat === mySeat} />
+                <Plaque
+                    key={seated.seat}
+                    seated={seated}
+                    view={view}
+                    mine={seated.seat === mySeat}
+                    countdown={countdown?.seat === seated.seat ? countdown : null}
+                />
             ))}
         </ul>
     );
@@ -24,9 +38,10 @@ interface PlaqueProps {
     readonly seated: SeatView;
     readonly view: PositionView;
     readonly mine: boolean;
+    readonly countdown: SeatCountdown | null;
 }
 
-function Plaque({ seated, view, mine }: PlaqueProps): ReactElement {
+function Plaque({ seated, view, mine, countdown }: PlaqueProps): ReactElement {
     const acting = view.to_act.includes(seated.seat);
     const premoved = view.pending_premoves.includes(seated.seat);
     const score = view.scores[String(seated.seat)] ?? 0;
@@ -44,6 +59,11 @@ function Plaque({ seated, view, mine }: PlaqueProps): ReactElement {
             </span>
             {mine ? <em className="plaque-you">{YOU_MARKER}</em> : null}
             {premoved ? <i className="plaque-premove" aria-hidden="true" /> : null}
+            {countdown === null ? null : (
+                <span className="plaque-clock" data-urgency={countdown.urgency}>
+                    {countdown.caption}
+                </span>
+            )}
             <span className="plaque-score">{score}</span>
         </li>
     );

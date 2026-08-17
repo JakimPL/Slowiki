@@ -43,6 +43,18 @@ export const SHUFFLE_BUTTON = "Shuffle";
 export const WORDS_LABEL = "Formed words";
 export const TRAY_LABEL = "Exchange tray";
 export const LOG_LABEL = "Recent moves";
+export const REMAINING_LABEL = "Remaining tiles";
+export const BLANK_ROW_MARK = "◇";
+
+const SECONDS_PER_MINUTE = 60;
+const CLOCK_PAD_WIDTH = 2;
+
+export function clockCaption(seconds: number): string {
+    const whole = Math.max(0, Math.floor(seconds));
+    const minutes = Math.floor(whole / SECONDS_PER_MINUTE);
+    const rest = whole % SECONDS_PER_MINUTE;
+    return `${String(minutes)}:${String(rest).padStart(CLOCK_PAD_WIDTH, "0")}`;
+}
 export const TRAY_HINT = "Set tiles aside here to exchange or park them.";
 export const PARK_HERE = "Park here";
 export const RETURN_HERE = "Return here";

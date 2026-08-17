@@ -410,6 +410,26 @@ select {
     font-variant-numeric: tabular-nums;
 }
 
+.plaque-clock {
+    padding: 1px 7px;
+    border: 1px solid var(--chrome-edge);
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.plaque-clock[data-urgency="low"] {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+}
+
+.plaque-clock[data-urgency="critical"] {
+    border-color: var(--accent-danger);
+    background: var(--accent-danger);
+    color: var(--accent-on-primary);
+}
+
 .board-region {
     display: grid;
     flex: 1;
@@ -630,6 +650,49 @@ select {
 .move-log-entry[data-kind="play"] .move-log-what {
     color: var(--chrome-text);
     font-weight: 600;
+}
+
+.remaining {
+    border: 1px solid var(--chrome-edge);
+    border-radius: 12px;
+    background: var(--chrome-panel);
+}
+
+.remaining-summary {
+    padding: 8px 12px;
+    color: var(--chrome-muted);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.remaining-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+    gap: 4px;
+    margin: 0;
+    padding: 0 10px 10px;
+    list-style: none;
+}
+
+.remaining-cell {
+    display: flex;
+    gap: 5px;
+    align-items: baseline;
+    justify-content: center;
+    padding: 4px 0;
+    border-radius: 8px;
+    background: var(--chrome-surface);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+}
+
+.remaining-cell b {
+    font-weight: 900;
+}
+
+.remaining-cell[data-spent] {
+    opacity: 0.45;
 }
 
 .rack-tile .tile {

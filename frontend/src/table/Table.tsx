@@ -2,8 +2,9 @@ import type { CSSProperties, ReactElement } from "react";
 import { useEffect, useRef, useState } from "react";
 
 import { exchangeMove, passMove, playMove } from "../api/moves";
-import type { Tile } from "../api/views";
+import type { ClockView, Tile } from "../api/views";
 import { arrangedTiles, shuffledArrangement } from "../play/arrangement";
+import { urgencyOf } from "../play/clock";
 import type { Connection } from "../play/connection";
 import type { DeskEffect } from "../play/desk";
 import type { Draft } from "../play/draft";
@@ -14,6 +15,7 @@ import { exchangeProspectOf } from "../play/exchange";
 import { invalidTextsOf, wordStatusFor } from "../play/feedback";
 import { guidanceFor } from "../play/guidance";
 import { prospectOf } from "../play/prospects";
+import { remainingTally } from "../play/remaining";
 import { rulesFrom } from "../play/rules";
 import { liftedIdentifier } from "../play/selection";
 import type { StoryKind } from "../play/story";
@@ -21,6 +23,7 @@ import { storyFor } from "../play/story";
 import { tintFor } from "../play/tints";
 import { trayTilesOf } from "../play/tray";
 import { useAlerts } from "../play/useAlerts";
+import { useCountdown } from "../play/useCountdown";
 import { useDescription } from "../play/useDescription";
 import { useDesk } from "../play/useDesk";
 import { usePlay } from "../play/usePlay";
@@ -37,12 +40,14 @@ import { boundKeys } from "./keys";
 import { MoveLog } from "./MoveLog";
 import { Plaques } from "./Plaques";
 import { Rack } from "./Rack";
+import { RemainingTiles } from "./RemainingTiles";
 import { Room } from "./Room";
 import type { StatusTone } from "./StatusLine";
 import { StatusLine } from "./StatusLine";
 import {
     bagCaption,
     captionFor,
+    clockCaption,
     CONNECTION_CAPTIONS,
     exchangeCaption,
     exchangeGuidance,
@@ -60,6 +65,7 @@ export interface TableProps {
     readonly arrival: Arrival;
     readonly connection: Connection;
     readonly state: TableState;
+    readonly clock: ClockView | null;
     readonly trouble: string | null;
 }
 
@@ -68,9 +74,10 @@ interface BlankChoice {
     readonly tile: Tile;
 }
 
-export function Table({ arrival, connection, state, trouble }: TableProps): ReactElement {
+export function Table({ arrival, connection, state, clock, trouble }: TableProps): ReactElement {
     const mySeat = arrival.seated ?? seatedAs(state.view);
     const description = useDescription(arrival.seat);
+    const remaining = useCountdown(clock);
 
     const story = storyFor(state.view, state.company, mySeat);
     const present = state.company.seats.filter((seated) => seated.claimed).length;
@@ -92,6 +99,15 @@ export function Table({ arrival, connection, state, trouble }: TableProps): Reac
     const lastPlay = state.view.last_play;
     const freshCells = new Set(lastPlay?.indices ?? []);
     const freshTint = lastPlay === null ? null : tintFor(lastPlay.player).hex;
+    const countdown =
+        clock === null || remaining === null || state.view.phase !== "turn"
+            ? null
+            : {
+                  seat: clock.seat,
+                  caption: clockCaption(remaining),
+                  urgency: urgencyOf(remaining, clock.per_turn_seconds),
+              };
+    const tally = description === null ? null : remainingTally(description, state.view.board, rack);
 
     const prospect = prospectOf(state.view.board, desk.draft, rules);
     const heldBack = draftedIdentifiers(desk.draft);
@@ -261,7 +277,7 @@ export function Table({ arrival, connection, state, trouble }: TableProps): Reac
                     </span>
                 )}
             </header>
-            <Plaques view={state.view} company={state.company} mySeat={mySeat} />
+            <Plaques view={state.view} company={state.company} mySeat={mySeat} countdown={countdown} />
             <div className="board-region">
                 <Board
                     board={state.view.board}
@@ -336,6 +352,7 @@ export function Table({ arrival, connection, state, trouble }: TableProps): Reac
                 <Rack tiles={rack} liftedId={null} bindings={null} returnable={false} onReturn={() => undefined} />
             ) : null}
             {state.log.length > 0 ? <MoveLog log={state.log} company={state.company} /> : null}
+            {tally === null || gathering ? null : <RemainingTiles tally={tally} />}
             {trouble !== null && connection !== "live" ? <p className="trouble">{trouble}</p> : null}
             {carry === null ? null : (
                 <div

@@ -14,7 +14,7 @@ describe("Table", () => {
             company: aCompany([aSeatView(0, { name: "Ala" }), aSeatView(1, { claimed: false })]),
         });
         const markup = renderToStaticMarkup(
-            <Table arrival={ARRIVAL} connection="live" state={openedFrom(response)} trouble={null} />,
+            <Table arrival={ARRIVAL} connection="live" state={openedFrom(response)} clock={null} trouble={null} />,
         );
         expect(markup).toContain("Gathering players — 1 of 2 at the table");
         expect(markup).toContain("KWPZTR");
@@ -27,7 +27,7 @@ describe("Table", () => {
     it("marks my turn on the frame once the table is full", () => {
         const response = aTableResponse({ view: aView({ to_act: [0] }) });
         const markup = renderToStaticMarkup(
-            <Table arrival={ARRIVAL} connection="live" state={openedFrom(response)} trouble={null} />,
+            <Table arrival={ARRIVAL} connection="live" state={openedFrom(response)} clock={null} trouble={null} />,
         );
         expect(markup).toContain("Your turn");
         expect(markup).toContain('data-acting="true"');
@@ -37,7 +37,7 @@ describe("Table", () => {
     it("offers the desk controls to a seated player", () => {
         const response = aTableResponse({ view: aView({ to_act: [0] }) });
         const markup = renderToStaticMarkup(
-            <Table arrival={ARRIVAL} connection="live" state={openedFrom(response)} trouble={null} />,
+            <Table arrival={ARRIVAL} connection="live" state={openedFrom(response)} clock={null} trouble={null} />,
         );
         expect(markup).toContain(">Play</button>");
         expect(markup).toContain(">Pass</button>");
@@ -55,7 +55,7 @@ describe("Table", () => {
             }),
         });
         const markup = renderToStaticMarkup(
-            <Table arrival={ARRIVAL} connection="live" state={openedFrom(response)} trouble={null} />,
+            <Table arrival={ARRIVAL} connection="live" state={openedFrom(response)} clock={null} trouble={null} />,
         );
         expect(markup).toContain('data-fresh="true"');
     });
@@ -64,7 +64,7 @@ describe("Table", () => {
         const response = aTableResponse({ view: aView({ racks: { 0: null, 1: null } }) });
         const spectator = { seat: { table: "t1", token: null }, code: null, seated: null };
         const markup = renderToStaticMarkup(
-            <Table arrival={spectator} connection="live" state={openedFrom(response)} trouble={null} />,
+            <Table arrival={spectator} connection="live" state={openedFrom(response)} clock={null} trouble={null} />,
         );
         expect(markup).not.toContain(">Play</button>");
         expect(markup).not.toContain("rack-tile");
@@ -73,7 +73,7 @@ describe("Table", () => {
     it("surfaces the connection chip when the stream drops", () => {
         const response = aTableResponse();
         const markup = renderToStaticMarkup(
-            <Table arrival={ARRIVAL} connection="resuming" state={openedFrom(response)} trouble="stream lost" />,
+            <Table arrival={ARRIVAL} connection="resuming" state={openedFrom(response)} clock={null} trouble="stream lost" />,
         );
         expect(markup).toContain("Reconnecting");
         expect(markup).toContain("stream lost");
