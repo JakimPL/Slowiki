@@ -242,7 +242,9 @@ LLM-assisted pipeline and contributes patterns for the optional review tool
 1. Domain model and tagset mapping (pure models and table, unit-tested).
 2. Analyzer index and class assembly with the `UNKNOWN` report; full-corpus
    run (completed 2026-08-17: 201,821 classes, 9 min 7 s, 21.8 GB peak).
-3. Artifact v2 and `MorphLexicon`; parity and round-trip tests.
+3. Artifact v2 and `MorphLexicon`; parity and round-trip tests (completed
+   2026-08-17: versioned marshal envelope, interned raw tuples, aligned
+   surface→classes index, referential loader validation).
 4. Play-validation filters through schemes and `validate_words`.
 5. UI class info (server surface and frontend annotation).
 6. Incremental operations: digests, `lexica analyze/compile/report/diff`,

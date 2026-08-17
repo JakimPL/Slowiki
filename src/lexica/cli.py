@@ -3,15 +3,11 @@ import itertools
 import json
 from pathlib import Path
 
-from lexica.compile import compile_lexicon
+from lexica.compile import compile_lexicon, compile_morph_lexicon
 from lexica.dictionaries.sjp import iter_sjp_words
 from lexica.morph.index import analyse_dictionary
 from lexica.morph.report import build_report
-
-try:
-    import morfeusz2  # type: ignore[import-untyped]
-except ImportError:
-    morfeusz2 = None
+from lexica.morph.sources.sgjp import build_morfeusz_analyzer
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -22,6 +18,10 @@ def build_parser() -> argparse.ArgumentParser:
     compile_parser = subparsers.add_parser("compile")
     compile_parser.add_argument("archive", type=Path)
     compile_parser.add_argument("output", type=Path)
+    compile_parser.add_argument("--polimorf", type=Path, default=None)
+    compile_text_parser = subparsers.add_parser("compile-text")
+    compile_text_parser.add_argument("archive", type=Path)
+    compile_text_parser.add_argument("output", type=Path)
     analyze_parser = subparsers.add_parser("analyze")
     analyze_parser.add_argument("archive", type=Path)
     analyze_parser.add_argument("--polimorf", type=Path, default=None)
@@ -43,6 +43,15 @@ def main(argv: list[str] | None = None) -> None:
                 print(word)
 
         case "compile":
+            compile_morph_lexicon(
+                tuple(iter_sjp_words(args.archive)),
+                build_morfeusz_analyzer(),
+                args.polimorf,
+                args.output,
+            )
+            print(args.output)
+
+        case "compile-text":
             compile_lexicon(iter_sjp_words(args.archive), args.output)
             print(args.output)
 
@@ -63,13 +72,10 @@ def main(argv: list[str] | None = None) -> None:
 
 
 def _run_analyze(args: argparse.Namespace) -> None:
-    if morfeusz2 is None:
-        raise SystemExit("install the morphology extra: uv sync --extra morphology")
-
     words = tuple(iter_sjp_words(args.archive))
     if args.limit is not None:
         words = words[: args.limit]
-    analyzer = morfeusz2.Morfeusz()
+    analyzer = build_morfeusz_analyzer()
     result = analyse_dictionary(words, analyzer, args.polimorf)
     print(json.dumps(build_report(result).model_dump(), indent=1, ensure_ascii=False))
 

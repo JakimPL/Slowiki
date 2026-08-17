@@ -3,7 +3,7 @@ from typing import Final
 
 from lexica.names import DictionaryName
 
-LEXICON_FORMAT: Final = 1
+LEXICON_FORMAT: Final = 2
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 CONFIG_DIR = PROJECT_ROOT / "config"
@@ -24,6 +24,10 @@ def configuration_file(kind: Path, name: str) -> Path:
 
 def dictionary_archive(name: DictionaryName) -> Path:
     return DICTIONARIES_DIR / f"{_dictionary_stem(name)}.zip"
+
+
+def polimorf_source() -> Path:
+    return DICTIONARIES_DIR / "sources" / "PoliMorf-0.6.7.tab.gz"
 
 
 def dictionary_compiled(name: DictionaryName) -> Path:

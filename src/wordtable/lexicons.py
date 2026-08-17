@@ -1,11 +1,13 @@
 import asyncio
 from pathlib import Path
 
-from lexica.compile import compile_lexicon, load_compiled_lexicon
+from lexica.compile import compile_lexicon, compile_morph_lexicon, load_compiled_lexicon
 from lexica.dictionaries.catalog import iter_dictionary_words
+from lexica.dictionaries.sjp import iter_sjp_words
+from lexica.morph.sources.sgjp import build_morfeusz_analyzer
 from lexica.names import DictionaryName
 from wordcore.lexicon.protocol import Lexicon
-from wordtable.paths import dictionary_archive, dictionary_compiled
+from wordtable.paths import dictionary_archive, dictionary_compiled, polimorf_source
 
 
 def dictionary_ready(name: DictionaryName) -> bool:
@@ -15,7 +17,18 @@ def dictionary_ready(name: DictionaryName) -> bool:
 def compile_dictionary(name: DictionaryName) -> Path:
     archive = dictionary_archive(name)
     compiled = dictionary_compiled(name)
-    if not compiled.is_file():
+    if compiled.is_file():
+        return compiled
+
+    if name is DictionaryName.SJP:
+        source = polimorf_source()
+        compile_morph_lexicon(
+            tuple(iter_sjp_words(archive)),
+            build_morfeusz_analyzer(),
+            source if source.is_file() else None,
+            compiled,
+        )
+    else:
         compile_lexicon(iter_dictionary_words(name, archive), compiled)
 
     return compiled

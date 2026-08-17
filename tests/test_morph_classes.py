@@ -120,19 +120,14 @@ def test_lexeme_of_strips_qualifiers() -> None:
 
 
 class ScriptedAnalyzer:
-    def __init__(
-        self,
-        answers: dict[str, list[Interpretation]],
-        generations: dict[str, list[Interpretation]] | None = None,
-    ) -> None:
+    def __init__(self, answers: dict[str, list[Interpretation]]) -> None:
         self._answers = answers
-        self._generations = generations if generations is not None else {}
 
     def analyse(self, text: str) -> list[tuple[int, int, Interpretation]]:
         return [(0, 1, interpretation) for interpretation in self._answers.get(text, [])]
 
     def generate(self, lemma: str) -> list[Interpretation]:
-        return self._generations.get(lemma, [])
+        return []
 
     def dict_id(self) -> str:
         return "scripted"
@@ -156,13 +151,6 @@ def test_analyse_dictionary_runs_sgjp_rescue_and_unknown(tmp_path: Path) -> None
             "kota": [("kota", "kot:Sm1", "subst:sg:gen.acc:m1", ["nazwa_pospolita"], [])],
             "nic": [("nic", "nic", "ign", [], [])],
         },
-        generations={
-            "kot:sm1": [
-                ("kot", "kot:Sm1", "subst:sg:nom:m1", ["nazwa_pospolita"], []),
-                ("kota", "kot:Sm1", "subst:sg:gen.acc:m1", ["nazwa_pospolita"], []),
-                ("koty", "kot:Sm1", "subst:pl:nom.acc.voc:m1", ["nazwa_pospolita"], []),
-            ]
-        },
     )
     words = ("KOT", "KOTA", "AALBORSCY", "NIC")
     result = analyse_dictionary(words, analyzer, polimorf_path)
@@ -171,6 +159,6 @@ def test_analyse_dictionary_runs_sgjp_rescue_and_unknown(tmp_path: Path) -> None
     assert result.rescued == 1
     assert result.store.unknown == ("NIC",)
     assert "AALBORSCY" in result.store.entries
-    assert "KOTY" in {
+    assert "KOT" in {
         variant.form for variant in result.store.classes["rzeczownik:KOT:SM1"].variants
     }

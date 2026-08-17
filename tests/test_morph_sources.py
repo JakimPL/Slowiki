@@ -4,7 +4,7 @@ from pathlib import Path
 from lexica.morph.models import MorphSource
 from lexica.morph.parts import PartOfSpeech
 from lexica.morph.sources.polimorf import rescue_analyses
-from lexica.morph.sources.sgjp import Interpretation, analyse_word
+from lexica.morph.sources.sgjp import Interpretation, analyse_word, analyse_word_entries
 from lexica.morph.tags import Gender
 
 
@@ -52,6 +52,12 @@ def test_analyse_word_merges_names_with_qualifiers() -> None:
     )
     analyses = analyse_word(analyzer, "marsz")
     assert analyses[0].qualifiers == ("nazwa_pospolita", "muz.")
+
+
+def test_analyse_word_entries_keeps_original_lemma_case() -> None:
+    analyzer = ScriptedAnalyzer({"kot": [("kot", "kot:Sm1", "subst:sg:nom:m1", [], [])]})
+    entries = analyse_word_entries(analyzer, "kot")
+    assert entries == (("KOT:SM1", "kot:Sm1", "subst:sg:nom:m1"),)
 
 
 def _write_polimorf(path: Path, rows: list[tuple[str, str, str, str]]) -> None:

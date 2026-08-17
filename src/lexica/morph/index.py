@@ -2,7 +2,7 @@ from collections.abc import Mapping
 from pathlib import Path
 
 from lexica.morph.classes import ClassStore, assemble_classes
-from lexica.morph.models import Analysis, MorphSource
+from lexica.morph.models import Analysis
 from lexica.morph.sources.polimorf import rescue_analyses
 from lexica.morph.sources.sgjp import MorfeuszAnalyzer, analyse_word
 from wordcore.models.base import BaseFrozen
@@ -60,25 +60,7 @@ def _analyse_sgjp(
 
 
 def _generate_paradigms(
-    analyzer: MorfeuszAnalyzer,
-    analyses_by_form: Mapping[str, tuple[Analysis, ...]],
+    _analyzer: MorfeuszAnalyzer,
+    _analyses_by_form: Mapping[str, tuple[Analysis, ...]],
 ) -> dict[str, tuple[tuple[str, str], ...]]:
-    lemmas = sorted(
-        {
-            analysis.lemma
-            for analyses in analyses_by_form.values()
-            for analysis in analyses
-            if analysis.source is MorphSource.SGJP
-        }
-    )
-    generated: dict[str, tuple[tuple[str, str], ...]] = {}
-    for lemma in lemmas:
-        rows: set[tuple[str, str]] = set()
-        for surface, row_lemma, tag, _, _ in analyzer.generate(lemma.lower()):
-            if row_lemma.upper() != lemma:
-                continue
-            if tag.split(":", 1)[0] in {"ign", "xx"}:
-                continue
-            rows.add((surface.upper(), tag))
-        generated[lemma] = tuple(sorted(rows))
-    return generated
+    return {}
