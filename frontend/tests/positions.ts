@@ -1,3 +1,4 @@
+import type { RuleParameters, TableDescription } from "../src/api/tables";
 import type {
     Board,
     Bonus,
@@ -51,6 +52,40 @@ export function aCompany(seats?: readonly SeatView[]): CompanyView {
 
 export function anEvent(overrides: Partial<EventView> = {}): EventView {
     return { seq: 0, kind: "move", actor: 0, move: null, reason: null, position: aView(), ...overrides };
+}
+
+export function someParameters(overrides: Partial<RuleParameters> = {}): RuleParameters {
+    return {
+        rack_size: 7,
+        exchange_limit: 3,
+        exchange_min_bag: 7,
+        pass_allowed: true,
+        bingo_bonus: 50,
+        validate_on_play: true,
+        premoves_allowed: true,
+        pass_end_limit: 2,
+        scoreless_end_limit: null,
+        time: { per_turn_seconds: null, increment_seconds: 0, total_seconds: null },
+        ...overrides,
+    };
+}
+
+export function aDescription(overrides: Partial<TableDescription> = {}): TableDescription {
+    return {
+        code: "KWPZTR",
+        scheme: "literaki",
+        game: "literaki",
+        seats: 2,
+        dictionary: "sjp",
+        parameters: someParameters(),
+        alphabet: [
+            { symbol: "A", value: 1, category: "yellow" },
+            { symbol: "K", value: 2, category: "green" },
+        ],
+        distribution: { A: 9, K: 3 },
+        blanks: 2,
+        ...overrides,
+    };
 }
 
 export function aTableResponse(overrides: Partial<TableViewResponse> = {}): TableViewResponse {

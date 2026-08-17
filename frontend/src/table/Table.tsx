@@ -5,11 +5,13 @@ import { passMove, playMove } from "../api/moves";
 import type { Tile } from "../api/views";
 import type { Connection } from "../play/connection";
 import type { Draft } from "../play/draft";
-import { draftedIdentifiers, laidOf, placementsOf, shownTile } from "../play/draft";
+import { draftedIdentifiers, placementsOf, shownTile } from "../play/draft";
 import type { TableState } from "../play/events";
 import { seatedAs } from "../play/events";
-import { formationOf } from "../play/geometry";
+import { invalidTextsOf, wordStatusFor } from "../play/feedback";
 import { guidanceFor } from "../play/guidance";
+import { prospectOf } from "../play/prospects";
+import { rulesFrom } from "../play/rules";
 import { liftedIdentifier } from "../play/selection";
 import type { StoryKind } from "../play/story";
 import { storyFor } from "../play/story";
@@ -29,7 +31,8 @@ import { Rack } from "./Rack";
 import { Room } from "./Room";
 import type { StatusTone } from "./StatusLine";
 import { StatusLine } from "./StatusLine";
-import { bagCaption, captionFor, CONNECTION_CAPTIONS, guidanceCaption, PLAY_BUTTON, PREMOVE_BUTTON } from "./strings";
+import { bagCaption, captionFor, CONNECTION_CAPTIONS, guidanceCaption, primaryCaption } from "./strings";
+import { Words } from "./Words";
 
 export interface TableProps {
     readonly arrival: Arrival;
@@ -42,7 +45,7 @@ export function Table({ arrival, connection, state, trouble }: TableProps): Reac
     const mySeat = arrival.seated ?? seatedAs(state.view);
     const description = useDescription(arrival.seat);
     const { desk, perform } = useDesk(state.view, mySeat);
-    const { busy, notice, send } = usePlay(arrival.seat, state.seq);
+    const { busy, notice, noticeCode, send } = usePlay(arrival.seat, state.seq);
     const [blankCell, setBlankCell] = useState<number | null>(null);
 
     const story = storyFor(state.view, state.company, mySeat);
@@ -51,17 +54,22 @@ export function Table({ arrival, connection, state, trouble }: TableProps): Reac
     const rack = mySeat === null ? null : (state.view.racks[String(mySeat)] ?? null);
     const style: CSSProperties = mySeat === null ? {} : { "--tint": tintFor(mySeat).hex };
 
+    const rules = rulesFrom(description);
     const acting = mySeat !== null && state.view.to_act.includes(mySeat);
-    const premovesAllowed = description?.parameters.premoves_allowed ?? false;
-    const asPremove = !acting && premovesAllowed;
+    const asPremove = !acting && rules.premovesAllowed;
     const atDesk = mySeat !== null && rack !== null && !gathering && state.view.phase === "turn";
-    const mayAct = atDesk && (acting || premovesAllowed);
+    const mayAct = atDesk && (acting || rules.premovesAllowed);
 
-    const formation = formationOf(state.view.board, laidOf(desk.draft));
-    const armed = mayAct && formation.verdict === "playable";
+    const prospect = prospectOf(state.view.board, desk.draft, rules);
+    const armed = mayAct && prospect.verdict === "playable";
     const heldBack = draftedIdentifiers(desk.draft);
     const shownRack = rack === null ? null : rack.filter((tile) => !heldBack.has(tile.identifier));
-    const guidance = notice ?? guidanceCaption(guidanceFor(formation.verdict, desk.lift !== null));
+    const guidance = notice ?? guidanceCaption(guidanceFor(prospect.verdict, desk.lift !== null));
+    const invalidTexts = invalidTextsOf(noticeCode, notice);
+    const chips = prospect.words.map((word) => ({
+        ...word,
+        status: wordStatusFor(rules.feedback, word.text, invalidTexts),
+    }));
 
     const lay = (cell: number): void => {
         if (!mayAct || desk.lift === null) {
@@ -149,6 +157,7 @@ export function Table({ arrival, connection, state, trouble }: TableProps): Reac
                     total={state.company.seats.length}
                 />
             ) : null}
+            {atDesk && chips.length > 0 ? <Words chips={chips} bingo={prospect.bingo ? rules.bingoBonus : 0} /> : null}
             {atDesk && guidance !== null ? (
                 <p className="guidance" role="status" data-tone={notice !== null ? "danger" : "hint"}>
                     {guidance}
@@ -169,12 +178,12 @@ export function Table({ arrival, connection, state, trouble }: TableProps): Reac
             ) : null}
             {atDesk ? (
                 <Controls
-                    caption={asPremove ? PREMOVE_BUTTON : PLAY_BUTTON}
+                    caption={primaryCaption(asPremove, armed ? prospect.points : null)}
                     armed={armed}
                     premove={asPremove}
                     busy={busy}
                     canRecall={desk.draft.length > 0 || desk.lift !== null}
-                    canPass={mayAct}
+                    canPass={mayAct && rules.passAllowed}
                     onPlay={play}
                     onRecall={(): void => {
                         perform({ kind: "recall" });
@@ -185,7 +194,7 @@ export function Table({ arrival, connection, state, trouble }: TableProps): Reac
             {trouble !== null && connection !== "live" ? <p className="trouble">{trouble}</p> : null}
             {blankCell !== null ? (
                 <BlankPicker
-                    alphabet={description?.alphabet ?? null}
+                    alphabet={rules.alphabet}
                     onPick={pick}
                     onClose={(): void => {
                         setBlankCell(null);

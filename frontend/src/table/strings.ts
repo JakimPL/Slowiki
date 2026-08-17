@@ -36,12 +36,22 @@ export const RACK_LABEL = "Your tiles";
 export const PLAY_BUTTON = "Play";
 export const PREMOVE_BUTTON = "Premove";
 export const PASS_BUTTON = "Pass";
+export const WORDS_LABEL = "Formed words";
 export const RECALL_BUTTON = "Recall";
 export const BLANK_PICKER_HEADING = "Choose the blank's letter";
 export const BLANK_PICKER_CLOSE = "Close the letter picker";
 export const BLANK_INPUT_LABEL = "Letter";
 export const BLANK_CONFIRM = "Assign the letter";
 export const BLANK_TILE_CAPTION = "Blank tile";
+
+export function primaryCaption(premove: boolean, points: number | null): string {
+    const base = premove ? PREMOVE_BUTTON : PLAY_BUTTON;
+    return points === null ? base : `${base} · ${String(points)}`;
+}
+
+export function bingoCaption(bonus: number): string {
+    return `Bingo +${String(bonus)}`;
+}
 
 export function tileCaption(tile: Tile): string {
     if (tile.blank) {

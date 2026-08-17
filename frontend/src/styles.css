@@ -547,6 +547,66 @@ select {
     outline-offset: -2px;
 }
 
+.words {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.word-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 11px;
+    border: 1px solid var(--chrome-edge);
+    border-radius: 999px;
+    background: var(--chrome-panel);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+}
+
+.word-chip::before {
+    width: 8px;
+    height: 8px;
+    border: 2px solid var(--chrome-muted);
+    border-radius: 50%;
+    content: "";
+}
+
+.word-chip[data-status="valid"]::before {
+    border-color: var(--accent-primary);
+    background: var(--accent-primary);
+}
+
+.word-chip[data-status="standing"]::before {
+    border-color: var(--accent-premove);
+    background: var(--accent-premove);
+}
+
+.word-chip[data-status="invalid"] {
+    border-color: var(--accent-danger);
+    color: var(--accent-danger);
+}
+
+.word-chip[data-status="invalid"]::before {
+    border-color: var(--accent-danger);
+    background: var(--accent-danger);
+}
+
+.word-points {
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+}
+
+.word-bingo {
+    border-style: dashed;
+}
+
 .guidance {
     margin: 0;
     color: var(--chrome-muted);
