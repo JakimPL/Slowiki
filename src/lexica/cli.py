@@ -7,6 +7,7 @@ from lexica.compile import compile_lexicon, compile_morph_lexicon, load_compiled
 from lexica.dictionaries.sjp import iter_sjp_words
 from lexica.morph.diff import diff_lexicons
 from lexica.morph.index import analyse_dictionary
+from lexica.morph.lookup import lookup_lines
 from lexica.morph.report import build_artifact_report, build_report
 from lexica.morph.sources.sgjp import build_morfeusz_analyzer
 from wordcore.lexicon.morph import MorphLexicon
@@ -33,6 +34,9 @@ def build_parser() -> argparse.ArgumentParser:
     diff_parser = subparsers.add_parser("diff")
     diff_parser.add_argument("old", type=Path)
     diff_parser.add_argument("new", type=Path)
+    lookup_parser = subparsers.add_parser("lookup")
+    lookup_parser.add_argument("artifact", type=Path)
+    lookup_parser.add_argument("words", nargs="+")
     fetch_osps = subparsers.add_parser("fetch-osps")
     fetch_osps.add_argument("output", type=Path)
     fetch_english = subparsers.add_parser("fetch-english")
@@ -78,6 +82,14 @@ def main(argv: list[str] | None = None) -> None:
             if not isinstance(old, MorphLexicon) or not isinstance(new, MorphLexicon):
                 raise SystemExit("both artifacts must carry morphology data")
             print(json.dumps(diff_lexicons(old, new).model_dump(), indent=1, ensure_ascii=False))
+
+        case "lookup":
+            lexicon = load_compiled_lexicon(args.artifact)
+            if not isinstance(lexicon, MorphLexicon):
+                raise SystemExit("the artifact carries no morphology data")
+            for word in args.words:
+                for line in lookup_lines(lexicon, word):
+                    print(line)
 
         case "fetch-osps":
             print("download the OSPS list from https://www.pfs.org.pl and write it to", args.output)

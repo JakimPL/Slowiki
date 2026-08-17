@@ -177,9 +177,11 @@ independent of any model.
   `wordserver/describe.py` thread them through. `validate_words` rejects
   words whose analyses violate the filters with a precise verdict; `UNKNOWN`
   words pass dictionary validity and are rejected under active filters.
-- UI info: the table view enriches the last play or a read endpoint exposes
-  class info for placed words; `scripts/openapi.py` regenerates the
-  frontend types.
+- UI info: the game server exposes class info through the play filters only;
+  word exploration lives in the `lexica` CLI
+  (`lexica lookup <artifact> <word...>`), which loads the artifact directly
+  and prints every analysis with its grammatical tags. The game UI carries
+  no analysis surface.
 
 ## Development corpus
 
@@ -254,10 +256,10 @@ LLM-assisted pipeline and contributes patterns for the optional review tool
 4. Play-validation filters through schemes and `validate_words` (completed
    2026-08-17: `allowed_pos` and `base_form_only`, config-validated, exposed
    in the table description).
-5. UI class info (server surface and frontend annotation; completed
-   2026-08-17: `GET /tables/{id}/word/{word}` plus tappable word chips in the
-   move log).
-6. Incremental operations: digests, `lexica analyze/compile/report/diff`,
+5. UI class info (retracted 2026-08-17): the game server and the game UI
+   stay free of morphology queries; exploration moved to
+   `lexica lookup <artifact> <word...>`.
+6. Incremental operations: digests, `lexica analyze/compile/report/diff/lookup`,
    overrides (completed 2026-08-17: manifest skip, fail-loud overrides,
    byte-identical reruns); the optional DeepSeek review tool for `UNKNOWN`
    follows as a separate change.
