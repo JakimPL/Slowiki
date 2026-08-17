@@ -51,7 +51,7 @@ class Analysis(BaseFrozen):
 
 class VariantRecord(BaseFrozen):
     form: str
-    tags: MorphTags
+    tag: str
     in_dictionary: bool
 
 

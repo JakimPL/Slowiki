@@ -314,6 +314,24 @@ rescues many proper-derived forms. The remaining forms become `UNKNOWN`
 entries in the report. Case folds cleanly: the analyzer classifies lowercase
 and uppercase input identically (verified on a 10k sample).
 
+### Analysis pipeline run (Phase 2, full corpus)
+
+`lexica analyze --polimorf dictionaries/sources/PoliMorf-0.6.7.tab.gz` over
+all 3,240,429 forms:
+
+| Metric | Value |
+|---|---|
+| Classes assembled | 201,821 |
+| Classes per POS | rzeczownik 86,223 · przymiotnik 64,132 · przysłówek 25,727 · czasownik 24,728 · wykrzyknik 378 · partykuła 243 · liczebnik 205 · przyimek 106 · spójnik 46 · zaimek 7 · inny 26 |
+| Forms with multiple classes | 572,899 (17.68%) |
+| Maximum classes per form | 7 |
+| Wall time / peak memory | 9 min 7 s / 21.8 GB |
+
+The 361,664 measured lemma+prefix pairs collapse to 201,821 classes because
+one lemma carries several verb or adjective tag prefixes within a single
+class. The zaimek count stays small because the tagset classifies most
+pronouns as adjectives (a lemma-level refinement).
+
 ## Source decision (Phase 0)
 
 - Primary analysis source: morfeusz2 with the bundled SGJP 2026.06.01 —

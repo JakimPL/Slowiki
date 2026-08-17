@@ -1,9 +1,17 @@
 import argparse
 import itertools
+import json
 from pathlib import Path
 
 from lexica.compile import compile_lexicon
 from lexica.dictionaries.sjp import iter_sjp_words
+from lexica.morph.index import analyse_dictionary
+from lexica.morph.report import build_report
+
+try:
+    import morfeusz2  # type: ignore[import-untyped]
+except ImportError:
+    morfeusz2 = None
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -14,6 +22,10 @@ def build_parser() -> argparse.ArgumentParser:
     compile_parser = subparsers.add_parser("compile")
     compile_parser.add_argument("archive", type=Path)
     compile_parser.add_argument("output", type=Path)
+    analyze_parser = subparsers.add_parser("analyze")
+    analyze_parser.add_argument("archive", type=Path)
+    analyze_parser.add_argument("--polimorf", type=Path, default=None)
+    analyze_parser.add_argument("--limit", type=int, default=None)
     fetch_osps = subparsers.add_parser("fetch-osps")
     fetch_osps.add_argument("output", type=Path)
     fetch_english = subparsers.add_parser("fetch-english")
@@ -34,6 +46,9 @@ def main(argv: list[str] | None = None) -> None:
             compile_lexicon(iter_sjp_words(args.archive), args.output)
             print(args.output)
 
+        case "analyze":
+            _run_analyze(args)
+
         case "fetch-osps":
             print("download the OSPS list from https://www.pfs.org.pl and write it to", args.output)
 
@@ -45,6 +60,18 @@ def main(argv: list[str] | None = None) -> None:
 
         case _:
             raise ValueError(f"unsupported command {args.command}")
+
+
+def _run_analyze(args: argparse.Namespace) -> None:
+    if morfeusz2 is None:
+        raise SystemExit("install the morphology extra: uv sync --extra morphology")
+
+    words = tuple(iter_sjp_words(args.archive))
+    if args.limit is not None:
+        words = words[: args.limit]
+    analyzer = morfeusz2.Morfeusz()
+    result = analyse_dictionary(words, analyzer, args.polimorf)
+    print(json.dumps(build_report(result).model_dump(), indent=1, ensure_ascii=False))
 
 
 if __name__ == "__main__":

@@ -24,7 +24,9 @@ PART_CASES = [
     ("adjp:dat", PartOfSpeech.PRZYMIOTNIK),
     ("adjc", PartOfSpeech.PRZYMIOTNIK),
     ("adv:com", PartOfSpeech.PRZYSŁÓWEK),
+    ("adja", PartOfSpeech.PRZYSŁÓWEK),
     ("num:pl:nom.acc.voc:m1.n:rec:col", PartOfSpeech.LICZEBNIK),
+    ("numcomp", PartOfSpeech.LICZEBNIK),
     ("frag", PartOfSpeech.LICZEBNIK),
     ("ppron12:sg:voc:m1.m2.m3.f.n:sec", PartOfSpeech.ZAIMEK),
     ("ppron3:sg:gen:n:ter:akc:npraep", PartOfSpeech.ZAIMEK),
@@ -44,6 +46,7 @@ PART_CASES = [
     ("pcon:imperf", PartOfSpeech.CZASOWNIK),
     ("pant:perf", PartOfSpeech.CZASOWNIK),
     ("pact:sg:nom:m1:imperf:aff", PartOfSpeech.CZASOWNIK),
+    ("pacta", PartOfSpeech.CZASOWNIK),
     ("ppas:sg:nom:m1:perf:aff", PartOfSpeech.CZASOWNIK),
     ("ger:sg:nom:n:imperf:aff", PartOfSpeech.CZASOWNIK),
     ("winien:sg:m1.m2.m3:imperf", PartOfSpeech.CZASOWNIK),
@@ -78,6 +81,14 @@ TAG_CASES = [
             number=Number.MNOGA,
             genders=frozenset({Gender.NIJAKI}),
             extras=frozenset({"ncol"}),
+        ),
+    ),
+    (
+        "subst:sg:gen:n2",
+        MorphTags(
+            cases=frozenset({Case.DOPEŁNIACZ}),
+            number=Number.POJEDYNCZA,
+            genders=frozenset({Gender.NIJAKI}),
         ),
     ),
     (
@@ -186,6 +197,10 @@ TAG_CASES = [
             negation=True,
             verb_form=VerbForm.IMIESŁÓW_CZYNNY,
         ),
+    ),
+    (
+        "pacta",
+        MorphTags(verb_form=VerbForm.IMIESŁÓW_CZYNNY),
     ),
     (
         "ppas:sg:nom:n:perf:aff",

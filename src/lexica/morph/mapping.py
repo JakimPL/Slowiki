@@ -24,7 +24,9 @@ _TAG_TO_PART: Final[dict[str, PartOfSpeech]] = {
     "adjp": PartOfSpeech.PRZYMIOTNIK,
     "adjc": PartOfSpeech.PRZYMIOTNIK,
     "adv": PartOfSpeech.PRZYSŁÓWEK,
+    "adja": PartOfSpeech.PRZYSŁÓWEK,
     "num": PartOfSpeech.LICZEBNIK,
+    "numcomp": PartOfSpeech.LICZEBNIK,
     "frag": PartOfSpeech.LICZEBNIK,
     "ppron12": PartOfSpeech.ZAIMEK,
     "ppron3": PartOfSpeech.ZAIMEK,
@@ -33,6 +35,7 @@ _TAG_TO_PART: Final[dict[str, PartOfSpeech]] = {
     "conj": PartOfSpeech.SPÓJNIK,
     "part": PartOfSpeech.PARTYKUŁA,
     "comp": PartOfSpeech.PARTYKUŁA,
+    "qub": PartOfSpeech.PARTYKUŁA,
     "interj": PartOfSpeech.WYKRZYKNIK,
     "fin": PartOfSpeech.CZASOWNIK,
     "bedzie": PartOfSpeech.CZASOWNIK,
@@ -44,6 +47,7 @@ _TAG_TO_PART: Final[dict[str, PartOfSpeech]] = {
     "pcon": PartOfSpeech.CZASOWNIK,
     "pant": PartOfSpeech.CZASOWNIK,
     "pact": PartOfSpeech.CZASOWNIK,
+    "pacta": PartOfSpeech.CZASOWNIK,
     "ppas": PartOfSpeech.CZASOWNIK,
     "ger": PartOfSpeech.CZASOWNIK,
     "winien": PartOfSpeech.CZASOWNIK,
@@ -75,6 +79,8 @@ _GENDER_CODES: Final[dict[str, Gender]] = {
     "m3": Gender.MĘSKORZECZOWY,
     "f": Gender.ŻEŃSKI,
     "n": Gender.NIJAKI,
+    "n1": Gender.NIJAKI,
+    "n2": Gender.NIJAKI,
 }
 
 _PERSON_CODES: Final[dict[str, Person]] = {
@@ -225,6 +231,8 @@ def _post_process(prefix: str, tags: MorphTags) -> MorphTags:
         case "pant":
             return tags.model_copy(update={"verb_form": VerbForm.IMIESŁÓW_UPRZEDNI})
         case "pact":
+            return tags.model_copy(update={"verb_form": VerbForm.IMIESŁÓW_CZYNNY})
+        case "pacta":
             return tags.model_copy(update={"verb_form": VerbForm.IMIESŁÓW_CZYNNY})
         case "ppas":
             return tags.model_copy(update={"verb_form": VerbForm.IMIESŁÓW_BIERNY})

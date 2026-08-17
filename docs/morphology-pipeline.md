@@ -241,7 +241,7 @@ LLM-assisted pipeline and contributes patterns for the optional review tool
    corpus, committed stress anchor).
 1. Domain model and tagset mapping (pure models and table, unit-tested).
 2. Analyzer index and class assembly with the `UNKNOWN` report; full-corpus
-   run.
+   run (completed 2026-08-17: 201,821 classes, 9 min 7 s, 21.8 GB peak).
 3. Artifact v2 and `MorphLexicon`; parity and round-trip tests.
 4. Play-validation filters through schemes and `validate_words`.
 5. UI class info (server surface and frontend annotation).
@@ -261,6 +261,8 @@ LLM-assisted pipeline and contributes patterns for the optional review tool
 - The pinned `morfeusz2==1.99.15` wheel fixes the dictionary data version; a
   dictionary upgrade changes the reference analyses and re-runs specimen
   regeneration deliberately.
-- Memory footprint of `MorphLexicon` at server startup; mitigation options
-  listed above.
+- Memory footprint of `MorphLexicon` at server startup; the compile-time peak
+  measured 21.8 GB with pydantic variant records, so the artifact serializes
+  raw interned tuples and derives `in_dictionary` from the surface index.
+  Mitigation options remain (slimmed tags, lazy class table).
 - WSJP API access remains to confirm; paradigm-level scope holds for now.
