@@ -4,6 +4,7 @@ import type {
     Bonus,
     CompanyView,
     EventView,
+    PlayRecord,
     PositionView,
     SeatView,
     TableViewResponse,
@@ -54,6 +55,18 @@ export function aCompany(seats?: readonly SeatView[]): CompanyView {
 
 export function anEvent(overrides: Partial<EventView> = {}): EventView {
     return { seq: 0, kind: "move", actor: 0, move: null, reason: null, position: aView(), ...overrides };
+}
+
+export function aPlayRecord(overrides: Partial<PlayRecord> = {}): PlayRecord {
+    return {
+        player: 0,
+        indices: [112, 113],
+        words: [{ text: "KO", points: 5 }],
+        points: 5,
+        bingo: 0,
+        turn_number: 0,
+        ...overrides,
+    };
 }
 
 export function someParameters(overrides: Partial<RuleParameters> = {}): RuleParameters {

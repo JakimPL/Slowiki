@@ -565,6 +565,73 @@ select {
     z-index: 1;
 }
 
+.cell[data-fresh] {
+    outline: 2px solid var(--fresh, var(--accent-primary));
+    outline-offset: -1px;
+    z-index: 1;
+    animation: fresh-pop 360ms ease;
+}
+
+@keyframes fresh-pop {
+    0% {
+        transform: scale(1.12);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cell[data-fresh] {
+        animation: none;
+    }
+}
+
+.move-log {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 96px;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    list-style: none;
+}
+
+.move-log-entry {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 13px;
+}
+
+.move-log-dot {
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--tint);
+}
+
+.move-log-name {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.move-log-what {
+    overflow: hidden;
+    color: var(--chrome-muted);
+    font-variant-numeric: tabular-nums;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.move-log-entry[data-kind="play"] .move-log-what {
+    color: var(--chrome-text);
+    font-weight: 600;
+}
+
 .rack-tile .tile {
     transition: transform 120ms ease;
 }

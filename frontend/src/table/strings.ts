@@ -2,6 +2,7 @@ import type { CompanyView, Tile } from "../api/views";
 import type { Connection } from "../play/connection";
 import type { ExchangeBlock } from "../play/exchange";
 import type { Guidance } from "../play/guidance";
+import type { LogEntry } from "../play/log";
 import type { Story } from "../play/story";
 
 export const PRODUCT_NAME = "Literabble";
@@ -41,6 +42,7 @@ export const RECALL_BUTTON = "Recall";
 export const SHUFFLE_BUTTON = "Shuffle";
 export const WORDS_LABEL = "Formed words";
 export const TRAY_LABEL = "Exchange tray";
+export const LOG_LABEL = "Recent moves";
 export const TRAY_HINT = "Set tiles aside here to exchange or park them.";
 export const PARK_HERE = "Park here";
 export const RETURN_HERE = "Return here";
@@ -74,6 +76,21 @@ export function exchangeGuidance(block: ExchangeBlock, remaining: number | null,
 
 export function bingoCaption(bonus: number): string {
     return `Bingo +${String(bonus)}`;
+}
+
+export function logCaption(entry: LogEntry): string {
+    switch (entry.kind) {
+        case "play":
+            return `${entry.words.map((word) => word.text).join(", ")} · ${String(entry.points ?? 0)}`;
+        case "exchange":
+            return "exchanged tiles";
+        case "pass":
+            return "passed";
+        case "premove-returned":
+            return entry.reason === null
+                ? "premove returned"
+                : `premove returned · ${entry.reason.replaceAll("_", " ")}`;
+    }
 }
 
 export function tileCaption(tile: Tile): string {

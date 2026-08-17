@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { openedFrom } from "../src/play/events";
 import { Table } from "../src/table/Table";
-import { aCompany, aSeatView, aTableResponse, aView } from "./positions";
+import { aBoard, aCompany, aPlayRecord, aSeatView, aTableResponse, aTile, aView } from "./positions";
 
 const ARRIVAL = { seat: { table: "t1", token: "tok-1" }, code: "KWPZTR", seated: 0 };
 
@@ -45,6 +45,19 @@ describe("Table", () => {
         expect(markup).toContain(">Shuffle</button>");
         expect(markup).toContain('class="rack" role="group"');
         expect(markup).toContain('data-region="tray"');
+    });
+
+    it("rings the last play in the mover's tint", () => {
+        const response = aTableResponse({
+            view: aView({
+                board: aBoard({ 112: aTile({ letter: "W" }) }),
+                last_play: aPlayRecord({ player: 1, indices: [112] }),
+            }),
+        });
+        const markup = renderToStaticMarkup(
+            <Table arrival={ARRIVAL} connection="live" state={openedFrom(response)} trouble={null} />,
+        );
+        expect(markup).toContain('data-fresh="true"');
     });
 
     it("keeps the desk away from spectators", () => {

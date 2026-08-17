@@ -20,6 +20,7 @@ import type { StoryKind } from "../play/story";
 import { storyFor } from "../play/story";
 import { tintFor } from "../play/tints";
 import { trayTilesOf } from "../play/tray";
+import { useAlerts } from "../play/useAlerts";
 import { useDescription } from "../play/useDescription";
 import { useDesk } from "../play/useDesk";
 import { usePlay } from "../play/usePlay";
@@ -33,6 +34,7 @@ import { carriedTo, isCarry } from "./dragging";
 import { GameOver } from "./GameOver";
 import type { KeyHandlers } from "./keys";
 import { boundKeys } from "./keys";
+import { MoveLog } from "./MoveLog";
 import { Plaques } from "./Plaques";
 import { Rack } from "./Rack";
 import { Room } from "./Room";
@@ -46,6 +48,7 @@ import {
     exchangeGuidance,
     guidanceCaption,
     primaryCaption,
+    PRODUCT_NAME,
 } from "./strings";
 import type { DropTarget } from "./targets";
 import { targetsFrom } from "./targets";
@@ -84,6 +87,11 @@ export function Table({ arrival, connection, state, trouble }: TableProps): Reac
     const { desk, perform } = useDesk(state, mySeat, arrival.seat, atDesk);
     const { busy, notice, noticeCode, send } = usePlay(arrival.seat, state.seq);
     const [blankChoice, setBlankChoice] = useState<BlankChoice | null>(null);
+    useAlerts(story.kind === "acting", PRODUCT_NAME);
+
+    const lastPlay = state.view.last_play;
+    const freshCells = new Set(lastPlay?.indices ?? []);
+    const freshTint = lastPlay === null ? null : tintFor(lastPlay.player).hex;
 
     const prospect = prospectOf(state.view.board, desk.draft, rules);
     const heldBack = draftedIdentifiers(desk.draft);
@@ -260,6 +268,8 @@ export function Table({ arrival, connection, state, trouble }: TableProps): Reac
                     pending={pendingFacesOf(desk.draft)}
                     targeting={mayAct && desk.lift !== null}
                     dropCell={carry?.target?.kind === "cell" ? carry.target.cell : null}
+                    fresh={freshCells}
+                    freshTint={freshTint}
                     onLay={mayAct ? layLifted : null}
                     bindings={atDesk ? bindings : null}
                 />
@@ -325,6 +335,7 @@ export function Table({ arrival, connection, state, trouble }: TableProps): Reac
             ) : rack !== null && rack.length > 0 ? (
                 <Rack tiles={rack} liftedId={null} bindings={null} returnable={false} onReturn={() => undefined} />
             ) : null}
+            {state.log.length > 0 ? <MoveLog log={state.log} company={state.company} /> : null}
             {trouble !== null && connection !== "live" ? <p className="trouble">{trouble}</p> : null}
             {carry === null ? null : (
                 <div

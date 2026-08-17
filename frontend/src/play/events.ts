@@ -1,20 +1,28 @@
 import type { CompanyView, EventView, PositionView, TableViewResponse } from "../api/views";
+import type { LogEntry } from "./log";
+import { appendedLog, logEntryOf } from "./log";
 
 export interface TableState {
     readonly seq: number;
     readonly view: PositionView;
     readonly company: CompanyView;
+    readonly log: readonly LogEntry[];
 }
 
 export function openedFrom(response: TableViewResponse): TableState {
-    return { seq: response.seq, view: response.view, company: response.company };
+    return { seq: response.seq, view: response.view, company: response.company, log: [] };
 }
 
 export function advanced(state: TableState, event: EventView): TableState {
     if (event.seq < state.seq) {
         return state;
     }
-    return { seq: event.seq + 1, view: event.position, company: state.company };
+    return {
+        seq: event.seq + 1,
+        view: event.position,
+        company: state.company,
+        log: appendedLog(state.log, logEntryOf(event, state.view)),
+    };
 }
 
 export function accompanied(state: TableState, company: CompanyView): TableState {
@@ -25,7 +33,7 @@ export function refreshed(state: TableState, response: TableViewResponse): Table
     if (response.seq < state.seq) {
         return state;
     }
-    return openedFrom(response);
+    return { ...openedFrom(response), log: state.log };
 }
 
 export function gathered(company: CompanyView): boolean {

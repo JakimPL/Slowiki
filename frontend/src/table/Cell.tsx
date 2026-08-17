@@ -14,6 +14,7 @@ export interface CellProps {
     readonly pending: Tile | null;
     readonly target: boolean;
     readonly drop: boolean;
+    readonly fresh: boolean;
     readonly label: string;
     readonly onLay: ((cell: number) => void) | null;
     readonly bindings: TileBindings | null;
@@ -29,13 +30,14 @@ export function Cell({
     pending,
     target,
     drop,
+    fresh,
     label,
     onLay,
     bindings,
 }: CellProps): ReactElement {
     if (tile !== null) {
         return (
-            <div className="cell" data-drop={drop ? "true" : undefined}>
+            <div className="cell" data-drop={drop ? "true" : undefined} data-fresh={fresh ? "true" : undefined}>
                 <TileFace tile={tile} />
             </div>
         );

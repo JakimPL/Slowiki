@@ -6,6 +6,7 @@ export type Tile = Schemas["Tile"];
 export type Bonus = Schemas["Bonus"];
 export type Board = Schemas["Board"];
 export type PositionView = Schemas["PositionView"];
+export type PlayRecord = Schemas["PlayRecord"];
 export type EventView = Schemas["EventView"];
 export type SeatView = Schemas["SeatView"];
 export type CompanyView = Schemas["CompanyView"];

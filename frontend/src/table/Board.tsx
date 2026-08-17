@@ -11,16 +11,28 @@ export interface BoardProps {
     readonly pending: ReadonlyMap<number, Tile>;
     readonly targeting: boolean;
     readonly dropCell: number | null;
+    readonly fresh: ReadonlySet<number>;
+    readonly freshTint: string | null;
     readonly onLay: ((cell: number) => void) | null;
     readonly bindings: TileBindings | null;
 }
 
 const CENTER_DIVISOR = 2;
 
-export function Board({ board, pending, targeting, dropCell, onLay, bindings }: BoardProps): ReactElement {
+export function Board({
+    board,
+    pending,
+    targeting,
+    dropCell,
+    fresh,
+    freshTint,
+    onLay,
+    bindings,
+}: BoardProps): ReactElement {
     const middle = Math.floor(board.size / CENTER_DIVISOR);
     const center = middle * board.size + middle;
-    const style: CSSProperties = { "--cells": board.size };
+    const style: CSSProperties =
+        freshTint === null ? { "--cells": board.size } : { "--cells": board.size, "--fresh": freshTint };
     const interactive = onLay !== null || bindings !== null;
     return (
         <div
@@ -42,6 +54,7 @@ export function Board({ board, pending, targeting, dropCell, onLay, bindings }: 
                         pending={shown}
                         target={targeting && tile === null && shown === null && onLay !== null}
                         drop={dropCell === index}
+                        fresh={fresh.has(index)}
                         label={squareCaption(rowOf(board.size, index), columnOf(board.size, index))}
                         onLay={onLay}
                         bindings={bindings}

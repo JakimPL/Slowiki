@@ -11,6 +11,8 @@ const PASSIVE = {
     pending: new Map<number, Tile>(),
     targeting: false,
     dropCell: null,
+    fresh: new Set<number>(),
+    freshTint: null,
     onLay: null,
     bindings: null,
 };
@@ -71,5 +73,14 @@ describe("Board", () => {
     it("rings the computed drop cell while carrying", () => {
         const markup = renderToStaticMarkup(<Board {...PASSIVE} board={aBoard()} dropCell={CENTER} />);
         expect(markup).toContain('data-drop="true"');
+    });
+
+    it("rings the fresh play in the mover's tint", () => {
+        const board = aBoard({ [CENTER]: aTile({ letter: "W" }) });
+        const markup = renderToStaticMarkup(
+            <Board {...PASSIVE} board={board} fresh={new Set([CENTER])} freshTint="#c95b79" />,
+        );
+        expect(markup).toContain('data-fresh="true"');
+        expect(markup).toContain("--fresh:#c95b79");
     });
 });
