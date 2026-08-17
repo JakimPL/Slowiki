@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { fragmentFor, invitationTo, standingIn } from "../src/play/session";
+import { followedFragment, fragmentFor, invitationTo, standingIn } from "../src/play/session";
 
 describe("standingIn", () => {
     it("reads table, token, code, and seat from a fragment", () => {
@@ -39,6 +39,18 @@ describe("fragmentFor", () => {
         expect(standing.token).toBe("tok-1");
         expect(standing.code).toBe("KWPZTR");
         expect(standing.seated).toBe(1);
+    });
+});
+
+describe("followedFragment", () => {
+    it("follows the address while no seat is held", () => {
+        expect(followedFragment("", "#table=abc123&code=KWPZTR")).toBe("#table=abc123&code=KWPZTR");
+        expect(followedFragment("#code=OLDONE", "#table=abc123&code=KWPZTR")).toBe("#table=abc123&code=KWPZTR");
+    });
+
+    it("keeps a held seat when the address changes", () => {
+        const held = "#table=abc123&token=tok-1&code=KWPZTR&seat=1";
+        expect(followedFragment(held, "#table=other&code=ZZZZZZ")).toBe(held);
     });
 });
 

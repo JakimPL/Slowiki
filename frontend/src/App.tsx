@@ -32,7 +32,7 @@ export function App(): ReactElement {
     }, []);
 
     if (arrival === null) {
-        return <Home invitedCode={invitation} themeNote={themeNote} onArrive={arrive} />;
+        return <Home key={invitation ?? ""} invitedCode={invitation} themeNote={themeNote} onArrive={arrive} />;
     }
     return <TableScreen arrival={arrival} />;
 }

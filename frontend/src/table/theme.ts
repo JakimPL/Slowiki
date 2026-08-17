@@ -3,6 +3,8 @@ import { mixHex } from "./color";
 
 export const THEME_STYLE_ELEMENT_ID = "theme-tokens";
 
+const BLANK_BAND_SHARE = 0.5;
+
 export function cssFor(style: StyleTokens): string {
     const light = declarationsFor(style.light).join("\n    ");
     const dark = declarationsFor(style.dark).join("\n    ");
@@ -46,6 +48,9 @@ export function declarationsFor(theme: ThemeTokens): readonly string[] {
         declarations.push(`--band-${slugOf(category)}: ${band};`);
         declarations.push(`--tile-face-${slugOf(category)}: ${mixHex(theme.tiles.face, band, theme.tiles.face_tint)};`);
     }
+    const blank = mixHex(theme.tiles.edge, theme.chrome.muted, BLANK_BAND_SHARE);
+    declarations.push(`--band-blank: ${blank};`);
+    declarations.push(`--tile-face-blank: ${mixHex(theme.tiles.face, blank, theme.tiles.face_tint)};`);
     return declarations;
 }
 

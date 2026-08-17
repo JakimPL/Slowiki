@@ -54,15 +54,12 @@ export function Home({ invitedCode, themeNote, onArrive }: HomeProps): ReactElem
     const [seats, setSeats] = useState<number | null>(null);
     const [budget, setBudget] = useState<number | null>(null);
     const [increment, setIncrement] = useState(0);
-    const [joining, setJoining] = useState(false);
+    const [joining, setJoining] = useState(invitedCode !== null);
     const [busy, setBusy] = useState(false);
     const [trouble, setTrouble] = useState<string | null>(null);
 
-    const invited = invitedCode !== null;
-    const showJoin = invited || joining;
-
     useEffect(() => {
-        if (invited) {
+        if (joining) {
             return;
         }
         let alive = true;
@@ -80,7 +77,7 @@ export function Home({ invitedCode, themeNote, onArrive }: HomeProps): ReactElem
         return (): void => {
             alive = false;
         };
-    }, [invited]);
+    }, [joining]);
 
     const chosen = offerings?.find((offering) => offering.name === schemeName) ?? offerings?.[0] ?? null;
     const chosenSeats = boundedSeats(seats, chosen);
@@ -147,7 +144,7 @@ export function Home({ invitedCode, themeNote, onArrive }: HomeProps): ReactElem
                 />
             </label>
             <div className="home-panels">
-                {showJoin ? (
+                {joining ? (
                     <form className="panel" onSubmit={join}>
                         <h2>{JOIN_HEADING}</h2>
                         <label className="field">
@@ -210,27 +207,30 @@ export function Home({ invitedCode, themeNote, onArrive }: HomeProps): ReactElem
                                               ))}
                                     </select>
                                 </label>
-                                <label className="field">
-                                    <span>{TIME_LABEL}</span>
-                                    <select
-                                        value={budget ?? ""}
-                                        onChange={(change): void => {
-                                            setBudget(change.target.value === "" ? null : Number(change.target.value));
-                                        }}
-                                    >
-                                        <option value="">{UNTIMED_CAPTION}</option>
-                                        {TURN_BUDGETS.map((seconds) => (
-                                            <option key={seconds} value={seconds}>
-                                                {budgetCaption(seconds)}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </label>
-                                {budget === null ? null : (
+                                <div className="field-row">
+                                    <label className="field">
+                                        <span>{TIME_LABEL}</span>
+                                        <select
+                                            value={budget ?? ""}
+                                            onChange={(change): void => {
+                                                setBudget(
+                                                    change.target.value === "" ? null : Number(change.target.value),
+                                                );
+                                            }}
+                                        >
+                                            <option value="">{UNTIMED_CAPTION}</option>
+                                            {TURN_BUDGETS.map((seconds) => (
+                                                <option key={seconds} value={seconds}>
+                                                    {budgetCaption(seconds)}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </label>
                                     <label className="field">
                                         <span>{INCREMENT_LABEL}</span>
                                         <select
                                             value={increment}
+                                            disabled={budget === null}
                                             onChange={(change): void => {
                                                 setIncrement(Number(change.target.value));
                                             }}
@@ -242,7 +242,7 @@ export function Home({ invitedCode, themeNote, onArrive }: HomeProps): ReactElem
                                             ))}
                                         </select>
                                     </label>
-                                )}
+                                </div>
                             </>
                         )}
                         <button type="submit" className="action" disabled={busy || chosen === null}>
@@ -251,17 +251,15 @@ export function Home({ invitedCode, themeNote, onArrive }: HomeProps): ReactElem
                     </form>
                 )}
             </div>
-            {invited ? null : (
-                <button
-                    type="button"
-                    className="home-switch"
-                    onClick={(): void => {
-                        setJoining(!joining);
-                    }}
-                >
-                    {joining ? SWITCH_TO_CREATE : SWITCH_TO_JOIN}
-                </button>
-            )}
+            <button
+                type="button"
+                className="home-switch"
+                onClick={(): void => {
+                    setJoining(!joining);
+                }}
+            >
+                {joining ? SWITCH_TO_CREATE : SWITCH_TO_JOIN}
+            </button>
             {trouble === null ? null : (
                 <p className="trouble" role="alert">
                     {trouble}

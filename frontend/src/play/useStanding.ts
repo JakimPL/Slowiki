@@ -1,8 +1,8 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import type { Seat } from "../api/seat";
 import type { TableAdmission } from "../api/tables";
-import { fragmentFor, standingIn } from "./session";
+import { followedFragment, fragmentFor, standingIn } from "./session";
 
 export interface Arrival {
     readonly seat: Seat;
@@ -17,12 +17,28 @@ export interface StandingHold {
 }
 
 export function useStanding(): StandingHold {
-    const [standing, setStanding] = useState(() => standingIn(window.location.hash));
+    const [fragment, setFragment] = useState(() => window.location.hash);
     const arrive = useCallback((admission: TableAdmission): void => {
-        const fragment = fragmentFor(admission.table_id, admission.token, admission.code, admission.seat);
-        window.history.replaceState(null, "", fragment);
-        setStanding(standingIn(fragment));
+        const reached = fragmentFor(admission.table_id, admission.token, admission.code, admission.seat);
+        window.history.replaceState(null, "", reached);
+        setFragment(reached);
     }, []);
+
+    useEffect(() => {
+        const reread = (): void => {
+            const followed = followedFragment(fragment, window.location.hash);
+            if (followed !== window.location.hash) {
+                window.history.replaceState(null, "", followed);
+            }
+            setFragment(followed);
+        };
+        window.addEventListener("hashchange", reread);
+        return (): void => {
+            window.removeEventListener("hashchange", reread);
+        };
+    }, [fragment]);
+
+    const standing = standingIn(fragment);
     const arrival =
         standing.table !== null && standing.token !== null
             ? { seat: { table: standing.table, token: standing.token }, code: standing.code, seated: standing.seated }

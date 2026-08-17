@@ -23,10 +23,14 @@ by amending it. The palette is the *Lniany* proposition chosen from the phase-0 
 
 - **Arrive** — a single card: creating a table (scheme picker bounded by the offering's real
   player range, seat count, and the clock: a time budget per player from one minute to an hour, or
-  untimed, with an optional bonus added after every play or exchange) and a quiet switch to the
-  join card for holders of a code. An invitation link
-  opens straight onto the join card with the code prefilled. The name field persists in local
-  storage across visits. Credentials live in the URL fragment; a reload rejoins by token.
+  untimed, beside the bonus added after every play or exchange — one fixed row of two controls, the
+  bonus quiet and inert while the table stays untimed, so the card holds its size through every
+  choice) and a quiet switch to the join card for holders of a code. An invitation link opens
+  straight onto the join card with the code prefilled, and that card keeps the switch, so a guest
+  can start a table of their own. The name field persists in local storage across visits.
+  Credentials live in the URL fragment; a reload rejoins by token, and while no seat is held the
+  page follows the address bar, so an invitation pasted over an idle page opens its join card. A
+  held seat keeps its own address.
 - **Table** — the one screen where the game lives. Until every seat is claimed it doubles as the
   room: a gathering banner with the join code, a copy-invitation control, and claimed/empty
   plaques.
@@ -196,8 +200,10 @@ says whose turn.
 
 Premium cells carry a fill and a label glyph; tiles keep a light face in both variants — physical
 tiles under lamplight — with the category as an enamel band along the bottom edge and a
-`face_tint` wash of the band color across the face. Blanks show a hollow diamond and print their
-assigned letter once played. The letter-multiplier rows serve the
+`face_tint` wash of the band color across the face. A blank belongs to no category, so its band is
+derived as the midpoint of `tiles.edge` and `chrome.muted` and washes the face through the same
+`face_tint` formula: a neutral tile that keeps the relief every other tile has. Blanks show a hollow
+diamond and print their assigned letter once played. The letter-multiplier rows serve the
 Scrabble board and are provisional until its specimen renders in the asset phase.
 
 ## Type

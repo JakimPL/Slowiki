@@ -279,6 +279,12 @@ select {
     font-weight: 600;
 }
 
+.field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
 .field input,
 .field select {
     padding: 10px 12px;
@@ -287,6 +293,16 @@ select {
     background: var(--chrome-surface);
     color: var(--chrome-text);
     font-weight: 400;
+}
+
+.field select:disabled {
+    border-color: color-mix(in srgb, var(--chrome-edge) 55%, transparent);
+    background: color-mix(in srgb, var(--chrome-text) 5%, transparent);
+    color: color-mix(in srgb, var(--chrome-muted) 70%, transparent);
+}
+
+.field-row .field:has(select:disabled) > span {
+    color: color-mix(in srgb, var(--chrome-muted) 80%, transparent);
 }
 
 .code-input {

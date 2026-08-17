@@ -19,6 +19,12 @@ describe("declarationsFor", () => {
         expect(declarations).toContain("--tile-face-yellow: #f5e7c5;");
         expect(declarations).toContain("--tile-face-red: #eed8c5;");
     });
+
+    it("gives the blank a neutral band between the tile edge and the muted ink", () => {
+        const declarations = declarationsFor(aStyle().light);
+        expect(declarations).toContain("--band-blank: #a5987d;");
+        expect(declarations).toContain("--tile-face-blank: #ede5d2;");
+    });
 });
 
 describe("cssFor", () => {
