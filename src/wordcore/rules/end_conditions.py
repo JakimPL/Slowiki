@@ -6,7 +6,10 @@ def rack_deductions(position: Position) -> dict[int, int]:
     return {seat: sum(tile.value for tile in rack_of(position, seat)) for seat in position.players}
 
 
-def deducted_scores(position: Position, deductions: dict[int, int]) -> dict[int, int]:
+def deducted_scores(
+    position: Position,
+    deductions: dict[int, int],
+) -> dict[int, int]:
     return {seat: position.state.scores[seat] - deductions[seat] for seat in position.players}
 
 

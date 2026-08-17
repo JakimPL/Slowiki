@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Final
 
 from lexica.dictionaries.bundles import decode_word_line, word_list_members
-from wordcore.exceptions import InvalidConfiguration
+from wordcore.errors.exceptions import InvalidConfiguration
 
 _SJP_FILENAME: Final = "slowa.txt"
 

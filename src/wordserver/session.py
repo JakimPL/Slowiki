@@ -7,11 +7,13 @@ from typing import Final
 from wordcore.games.game import Game
 from wordcore.moves.action import Pass
 from wordcore.moves.move import Move
-from wordcore.states.state import Phase
+from wordcore.states.phase import Phase
 from wordcore.views.events import EventView
 from wordcore.views.projection import PositionView
-from wordserver.errors import SeatTokenMismatch, TableGathering
-from wordserver.models import ClockView, CompanyView, SeatView
+from wordserver.errors.exceptions import SeatTokenMismatch, TableGathering
+from wordserver.models.clock import ClockView
+from wordserver.models.company import CompanyView
+from wordserver.models.seat import SeatView
 from wordtable.config import TimeConfig
 
 _KEEPALIVE_SECONDS: Final = 15
@@ -159,10 +161,18 @@ class TableSession:
         state = self._game.position.state
         return state.to_act, state.turn_number
 
-    async def events(self, observer: int | None, since: int) -> AsyncIterator[str]:
+    async def events(
+        self,
+        observer: int | None,
+        since: int,
+    ) -> AsyncIterator[str]:
         await self._adjust_streams(observer, 1)
         try:
-            cursor = _StreamCursor(next_seq=since, seen_company=-1, seen_clock=-1)
+            cursor = _StreamCursor(
+                next_seq=since,
+                seen_company=-1,
+                seen_clock=-1,
+            )
             while True:
                 frames = await self._fresh_frames(observer, cursor)
                 for frame in frames:
@@ -177,7 +187,11 @@ class TableSession:
         finally:
             await self._adjust_streams(observer, -1)
 
-    async def _fresh_frames(self, observer: int | None, cursor: _StreamCursor) -> list[str]:
+    async def _fresh_frames(
+        self,
+        observer: int | None,
+        cursor: _StreamCursor,
+    ) -> list[str]:
         async with self._condition:
             frames: list[str] = []
             if cursor.seen_company != self._company_version:
@@ -199,7 +213,10 @@ class TableSession:
     async def _timed_out_waiting(self) -> bool:
         async with self._condition:
             try:
-                await asyncio.wait_for(self._condition.wait(), timeout=_KEEPALIVE_SECONDS)
+                await asyncio.wait_for(
+                    self._condition.wait(),
+                    timeout=_KEEPALIVE_SECONDS,
+                )
             except TimeoutError:
                 return True
 
@@ -250,7 +267,10 @@ class TableSession:
             if position.state.to_act != frozenset({seat}):
                 return
 
-            self._game.submit(Move(player=seat, action=Pass()), base_seq=self._game.seq)
+            self._game.submit(
+                Move(player=seat, action=Pass()),
+                base_seq=self._game.seq,
+            )
             self._schedule_timer()
             self._condition.notify_all()
 

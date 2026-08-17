@@ -2,7 +2,7 @@ import marshal
 from collections.abc import Iterable
 from pathlib import Path
 
-from wordcore.exceptions import InvalidConfiguration
+from wordcore.errors.exceptions import InvalidConfiguration
 from wordcore.lexicon.lexicon import TextLexicon
 
 

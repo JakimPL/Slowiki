@@ -1,4 +1,4 @@
-from wordcore.exceptions import IllegalMove
+from wordcore.errors.exceptions import IllegalMove
 from wordcore.positions.position import Position
 from wordcore.tiles.tile import Tile
 

@@ -12,7 +12,16 @@ def score_move(
     words: tuple[FormedWord, ...],
     bingo: int,
 ) -> MoveScore:
-    scored = tuple(ScoredWord(text=word.text, points=_score_word(board, word)) for word in words)
+    scored = tuple(
+        ScoredWord(
+            text=word.text,
+            points=_score_word(
+                board,
+                word,
+            ),
+        )
+        for word in words
+    )
     return MoveScore(
         points=sum(word.points for word in scored) + bingo,
         words=scored,
@@ -21,14 +30,27 @@ def score_move(
 
 
 def _score_word(board: Board, word: FormedWord) -> int:
-    letter_sum = sum(_tile_points(board, placement, word) for placement in word.tiles)
+    letter_sum = sum(
+        _tile_points(
+            board,
+            placement,
+            word,
+        )
+        for placement in word.tiles
+    )
     return letter_sum * _word_multiplier(board, word)
 
 
 def _tile_points(board: Board, placement: Placement, word: FormedWord) -> int:
     value = placement.tile.value
     if _is_new(board, placement, word):
-        value *= _letter_bonus(board.bonus_at(placement.row, placement.column), placement.tile)
+        value *= _letter_bonus(
+            board.bonus_at(
+                placement.row,
+                placement.column,
+            ),
+            placement.tile,
+        )
 
     return value
 

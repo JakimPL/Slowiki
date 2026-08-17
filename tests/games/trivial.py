@@ -1,7 +1,7 @@
 import random
 
 from wordcore.board.board import Board
-from wordcore.exceptions import IllegalMove
+from wordcore.errors.exceptions import IllegalMove
 from wordcore.moves.action import Pass
 from wordcore.moves.move import Move
 from wordcore.positions.position import Position

@@ -3,7 +3,7 @@ from collections.abc import Iterator
 from pathlib import Path
 
 from lexica.dictionaries.bundles import decode_word_line, word_list_members
-from wordcore.exceptions import InvalidConfiguration
+from wordcore.errors.exceptions import InvalidConfiguration
 
 
 def iter_plain_words(archive: Path) -> Iterator[str]:

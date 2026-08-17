@@ -1,22 +1,21 @@
 import random
 
-from wordcore.exceptions import (
+from wordcore.errors.exceptions import (
     GameOver,
     IllegalMove,
     NoPremove,
     NotYourTurn,
-    RejectionCode,
     StalePosition,
     WordcoreError,
-    rejection_code,
 )
+from wordcore.errors.rejections import RejectionCode, rejection_code
 from wordcore.games.journal import JournalEntry
 from wordcore.games.kind import EntryKind
 from wordcore.games.rules import Rules
 from wordcore.moves.kind import ActionKind
 from wordcore.moves.move import Move
 from wordcore.positions.position import Position
-from wordcore.states.state import Phase
+from wordcore.states.phase import Phase
 from wordcore.views.events import EventView, event_view
 from wordcore.views.projection import PositionView, project
 
@@ -50,12 +49,22 @@ class Game:
 
     def events(self, observer: int | None, since: int) -> tuple[EventView, ...]:
         return tuple(
-            event_view(entry, index, observer)
+            event_view(
+                entry,
+                index,
+                observer,
+            )
             for index, entry in enumerate(self._entries)
             if index >= since
         )
 
-    def submit(self, move: Move, base_seq: int, premove: bool = False) -> JournalEntry:
+    def submit(
+        self,
+        move: Move,
+        base_seq: int,
+        *,
+        premove: bool = False,
+    ) -> JournalEntry:
         position = self._require_current(base_seq)
         self._ensure_member(position, move.player)
         if premove and move.player not in position.state.to_act:
@@ -75,7 +84,7 @@ class Game:
             move=None,
             actor=player,
             reason=None,
-            position=_without_premove(position, player),
+            position=self._without_premove(position, player),
         )
 
     def _require_current(self, base_seq: int) -> Position:
@@ -103,7 +112,7 @@ class Game:
             move=move,
             actor=move.player,
             reason=None,
-            position=_with_premove(position, move),
+            position=self._with_premove(position, move),
         )
 
     def _play_move(self, position: Position, move: Move) -> JournalEntry:
@@ -130,7 +139,7 @@ class Game:
 
     def _settle_next_premove(self) -> bool:
         position = self.position
-        seat = _sole_actor(position)
+        seat = self._sole_actor(position)
         if seat is None:
             return False
 
@@ -141,7 +150,12 @@ class Game:
         self._resolve_premove(position, seat, pending)
         return True
 
-    def _resolve_premove(self, position: Position, seat: int, pending: Move) -> None:
+    def _resolve_premove(
+        self,
+        position: Position,
+        seat: int,
+        pending: Move,
+    ) -> None:
         try:
             self._rules.validate(position, pending)
         except WordcoreError as error:
@@ -150,7 +164,7 @@ class Game:
                 move=None,
                 actor=seat,
                 reason=rejection_code(error),
-                position=_without_premove(position, seat),
+                position=self._without_premove(position, seat),
             )
             return
 
@@ -160,7 +174,7 @@ class Game:
             move=pending,
             actor=seat,
             reason=None,
-            position=_without_premove(applied, seat),
+            position=self._without_premove(applied, seat),
         )
 
     def _record(
@@ -172,24 +186,38 @@ class Game:
         reason: RejectionCode | None,
         position: Position,
     ) -> JournalEntry:
-        entry = JournalEntry(kind=kind, move=move, actor=actor, reason=reason, position=position)
+        entry = JournalEntry(
+            kind=kind,
+            move=move,
+            actor=actor,
+            reason=reason,
+            position=position,
+        )
         self._entries.append(entry)
         return entry
 
+    @staticmethod
+    def _sole_actor(position: Position) -> int | None:
+        if position.state.phase == Phase.GAME_OVER:
+            return None
 
-def _sole_actor(position: Position) -> int | None:
-    if position.state.phase == Phase.GAME_OVER:
-        return None
+        if len(position.state.to_act) != 1:
+            return None
 
-    if len(position.state.to_act) != 1:
-        return None
+        return next(iter(position.state.to_act))
 
-    return next(iter(position.state.to_act))
+    @staticmethod
+    def _with_premove(position: Position, move: Move) -> Position:
+        return position.model_copy(
+            update={
+                "state": position.state.with_premove(move.player, move),
+            }
+        )
 
-
-def _with_premove(position: Position, move: Move) -> Position:
-    return position.model_copy(update={"state": position.state.with_premove(move.player, move)})
-
-
-def _without_premove(position: Position, player: int) -> Position:
-    return position.model_copy(update={"state": position.state.without_premove(player)})
+    @staticmethod
+    def _without_premove(position: Position, player: int) -> Position:
+        return position.model_copy(
+            update={
+                "state": position.state.without_premove(player),
+            }
+        )

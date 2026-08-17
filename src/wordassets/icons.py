@@ -25,13 +25,21 @@ _BAND_GAP: Final = 2.0
 _FAVICON_SIZES: Final = (16, 32, 48)
 
 
-def icon_painting(size: float, theme: ThemeTokens, *, maskable: bool) -> tuple[Painted, ...]:
+def icon_painting(
+    size: float,
+    theme: ThemeTokens,
+    *,
+    maskable: bool,
+) -> tuple[Painted, ...]:
     tile_side = size * (_MASKABLE_TILE_RATIO if maskable else _TILE_RATIO)
     x = (size - tile_side) / 2
     y = (size - tile_side) / 2
     radius = tile_radius(tile_side)
     paints = [
-        Painted(RoundedRectShape(x, y, tile_side, tile_side, radius), theme.tiles.face),
+        Painted(
+            RoundedRectShape(x, y, tile_side, tile_side, radius),
+            theme.tiles.face,
+        ),
         *_band_segments(x, y, tile_side, theme),
         Painted(
             PolygonShape(
@@ -47,10 +55,27 @@ def icon_painting(size: float, theme: ThemeTokens, *, maskable: bool) -> tuple[P
     return tuple(paints)
 
 
-def icon_svg_element(size: float, theme: ThemeTokens, *, maskable: bool) -> Element:
-    background = rect(0, 0, size, size, fill=theme.chrome.surface, radius=None)
+def icon_svg_element(
+    size: float,
+    theme: ThemeTokens,
+    *,
+    maskable: bool,
+) -> Element:
+    background = rect(
+        0,
+        0,
+        size,
+        size,
+        fill=theme.chrome.surface,
+        radius=None,
+    )
     painted = tuple(
-        painted_element(paint) for paint in icon_painting(size, theme, maskable=maskable)
+        painted_element(paint)
+        for paint in icon_painting(
+            size,
+            theme,
+            maskable=maskable,
+        )
     )
     return svg(size, size, (background, *painted))
 
@@ -70,7 +95,12 @@ def favicon_ico_bytes(theme: ThemeTokens) -> bytes:
     return ico_bytes(images)
 
 
-def _band_segments(x: float, y: float, side: float, theme: ThemeTokens) -> list[Painted]:
+def _band_segments(
+    x: float,
+    y: float,
+    side: float,
+    theme: ThemeTokens,
+) -> list[Painted]:
     inset = tile_radius(side) * _BAND_INSET_RATIO
     band = band_height(side)
     total = side - 2 * inset
@@ -97,9 +127,21 @@ def painted_element(painted: Painted) -> Element:
 
 def _shape_element(shape: Shape, fill: str) -> Element:
     if isinstance(shape, RoundedRectShape):
-        return rect(shape.x, shape.y, shape.width, shape.height, fill=fill, radius=shape.radius)
+        return rect(
+            shape.x,
+            shape.y,
+            shape.width,
+            shape.height,
+            fill=fill,
+            radius=shape.radius,
+        )
 
     if isinstance(shape, CircleShape):
-        return circle(shape.center_x, shape.center_y, shape.radius, fill=fill)
+        return circle(
+            shape.center_x,
+            shape.center_y,
+            shape.radius,
+            fill=fill,
+        )
 
     return polygon(shape.points, fill=fill)

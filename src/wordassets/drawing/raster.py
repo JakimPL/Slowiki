@@ -50,7 +50,9 @@ def rendered_rows(
             red, green, blue = channels_of(paint.color)
             for column, amount in coverage:
                 _composite(pixels[column], (red, green, blue), amount)
+
         rows.append(_packed(pixels))
+
     return rows
 
 
@@ -62,7 +64,11 @@ def _base_pixel(background: str | None) -> tuple[float, float, float, float]:
     return (float(red), float(green), float(blue), 255.0)
 
 
-def _composite(pixel: list[float], color: tuple[int, int, int], coverage: float) -> None:
+def _composite(
+    pixel: list[float],
+    color: tuple[int, int, int],
+    coverage: float,
+) -> None:
     keep = 1 - coverage
     pixel[0] = color[0] * coverage + pixel[0] * keep
     pixel[1] = color[1] * coverage + pixel[1] * keep
@@ -77,7 +83,11 @@ def _packed(pixels: list[list[float]]) -> bytearray:
     return packed
 
 
-def _row_coverage(shape: Shape, row: int, width: int) -> list[tuple[int, float]] | None:
+def _row_coverage(
+    shape: Shape,
+    row: int,
+    width: int,
+) -> list[tuple[int, float]] | None:
     amounts = [0.0] * width
     touched = False
     for subrow in range(_SUBROWS):
@@ -88,17 +98,29 @@ def _row_coverage(shape: Shape, row: int, width: int) -> list[tuple[int, float]]
     if not touched:
         return None
 
-    return [(column, amount / _SUBROWS) for column, amount in enumerate(amounts) if amount > 0]
+    return [
+        (
+            column,
+            amount / _SUBROWS,
+        )
+        for column, amount in enumerate(amounts)
+        if amount > 0
+    ]
 
 
-def _accumulate(amounts: list[float], start: float, end: float, width: int) -> bool:
+def _accumulate(
+    amounts: list[float],
+    start: float,
+    end: float,
+    width: int,
+) -> bool:
     left = max(start, 0.0)
     right = min(end, float(width))
     if right <= left:
         return False
 
     first = int(left)
-    last = min(int(math.ceil(right)), width)
+    last = min(math.ceil(right), width)
     for column in range(first, last):
         overlap = min(right, column + 1.0) - max(left, float(column))
         if overlap > 0:
@@ -125,7 +147,10 @@ def _circle_spans(shape: CircleShape, y: float) -> list[tuple[float, float]]:
     return [(shape.center_x - reach, shape.center_x + reach)]
 
 
-def _rounded_rect_spans(shape: RoundedRectShape, y: float) -> list[tuple[float, float]]:
+def _rounded_rect_spans(
+    shape: RoundedRectShape,
+    y: float,
+) -> list[tuple[float, float]]:
     if y <= shape.y or y >= shape.y + shape.height:
         return []
 
@@ -143,7 +168,10 @@ def _rounded_rect_spans(shape: RoundedRectShape, y: float) -> list[tuple[float, 
     return [(left, right)]
 
 
-def _polygon_spans(shape: PolygonShape, y: float) -> list[tuple[float, float]]:
+def _polygon_spans(
+    shape: PolygonShape,
+    y: float,
+) -> list[tuple[float, float]]:
     crossings: list[float] = []
     points = shape.points
     for index, (start_x, start_y) in enumerate(points):
@@ -153,4 +181,10 @@ def _polygon_spans(shape: PolygonShape, y: float) -> list[tuple[float, float]]:
             crossings.append(start_x + fraction * (end_x - start_x))
 
     crossings.sort()
-    return [(crossings[index], crossings[index + 1]) for index in range(0, len(crossings) - 1, 2)]
+    return [
+        (
+            crossings[index],
+            crossings[index + 1],
+        )
+        for index in range(0, len(crossings) - 1, 2)
+    ]

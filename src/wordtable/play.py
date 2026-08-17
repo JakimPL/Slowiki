@@ -1,13 +1,16 @@
+# TODO: refactor: split into a subpackage
+# this module bears too many responsibilities
+
 import logging
 import random
 from typing import Final, NamedTuple
 
 from wordcore.board.board import Board
-from wordcore.exceptions import IllegalMove, WordcoreError
+from wordcore.errors.exceptions import IllegalMove, WordcoreError
 from wordcore.games.game import Game
 from wordcore.moves.action import Exchange, Pass, Play, PlayPlacement
 from wordcore.moves.move import Move
-from wordcore.states.state import Phase
+from wordcore.states.phase import Phase
 from wordcore.tiles.tile import Tile
 from wordtable.build import build_rules
 from wordtable.catalogue import resolve_scheme
@@ -38,7 +41,11 @@ def _build_game(scheme_name: str, players: int) -> Game:
     lexicon = load_lexicon(resolved.scheme.dictionary)
     seats = tuple(range(players))
     rules = build_rules(resolved, seats, lexicon)
-    return Game(rules, random.Random(), premoves_allowed=resolved.scheme.premoves)
+    return Game(
+        rules,
+        random.Random(),
+        premoves_allowed=resolved.scheme.premoves,
+    )
 
 
 def _play(game: Game) -> None:
@@ -89,7 +96,16 @@ def _parse_move(game: Game, seat: int, command: str) -> Move:
         case "pass":
             return Move(player=seat, action=Pass())
         case "exchange":
-            return Move(player=seat, action=Exchange(tile_ids=_rack_ids_for(game, seat, arguments)))
+            return Move(
+                player=seat,
+                action=Exchange(
+                    tile_ids=_rack_ids_for(
+                        game,
+                        seat,
+                        arguments,
+                    )
+                ),
+            )
         case "place":
             return _place_move(game, seat, _parse_place(arguments))
         case _:
@@ -113,7 +129,10 @@ def _parse_place(arguments: list[str]) -> PlaceCommand:
 
 
 def _place_move(game: Game, seat: int, place: PlaceCommand) -> Move:
-    return Move(player=seat, action=Play(placements=_placements_for(game, seat, place)))
+    return Move(
+        player=seat,
+        action=Play(placements=_placements_for(game, seat, place)),
+    )
 
 
 def _rack_ids_for(game: Game, seat: int, letters: list[str]) -> tuple[int, ...]:
@@ -129,14 +148,26 @@ def _rack_ids_for(game: Game, seat: int, letters: list[str]) -> tuple[int, ...]:
     return tuple(result)
 
 
-def _placements_for(game: Game, seat: int, place: PlaceCommand) -> tuple[PlayPlacement, ...]:
+def _placements_for(
+    game: Game,
+    seat: int,
+    place: PlaceCommand,
+) -> tuple[PlayPlacement, ...]:
     rack = _rack(game, seat)
     by_letter = _tiles_by_letter(rack)
     blanks = _blank_ids(rack)
     placements: list[PlayPlacement] = []
     for offset, letter in enumerate(place.word):
         row, column = _target_square(place, offset)
-        placements.append(_letter_placement(by_letter, blanks, letter, row, column))
+        placements.append(
+            _letter_placement(
+                by_letter,
+                blanks,
+                letter,
+                row,
+                column,
+            )
+        )
 
     return tuple(placements)
 
@@ -160,7 +191,12 @@ def _letter_placement(
         return PlayPlacement(tile_id=pool.pop(0), row=row, column=column)
 
     if blanks:
-        return PlayPlacement(tile_id=blanks.pop(0), row=row, column=column, letter=letter)
+        return PlayPlacement(
+            tile_id=blanks.pop(0),
+            row=row,
+            column=column,
+            letter=letter,
+        )
 
     raise IllegalMove(f"no tile for letter {letter}")
 

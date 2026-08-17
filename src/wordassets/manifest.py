@@ -14,7 +14,13 @@ class AssetRecord(BaseFrozen):
 
 def write_manifest(records: tuple[AssetRecord, ...], output: Path) -> Path:
     body = {
-        "assets": [record.model_dump() for record in sorted(records, key=lambda item: item.path)]
+        "assets": [
+            record.model_dump()
+            for record in sorted(
+                records,
+                key=lambda item: item.path,
+            )
+        ]
     }
     destination = output / "manifest.json"
     destination.write_text(

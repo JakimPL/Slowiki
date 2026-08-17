@@ -35,10 +35,22 @@ def rect(
     ]
     if radius is not None:
         attributes.append(("rx", formatted(radius)))
-    return Element(tag="rect", attributes=tuple(attributes), children=(), text=None)
+
+    return Element(
+        tag="rect",
+        attributes=tuple(attributes),
+        children=(),
+        text=None,
+    )
 
 
-def circle(center_x: float, center_y: float, radius: float, *, fill: str) -> Element:
+def circle(
+    center_x: float,
+    center_y: float,
+    radius: float,
+    *,
+    fill: str,
+) -> Element:
     return Element(
         tag="circle",
         attributes=(
@@ -63,7 +75,12 @@ def polygon(points: tuple[tuple[float, float], ...], *, fill: str) -> Element:
 
 
 def group(children: tuple[Element, ...]) -> Element:
-    return Element(tag="g", attributes=(), children=children, text=None)
+    return Element(
+        tag="g",
+        attributes=(),
+        children=children,
+        text=None,
+    )
 
 
 def glyph(

@@ -7,7 +7,7 @@ from tests.scoring.authored import authored_score
 
 from wordcore.board.board import Board
 from wordcore.board.bonus import Bonus, BonusKind
-from wordcore.exceptions import IllegalMove
+from wordcore.errors.exceptions import IllegalMove
 from wordcore.rules.words.formed import formed_words, validate_anchor
 from wordcore.rules.words.placement import Placement, board_with_placements
 from wordcore.tiles.tile import Tile
@@ -124,7 +124,11 @@ def _legal_placements(
     raise RuntimeError("no legal placement found")
 
 
-def _proposed(rng: random.Random, mint: _TileMint, board: Board) -> tuple[Placement, ...]:
+def _proposed(
+    rng: random.Random,
+    mint: _TileMint,
+    board: Board,
+) -> tuple[Placement, ...]:
     count = rng.randint(1, _MAX_PLACED)
     horizontal = rng.random() < 0.5
     row = rng.randrange(_SIZE)
@@ -132,11 +136,18 @@ def _proposed(rng: random.Random, mint: _TileMint, board: Board) -> tuple[Placem
     placements: list[Placement] = []
     while len(placements) < count and board.in_bounds(row, column):
         if board.tile_at(row, column) is None:
-            placements.append(Placement(tile=mint.tile(), row=row, column=column))
+            placements.append(
+                Placement(
+                    tile=mint.tile(),
+                    row=row,
+                    column=column,
+                )
+            )
         if horizontal:
             column += 1
         else:
             row += 1
+
     return tuple(placements)
 
 

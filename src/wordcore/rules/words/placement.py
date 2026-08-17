@@ -9,7 +9,16 @@ class Placement(BaseFrozen):
     column: int
 
 
-def board_with_placements(board: Board, placements: tuple[Placement, ...]) -> Board:
+def board_with_placements(
+    board: Board,
+    placements: tuple[Placement, ...],
+) -> Board:
     return board.with_tiles(
-        {board.index(placement.row, placement.column): placement.tile for placement in placements}
+        {
+            board.index(
+                placement.row,
+                placement.column,
+            ): placement.tile
+            for placement in placements
+        }
     )

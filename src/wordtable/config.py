@@ -6,7 +6,7 @@ from pydantic import Field
 
 from lexica.names import DictionaryName
 from wordcore.board.preset import BoardPreset
-from wordcore.exceptions import InvalidConfiguration
+from wordcore.errors.exceptions import InvalidConfiguration
 from wordcore.models.base import BaseFrozen
 from wordcore.tiles.tile import TilePreset
 from wordgames.names import GameName
@@ -139,7 +139,9 @@ def load_style_tokens(directory: Path, name: str) -> StyleTokens:
 def _read_yaml(path: Path) -> dict[str, Any]:
     if not path.is_file():
         raise InvalidConfiguration(f"missing config file: {path}")
+
     data = yaml.safe_load(path.read_text(encoding="utf-8"))
     if not isinstance(data, dict):
         raise InvalidConfiguration(f"config file must contain a mapping: {path}")
+
     return data

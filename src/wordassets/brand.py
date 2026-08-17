@@ -32,7 +32,14 @@ def og_image(theme: ThemeTokens, tiles: TilePreset) -> Element:
     start = (_OG_WIDTH - row_width) / 2
     top = _OG_HEIGHT * _OG_TILES_DROP
     children: list[Element] = [
-        rect(0, 0, _OG_WIDTH, _OG_HEIGHT, fill=theme.chrome.surface, radius=None)
+        rect(
+            0,
+            0,
+            _OG_WIDTH,
+            _OG_HEIGHT,
+            fill=theme.chrome.surface,
+            radius=None,
+        )
     ]
     for offset, symbol in enumerate(_OG_WORD):
         spec = by_symbol[symbol]
@@ -65,7 +72,14 @@ def splash(theme: ThemeTokens) -> Element:
     icon_x = (_SPLASH_WIDTH - _SPLASH_ICON) / 2
     icon_y = (_SPLASH_HEIGHT - _SPLASH_ICON) / 2 - _SPLASH_ICON / 4
     children: list[Element] = [
-        rect(0, 0, _SPLASH_WIDTH, _SPLASH_HEIGHT, fill=theme.chrome.surface, radius=None)
+        rect(
+            0,
+            0,
+            _SPLASH_WIDTH,
+            _SPLASH_HEIGHT,
+            fill=theme.chrome.surface,
+            radius=None,
+        )
     ]
     children.extend(
         _shifted(painted_element(paint), icon_x, icon_y)

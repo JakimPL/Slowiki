@@ -1,4 +1,4 @@
-from wordcore.exceptions import IllegalMove
+from wordcore.errors.exceptions import IllegalMove
 from wordcore.moves.action import Exchange
 from wordcore.positions.position import Position
 from wordcore.rules.rack import rack_of
@@ -30,7 +30,11 @@ def validate_exchange(
         raise IllegalMove("not enough tiles remain to exchange")
 
 
-def apply_exchange(position: Position, player: int, exchange: Exchange) -> Position:
+def apply_exchange(
+    position: Position,
+    player: int,
+    exchange: Exchange,
+) -> Position:
     rack = rack_of(position, player)
     exchanged = set(exchange.tile_ids)
     returned = _returned_tiles(rack, exchanged)
@@ -51,9 +55,15 @@ def apply_exchange(position: Position, player: int, exchange: Exchange) -> Posit
     return position.model_copy(update={"state": new_state})
 
 
-def _returned_tiles(rack: tuple[Tile, ...], exchanged: set[int]) -> tuple[Tile, ...]:
+def _returned_tiles(
+    rack: tuple[Tile, ...],
+    exchanged: set[int],
+) -> tuple[Tile, ...]:
     return tuple(tile for tile in rack if tile.identifier in exchanged)
 
 
-def _kept_tiles(rack: tuple[Tile, ...], exchanged: set[int]) -> tuple[Tile, ...]:
+def _kept_tiles(
+    rack: tuple[Tile, ...],
+    exchanged: set[int],
+) -> tuple[Tile, ...]:
     return tuple(tile for tile in rack if tile.identifier not in exchanged)

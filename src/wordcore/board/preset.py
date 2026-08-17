@@ -1,6 +1,6 @@
 from wordcore.board.board import Board
 from wordcore.board.bonus import Bonus, BonusKind
-from wordcore.exceptions import InvalidConfiguration
+from wordcore.errors.exceptions import InvalidConfiguration
 from wordcore.models.base import BaseFrozen
 
 

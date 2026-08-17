@@ -18,9 +18,19 @@ def build_tiles(preset: TilePreset) -> tuple[Tile, ...]:
                 )
             )
             identifier += 1
+
     for _ in range(preset.blanks):
-        tiles.append(Tile(identifier=identifier, letter="", value=0, category="blank", blank=True))
+        tiles.append(
+            Tile(
+                identifier=identifier,
+                letter="",
+                value=0,
+                category="blank",
+                blank=True,
+            )
+        )
         identifier += 1
+
     return tuple(tiles)
 
 
@@ -43,4 +53,5 @@ def deal_racks(
             taken = tuple(remaining[:size])
             remaining = remaining[size:]
         racks[seat] = taken
+
     return racks, tuple(remaining)

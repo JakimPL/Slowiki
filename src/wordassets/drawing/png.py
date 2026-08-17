@@ -8,7 +8,16 @@ _RGBA_COLOR_TYPE: Final = 6
 
 
 def png_bytes(width: int, height: int, rows: list[bytearray]) -> bytes:
-    header = struct.pack(">IIBBBBB", width, height, _RGBA_DEPTH, _RGBA_COLOR_TYPE, 0, 0, 0)
+    header = struct.pack(
+        ">IIBBBBB",
+        width,
+        height,
+        _RGBA_DEPTH,
+        _RGBA_COLOR_TYPE,
+        0,
+        0,
+        0,
+    )
     raw = b"".join(b"\x00" + bytes(row) for row in rows)
     return (
         _SIGNATURE

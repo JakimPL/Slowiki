@@ -1,4 +1,4 @@
-from wordcore.exceptions import InvalidWord
+from wordcore.errors.exceptions import InvalidWord
 from wordcore.lexicon.protocol import Lexicon
 from wordcore.rules.words.formed import FormedWord
 

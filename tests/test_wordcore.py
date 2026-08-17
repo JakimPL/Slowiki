@@ -5,7 +5,7 @@ from tests.games.trivial import TrivialRules
 
 from wordcore.board.board import Board
 from wordcore.board.bonus import Bonus, BonusKind
-from wordcore.exceptions import (
+from wordcore.errors.exceptions import (
     IllegalMove,
     NoPremove,
     NotYourTurn,

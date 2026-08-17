@@ -3,7 +3,7 @@ import random
 import pytest
 
 from wordcore.board.board import Board
-from wordcore.exceptions import IllegalMove, InvalidWord
+from wordcore.errors.exceptions import IllegalMove, InvalidWord
 from wordcore.games.game import Game
 from wordcore.lexicon.lexicon import TextLexicon
 from wordcore.lexicon.protocol import Lexicon

@@ -2,7 +2,7 @@ import pytest
 
 from wordcore.board.board import Board
 from wordcore.board.bonus import Bonus, BonusKind
-from wordcore.exceptions import IllegalMove, InvalidWord
+from wordcore.errors.exceptions import IllegalMove, InvalidWord
 from wordcore.lexicon.lexicon import TextLexicon
 from wordcore.moves.action import Exchange
 from wordcore.positions.position import Position

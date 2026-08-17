@@ -1,4 +1,4 @@
-from wordcore.exceptions import RejectionCode
+from wordcore.errors.rejections import RejectionCode
 from wordcore.games.journal import JournalEntry
 from wordcore.games.kind import EntryKind
 from wordcore.models.base import BaseFrozen

@@ -1,10 +1,14 @@
 from wordcore.tiles.tile import Letter, TilePreset
-from wordserver.models import RuleParameters, TableDescription
+from wordserver.models.rule_parameters import RuleParameters
+from wordserver.models.table_description import TableDescription
 from wordserver.registry import TableMeta
 from wordtable.config import SchemeConfig
 
 
-def table_description(meta: TableMeta, observer: int | None) -> TableDescription:
+def table_description(
+    meta: TableMeta,
+    observer: int | None,
+) -> TableDescription:
     scheme = meta.resolved.scheme
     tiles = meta.resolved.tiles
     return TableDescription(
@@ -20,7 +24,10 @@ def table_description(meta: TableMeta, observer: int | None) -> TableDescription
     )
 
 
-def _rule_parameters(scheme: SchemeConfig, tiles: TilePreset) -> RuleParameters:
+def _rule_parameters(
+    scheme: SchemeConfig,
+    tiles: TilePreset,
+) -> RuleParameters:
     return RuleParameters(
         rack_size=tiles.rack_size,
         exchange_limit=scheme.exchange_limit,
@@ -37,7 +44,11 @@ def _rule_parameters(scheme: SchemeConfig, tiles: TilePreset) -> RuleParameters:
 
 def _alphabet(tiles: TilePreset) -> tuple[Letter, ...]:
     return tuple(
-        Letter(symbol=spec.symbol, value=spec.value, category=spec.category)
+        Letter(
+            symbol=spec.symbol,
+            value=spec.value,
+            category=spec.category,
+        )
         for spec in tiles.letters
     )
 

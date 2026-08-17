@@ -14,7 +14,18 @@ def ico_bytes(images: list[tuple[int, bytes]]) -> bytes:
     offset = _HEADER_SIZE + _ENTRY_SIZE * len(images)
     for size, blob in images:
         stamp = size % _FULL_RANGE
-        entries += struct.pack("<BBBBHHII", stamp, stamp, 0, 0, 1, 32, len(blob), offset)
+        entries += struct.pack(
+            "<BBBBHHII",
+            stamp,
+            stamp,
+            0,
+            0,
+            1,
+            32,
+            len(blob),
+            offset,
+        )
         blobs += blob
         offset += len(blob)
+
     return header + entries + blobs

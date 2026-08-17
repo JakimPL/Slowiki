@@ -37,16 +37,26 @@ def build_assets(output: Path, docs: Path | None) -> tuple[AssetRecord, ...]:
     return records
 
 
-def _specimen_records(output: Path, tokens: StyleTokens) -> tuple[AssetRecord, ...]:
+def _specimen_records(
+    output: Path,
+    tokens: StyleTokens,
+) -> tuple[AssetRecord, ...]:
     specimens = output / "specimens"
     specimens.mkdir(parents=True, exist_ok=True)
     records: list[AssetRecord] = []
     for scheme in _schemes_by_board().values():
         destination = specimens / f"board-{scheme.board}.svg"
-        destination.write_text(_specimen_document(scheme, tokens), encoding="utf-8")
-        records.append(
-            AssetRecord(path=str(destination.relative_to(output)), kind="board-specimen")
+        destination.write_text(
+            _specimen_document(scheme, tokens),
+            encoding="utf-8",
         )
+        records.append(
+            AssetRecord(
+                path=str(destination.relative_to(output)),
+                kind="board-specimen",
+            )
+        )
+
     return tuple(records)
 
 
@@ -55,13 +65,49 @@ def _icon_records(output: Path, tokens: StyleTokens) -> tuple[AssetRecord, ...]:
     icons.mkdir(parents=True, exist_ok=True)
     theme = tokens.light
     written: list[tuple[str, bytes | str]] = [
-        ("icon.svg", document(icon_svg_element(_ICON_SVG_SIZE, theme, maskable=False))),
-        ("favicon.svg", document(icon_svg_element(_ICON_SVG_SIZE, theme, maskable=False))),
+        (
+            "icon.svg",
+            document(
+                icon_svg_element(
+                    _ICON_SVG_SIZE,
+                    theme,
+                    maskable=False,
+                )
+            ),
+        ),
+        (
+            "favicon.svg",
+            document(
+                icon_svg_element(
+                    _ICON_SVG_SIZE,
+                    theme,
+                    maskable=False,
+                )
+            ),
+        ),
         ("favicon.ico", favicon_ico_bytes(theme)),
     ]
     for size in _ICON_PNG_SIZES:
-        written.append((f"icon-{size}.png", icon_png_bytes(size, theme, maskable=False)))
-        written.append((f"icon-maskable-{size}.png", icon_png_bytes(size, theme, maskable=True)))
+        written.append(
+            (
+                f"icon-{size}.png",
+                icon_png_bytes(
+                    size,
+                    theme,
+                    maskable=False,
+                ),
+            )
+        )
+        written.append(
+            (
+                f"icon-maskable-{size}.png",
+                icon_png_bytes(
+                    size,
+                    theme,
+                    maskable=True,
+                ),
+            )
+        )
 
     records: list[AssetRecord] = []
     for name, body in written:
@@ -70,11 +116,21 @@ def _icon_records(output: Path, tokens: StyleTokens) -> tuple[AssetRecord, ...]:
             destination.write_text(body, encoding="utf-8")
         else:
             destination.write_bytes(body)
-        records.append(AssetRecord(path=str(destination.relative_to(output)), kind="icon"))
+
+        records.append(
+            AssetRecord(
+                path=str(destination.relative_to(output)),
+                kind="icon",
+            )
+        )
+
     return tuple(records)
 
 
-def _brand_records(output: Path, tokens: StyleTokens) -> tuple[AssetRecord, ...]:
+def _brand_records(
+    output: Path,
+    tokens: StyleTokens,
+) -> tuple[AssetRecord, ...]:
     brand = output / "brand"
     brand.mkdir(parents=True, exist_ok=True)
     tiles = load_tile_preset(CONFIG_DIR, _OG_TILES)
@@ -86,7 +142,13 @@ def _brand_records(output: Path, tokens: StyleTokens) -> tuple[AssetRecord, ...]
     for name, body in written:
         destination = brand / name
         destination.write_text(body, encoding="utf-8")
-        records.append(AssetRecord(path=str(destination.relative_to(output)), kind="brand"))
+        records.append(
+            AssetRecord(
+                path=str(destination.relative_to(output)),
+                kind="brand",
+            )
+        )
+
     return tuple(records)
 
 
@@ -104,7 +166,11 @@ def _specimen_document(scheme: SchemeConfig, tokens: StyleTokens) -> str:
     return document(board_specimen(board, tiles, tokens.light, word))
 
 
-def _copy_specimens(records: tuple[AssetRecord, ...], output: Path, docs: Path) -> None:
+def _copy_specimens(
+    records: tuple[AssetRecord, ...],
+    output: Path,
+    docs: Path,
+) -> None:
     docs.mkdir(parents=True, exist_ok=True)
     for record in records:
         if record.kind == "board-specimen":

@@ -1,7 +1,7 @@
 import random
 
 from wordcore.board.board import Board
-from wordcore.exceptions import IllegalMove
+from wordcore.errors.exceptions import IllegalMove
 from wordcore.games.rules import Rules
 from wordcore.lexicon.protocol import Lexicon
 from wordcore.moves.action import Exchange, Pass, Play, PlayPlacement, Reorder
@@ -16,8 +16,9 @@ from wordcore.rules.turn import next_seat
 from wordcore.rules.validity import validate_words
 from wordcore.rules.words.formed import formed_words, validate_anchor
 from wordcore.rules.words.placement import Placement, board_with_placements
+from wordcore.states.phase import Phase
 from wordcore.states.record import PlayRecord
-from wordcore.states.state import Phase, WordState
+from wordcore.states.state import WordState
 from wordcore.tiles.bag import deal_racks, shuffled_bag
 from wordcore.tiles.tile import Tile, TilePreset
 from wordgames.backend.parameters import GameParameters
@@ -52,7 +53,11 @@ class WordGameRules(Rules):
             premoves={},
             turn_number=0,
         )
-        return Position(board=self._board, state=state, players=self._players)
+        return Position(
+            board=self._board,
+            state=state,
+            players=self._players,
+        )
 
     def validate(self, position: Position, move: Move) -> None:
         action = move.action
@@ -66,28 +71,61 @@ class WordGameRules(Rules):
             case Reorder():
                 self._validate_reorder(position, move.player, action)
 
-    def apply(self, position: Position, move: Move, _rng: random.Random) -> Position:
+    def apply(
+        self,
+        position: Position,
+        move: Move,
+        _rng: random.Random,
+    ) -> Position:
         action = move.action
         match action:
             case Play():
-                played, went_out = self._apply_play(position, move.player, action)
-                return self._finish_turn(played, move.player, went_out)
+                played, went_out = self._apply_play(
+                    position,
+                    move.player,
+                    action,
+                )
+                return self._finish_turn(
+                    played,
+                    move.player,
+                    went_out=went_out,
+                )
             case Exchange():
                 return self._finish_turn(
-                    self._apply_exchange(position, move.player, action), move.player, None
+                    self._apply_exchange(position, move.player, action),
+                    move.player,
+                    went_out=None,
                 )
             case Pass():
-                return self._finish_turn(self._apply_pass(position), move.player, None)
+                return self._finish_turn(
+                    self._apply_pass(position),
+                    move.player,
+                    went_out=None,
+                )
             case Reorder():
                 return self._apply_reorder(position, move.player, action)
 
-    def _validate_play(self, position: Position, player: int, action: Play) -> None:
+    def _validate_play(
+        self,
+        position: Position,
+        player: int,
+        action: Play,
+    ) -> None:
         placements = self._resolve_placements(position, player, action)
         validate_anchor(position.board, placements)
         words = formed_words(position.board, placements)
-        validate_words(self._lexicon, words, self._parameters.validate_on_play)
+        validate_words(
+            self._lexicon,
+            words,
+            self._parameters.validate_on_play,
+        )
 
-    def _validate_exchange(self, position: Position, player: int, action: Exchange) -> None:
+    def _validate_exchange(
+        self,
+        position: Position,
+        player: int,
+        action: Exchange,
+    ) -> None:
         validate_exchange(
             position,
             player,
@@ -100,7 +138,12 @@ class WordGameRules(Rules):
         if not self._parameters.pass_allowed:
             raise IllegalMove("passing is not allowed")
 
-    def _validate_reorder(self, position: Position, player: int, action: Reorder) -> None:
+    def _validate_reorder(
+        self,
+        position: Position,
+        player: int,
+        action: Reorder,
+    ) -> None:
         rack_ids = [tile.identifier for tile in rack_of(position, player)]
         if sorted(action.tile_ids) != sorted(rack_ids):
             raise IllegalMove("reorder must list every rack tile exactly once")
@@ -113,17 +156,32 @@ class WordGameRules(Rules):
     ) -> tuple[Position, int | None]:
         placements = self._resolve_placements(position, player, action)
         words = formed_words(position.board, placements)
-        scored = score_move(position.board, words, self._bingo_bonus(len(placements)))
-        record = _play_record(position, player, placements, scored)
-        new_rack, new_bag = self._replenished_rack(position, player, placements)
-        new_state = _state_after_play(position.state, player, scored, record, new_rack, new_bag)
+        scored = score_move(
+            position.board,
+            words,
+            self._bingo_bonus(len(placements)),
+        )
+        record = self._play_record(position, player, placements, scored)
+        new_rack, new_bag = self._replenished_rack(
+            position,
+            player,
+            placements,
+        )
+        new_state = self._state_after_play(
+            position.state,
+            player,
+            scored,
+            record,
+            new_rack,
+            new_bag,
+        )
         played = position.model_copy(
             update={
                 "board": board_with_placements(position.board, placements),
                 "state": new_state,
             }
         )
-        return played, _went_out(player, new_rack, new_bag)
+        return played, self._went_out(player, new_rack, new_bag)
 
     def _replenished_rack(
         self,
@@ -160,23 +218,34 @@ class WordGameRules(Rules):
         )
         return position.model_copy(update={"state": new_state})
 
-    def _apply_reorder(self, position: Position, player: int, action: Reorder) -> Position:
+    def _apply_reorder(
+        self,
+        position: Position,
+        player: int,
+        action: Reorder,
+    ) -> Position:
         by_id = {tile.identifier: tile for tile in rack_of(position, player)}
         ordered = tuple(by_id[tile_id] for tile_id in action.tile_ids)
         new_state = position.state.model_copy(
-            update={"racks": {**position.state.racks, player: ordered}}
+            update={"racks": {**position.state.racks, player: ordered}},
         )
         return position.model_copy(update={"state": new_state})
 
-    def _finish_turn(self, position: Position, mover: int, went_out: int | None) -> Position:
+    def _finish_turn(
+        self,
+        position: Position,
+        mover: int,
+        *,
+        went_out: int | None,
+    ) -> Position:
         if went_out is not None:
-            return self._finish_game(position, went_out)
+            return self._finish_game(position, went_out=went_out)
 
         if self._end_limit_reached(position.state):
-            return self._finish_game(position, None)
+            return self._finish_game(position, went_out=None)
 
         if self._solo_ended(position, mover):
-            return self._finish_game(position, None)
+            return self._finish_game(position, went_out=None)
 
         return self._advance_turn(position, mover)
 
@@ -204,7 +273,12 @@ class WordGameRules(Rules):
         )
         return position.model_copy(update={"state": new_state})
 
-    def _finish_game(self, position: Position, went_out: int | None) -> Position:
+    def _finish_game(
+        self,
+        position: Position,
+        *,
+        went_out: int | None,
+    ) -> Position:
         new_state = position.state.model_copy(
             update={
                 "phase": Phase.GAME_OVER,
@@ -229,7 +303,11 @@ class WordGameRules(Rules):
 
             seen.add(spec.tile_id)
             result.append(
-                Placement(tile=_resolved_tile(by_id, spec), row=spec.row, column=spec.column)
+                Placement(
+                    tile=self._resolved_tile(by_id, spec),
+                    row=spec.row,
+                    column=spec.column,
+                )
             )
 
         return tuple(result)
@@ -241,66 +319,82 @@ class WordGameRules(Rules):
 
         return 0
 
+    @staticmethod
+    def _resolved_tile(
+        rack_by_id: dict[int, Tile],
+        spec: PlayPlacement,
+    ) -> Tile:
+        tile = rack_by_id.get(spec.tile_id)
+        if tile is None:
+            raise IllegalMove("placed tile is not in the rack")
 
-def _resolved_tile(rack_by_id: dict[int, Tile], spec: PlayPlacement) -> Tile:
-    tile = rack_by_id.get(spec.tile_id)
-    if tile is None:
-        raise IllegalMove("placed tile is not in the rack")
+        if tile.blank:
+            return WordGameRules._assigned_blank(tile, spec.letter)
 
-    if tile.blank:
-        return _assigned_blank(tile, spec.letter)
+        return tile
 
-    return tile
+    @staticmethod
+    def _assigned_blank(tile: Tile, letter: str | None) -> Tile:
+        if letter is None or len(letter) != 1 or not letter.isalpha():
+            raise IllegalMove("a blank tile requires a single assigned letter")
 
+        return tile.model_copy(update={"letter": letter})
 
-def _assigned_blank(tile: Tile, letter: str | None) -> Tile:
-    if letter is None or len(letter) != 1 or not letter.isalpha():
-        raise IllegalMove("a blank tile requires a single assigned letter")
+    @staticmethod
+    def _play_record(
+        position: Position,
+        player: int,
+        placements: tuple[Placement, ...],
+        scored: MoveScore,
+    ) -> PlayRecord:
+        indices = tuple(
+            sorted(
+                position.board.index(
+                    placement.row,
+                    placement.column,
+                )
+                for placement in placements
+            )
+        )
+        return PlayRecord(
+            player=player,
+            indices=indices,
+            words=scored.words,
+            points=scored.points,
+            bingo=scored.bingo,
+            turn_number=position.state.turn_number,
+        )
 
-    return tile.model_copy(update={"letter": letter})
+    @staticmethod
+    def _state_after_play(
+        state: WordState,
+        player: int,
+        scored: MoveScore,
+        record: PlayRecord,
+        new_rack: tuple[Tile, ...],
+        new_bag: tuple[Tile, ...],
+    ) -> WordState:
+        return state.model_copy(
+            update={
+                "racks": {**state.racks, player: new_rack},
+                "bag": new_bag,
+                "scores": {
+                    **state.scores,
+                    player: state.scores[player] + scored.points,
+                },
+                "consecutive_passes": 0,
+                "scoreless_turns": 0,
+                "last_play": record,
+            }
+        )
 
+    @staticmethod
+    def _went_out(
+        player: int,
+        rack: tuple[Tile, ...],
+        bag: tuple[Tile, ...],
+    ) -> int | None:
+        if not rack and not bag:
+            return player
 
-def _play_record(
-    position: Position,
-    player: int,
-    placements: tuple[Placement, ...],
-    scored: MoveScore,
-) -> PlayRecord:
-    indices = tuple(
-        sorted(position.board.index(placement.row, placement.column) for placement in placements)
-    )
-    return PlayRecord(
-        player=player,
-        indices=indices,
-        words=scored.words,
-        points=scored.points,
-        bingo=scored.bingo,
-        turn_number=position.state.turn_number,
-    )
-
-
-def _state_after_play(
-    state: WordState,
-    player: int,
-    scored: MoveScore,
-    record: PlayRecord,
-    new_rack: tuple[Tile, ...],
-    new_bag: tuple[Tile, ...],
-) -> WordState:
-    return state.model_copy(
-        update={
-            "racks": {**state.racks, player: new_rack},
-            "bag": new_bag,
-            "scores": {**state.scores, player: state.scores[player] + scored.points},
-            "consecutive_passes": 0,
-            "scoreless_turns": 0,
-            "last_play": record,
-        }
-    )
-
-
-def _went_out(player: int, rack: tuple[Tile, ...], bag: tuple[Tile, ...]) -> int | None:
-    if not rack and not bag:
-        return player
-
-    return None
+        return None

@@ -5,7 +5,12 @@ from wordcore.board.preset import BoardPreset
 from wordcore.models.base import BaseFrozen
 from wordcore.tiles.tile import TilePreset
 from wordgames.names import GameName
-from wordtable.config import SchemeConfig, load_board_preset, load_scheme, load_tile_preset
+from wordtable.config import (
+    SchemeConfig,
+    load_board_preset,
+    load_scheme,
+    load_tile_preset,
+)
 from wordtable.paths import CONFIGURATION_SCHEMES_PATH
 
 
@@ -26,7 +31,11 @@ class ResolvedScheme(BaseFrozen):
 def list_schemes(directory: Path) -> dict[str, SchemeConfig]:
     schemes_dir = directory / CONFIGURATION_SCHEMES_PATH
     return {
-        path.stem: load_scheme(directory, path.stem) for path in sorted(schemes_dir.glob("*.yaml"))
+        path.stem: load_scheme(
+            directory,
+            path.stem,
+        )
+        for path in sorted(schemes_dir.glob("*.yaml"))
     }
 
 

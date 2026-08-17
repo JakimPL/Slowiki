@@ -59,11 +59,24 @@ def _cell_origin(board: Board, index: int) -> tuple[float, float]:
     return x, y
 
 
-def _cell_shapes(board: Board, index: int, theme: ThemeTokens) -> list[Element]:
+def _cell_shapes(
+    board: Board,
+    index: int,
+    theme: ThemeTokens,
+) -> list[Element]:
     x, y = _cell_origin(board, index)
     bonus = board.bonuses[index]
     if bonus is None:
-        return [rect(x, y, _CELL, _CELL, fill=theme.board.surface, radius=None)]
+        return [
+            rect(
+                x,
+                y,
+                _CELL,
+                _CELL,
+                fill=theme.board.surface,
+                radius=None,
+            )
+        ]
 
     tokens = _premium_tokens(bonus, theme)
     shapes = [rect(x, y, _CELL, _CELL, fill=tokens.fill, radius=None)]
@@ -123,7 +136,18 @@ def _word_tiles(
     for offset, symbol in enumerate(word):
         spec = _letter_spec(by_symbol, symbol)
         x, y = _cell_origin(board, middle * board.size + start + offset)
-        shapes.append(tile_group(x, y, _CELL, spec.symbol, spec.value, spec.category, theme))
+        shapes.append(
+            tile_group(
+                x,
+                y,
+                _CELL,
+                spec.symbol,
+                spec.value,
+                spec.category,
+                theme,
+            )
+        )
+
     return shapes
 
 

@@ -1,5 +1,5 @@
 from wordcore.board.preset import board_from_preset
-from wordcore.exceptions import InvalidConfiguration
+from wordcore.errors.exceptions import InvalidConfiguration
 from wordcore.games.rules import Rules
 from wordcore.lexicon.protocol import Lexicon
 from wordgames.backend.literaki import LiterakiRules

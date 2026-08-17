@@ -12,7 +12,7 @@ from lexica.models import WordEntry, entry_from_word
 from lexica.names import DictionaryName
 from lexica.rules import DictionaryRules, apply_rules
 from wordbots.registry import BotRegistry
-from wordcore.exceptions import InvalidConfiguration
+from wordcore.errors.exceptions import InvalidConfiguration
 from wordcore.moves.move import Move
 from wordcore.positions.position import Position
 from wordtable.paths import PROJECT_ROOT

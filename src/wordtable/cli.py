@@ -32,8 +32,10 @@ def main(argv: list[str] | None = None) -> None:
     match args.command:
         case "play":
             run(args.scheme, args.players)
+
         case "dictionary":
             run_compile(args.name)
+
         case "serve":
             run_server()
 

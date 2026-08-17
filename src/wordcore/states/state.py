@@ -1,14 +1,10 @@
-from enum import StrEnum
+from __future__ import annotations
 
 from wordcore.models.base import BaseFrozen
 from wordcore.moves.move import Move
+from wordcore.states.phase import Phase
 from wordcore.states.record import PlayRecord
 from wordcore.tiles.tile import Tile
-
-
-class Phase(StrEnum):
-    TURN = "turn"
-    GAME_OVER = "game_over"
 
 
 class WordState(BaseFrozen):
@@ -24,8 +20,15 @@ class WordState(BaseFrozen):
     premoves: dict[int, Move | None]
     turn_number: int
 
-    def with_premove(self, seat: int, move: Move | None) -> "WordState":
-        return self.model_copy(update={"premoves": {**self.premoves, seat: move}})
+    def with_premove(self, seat: int, move: Move | None) -> WordState:
+        return self.model_copy(
+            update={
+                "premoves": {
+                    **self.premoves,
+                    seat: move,
+                }
+            }
+        )
 
-    def without_premove(self, seat: int) -> "WordState":
+    def without_premove(self, seat: int) -> WordState:
         return self.with_premove(seat, None)

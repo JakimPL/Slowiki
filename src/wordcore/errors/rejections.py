@@ -1,36 +1,15 @@
 from enum import StrEnum
 
-
-class WordcoreError(Exception):
-    pass
-
-
-class IllegalMove(WordcoreError):
-    pass
-
-
-class NotYourTurn(WordcoreError):
-    pass
-
-
-class StalePosition(WordcoreError):
-    pass
-
-
-class InvalidWord(WordcoreError):
-    pass
-
-
-class GameOver(WordcoreError):
-    pass
-
-
-class InvalidConfiguration(WordcoreError):
-    pass
-
-
-class NoPremove(WordcoreError):
-    pass
+from wordcore.errors.exceptions import (
+    GameOver,
+    IllegalMove,
+    InvalidConfiguration,
+    InvalidWord,
+    NoPremove,
+    NotYourTurn,
+    StalePosition,
+    WordcoreError,
+)
 
 
 class RejectionCode(StrEnum):

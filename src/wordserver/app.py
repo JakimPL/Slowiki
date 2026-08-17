@@ -1,3 +1,6 @@
+# TODO: refactor: split into subpackage
+# this module bears too many responsibilities
+
 import asyncio
 import random
 import secrets
@@ -13,28 +16,21 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import Field
 
 from lexica.names import DictionaryName
-from wordcore.exceptions import WordcoreError
+from wordcore.errors.exceptions import WordcoreError
 from wordcore.games.game import Game
 from wordcore.models.base import BaseFrozen
 from wordcore.moves.move import Move
 from wordcore.views.events import EventView
 from wordserver.describe import table_description
-from wordserver.errors import (
-    ErrorBody,
-    ErrorCode,
-    Refusal,
-    SeatTokenMismatch,
-    TableGathering,
-    code_for,
-    refusal_response,
-)
-from wordserver.models import (
-    MoveAccepted,
-    OfferingsResponse,
-    TableAdmission,
-    TableDescription,
-    TableViewResponse,
-)
+from wordserver.errors.body import ErrorBody
+from wordserver.errors.code import ErrorCode, code_for
+from wordserver.errors.exceptions import SeatTokenMismatch, TableGathering
+from wordserver.errors.refusal import Refusal, refusal_response
+from wordserver.models.move_accepted import MoveAccepted
+from wordserver.models.offerings import OfferingsResponse
+from wordserver.models.table import TableViewResponse
+from wordserver.models.table_admission import TableAdmission
+from wordserver.models.table_description import TableDescription
 from wordserver.registry import TableMeta, TableRegistry
 from wordserver.session import TableSession
 from wordtable.build import build_rules
@@ -95,7 +91,11 @@ def _resolved_offering(scheme_name: str) -> ResolvedScheme:
 
 def _ensure_seats_in_range(scheme: SchemeConfig, seats: int) -> None:
     if not scheme.min_players <= seats <= scheme.max_players:
-        raise Refusal(422, "seats outside the scheme range", ErrorCode.SEATS_OUT_OF_RANGE)
+        raise Refusal(
+            422,
+            "seats outside the scheme range",
+            ErrorCode.SEATS_OUT_OF_RANGE,
+        )
 
 
 def _ensure_dictionary_available(dictionary: DictionaryName) -> None:
@@ -114,7 +114,11 @@ async def _built_game(
 ) -> Game:
     lexicon = await service.get(resolved.scheme.dictionary)
     rules = build_rules(resolved, seats, lexicon)
-    return Game(rules, random.Random(), premoves_allowed=resolved.scheme.premoves)
+    return Game(
+        rules,
+        random.Random(),
+        premoves_allowed=resolved.scheme.premoves,
+    )
 
 
 def _minted_identity(seats: int) -> _TableIdentity:
@@ -181,7 +185,10 @@ def _table_for_code(
     return table_id, session, meta
 
 
-async def _claimed_seat(session: TableSession, name: str | None) -> tuple[int, str]:
+async def _claimed_seat(
+    session: TableSession,
+    name: str | None,
+) -> tuple[int, str]:
     claimed = await session.claim(name)
     if claimed is None:
         raise Refusal(409, "table is full", ErrorCode.TABLE_FULL)
@@ -302,7 +309,14 @@ def create_app() -> FastAPI:
         table_id, session, meta = _table_for_code(registry, code)
         name = _cleaned_name(body.name if body is not None else None)
         seat, token = await _claimed_seat(session, name)
-        return _admission(table_id, code.upper(), meta, seat=seat, token=token, name=name)
+        return _admission(
+            table_id,
+            code.upper(),
+            meta,
+            seat=seat,
+            token=token,
+            name=name,
+        )
 
     @app.get("/tables/{table_id}", responses={404: {"model": ErrorBody}})
     def describe_table(table_id: str, request: Request) -> TableDescription:
