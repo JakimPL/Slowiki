@@ -2,8 +2,8 @@ import type { FetchEventSourceInit } from "@microsoft/fetch-event-source";
 import { describe, expect, it } from "vitest";
 
 import type { Streamed } from "../src/api/streaming";
-import { follow, LAST_EVENT_ID_HEADER, PRESENCE_EVENT } from "../src/api/streaming";
-import type { CompanyView, EventView } from "../src/api/views";
+import { CLOCK_EVENT, follow, LAST_EVENT_ID_HEADER, PRESENCE_EVENT } from "../src/api/streaming";
+import type { ClockView, CompanyView, EventView } from "../src/api/views";
 
 interface Recorded {
     url: string;
@@ -19,7 +19,12 @@ function aTransport(recorded: Recorded[]): (url: string, init: FetchEventSourceI
     };
 }
 
-function aStreamed(commits: EventView[], companies: CompanyView[], drops: string[]): Streamed {
+function aStreamed(
+    commits: EventView[],
+    companies: CompanyView[],
+    drops: string[],
+    clocks: ClockView[] = [],
+): Streamed {
     return {
         onOpen: () => {
             return;
@@ -29,6 +34,9 @@ function aStreamed(commits: EventView[], companies: CompanyView[], drops: string
         },
         onPresence: (company) => {
             companies.push(company);
+        },
+        onClock: (clock) => {
+            clocks.push(clock);
         },
         onDropped: (reason) => {
             drops.push(reason);
@@ -49,11 +57,12 @@ describe("follow", () => {
         expect(recorded[0]?.init.headers).toEqual({ "X-Seat-Token": "tok" });
     });
 
-    it("dispatches presence frames apart from commits", () => {
+    it("dispatches presence and clock frames apart from commits", () => {
         const recorded: Recorded[] = [];
         const commits: EventView[] = [];
         const companies: CompanyView[] = [];
-        follow(aTransport(recorded), "/tables/t/events", {}, 0, aStreamed(commits, companies, []));
+        const clocks: ClockView[] = [];
+        follow(aTransport(recorded), "/tables/t/events", {}, 0, aStreamed(commits, companies, [], clocks));
         const handle = recorded[0]?.init.onmessage;
         expect(handle).toBeDefined();
         handle?.({
@@ -62,12 +71,19 @@ describe("follow", () => {
             data: JSON.stringify({ seats: [] }),
         });
         handle?.({
+            id: "",
+            event: CLOCK_EVENT,
+            data: JSON.stringify({ server_time: 1000, deadline: 1090, seat: 0, per_turn_seconds: 90 }),
+        });
+        handle?.({
             id: "0",
             event: "",
             data: JSON.stringify({ seq: 0, kind: "move", actor: 0, move: null, reason: null, position: {} }),
         });
         handle?.({ id: "", event: "", data: "" });
         expect(companies).toHaveLength(1);
+        expect(clocks).toHaveLength(1);
+        expect(clocks[0]?.deadline).toBe(1090);
         expect(commits).toHaveLength(1);
         expect(commits[0]?.seq).toBe(0);
     });

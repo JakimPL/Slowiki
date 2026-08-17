@@ -7,7 +7,7 @@ import pytest
 from lexica.names import DictionaryName
 from wordcore.games.game import Game
 from wordcore.lexicon.lexicon import TextLexicon
-from wordcore.moves.action import Pass
+from wordcore.moves.action import Exchange, Pass
 from wordcore.moves.move import Move
 from wordserver.app import create_app
 from wordserver.session import TableSession
@@ -167,7 +167,7 @@ async def test_session_events_streams_after_submit() -> None:
     game = Game(rules, random.Random(0), premoves_allowed=True)
     time = TimeConfig(per_turn_seconds=None, increment_seconds=0, total_seconds=None)
     names: dict[int, str | None] = {0: "Ala", 1: None}
-    session = TableSession(game, {0: "token-a", 1: "token-b"}, time, names)
+    session = TableSession(game, {0: "token-a", 1: "token-b"}, time, names, lambda: 0.0)
     await session.claim("Bob")
     await session.submit(Move(player=0, action=Pass()), base_seq=0, premove=False, token="token-a")
     stream = session.events(observer=0, since=0)
@@ -186,7 +186,7 @@ async def test_presence_frames_follow_claims_and_disconnects() -> None:
     game = Game(rules, random.Random(0), premoves_allowed=True)
     time = TimeConfig(per_turn_seconds=None, increment_seconds=0, total_seconds=None)
     names: dict[int, str | None] = {0: "Ala", 1: None}
-    session = TableSession(game, {0: "token-a", 1: "token-b"}, time, names)
+    session = TableSession(game, {0: "token-a", 1: "token-b"}, time, names, lambda: 0.0)
     stream = session.events(observer=0, since=0)
     first = await anext(stream)
     assert first.startswith("event: presence\n")
@@ -201,6 +201,85 @@ async def test_presence_frames_follow_claims_and_disconnects() -> None:
     company = session.company()
     assert company.seats[0].connected is False
     assert company.seats[1].claimed is True
+
+
+class _FakeClock:
+    def __init__(self) -> None:
+        self.moment = 1000.0
+
+    def __call__(self) -> float:
+        return self.moment
+
+
+def _timed_session(seconds: int | None, clock: _FakeClock) -> TableSession:
+    resolved = resolve_scheme(CONFIG_DIR, "literaki")
+    rules = build_rules(resolved, (0, 1), TextLexicon.from_words(["aa"]))
+    game = Game(rules, random.Random(0), premoves_allowed=True)
+    timed = TimeConfig(per_turn_seconds=seconds, increment_seconds=0, total_seconds=None)
+    names: dict[int, str | None] = {0: None, 1: None}
+    return TableSession(game, {0: "token-a", 1: "token-b"}, timed, names, clock)
+
+
+async def test_clock_arms_when_the_table_gathers() -> None:
+    clock = _FakeClock()
+    session = _timed_session(90, clock)
+    assert session.clock() is None
+    await session.claim(None)
+    armed = session.clock()
+    assert armed is not None
+    assert armed.seat == 0
+    assert armed.deadline == 1090.0
+    assert armed.server_time == 1000.0
+    assert armed.per_turn_seconds == 90
+    session.close()
+
+
+async def test_opponent_premove_leaves_the_deadline_alone() -> None:
+    clock = _FakeClock()
+    session = _timed_session(90, clock)
+    await session.claim(None)
+    first = session.clock()
+    assert first is not None
+    clock.moment = 1050.0
+    move = Move(player=1, action=Pass())
+    await session.submit(move, base_seq=0, premove=True, token="token-b")
+    queued = session.clock()
+    assert queued is not None
+    assert queued.deadline == first.deadline
+    rack = session.view(0).racks[0]
+    assert rack is not None
+    exchange = Move(player=0, action=Exchange(tile_ids=[rack[0].identifier]))
+    await session.submit(exchange, base_seq=1, premove=False, token="token-a")
+    rearmed = session.clock()
+    assert rearmed is not None
+    assert rearmed.deadline == 1140.0
+    session.close()
+
+
+async def test_timeout_auto_passes_until_the_game_ends() -> None:
+    clock = _FakeClock()
+    session = _timed_session(0, clock)
+    await session.claim(None)
+    await asyncio.sleep(0.2)
+    assert session.seq == 2
+    assert session.view(None).phase == "game_over"
+    assert session.clock() is None
+    session.close()
+
+
+async def test_clock_frames_ride_the_stream() -> None:
+    clock = _FakeClock()
+    session = _timed_session(90, clock)
+    await session.claim(None)
+    stream = session.events(observer=0, since=0)
+    first = await anext(stream)
+    assert first.startswith("event: presence\n")
+    second = await anext(stream)
+    assert second.startswith("event: clock\n")
+    assert '"deadline": 1090.0' in second
+    assert "id:" not in second
+    await stream.aclose()
+    session.close()
 
 
 async def test_claims_hand_out_distinct_seats_concurrently(client: httpx.AsyncClient) -> None:

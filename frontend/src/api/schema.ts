@@ -235,6 +235,17 @@ export interface components {
             /** Text */
             text: string;
         };
+        /** ClockView */
+        ClockView: {
+            /** Deadline */
+            deadline: number;
+            /** Per Turn Seconds */
+            per_turn_seconds: number;
+            /** Seat */
+            seat: number;
+            /** Server Time */
+            server_time: number;
+        };
         /** CompanyView */
         CompanyView: {
             /** Seats */
@@ -564,6 +575,7 @@ export interface components {
         };
         /** TableViewResponse */
         TableViewResponse: {
+            clock: components["schemas"]["ClockView"] | null;
             company: components["schemas"]["CompanyView"];
             /** Seq */
             seq: number;

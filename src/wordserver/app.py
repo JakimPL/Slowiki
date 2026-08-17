@@ -1,6 +1,7 @@
 import asyncio
 import random
 import secrets
+import time
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from typing import Final, NamedTuple
@@ -156,6 +157,7 @@ def _open_table(
         identity.tokens,
         resolved.scheme.time,
         _creator_names(body.seats, creator),
+        time.time,
     )
     registry.add(identity.table_id, session, meta)
     registry.add_code(identity.code, identity.table_id)
@@ -324,6 +326,7 @@ def create_app() -> FastAPI:
             style=style,
             view=session.view(observer),
             company=session.company(),
+            clock=session.clock(),
         )
 
     @app.post(

@@ -115,6 +115,7 @@ export function aTableResponse(overrides: Partial<TableViewResponse> = {}): Tabl
         },
         view: aView(),
         company: aCompany(),
+        clock: null,
         ...overrides,
     };
 }

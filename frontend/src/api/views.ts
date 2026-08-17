@@ -10,6 +10,7 @@ export type PlayRecord = Schemas["PlayRecord"];
 export type EventView = Schemas["EventView"];
 export type SeatView = Schemas["SeatView"];
 export type CompanyView = Schemas["CompanyView"];
+export type ClockView = Schemas["ClockView"];
 export type TableViewResponse = Schemas["TableViewResponse"];
 export type StyleTokens = Schemas["StyleTokens"];
 export type ThemeTokens = Schemas["ThemeTokens"];

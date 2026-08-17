@@ -58,11 +58,19 @@ class CompanyView(BaseFrozen):
     seats: tuple[SeatView, ...]
 
 
+class ClockView(BaseFrozen):
+    server_time: float
+    deadline: float
+    seat: int
+    per_turn_seconds: int
+
+
 class TableViewResponse(BaseFrozen):
     seq: int
     style: StyleConfig
     view: PositionView
     company: CompanyView
+    clock: ClockView | None
 
 
 class MoveAccepted(BaseFrozen):
