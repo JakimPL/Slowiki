@@ -7,6 +7,7 @@ import { aBoard, aTile } from "./positions";
 const KAY = aTile({ identifier: 7, letter: "K" });
 const OH = aTile({ identifier: 8, letter: "O" });
 const TEE = aTile({ identifier: 9, letter: "T" });
+const BLANK = aTile({ identifier: 10, letter: "", value: 0, blank: true });
 
 function performed(...effects: readonly DeskEffect[]): Desk {
     return effects.reduce(affected, EMPTY_DESK);
@@ -47,6 +48,14 @@ describe("desk", () => {
         );
         expect(desk.draft).toEqual([{ cell: 113, tile: KAY, letter: "Ż" }]);
         expect(affected(desk, { kind: "relay", from: 113, to: 113 }).draft).toEqual(desk.draft);
+    });
+
+    it("stamps a laid blank with the chosen letter", () => {
+        const hanging = performed({ kind: "lay", cell: 112, tile: BLANK, letter: null });
+        expect(hanging.draft).toEqual([{ cell: 112, tile: BLANK, letter: null }]);
+        const stamped = affected(hanging, { kind: "stamp", cell: 112, letter: "Ż" });
+        expect(stamped.draft).toEqual([{ cell: 112, tile: BLANK, letter: "Ż" }]);
+        expect(affected(stamped, { kind: "take-back", cell: 112 }).draft).toEqual([]);
     });
 
     it("sets the tile down wherever the lift ends", () => {

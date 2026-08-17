@@ -1060,11 +1060,13 @@ select {
 .words {
     display: flex;
     gap: 8px;
+    align-items: center;
     justify-content: safe center;
-    min-height: 34px;
+    height: 100%;
     margin: 0;
     padding: 0;
-    overflow-x: auto;
+    overflow: auto hidden;
+    scrollbar-width: none;
     list-style: none;
 }
 
@@ -1141,7 +1143,7 @@ select {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 34px;
+    height: 34px;
 }
 
 .feedback > .words,
@@ -1286,6 +1288,17 @@ select {
 
 .sheet-free .field {
     flex: 1;
+}
+
+@media (width >= 900px), (orientation: landscape) and (height <= 590px) {
+    .sheet {
+        inset: 50% max(8px, calc((100vw - 1280px) / 2 + 8px)) auto auto;
+        width: min(420px, 40vw);
+        max-height: 80dvh;
+        overflow-y: auto;
+        border-radius: 16px;
+        transform: translateY(-50%);
+    }
 }
 
 .room {

@@ -214,12 +214,18 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
     };
     const pick = (symbol: string): void => {
         if (blankChoice !== null) {
-            perform({ kind: "lay", cell: blankChoice.cell, tile: blankChoice.tile, letter: symbol });
+            perform({ kind: "stamp", cell: blankChoice.cell, letter: symbol });
         }
         setBlankChoice(null);
     };
+    const dismissBlank = (): void => {
+        if (blankChoice !== null) {
+            perform({ kind: "take-back", cell: blankChoice.cell });
+            setBlankChoice(null);
+        }
+    };
     const primary = (): void => {
-        if (!primaryArmed || busy || mySeat === null) {
+        if (!primaryArmed || busy || mySeat === null || blankChoice !== null) {
             return;
         }
         dismissReturned();
@@ -241,7 +247,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
     };
     const retreat = (): void => {
         if (blankChoice !== null) {
-            setBlankChoice(null);
+            dismissBlank();
             return;
         }
         perform({ kind: desk.lift !== null ? "clear-lift" : "recall" });
@@ -453,13 +459,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
                 </div>
             )}
             {blankChoice !== null ? (
-                <BlankPicker
-                    alphabet={rules.alphabet}
-                    onPick={pick}
-                    onClose={(): void => {
-                        setBlankChoice(null);
-                    }}
-                />
+                <BlankPicker alphabet={rules.alphabet} onPick={pick} onClose={dismissBlank} />
             ) : null}
             {story.kind === "over" ? <GameOver view={state.view} company={state.company} story={story} /> : null}
         </div>

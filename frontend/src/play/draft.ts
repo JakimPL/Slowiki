@@ -28,6 +28,10 @@ export function takenBack(draft: Draft, cell: number): Draft {
     return draft.filter((pending) => pending.cell !== cell);
 }
 
+export function stamped(draft: Draft, cell: number, letter: string): Draft {
+    return draft.map((pending) => (pending.cell === cell ? { ...pending, letter } : pending));
+}
+
 export function draftedIdentifiers(draft: Draft): ReadonlySet<number> {
     return new Set(draft.map((pending) => pending.tile.identifier));
 }

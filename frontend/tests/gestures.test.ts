@@ -61,8 +61,10 @@ describe("dropEffects", () => {
         ]);
     });
 
-    it("leaves a blank for the letter picker", () => {
-        expect(dropEffects({ kind: "rack" }, BLANK, { kind: "cell", cell: CELL }, true)).toEqual([]);
+    it("lays a blank face down and names the cell awaiting its letter", () => {
+        expect(dropEffects({ kind: "rack" }, BLANK, { kind: "cell", cell: CELL }, true)).toEqual([
+            { kind: "lay", cell: CELL, tile: BLANK, letter: null },
+        ]);
         expect(blankLanding({ kind: "rack" }, BLANK, { kind: "cell", cell: CELL })).toBe(CELL);
         expect(blankLanding({ kind: "rack" }, KAY, { kind: "cell", cell: CELL })).toBeNull();
         expect(blankLanding({ kind: "cell", cell: CELL }, BLANK, { kind: "cell", cell: ELSEWHERE })).toBeNull();

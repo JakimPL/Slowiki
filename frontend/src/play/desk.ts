@@ -2,7 +2,7 @@ import type { Board, Tile } from "../api/views";
 import type { Arrangement } from "./arrangement";
 import { EMPTY_ARRANGEMENT, movedBefore, reconciledArrangement } from "./arrangement";
 import type { Draft, Pending } from "./draft";
-import { EMPTY_DRAFT, laidDown, pendingAt, reconciledDraft, takenBack } from "./draft";
+import { EMPTY_DRAFT, laidDown, pendingAt, reconciledDraft, stamped, takenBack } from "./draft";
 import type { Lift } from "./selection";
 import { toggledLift } from "./selection";
 import type { DeskSpot } from "./spot";
@@ -28,6 +28,7 @@ export type DeskEffect =
     | { readonly kind: "lay"; readonly cell: number; readonly tile: Tile; readonly letter: string | null }
     | { readonly kind: "relay"; readonly from: number; readonly to: number }
     | { readonly kind: "take-back"; readonly cell: number }
+    | { readonly kind: "stamp"; readonly cell: number; readonly letter: string }
     | { readonly kind: "park"; readonly id: number; readonly before: number | null }
     | { readonly kind: "retrieve"; readonly id: number; readonly before: number | null }
     | { readonly kind: "reorder"; readonly id: number; readonly before: number | null }
@@ -45,6 +46,8 @@ export function affected(desk: Desk, effect: DeskEffect): Desk {
             return relaid(desk, effect.from, effect.to);
         case "take-back":
             return takenBackFrom(desk, effect.cell);
+        case "stamp":
+            return { ...desk, draft: stamped(desk.draft, effect.cell, effect.letter) };
         case "park":
             return parked(desk, effect.id, effect.before);
         case "retrieve":

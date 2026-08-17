@@ -10,6 +10,7 @@ import {
     placementsOf,
     reconciledDraft,
     shownTile,
+    stamped,
     takenBack,
 } from "../src/play/draft";
 import { aBoard, aTile } from "./positions";
@@ -39,6 +40,14 @@ describe("draft", () => {
         expect(shownTile(BLANK).letter).toBe("Ż");
         expect(shownTile(KAY)).toEqual(KAY.tile);
         expect(laidOf([BLANK])[0]?.tile.letter).toBe("Ż");
+    });
+
+    it("stamps the chosen letter onto the hanging blank", () => {
+        const hanging: Pending = { ...BLANK, letter: null };
+        const draft = laidDown(laidDown(EMPTY_DRAFT, KAY), hanging);
+        expect(shownTile(hanging).letter).toBe("");
+        expect(stamped(draft, 113, "Ż")).toEqual([KAY, BLANK]);
+        expect(stamped(draft, 111, "Ż")).toEqual(draft);
     });
 
     it("builds wire placements with rows, columns, and blank letters", () => {

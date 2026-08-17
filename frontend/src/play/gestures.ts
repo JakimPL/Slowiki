@@ -37,9 +37,6 @@ function cellEffects(spot: DeskSpot, tile: Tile, cell: number): readonly DeskEff
     if (spot.kind === "cell") {
         return spot.cell === cell ? [] : [{ kind: "relay", from: spot.cell, to: cell }];
     }
-    if (tile.blank) {
-        return [];
-    }
     return [{ kind: "lay", cell, tile, letter: null }];
 }
 
