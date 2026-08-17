@@ -379,6 +379,21 @@ export interface components {
             /** Tile Id */
             tile_id: number;
         };
+        /** PlayRecord */
+        PlayRecord: {
+            /** Bingo */
+            bingo: number;
+            /** Indices */
+            indices: number[];
+            /** Player */
+            player: number;
+            /** Points */
+            points: number;
+            /** Turn Number */
+            turn_number: number;
+            /** Words */
+            words: components["schemas"]["ScoredWord"][];
+        };
         /** PositionView */
         PositionView: {
             /** Bag Count */
@@ -390,6 +405,7 @@ export interface components {
             exchange_counts: {
                 [key: string]: number;
             };
+            last_play: components["schemas"]["PlayRecord"] | null;
             /** Pending Premoves */
             pending_premoves: number[];
             phase: components["schemas"]["Phase"];
@@ -400,6 +416,8 @@ export interface components {
             racks: {
                 [key: string]: components["schemas"]["Tile"][] | null;
             };
+            /** Scoreless Turns */
+            scoreless_turns: number;
             /** Scores */
             scores: {
                 [key: string]: number;
@@ -452,6 +470,13 @@ export interface components {
             time: components["schemas"]["TimeConfig"];
             /** Validate On Play */
             validate_on_play: boolean;
+        };
+        /** ScoredWord */
+        ScoredWord: {
+            /** Points */
+            points: number;
+            /** Text */
+            text: string;
         };
         /** SeatView */
         SeatView: {

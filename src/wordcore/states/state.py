@@ -2,6 +2,7 @@ from enum import StrEnum
 
 from wordcore.models.base import BaseFrozen
 from wordcore.moves.move import Move
+from wordcore.states.record import PlayRecord
 from wordcore.tiles.tile import Tile
 
 
@@ -19,6 +20,7 @@ class WordState(BaseFrozen):
     exchange_counts: dict[int, int]
     consecutive_passes: int
     scoreless_turns: int = 0
+    last_play: PlayRecord | None = None
     premoves: dict[int, Move | None]
     turn_number: int
 

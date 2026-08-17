@@ -34,6 +34,8 @@ export function aView(overrides: Partial<PositionView> = {}): PositionView {
         scores: { 0: 0, 1: 0 },
         exchange_counts: { 0: 0, 1: 0 },
         consecutive_passes: 0,
+        scoreless_turns: 0,
+        last_play: null,
         premove: null,
         pending_premoves: [],
         turn_number: 0,

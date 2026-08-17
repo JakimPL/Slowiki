@@ -2,6 +2,7 @@ from wordcore.board.board import Board
 from wordcore.models.base import BaseFrozen
 from wordcore.moves.move import Move
 from wordcore.positions.position import Position
+from wordcore.states.record import PlayRecord
 from wordcore.states.state import Phase
 from wordcore.tiles.tile import Tile
 
@@ -15,6 +16,8 @@ class PositionView(BaseFrozen):
     scores: dict[int, int]
     exchange_counts: dict[int, int]
     consecutive_passes: int
+    scoreless_turns: int
+    last_play: PlayRecord | None
     premove: Move | None
     pending_premoves: frozenset[int]
     turn_number: int
@@ -38,6 +41,8 @@ def project(position: Position, observer: int | None) -> PositionView:
         scores=state.scores,
         exchange_counts=state.exchange_counts,
         consecutive_passes=state.consecutive_passes,
+        scoreless_turns=state.scoreless_turns,
+        last_play=state.last_play,
         premove=premove,
         pending_premoves=pending,
         turn_number=state.turn_number,

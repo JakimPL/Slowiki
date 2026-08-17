@@ -12,6 +12,7 @@ from wordcore.moves.move import Move
 from wordcore.positions.position import Position
 from wordcore.states.state import Phase, WordState
 from wordcore.tiles.tile import LetterSpec, Tile, TilePreset
+from wordcore.views.projection import project
 from wordgames.backend.base import WordGameRules
 from wordgames.backend.parameters import GameParameters
 from wordtable.build import build_rules
@@ -100,6 +101,91 @@ def test_play_scores_and_advances() -> None:
     assert updated.state.scores[0] == 53
     assert updated.state.to_act == frozenset({1})
     assert updated.board.tile_at(1, 0) is not None
+
+
+def test_play_writes_the_last_play_record() -> None:
+    rules = make_rules(TextLexicon.from_words(["ab"]))
+    position = make_position(
+        racks={
+            0: (make_tile(1, "a", 1, "yellow"), make_tile(2, "b", 2, "green")),
+            1: (make_tile(3, "a", 1, "yellow"), make_tile(4, "b", 2, "green")),
+        },
+        bag=(make_tile(5, "a", 1, "yellow"), make_tile(6, "b", 2, "green")),
+    )
+    move = Move(
+        player=0,
+        action=Play(
+            placements=(
+                PlayPlacement(tile_id=1, row=1, column=0),
+                PlayPlacement(tile_id=2, row=1, column=1),
+            )
+        ),
+    )
+    updated = rules.apply(position, move, random.Random(0))
+    record = updated.state.last_play
+    assert record is not None
+    assert record.player == 0
+    assert record.indices == (3, 4)
+    assert [(word.text, word.points) for word in record.words] == [("AB", 3)]
+    assert record.points == 53
+    assert record.bingo == 50
+    assert record.turn_number == 0
+
+
+def test_last_play_survives_passes_and_exchanges() -> None:
+    rules = make_rules(TextLexicon.from_words(["ab"]))
+    position = make_position(
+        racks={
+            0: (make_tile(1, "a", 1, "yellow"), make_tile(2, "b", 2, "green")),
+            1: (make_tile(3, "a", 1, "yellow"), make_tile(4, "b", 2, "green")),
+        },
+        bag=tuple(make_tile(10 + extra, "a", 1, "yellow") for extra in range(9)),
+    )
+    move = Move(
+        player=0,
+        action=Play(
+            placements=(
+                PlayPlacement(tile_id=1, row=1, column=0),
+                PlayPlacement(tile_id=2, row=1, column=1),
+            )
+        ),
+    )
+    played = rules.apply(position, move, random.Random(0))
+    record = played.state.last_play
+    passed = rules.apply(played, Move(player=1, action=Pass()), random.Random(0))
+    assert passed.state.last_play == record
+    exchanged = rules.apply(
+        passed,
+        Move(player=0, action=Exchange(tile_ids=[10, 11])),
+        random.Random(0),
+    )
+    assert exchanged.state.last_play == record
+
+
+def test_projection_serves_the_last_play_publicly() -> None:
+    rules = make_rules(TextLexicon.from_words(["ab"]))
+    position = make_position(
+        racks={
+            0: (make_tile(1, "a", 1, "yellow"), make_tile(2, "b", 2, "green")),
+            1: (make_tile(3, "a", 1, "yellow"), make_tile(4, "b", 2, "green")),
+        },
+        bag=(),
+    )
+    move = Move(
+        player=0,
+        action=Play(
+            placements=(
+                PlayPlacement(tile_id=1, row=1, column=0),
+                PlayPlacement(tile_id=2, row=1, column=1),
+            )
+        ),
+    )
+    updated = rules.apply(position, move, random.Random(0))
+    spectator = project(updated, None)
+    assert spectator.last_play == updated.state.last_play
+    assert spectator.last_play is not None
+    assert spectator.scoreless_turns == 0
+    assert spectator.racks[0] is None
 
 
 def test_invalid_word_rejected() -> None:

@@ -16,6 +16,7 @@ from wordcore.rules.turn import next_seat
 from wordcore.rules.validity import validate_words
 from wordcore.rules.words.formed import formed_words, validate_anchor
 from wordcore.rules.words.placement import Placement, board_with_placements
+from wordcore.states.record import PlayRecord
 from wordcore.states.state import Phase, WordState
 from wordcore.tiles.bag import deal_racks, shuffled_bag
 from wordcore.tiles.tile import Tile, TilePreset
@@ -113,11 +114,13 @@ class WordGameRules(Rules):
         placements = self._resolve_placements(position, player, action)
         words = formed_words(position.board, placements)
         scored = score_move(position.board, words, self._bingo_bonus(len(placements)))
+        record = _play_record(position, player, placements, scored)
         new_rack, new_bag = self._replenished_rack(position, player, placements)
+        new_state = _state_after_play(position.state, player, scored, record, new_rack, new_bag)
         played = position.model_copy(
             update={
                 "board": board_with_placements(position.board, placements),
-                "state": _state_after_play(position.state, player, scored, new_rack, new_bag),
+                "state": new_state,
             }
         )
         return played, _went_out(player, new_rack, new_bag)
@@ -257,10 +260,30 @@ def _assigned_blank(tile: Tile, letter: str | None) -> Tile:
     return tile.model_copy(update={"letter": letter})
 
 
+def _play_record(
+    position: Position,
+    player: int,
+    placements: tuple[Placement, ...],
+    scored: MoveScore,
+) -> PlayRecord:
+    indices = tuple(
+        sorted(position.board.index(placement.row, placement.column) for placement in placements)
+    )
+    return PlayRecord(
+        player=player,
+        indices=indices,
+        words=scored.words,
+        points=scored.points,
+        bingo=scored.bingo,
+        turn_number=position.state.turn_number,
+    )
+
+
 def _state_after_play(
     state: WordState,
     player: int,
     scored: MoveScore,
+    record: PlayRecord,
     new_rack: tuple[Tile, ...],
     new_bag: tuple[Tile, ...],
 ) -> WordState:
@@ -271,6 +294,7 @@ def _state_after_play(
             "scores": {**state.scores, player: state.scores[player] + scored.points},
             "consecutive_passes": 0,
             "scoreless_turns": 0,
+            "last_play": record,
         }
     )
 
