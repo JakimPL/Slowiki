@@ -1,10 +1,9 @@
 # Polish morphology — grammar reference and data sources
 
 This document records the grammatical model the morphology pipeline encodes and
-the survey of data sources that supply complete Polish inflection data. Facts
-taken from this repository are verified; facts about external sources carry a
-`pending` marker until Phase 0 of the implementation confirms licenses, URLs,
-and counts on the web.
+the survey of data sources that supply complete Polish inflection data. All
+license, format, and coverage facts below were verified on 2026-08-17 during
+Phase 0; measurement numbers come from runs in this repository.
 
 ## Purpose
 
@@ -158,129 +157,183 @@ game validity; morphology annotates it.
 
 ### Morfeusz 2 with the SGJP dictionary
 
-A finite-state morphological analyzer from IPI PAN
-(https://sgjp.pl/morfeusz/). The underlying dictionary is the Słownik
-gramatyczny języka polskiego (SGJP) by Zygmunt Saloni et al., which lists every
-inflected form of every paradigm explicitly. Analyses arrive as
-`form, tags, lemma` triples with Morfeusz tags such as `subst:sg:inst:f`;
-homonymic surfaces yield several interpretations. The library also generates
-paradigm forms from a lemma.
+A finite-state morphological analyzer from IPI PAN (https://morfeusz.sgjp.pl/).
+The bundled dictionary is the Słownik gramatyczny języka polskiego (SGJP) by
+Zygmunt Saloni et al., which lists every inflected form of every paradigm
+explicitly. The analyzer also generates the full paradigm of a lemma.
 
-Distributions: C/C++ library, CLI, and a Python binding published as
-`morfeusz2` on PyPI with the dictionary bundled.
+Verified in Phase 0 (2026-08-17):
 
-- License of the library and of the SGJP dictionary: `pending` — Phase 0
-  verification (the terms changed across SGJP editions).
-- Coverage (millions of forms, ≈4M): `pending` — Phase 0 measurement.
-- Role: primary analysis source, option A.
+- License: the program and the bundled inflectional data (SGJP and PoliMorf
+  data) ship under the 2-clause BSD license
+  (http://morfeusz.sgjp.pl/doc/license/). The full SGJP text is a separate
+  resource with separate terms; the analysis data is BSD-2-Clause.
+- Python binding: `morfeusz2` on PyPI, version 1.99.15 (wheel dated
+  2026-06-01), cp310-abi3 wheels for Linux, macOS, and Windows.
+- Bundled dictionary identity: `pl.sgjp.sgjp-2026.06.01`.
+- Output: one tuple per interpretation, `(orth, lemma, tag, names,
+  qualifiers)`, e.g. `('bronią', 'broń', 'subst:sg:inst:f', ['nazwa_pospolita'], [])`.
+- Homonyms: paradigm-level homonymic lemmas carry pattern-qualified names,
+  e.g. `zamek:Sm3~a` (dopełniacz `zamka`) versus `zamek:Sm3~u` (dopełniacz
+  `zamku`); usage qualifiers arrive in the qualifiers list (e.g. `muz.`).
+- Unrecognized forms yield a single interpretation tagged `ign`.
+- Throughput: ≈29,000 words/s in Python; the full 3,240,429-form pass takes
+  ≈110 s.
+- Coverage: 2,696,531 forms (83.22%) receive at least one real analysis;
+  1,220,280 forms (37.66%) receive multiple interpretations, with up to 48
+  interpretations per form.
+
+Role: primary analysis source.
 
 ### PoliMorf
 
 A merged inflectional dictionary from ZIL IPI PAN
 (https://zil.ipipan.waw.pl/PoliMorf), combining SGJP with further sources and
-a Morfeusz-compatible tagset. Downloads are tabular text
-(form / lemma / tag columns); homonymic lemmas carry qualifiers
-(lemma:qualifier syntax: `pending` — Phase 0 verification of the exact
-format).
+a Morfeusz-compatible tagset. Verified in Phase 0 (2026-08-17):
 
-- License: `pending` — believed CC BY-SA; Phase 0 verification.
-- Role: primary analysis source, option B, readable with the standard library;
-  also a cross-check for option C (Morfeusz + PoliMorf agreement).
+- License: the source data and the resulting resource ship under the
+  2-clause BSD license.
+- Download: `PoliMorf-0.6.7.tab.gz` via the wiki attachment action
+  (`action=AttachFile&do=get&target=PoliMorf-0.6.7.tab.gz`); 37.4 MB
+  compressed, 391 MB uncompressed, 6,578,142 rows dated 2013.
+- Format: `form<TAB>lemma<TAB>tag<TAB>proper_qualifier`, e.g.
+  `bronią<TAB>broń<TAB>subst:sg:inst:f<TAB>pospolita`.
+- Tagset: the classic Morfeusz tagset (e.g. `qub` where the 2026 SGJP uses
+  `part`).
+- Homonyms: lemma-level rows merge paradigm-level homonyms (`zamek` has one
+  row set, while the 2026 SGJP separates `zamek:Sm3~a` and `zamek:Sm3~u`);
+  merged sources produce duplicate rows.
+- Coverage: covers 2,237,306 SJP forms (69.04%) and rescues 200,451 of the
+  543,898 SGJP-unknown forms (36.85%).
+
+Role: supplementary rescue source for SGJP-unknown forms, flagged by source
+in the compiled artifact; combined coverage reaches 89.40%.
 
 ### Morfologik polish.dict
 
 Binary FSA morphological dictionary for the Java Morfologik library
 (https://github.com/morfologik/morfologik-stemming), built from SGJP/PoliMorf
-data and used by LanguageTool. The library is BSD-licensed; the dictionary
-license follows its sources (`pending`). Python consumption requires a reader
+data and used by LanguageTool. The library ships under the BSD-3-Clause
+license (verified on GitHub, 2026-08-17). Python consumption requires a reader
 for the FSA format; the tabular sources it derives from are preferable.
 
 ### WSJP — Wielki słownik języka polskiego PAN
 
 The PAN dictionary (https://wsjp.pl) records full inflection tables per
-lexeme. A machine-readable API is reported to exist (`pending` — Phase 0
-verification of endpoint, response format, bulk-access policy, and license).
-Role: cross-check for paradigm-level data and, in the future, sense-level
-homonym disambiguation.
+lexeme. A machine-readable API is reported to exist; the site returned HTTP
+403 to plain clients during Phase 0 verification, so endpoint, response
+format, bulk-access policy, and license remain to confirm. Role: future
+cross-check and sense-level homonym disambiguation.
 
 ### Wiktionary PL and kaikki.org
 
 Polish Wiktionary stores per-lemma inflection tables (odmiana templates)
-under CC BY-SA. kaikki.org serves machine-readable Wiktionary extracts,
-including Polish (`pending` — Phase 0 verification of the Polish dataset).
-Role: cross-check and few-shot material for any future review tool.
+under CC BY-SA. kaikki.org serves machine-readable Wiktionary extracts; the
+Polish index exists (https://kaikki.org/dictionary/Polish/, verified
+2026-08-17). Role: cross-check and few-shot material for any future review
+tool.
 
 ### Taggers (cross-check only)
 
 spaCy `pl_core_news_sm/md/lg` (trained on NKJP), KRNNT, and Concraft-pl assign
 POS tags to running text. They tag forms; the paradigm sources above enumerate
 complete paradigms. Useful as an independent cross-check for disputed
-classifications. Licenses: `pending`.
+classifications. Licenses: to confirm when a cross-check tool is built.
 
 ### Comparison
 
 | Source | Paradigm-complete | Homonyms | Format | Python access | License | Role |
 |---|---|---|---|---|---|---|
 | SJP słowa.txt | n/a | n/a | plain text | existing loader | GPL 2 + CC BY 4.0 | ground truth |
-| Morfeusz 2 / SGJP | yes | interpretations | FSA binary | `morfeusz2` pip | `pending` | option A |
-| PoliMorf | yes | lemma qualifiers | tabular text | stdlib | `pending` | option B / cross-check |
-| Morfologik polish.dict | yes | via source | binary FSA | custom reader | `pending` | reference |
-| WSJP | yes | senses | API | HTTP | `pending` | cross-check |
+| Morfeusz 2 / SGJP 2026.06.01 | yes | pattern-qualified lemmas | FSA binary | `morfeusz2` pip | BSD-2-Clause | primary |
+| PoliMorf 0.6.7 | yes | lemma-level (merges paradigms) | tabular text | stdlib | BSD-2-Clause | rescue source |
+| Morfologik polish.dict | yes | via source | binary FSA | custom reader | BSD-3-Clause | reference |
+| WSJP | yes | senses | API | HTTP | to confirm | future cross-check |
 | Wiktionary / kaikki | most | senses | JSONL | stdlib | CC BY-SA | cross-check |
-| Taggers (spaCy, KRNNT, Concraft) | no | no | models | pip | `pending` | dispute check |
+| Taggers (spaCy, KRNNT, Concraft) | no | no | models | pip | to confirm | dispute check |
 
-## Morfeusz tagset → PartOfSpeech mapping (draft)
+## Morfeusz tagset → PartOfSpeech mapping (measured)
 
-The mapping is a deterministic table, unit-tested in Phase 1. The tag list
-below is a draft; Phase 0 confirms it against the downloaded dictionary data.
+The mapping is a deterministic table, unit-tested in Phase 1. Prefixes below
+come from the full-corpus pass over słowa.txt with the bundled
+`pl.sgjp.sgjp-2026.06.01` dictionary; counts sum interpretations (one form may
+carry several).
 
-| Tag prefix | PartOfSpeech | Notes |
-|---|---|---|
-| subst | RZECZOWNIK | + case, number, gender |
-| dep | RZECZOWNIK | deprecjatywna forma |
-| adj | PRZYMIOTNIK | + case, number, gender, degree |
-| adja, adjp | PRZYMIOTNIK | subtypes: `pending` verification |
-| adv | PRZYSŁÓWEK | + degree where present |
-| num | LICZEBNIK | + type (główny, porządkowy, zbiorowy) |
-| ppron12, ppron3, siebie | ZAIMEK | + subtype |
-| prep | PRZYIMEK | + governed case |
-| conj | SPÓJNIK | |
-| qub | PARTYKUŁA | |
-| interj | WYKRZYKNIK | |
-| fin, bedzie, aglt, praet, impt, imps, inf, pcon, pant, pact, ppas, ger | CZASOWNIK | + form subtype, aspect, etc. |
-| pred | CZASOWNIK | czasownik niewłaściwy |
-| brev, burk | OTHER | skrót (`burk`: `pending`) |
-| xx, ign | OTHER | unrecognized: reported, never silently guessed |
+| Tag prefix | PartOfSpeech | Interpretations | Notes |
+|---|---|---|---|
+| subst | RZECZOWNIK | 723,526 | case, number, gender |
+| depr | RZECZOWNIK | 10,801 | deprecjatywna forma |
+| adj | PRZYMIOTNIK | 1,190,005 | case, number, gender, degree |
+| adjp | PRZYMIOTNIK | 6,232 | subtype (poprzyimkowy) |
+| adjc | PRZYMIOTNIK | 11 | subtype |
+| adv | PRZYSŁÓWEK | 26,141 | degree where present |
+| comp | PRZYSŁÓWEK | 166 | comparative form |
+| num | LICZEBNIK | 569 | type |
+| frag | LICZEBNIK | 90 | fragment of a multiword numeral |
+| ppron12, ppron3, siebie | ZAIMEK | 100 | subtype |
+| prep | PRZYIMEK | 167 | governed case |
+| conj | SPÓJNIK | 72 | |
+| part | PARTYKUŁA | 297,406 | the 2026 tagset names particles `part` (classic `qub`) |
+| interj | WYKRZYKNIK | 378 | |
+| fin, bedzie, aglt, praet, impt, imps, inf, pcon, pant, pact, ppas, ger | CZASOWNIK | 2,193,530 | form subtype, aspect, person, tense |
+| winien | CZASOWNIK | 56 | winien/powinien paradigm |
+| pred | CZASOWNIK | 30 | czasownik niewłaściwy |
+| brev | OTHER | 24 | skrót |
+| romandig | OTHER | 3 | Roman numeral |
+| ign, xx | OTHER | — | unrecognized → UNKNOWN report |
 
-Tag dimensions: case nom/gen/dat/acc/inst/loc/voc; number sg/pl; gender
-m1/m2/m3/f/n; person pri/sec/ter; degree pos/com/sup; aspect imperf/perf;
-negation aff/neg.
+Tag dimensions observed: case nom/gen/dat/acc/inst/loc/voc (with combined
+values like nom.acc); number sg/pl; gender m1/m2/m3/f/n (with combined values
+like m1.m2.m3.f.n); person pri/sec/ter; degree pos/com/sup; aspect
+imperf/perf; negation aff/neg.
 
-## Coverage expectations
+## Measured coverage (Phase 0, 2026-08-17)
 
-The SJP list contains proper-noun-derived adjectives (e.g. `aalborscy`),
-archaic, dialectal, and regional forms that morphological dictionaries may not
-cover. Forms that receive no analysis become `UNKNOWN` entries and appear in
-the report; the report is the control surface for coverage.
+Measured over the full słowa.txt (3,240,429 forms) with morfeusz2
+(`pl.sgjp.sgjp-2026.06.01`, ≈110 s):
 
-Phase 0 measures:
+| Metric | Value |
+|---|---|
+| Classified by SGJP 2026 | 2,696,531 (83.22%) |
+| SGJP-unknown | 543,898 (16.78%) |
+| Rescued by PoliMorf 0.6.7 | 200,451 (36.85% of SGJP-unknown) |
+| Combined classified | 2,896,982 (89.40%) |
+| Remaining UNKNOWN | 343,447 (10.60%) |
+| Forms with multiple interpretations | 1,220,280 (37.66%) |
+| Maximum interpretations per form | 48 |
+| Unique class keys (lemma + tag prefix) | 361,664 |
 
-- the share of the 3,240,429 forms with at least one analysis,
-- the per-POS distribution,
-- the homonym multiplicity distribution (forms with 2+ classes),
-- license compatibility of each candidate source with GPL 2 / CC BY 4.0.
+Unknown forms concentrate in proper-noun-derived adjectives (`aalborscy`,
+`abadański`) and other formations absent from both dictionaries; PoliMorf
+rescues many proper-derived forms. The remaining forms become `UNKNOWN`
+entries in the report. Case folds cleanly: the analyzer classifies lowercase
+and uppercase input identically (verified on a 10k sample).
 
-## Phase 0 verification checklist
+## Source decision (Phase 0)
 
-Confirm on the web before Phase 2:
+- Primary analysis source: morfeusz2 with the bundled SGJP 2026.06.01 —
+  newest data, paradigm-level homonym separation through pattern-qualified
+  lemmas, native paradigm generation.
+- Supplementary rescue source: PoliMorf 0.6.7 tabular data for SGJP-unknown
+  forms; analyses carry a `source` flag.
+- Both sources ship under the 2-clause BSD license, compatible with the SJP
+  list's GPL 2 / CC BY 4.0 terms for the compiled artifact.
+- WSJP and kaikki remain cross-check options; WSJP returned HTTP 403 to plain
+  clients.
 
-- Morfeusz 2: license of the library, license of the bundled SGJP dictionary,
-  total analysed form count, homonym representation in output.
-- `morfeusz2` PyPI package: maintainer, bundled dictionary version, platform
-  wheels.
-- PoliMorf: license, download URLs, exact column order, homonym qualifier
-  syntax, entry count.
-- Morfologik polish.dict: license of the dictionary file.
-- WSJP: API documentation URL, response shape, bulk-access policy, license.
-- kaikki.org: Polish dataset availability and contents.
-- spaCy pl models, KRNNT, Concraft-pl licenses.
+## Phase 0 verification checklist — status
+
+Completed on 2026-08-17:
+
+- Morfeusz 2: license (BSD-2-Clause for program and inflectional data),
+  PyPI package (`morfeusz2` 1.99.15), bundled dictionary
+  (`pl.sgjp.sgjp-2026.06.01`), output shape, homonym representation
+  (pattern-qualified lemmas), throughput, coverage.
+- PoliMorf: license (BSD-2-Clause), download URL, row format, tagset
+  differences, homonym merging behaviour, rescue coverage.
+- Morfologik: library license (BSD-3-Clause).
+- kaikki.org: Polish dictionary index exists.
+- WSJP: API access remains to confirm; the site returned HTTP 403 to plain
+  clients.
+- Taggers (spaCy, KRNNT, Concraft-pl): licenses to confirm when a
+  cross-check tool is built.
