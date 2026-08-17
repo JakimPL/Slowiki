@@ -865,7 +865,7 @@ select {
     opacity: 0.45;
 }
 
-@media (width < 900px) and (orientation: portrait) and (height <= 760px) {
+@media (width < 900px) and (orientation: portrait) and (height <=760px) {
     .table {
         gap: 6px;
     }
@@ -885,7 +885,7 @@ select {
     }
 }
 
-@media (width < 900px) and (orientation: portrait) and (height <= 700px) {
+@media (width < 900px) and (orientation: portrait) and (height <=700px) {
     .plaque-dot,
     .plaque-premove {
         display: none;
@@ -905,7 +905,7 @@ select {
     }
 }
 
-@media (width < 900px) and (orientation: portrait) and (height <= 620px) {
+@media (width < 900px) and (orientation: portrait) and (height <=620px) {
     .feedback {
         display: none;
     }
@@ -916,14 +916,13 @@ select {
     }
 }
 
-@media (width >= 900px), (orientation: landscape) and (height <= 590px) {
+@media (width >=900px), (orientation: landscape) and (height <=590px) {
     .table {
         display: grid;
         grid-template:
             "board status" auto
             "board plaques" auto
-            "board side" minmax(0, 1fr)
-            / minmax(0, 1fr) minmax(320px, 420px);
+            "board side" minmax(0, 1fr) / minmax(0, 1fr) minmax(320px, 420px);
         column-gap: 16px;
         max-width: 1280px;
     }
@@ -954,7 +953,7 @@ select {
     }
 }
 
-@media (width >= 900px) {
+@media (width >=900px) {
     .plaque {
         flex-direction: column;
         gap: 2px;
