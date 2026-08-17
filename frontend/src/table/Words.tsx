@@ -1,13 +1,7 @@
 import type { ReactElement } from "react";
 
-import type { WordStatus } from "../play/feedback";
+import type { WordChip } from "../play/chips";
 import { bingoCaption, WORDS_LABEL } from "./strings";
-
-export interface WordChip {
-    readonly text: string;
-    readonly points: number;
-    readonly status: WordStatus;
-}
 
 export interface WordsProps {
     readonly chips: readonly WordChip[];
