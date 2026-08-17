@@ -39,7 +39,13 @@ describe("Rack", () => {
     it("names blank tiles for assistive tech", () => {
         const blank = aTile({ identifier: 3, letter: "", value: 0, blank: true });
         const markup = renderToStaticMarkup(
-            <Rack tiles={[blank]} liftedId={null} bindings={stubBindings()} returnable={false} onReturn={() => undefined} />,
+            <Rack
+                tiles={[blank]}
+                liftedId={null}
+                bindings={stubBindings()}
+                returnable={false}
+                onReturn={() => undefined}
+            />,
         );
         expect(markup).toContain('aria-label="Blank tile"');
     });

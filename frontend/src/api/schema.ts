@@ -500,23 +500,6 @@ export interface components {
             /** Seat */
             seat: number;
         };
-        /** StyleConfig */
-        StyleConfig: {
-            /** Board Color */
-            board_color: string;
-            /** Name */
-            name: string;
-            /** Premium Colors */
-            premium_colors: {
-                [key: string]: string;
-            };
-            /** Text Color */
-            text_color: string;
-            /** Tile Colors */
-            tile_colors: {
-                [key: string]: string;
-            };
-        };
         /** StyleTokens */
         StyleTokens: {
             dark: components["schemas"]["ThemeTokens"];
@@ -579,7 +562,6 @@ export interface components {
             company: components["schemas"]["CompanyView"];
             /** Seq */
             seq: number;
-            style: components["schemas"]["StyleConfig"];
             view: components["schemas"]["PositionView"];
         };
         /** ThemeTokens */

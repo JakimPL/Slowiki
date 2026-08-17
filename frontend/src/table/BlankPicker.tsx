@@ -2,12 +2,7 @@ import type { ReactElement } from "react";
 import { useState } from "react";
 
 import type { Letter } from "../api/tables";
-import {
-    BLANK_CONFIRM,
-    BLANK_INPUT_LABEL,
-    BLANK_PICKER_CLOSE,
-    BLANK_PICKER_HEADING,
-} from "./strings";
+import { BLANK_CONFIRM, BLANK_INPUT_LABEL, BLANK_PICKER_CLOSE, BLANK_PICKER_HEADING } from "./strings";
 
 export interface BlankPickerProps {
     readonly alphabet: readonly Letter[] | null;

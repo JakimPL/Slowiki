@@ -31,9 +31,6 @@ export function tileAt(board: Board, cell: number): Tile | null {
     return board.tiles[cell] ?? null;
 }
 
-export function combinedTiles(
-    board: Board,
-    pending: ReadonlyMap<number, Tile>,
-): readonly (Tile | null)[] {
+export function combinedTiles(board: Board, pending: ReadonlyMap<number, Tile>): readonly (Tile | null)[] {
     return board.tiles.map((tile, cell) => tile ?? pending.get(cell) ?? null);
 }

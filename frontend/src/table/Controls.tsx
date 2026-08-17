@@ -40,12 +40,7 @@ export function Controls({
             >
                 {caption}
             </button>
-            <button
-                type="button"
-                className="control-quiet"
-                disabled={!canRecall || busy}
-                onClick={onRecall}
-            >
+            <button type="button" className="control-quiet" disabled={!canRecall || busy} onClick={onRecall}>
                 {RECALL_BUTTON}
             </button>
             <button type="button" className="control-quiet" disabled={!canShuffle || busy} onClick={onShuffle}>

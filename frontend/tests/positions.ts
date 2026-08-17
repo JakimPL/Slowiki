@@ -106,13 +106,6 @@ export function aDescription(overrides: Partial<TableDescription> = {}): TableDe
 export function aTableResponse(overrides: Partial<TableViewResponse> = {}): TableViewResponse {
     return {
         seq: 0,
-        style: {
-            name: "default",
-            board_color: "#ede5d1",
-            text_color: "#2b2419",
-            tile_colors: {},
-            premium_colors: {},
-        },
         view: aView(),
         company: aCompany(),
         clock: null,

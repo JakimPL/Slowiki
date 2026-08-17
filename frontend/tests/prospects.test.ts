@@ -14,7 +14,11 @@ const OPENING: Draft = [
 
 describe("prospectOf", () => {
     it("passes structural verdicts through with no words", () => {
-        const prospect = prospectOf(aBoard(), [OPENING[0] ?? { cell: CENTER, tile: aTile(), letter: null }], FALLBACK_RULES);
+        const prospect = prospectOf(
+            aBoard(),
+            [OPENING[0] ?? { cell: CENTER, tile: aTile(), letter: null }],
+            FALLBACK_RULES,
+        );
         expect(prospect.verdict).toBe("opening-short");
         expect(prospect.words).toEqual([]);
         expect(prospect.points).toBe(0);

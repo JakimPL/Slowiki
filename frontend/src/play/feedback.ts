@@ -17,11 +17,7 @@ export function invalidTextsOf(noticeCode: string | null, notice: string | null)
     return new Set(notice.slice(INVALID_PREFIX.length).split(", "));
 }
 
-export function wordStatusFor(
-    policy: FeedbackPolicy,
-    text: string,
-    invalidTexts: ReadonlySet<string>,
-): WordStatus {
+export function wordStatusFor(policy: FeedbackPolicy, text: string, invalidTexts: ReadonlySet<string>): WordStatus {
     if (invalidTexts.has(text)) {
         return "invalid";
     }

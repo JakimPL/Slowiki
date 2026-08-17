@@ -48,14 +48,6 @@ class SchemeConfig(BaseFrozen):
     bingo_bonus: int
 
 
-class StyleConfig(BaseFrozen):
-    name: str
-    board_color: str
-    text_color: str
-    tile_colors: dict[str, str]
-    premium_colors: dict[str, str]
-
-
 HexColor = Annotated[str, Field(pattern=r"^#[0-9A-Fa-f]{6}$")]
 TintFraction = Annotated[float, Field(ge=0, le=1)]
 
@@ -142,21 +134,6 @@ def load_style_tokens(directory: Path, name: str) -> StyleTokens:
     path = directory / configuration_file(CONFIGURATION_STYLES_PATH, name)
     data = _read_yaml(path)
     return StyleTokens.model_validate({**data, "name": name})
-
-
-def legacy_style(tokens: StyleTokens) -> StyleConfig:
-    light = tokens.light
-    return StyleConfig(
-        name=tokens.name,
-        board_color=light.board.surface,
-        text_color=light.chrome.text,
-        tile_colors={**light.tiles.bands, "blank": light.tiles.face},
-        premium_colors={
-            "word_multiplier": light.premiums["word_3"].fill,
-            "letter_multiplier": light.premiums["letter_3"].fill,
-            "category_multiplier": light.category_premiums["red"].fill,
-        },
-    )
 
 
 def _read_yaml(path: Path) -> dict[str, Any]:

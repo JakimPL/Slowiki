@@ -3,9 +3,7 @@ import type { DropTarget, TargetMap } from "./targets";
 import { resolveTarget } from "./targets";
 
 export type DeskSpot =
-    | { readonly kind: "rack" }
-    | { readonly kind: "tray" }
-    | { readonly kind: "cell"; readonly cell: number };
+    { readonly kind: "rack" } | { readonly kind: "tray" } | { readonly kind: "cell"; readonly cell: number };
 
 export interface Grasp {
     readonly spot: DeskSpot;

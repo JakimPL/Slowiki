@@ -45,7 +45,13 @@ export function Cell({
     if (pending !== null && bindings !== null) {
         return (
             <span className="cell" data-drop={drop ? "true" : undefined}>
-                <GraspTile tile={pending} spot={{ kind: "cell", cell }} lifted={false} pending={true} bindings={bindings} />
+                <GraspTile
+                    tile={pending}
+                    spot={{ kind: "cell", cell }}
+                    lifted={false}
+                    pending={true}
+                    bindings={bindings}
+                />
             </span>
         );
     }

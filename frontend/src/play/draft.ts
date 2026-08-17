@@ -57,8 +57,6 @@ export function reconciledDraft(draft: Draft, rack: readonly Tile[] | null, boar
         return draft.length === 0 ? draft : EMPTY_DRAFT;
     }
     const held = new Set(rack.map((tile) => tile.identifier));
-    const kept = draft.filter(
-        (pending) => held.has(pending.tile.identifier) && tileAt(board, pending.cell) === null,
-    );
+    const kept = draft.filter((pending) => held.has(pending.tile.identifier) && tileAt(board, pending.cell) === null);
     return kept.length === draft.length ? draft : kept;
 }

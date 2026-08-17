@@ -10,7 +10,9 @@ describe("logEntryOf", () => {
         const event = anEvent({
             seq: 3,
             actor: 1,
-            position: aView({ last_play: aPlayRecord({ player: 1, points: 34, words: [{ text: "WÓZ", points: 34 }] }) }),
+            position: aView({
+                last_play: aPlayRecord({ player: 1, points: 34, words: [{ text: "WÓZ", points: 34 }] }),
+            }),
         });
         expect(logEntryOf(event, before)).toEqual({
             seq: 3,
@@ -77,10 +79,7 @@ describe("appendedLog", () => {
 describe("advanced folds the log", () => {
     it("collects entries as events land", () => {
         const state = openedFrom(aTableResponse());
-        const played = advanced(
-            state,
-            anEvent({ seq: 0, actor: 0, position: aView({ last_play: aPlayRecord() }) }),
-        );
+        const played = advanced(state, anEvent({ seq: 0, actor: 0, position: aView({ last_play: aPlayRecord() }) }));
         expect(played.log).toHaveLength(1);
         const passed = advanced(
             played,

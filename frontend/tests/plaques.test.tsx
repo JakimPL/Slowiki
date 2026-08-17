@@ -19,14 +19,18 @@ describe("Plaques", () => {
 
     it("dims unclaimed seats as open", () => {
         const company = aCompany([aSeatView(0, { name: "Ala" }), aSeatView(1, { claimed: false })]);
-        const markup = renderToStaticMarkup(<Plaques view={aView()} company={company} mySeat={null} countdown={null} />);
+        const markup = renderToStaticMarkup(
+            <Plaques view={aView()} company={company} mySeat={null} countdown={null} />,
+        );
         expect(markup).toContain("Open seat");
         expect(markup).toContain('data-open="true"');
     });
 
     it("flags a queued premove", () => {
         const view = aView({ pending_premoves: [1] });
-        const markup = renderToStaticMarkup(<Plaques view={view} company={aCompany()} mySeat={null} countdown={null} />);
+        const markup = renderToStaticMarkup(
+            <Plaques view={view} company={aCompany()} mySeat={null} countdown={null} />,
+        );
         expect(markup).toContain("plaque-premove");
     });
 

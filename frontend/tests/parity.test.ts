@@ -33,9 +33,9 @@ interface FixtureCase {
     readonly total: number;
 }
 
-const fixture = JSON.parse(
-    readFileSync(new URL("./parity/scoring.json", import.meta.url), "utf-8"),
-) as { cases: readonly FixtureCase[] };
+const fixture = JSON.parse(readFileSync(new URL("./parity/scoring.json", import.meta.url), "utf-8")) as {
+    cases: readonly FixtureCase[];
+};
 
 function boardOf(parityCase: FixtureCase): Board {
     const cells = parityCase.size * parityCase.size;

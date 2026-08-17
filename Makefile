@@ -1,8 +1,9 @@
-.PHONY: install check test play serve types frontend build dictionary
+.PHONY: install check test play serve types assets frontend build dictionary
 
 install:
 	uv sync --all-extras --all-groups
-	uv run pre-commit install
+	uv run pre-commit install --hook-type pre-commit --hook-type pre-push
+	npm install
 
 dictionary:
 	uv run python -m wordtable.cli dictionary --name sjp
@@ -27,8 +28,11 @@ types:
 	uv run python scripts/openapi.py
 	npm run types --workspace frontend
 
+assets:
+	uv run python -m wordassets.cli build --output assets --docs docs/media
+
 frontend:
 	npm install
 	npm run build --workspace frontend
 
-build: install dictionary frontend
+build: install dictionary types assets frontend

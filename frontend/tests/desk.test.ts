@@ -66,10 +66,11 @@ describe("desk", () => {
     it("takes back, recalls, and clears the lift", () => {
         const laid = performed({ kind: "lay", cell: 112, tile: KAY, letter: null });
         expect(affected(laid, { kind: "take-back", cell: 112 }).draft).toEqual([]);
-        const messy = affected(
-            affected(laid, { kind: "park", id: OH.identifier, before: null }),
-            { kind: "lift", tile: TEE, from: "rack" },
-        );
+        const messy = affected(affected(laid, { kind: "park", id: OH.identifier, before: null }), {
+            kind: "lift",
+            tile: TEE,
+            from: "rack",
+        });
         const recalled = affected(messy, { kind: "recall" });
         expect(recalled.draft).toEqual([]);
         expect(recalled.lift).toBeNull();

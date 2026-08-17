@@ -5,7 +5,7 @@ from lexica.names import DictionaryName
 from wordcore.board.preset import board_from_preset
 from wordtable import paths
 from wordtable.catalogue import list_schemes, offerings, resolve_scheme
-from wordtable.config import StyleTokens, legacy_style, load_style_tokens, read_config
+from wordtable.config import StyleTokens, load_style_tokens, read_config
 from wordtable.lexicons import dictionary_ready
 from wordtable.paths import CONFIG_DIR
 
@@ -82,15 +82,6 @@ def test_tile_faces_carry_a_bounded_category_tint() -> None:
     payload["light"]["tiles"]["face_tint"] = 1.5
     with pytest.raises(ValidationError):
         StyleTokens.model_validate(payload)
-
-
-def test_legacy_style_derives_from_light_tokens() -> None:
-    tokens = load_style_tokens(CONFIG_DIR, "default")
-    legacy = legacy_style(tokens)
-    assert legacy.board_color == tokens.light.board.surface
-    assert legacy.text_color == tokens.light.chrome.text
-    assert legacy.tile_colors["blank"] == tokens.light.tiles.face
-    assert legacy.premium_colors["word_multiplier"] == tokens.light.premiums["word_3"].fill
 
 
 def test_default_palette_keeps_premiums_apart() -> None:

@@ -11,7 +11,10 @@ function laid(cell: number, letter: string, value: number, identifier: number, c
     return { cell, tile: aTile({ identifier, letter, value, category }) };
 }
 
-function scored(board: ReturnType<typeof aBoard>, pieces: readonly Laid[]): readonly { text: string; points: number }[] {
+function scored(
+    board: ReturnType<typeof aBoard>,
+    pieces: readonly Laid[],
+): readonly { text: string; points: number }[] {
     const formation = formationOf(board, pieces);
     expect(formation.verdict).toBe("playable");
     return scoredWordsOf(board, pieces, formation.words);

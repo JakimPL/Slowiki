@@ -60,6 +60,21 @@ under `lexica.dictionaries`, one module per source.
 - `wordcore.games.kind.EntryKind` — move, premove_set, premove_cleared,
   premove_discarded.
 
+## HTTP surface
+
+- `GET /offerings` — schemes whose dictionaries are present on disk.
+- `GET /style` — the design tokens for the active theme, asked once per client.
+- `POST /tables`, `POST /tables/{code}/join` — admissions with seat tokens.
+- `GET /tables/{table_id}` — the table description: rules parameters, alphabet,
+  distribution, and the join code for seat holders.
+- `GET /tables/{table_id}/view` — the per-observer projection with the company
+  and the turn clock.
+- `POST /tables/{table_id}/moves`, `DELETE /tables/{table_id}/premove` — play.
+- `GET /tables/{table_id}/events` — the SSE stream: numbered journal frames plus
+  unnumbered `presence` and `clock` frames.
+- `/artwork` — the generated asset tree (icons, brand art, board specimens);
+  `/favicon.ico` serves from it.
+
 ## Concurrency
 
 The server runs on a single asyncio event loop. Per-table state is guarded by an

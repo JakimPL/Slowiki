@@ -39,13 +39,7 @@ from wordserver.registry import TableMeta, TableRegistry
 from wordserver.session import TableSession
 from wordtable.build import build_rules
 from wordtable.catalogue import ResolvedScheme, offerings, resolve_scheme
-from wordtable.config import (
-    SchemeConfig,
-    StyleTokens,
-    legacy_style,
-    load_style_tokens,
-    read_config,
-)
+from wordtable.config import SchemeConfig, StyleTokens, load_style_tokens, read_config
 from wordtable.lexicons import LexiconService, dictionary_ready
 from wordtable.paths import ASSETS_DIR, CONFIG_DIR, FRONTEND_DIST_DIR, RUN_CONFIG_FILE
 
@@ -219,7 +213,6 @@ def _admission(
 def create_app() -> FastAPI:
     configuration = read_config(RUN_CONFIG_FILE)
     style_tokens = load_style_tokens(CONFIG_DIR, configuration.style)
-    style = legacy_style(style_tokens)
     service = LexiconService()
     registry = TableRegistry()
 
@@ -323,7 +316,6 @@ def create_app() -> FastAPI:
         observer = session.observer_for(request.headers.get("X-Seat-Token"))
         return TableViewResponse(
             seq=session.seq,
-            style=style,
             view=session.view(observer),
             company=session.company(),
             clock=session.clock(),

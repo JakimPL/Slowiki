@@ -76,7 +76,13 @@ describe("Table", () => {
     it("surfaces the connection chip when the stream drops", () => {
         const response = aTableResponse();
         const markup = renderToStaticMarkup(
-            <Table arrival={ARRIVAL} connection="resuming" state={openedFrom(response)} clock={null} trouble="stream lost" />,
+            <Table
+                arrival={ARRIVAL}
+                connection="resuming"
+                state={openedFrom(response)}
+                clock={null}
+                trouble="stream lost"
+            />,
         );
         expect(markup).toContain("Reconnecting");
         expect(markup).toContain("stream lost");

@@ -4,7 +4,7 @@ from wordcore.tiles.tile import Letter
 from wordcore.views.projection import PositionView
 from wordgames.names import GameName
 from wordtable.catalogue import Offering
-from wordtable.config import StyleConfig, TimeConfig
+from wordtable.config import TimeConfig
 
 
 class OfferingsResponse(BaseFrozen):
@@ -67,7 +67,6 @@ class ClockView(BaseFrozen):
 
 class TableViewResponse(BaseFrozen):
     seq: int
-    style: StyleConfig
     view: PositionView
     company: CompanyView
     clock: ClockView | None

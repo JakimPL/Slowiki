@@ -7,13 +7,7 @@ export interface Laid {
 }
 
 export type GeometryVerdict =
-    | "empty"
-    | "opening-short"
-    | "off-center"
-    | "detached"
-    | "scattered"
-    | "gapped"
-    | "playable";
+    "empty" | "opening-short" | "off-center" | "detached" | "scattered" | "gapped" | "playable";
 
 export interface FormedWord {
     readonly cells: readonly number[];
@@ -103,9 +97,7 @@ function axisFormation(
     fixed: number,
     horizontal: boolean,
 ): Formation {
-    const positions = laid.map((piece) =>
-        horizontal ? columnOf(size, piece.cell) : rowOf(size, piece.cell),
-    );
+    const positions = laid.map((piece) => (horizontal ? columnOf(size, piece.cell) : rowOf(size, piece.cell)));
     const low = Math.min(...positions);
     const high = Math.max(...positions);
     for (let coordinate = low; coordinate <= high; coordinate += 1) {

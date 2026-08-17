@@ -20,8 +20,5 @@ export function boundKeys(target: Document, handlers: KeyHandlers): () => void {
 }
 
 function typing(event: KeyboardEvent): boolean {
-    return (
-        event.target instanceof HTMLElement &&
-        event.target.closest("input, textarea, select, button") !== null
-    );
+    return event.target instanceof HTMLElement && event.target.closest("input, textarea, select, button") !== null;
 }
