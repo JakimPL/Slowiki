@@ -88,9 +88,12 @@ overlay — and reads at two depths.
   pronouns; case × gender titled by number and degree for adjectives; person × number for finite verb
   forms and gender × number for past forms, both titled by mood and tense, with the infinitive,
   participles and gerund as lists beside them; degree rows for adverbs; one list for invariant parts.
+  Every grid on one sheet shares a single column axis, so several grids read as one table; a grid wider
+  than the sheet scrolls sideways in its own frame; and a form the grids hold no cell for joins a titled
+  list, so the sheet carries the reading whole. A cell the paradigm leaves empty prints an em dash.
   Forms the table's dictionary accepts read as playable, the rest carry a struck-through treatment, and
-  the form standing on the board reads in the accent. A reading strip switches readings and a back
-  control returns to the card.
+  the form standing on the board reads in the accent. A back control returns to the card, and a reading
+  strip stands beside it whenever the word carries more than one reading.
 
 The panel holds the word it opened for, so a move arriving from another seat leaves it standing and
 honest. Escape steps the sheet back to the card, the card to closed, and reaches the lift and recall
@@ -145,8 +148,9 @@ sheet with the scheme's own alphabet.
   dictionary's sentence in the guidance line) · `standing` (reserved for challenge schemes).
 - **Word insight**: `absent` (the dictionary refuses the word) · `unclassified` (the word plays, and the
   morphology sources carry no analysis for it) · `read` (readings arrived). Sample data carries a badge
-  and marks its own forms unplayable, so the single claim a sample card makes is the dictionary's verdict
-  on the asked word. Each paradigm form carries `playable`, and the form on the board carries `standing`.
+  on the card and marks its own forms unplayable, so the single claim a sample card makes is the
+  dictionary's verdict on the asked word. Each paradigm form carries `playable`, and the form on the
+  board carries `standing`.
 - **Exchange**: tiles in the tray arm `Exchange N`; the guidance line carries the remaining
   exchange budget and the bag minimum.
 - **Connection**: `joining` · `live` · `resuming` · `lost`, shown as a quiet chip in the status
