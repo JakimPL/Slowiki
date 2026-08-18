@@ -1,0 +1,155 @@
+product:
+  name: Literabble
+  tagline: A configurable Literaki and Scrabble table.
+  style_fallback: Server style unavailable — showing the built-in palette.
+
+connection:
+  joining: Joining
+  live: Live
+  resuming: Reconnecting
+  lost: Disconnected
+
+arrive:
+  name_label: Your name
+  name_placeholder: Shown on your plaque
+  create_heading: Start a table
+  join_heading: Join a table
+  scheme_label: Game
+  seats_label: Players
+  time_label: Time per player
+  increment_label: Bonus per move
+  untimed: Untimed
+  code_label: Table code
+  create_button: Start the table
+  join_button: Join the table
+  switch_to_join: Have an invitation code?
+  switch_to_create: Start your own table instead
+  stale_notice: The table has moved on — the latest position is shown.
+  joining: Joining the table…
+  offerings_loading: Reading the table offerings…
+  span: "{minimum:number}–{maximum:number}"
+  offering:
+    plural:
+      one: "{name} · {span} player"
+      other: "{name} · {span} players"
+  invite_button: Copy invitation
+  invite_copied: Invitation copied
+  copy_code_label: Copy the table code
+  copied_mark: "✓"
+
+seats:
+  open_seat: Open seat
+  you_marker: you
+  players_label: Players
+  your_turn: Your turn
+  fallback_name: "Player {seat:number}"
+  gathering: "Gathering players — {present:number} of {total:number} at the table"
+  waiting: Waiting…
+  thinking:
+    plural:
+      one: "{names} is thinking…"
+      other: "{names} are thinking…"
+  won:
+    plural:
+      one: "{names} wins with {points:number}"
+      other: "{names} share the win with {points:number}"
+  mode_label: Color mode
+  mode_system: ◐ Auto
+  mode_light: ○ Light
+  mode_dark: ● Dark
+  notice_label: Notify me when my turn comes while this tab rests
+  notice_off: 🔔 Off
+  notice_on: 🔔 On
+  locale_label: Language
+  locale_caption: EN
+
+board:
+  label: Board
+  square: "Square {row:number}·{column:number}"
+
+hand:
+  rack_label: Your tiles
+  tray_label: Exchange tray
+  tray_hint: Set tiles aside here to exchange or park them.
+  park_here: Park here
+  return_here: Return here
+  play_button: Play
+  premove_button: Premove
+  premove_queued: Premove queued
+  exchange_queued: Exchange queued
+  cancel_premove: Cancel
+  pass_button: Pass
+  recall_button: Recall
+  shuffle_button: Shuffle
+  primary_scored: "{action} · {points:number}"
+  exchange_button: "Exchange {tiles:number}"
+  exchange_bag_low: "Exchanging needs at least {minimum:number} tiles left in the bag."
+  exchange_spent: No exchanges left this game.
+  exchange_hint: Tap Exchange to swap the tray tiles.
+  exchange_left:
+    plural:
+      one: "{count:number} exchange left this game."
+      other: "{count:number} exchanges left this game."
+  bingo: "Bingo +{bonus:number}"
+  tile: "Tile {letter} · {value:number}"
+  blank_tile: Blank tile
+
+words:
+  label: Formed words
+  verdict_valid: in the dictionary
+  verdict_invalid: not in the dictionary
+  verdict_standing: standing
+  panel_label: "{word} — dictionary reading"
+  panel_close: Close the word panel
+  asking: Reading the word…
+  failed: The word could not be read.
+  absent: The dictionary refuses this word, so there is no reading.
+  unclassified_part: no analysis
+  unclassified: The word plays. The morphology sources carry no analysis for it.
+  sample: sample data
+  deepen: Cała odmiana
+  paradigm_back: Back
+  paradigm_back_label: Back to the word card
+  paradigm_gap: "—"
+  paradigm_plain_forms: forms
+  paradigm_other_forms: other forms
+  term_separator: " · "
+
+docket:
+  log_label: Recent moves
+  remaining_label: Remaining tiles
+  blank_row_mark: "◇"
+  bag: "Bag {tiles:number}"
+  log_play: "{words} · {points:number}"
+  log_exchange: exchanged tiles
+  log_pass: passed
+  log_premove_returned: premove returned
+  log_premove_returned_reason: "premove returned · {reason}"
+  premove_returned: Premove returned to your rack.
+  premove_returned_reason: "Premove returned — {reason}."
+
+sheets:
+  blank_heading: Choose the blank's letter
+  blank_close: Close the letter picker
+  blank_input_label: Letter
+  blank_confirm: Assign the letter
+  game_over_heading: Game over
+
+clock:
+  empty: "—"
+  time: "{minutes:number}:{seconds}"
+  budget: "{minutes:number} min"
+  increment_none: None
+  increment: "+{seconds:number} s"
+
+guidance:
+  place: Tap an empty square to place the tile.
+  opening_short: The first word needs at least two tiles.
+  off_center: The first word must cross the center star.
+  detached: Connect the word to the tiles on the board.
+  scattered: Keep the word in a single row or column.
+  gapped: Fill every gap in the word.
+
+general:
+  list_separator: ", "
+  list_pair: "{leading} and {last}"

@@ -52,6 +52,7 @@ import { carriedTo, isCarry } from "./input/dragging";
 import type { KeyHandlers } from "./input/keys";
 import { boundKeys } from "./input/keys";
 import { targetsFrom } from "./input/targets";
+import { LocaleToggle } from "./seats/LocaleToggle";
 import { ModeToggle } from "./seats/ModeToggle";
 import { NoticeToggle } from "./seats/NoticeToggle";
 import type { SeatClock } from "./seats/Plaques";
@@ -382,6 +383,7 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
                 )}
                 <NoticeToggle wanted={notices.wanted} onFlip={notices.flip} />
                 <ModeToggle />
+                <LocaleToggle />
             </header>
             <Plaques
                 view={state.view}

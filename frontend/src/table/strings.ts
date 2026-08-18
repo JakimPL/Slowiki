@@ -6,114 +6,120 @@ import type { Story } from "../play/story/story";
 import type { ExchangeBlock } from "../play/tiles/exchange";
 import type { PremoveKind } from "../play/tiles/premoves";
 import type { WordStatus } from "../play/words/feedback";
+import { counted, text } from "../text/active";
 
-export const PRODUCT_NAME = "Literabble";
-export const PRODUCT_TAGLINE = "A configurable Literaki and Scrabble table.";
-export const STYLE_FALLBACK_NOTE = "Server style unavailable — showing the built-in palette.";
+export const PRODUCT_NAME = text("product.name");
+export const PRODUCT_TAGLINE = text("product.tagline");
+export const STYLE_FALLBACK_NOTE = text("product.style_fallback");
 
 export const CONNECTION_CAPTIONS: Record<Connection, string> = {
-    joining: "Joining",
-    live: "Live",
-    resuming: "Reconnecting",
-    lost: "Disconnected",
+    joining: text("connection.joining"),
+    live: text("connection.live"),
+    resuming: text("connection.resuming"),
+    lost: text("connection.lost"),
 };
 
-export const NAME_LABEL = "Your name";
-export const NAME_PLACEHOLDER = "Shown on your plaque";
-export const CREATE_HEADING = "Start a table";
-export const JOIN_HEADING = "Join a table";
-export const SCHEME_LABEL = "Game";
-export const SEATS_LABEL = "Players";
-export const TIME_LABEL = "Time per player";
-export const INCREMENT_LABEL = "Bonus per move";
-export const UNTIMED_CAPTION = "Untimed";
-export const CODE_LABEL = "Table code";
-export const CREATE_BUTTON = "Start the table";
-export const JOIN_BUTTON = "Join the table";
-export const SWITCH_TO_JOIN = "Have an invitation code?";
-export const SWITCH_TO_CREATE = "Start your own table instead";
-export const STALE_NOTICE = "The table has moved on — the latest position is shown.";
-export const JOINING_CAPTION = "Joining the table…";
-export const OFFERINGS_LOADING = "Reading the table offerings…";
-export const OPEN_SEAT_LABEL = "Open seat";
-export const YOU_MARKER = "you";
-export const YOUR_TURN_CAPTION = "Your turn";
-export const GAME_OVER_HEADING = "Game over";
-export const INVITE_BUTTON = "Copy invitation";
-export const INVITE_COPIED = "Invitation copied";
-export const COPY_CODE_LABEL = "Copy the table code";
-export const COPIED_MARK = "✓";
+export const NAME_LABEL = text("arrive.name_label");
+export const NAME_PLACEHOLDER = text("arrive.name_placeholder");
+export const CREATE_HEADING = text("arrive.create_heading");
+export const JOIN_HEADING = text("arrive.join_heading");
+export const SCHEME_LABEL = text("arrive.scheme_label");
+export const SEATS_LABEL = text("arrive.seats_label");
+export const TIME_LABEL = text("arrive.time_label");
+export const INCREMENT_LABEL = text("arrive.increment_label");
+export const UNTIMED_CAPTION = text("arrive.untimed");
+export const CODE_LABEL = text("arrive.code_label");
+export const CREATE_BUTTON = text("arrive.create_button");
+export const JOIN_BUTTON = text("arrive.join_button");
+export const SWITCH_TO_JOIN = text("arrive.switch_to_join");
+export const SWITCH_TO_CREATE = text("arrive.switch_to_create");
+export const STALE_NOTICE = text("arrive.stale_notice");
+export const JOINING_CAPTION = text("arrive.joining");
+export const OFFERINGS_LOADING = text("arrive.offerings_loading");
+export const OPEN_SEAT_LABEL = text("seats.open_seat");
+export const YOU_MARKER = text("seats.you_marker");
+export const YOUR_TURN_CAPTION = text("seats.your_turn");
+export const GAME_OVER_HEADING = text("sheets.game_over_heading");
+export const INVITE_BUTTON = text("arrive.invite_button");
+export const INVITE_COPIED = text("arrive.invite_copied");
+export const COPY_CODE_LABEL = text("arrive.copy_code_label");
+export const COPIED_MARK = text("arrive.copied_mark");
 export const DOCKET_GROUP = "docket";
-export const BOARD_LABEL = "Board";
-export const RACK_LABEL = "Your tiles";
-export const PLAY_BUTTON = "Play";
-export const PREMOVE_BUTTON = "Premove";
-export const PREMOVE_QUEUED = "Premove queued";
-export const EXCHANGE_QUEUED = "Exchange queued";
-export const CANCEL_PREMOVE = "Cancel";
-export const PASS_BUTTON = "Pass";
-export const RECALL_BUTTON = "Recall";
-export const SHUFFLE_BUTTON = "Shuffle";
-export const WORDS_LABEL = "Formed words";
-export const TRAY_LABEL = "Exchange tray";
-export const LOG_LABEL = "Recent moves";
-export const REMAINING_LABEL = "Remaining tiles";
-export const PLAYERS_LABEL = "Players";
-export const BLANK_ROW_MARK = "◇";
-export const EMPTY_CLOCK = "—";
-export const MODE_LABEL = "Color mode";
-export const NOTICE_LABEL = "Notify me when my turn comes while this tab rests";
+export const BOARD_LABEL = text("board.label");
+export const RACK_LABEL = text("hand.rack_label");
+export const PLAY_BUTTON = text("hand.play_button");
+export const PREMOVE_BUTTON = text("hand.premove_button");
+export const PREMOVE_QUEUED = text("hand.premove_queued");
+export const EXCHANGE_QUEUED = text("hand.exchange_queued");
+export const CANCEL_PREMOVE = text("hand.cancel_premove");
+export const PASS_BUTTON = text("hand.pass_button");
+export const RECALL_BUTTON = text("hand.recall_button");
+export const SHUFFLE_BUTTON = text("hand.shuffle_button");
+export const WORDS_LABEL = text("words.label");
+export const TRAY_LABEL = text("hand.tray_label");
+export const LOG_LABEL = text("docket.log_label");
+export const REMAINING_LABEL = text("docket.remaining_label");
+export const PLAYERS_LABEL = text("seats.players_label");
+export const BLANK_ROW_MARK = text("docket.blank_row_mark");
+export const EMPTY_CLOCK = text("clock.empty");
+export const MODE_LABEL = text("seats.mode_label");
+export const LOCALE_LABEL = text("seats.locale_label");
+export const LOCALE_CAPTION = text("seats.locale_caption");
+export const NOTICE_LABEL = text("seats.notice_label");
 export const NOTICE_CAPTIONS: Record<"off" | "on", string> = {
-    off: "🔔 Off",
-    on: "🔔 On",
+    off: text("seats.notice_off"),
+    on: text("seats.notice_on"),
 };
 export const MODE_CAPTIONS: Record<"system" | "light" | "dark", string> = {
-    system: "◐ Auto",
-    light: "○ Light",
-    dark: "● Dark",
+    system: text("seats.mode_system"),
+    light: text("seats.mode_light"),
+    dark: text("seats.mode_dark"),
 };
 
 const SECONDS_PER_MINUTE = 60;
 const CLOCK_PAD_WIDTH = 2;
-const TERM_SEPARATOR = " · ";
+const TERM_SEPARATOR = text("words.term_separator");
+const LIST_SEPARATOR = text("general.list_separator");
+const REASON_SEPARATOR = "_";
+const REASON_SPACE = " ";
 
 export function clockCaption(seconds: number): string {
     const whole = Math.max(0, Math.floor(seconds));
     const minutes = Math.floor(whole / SECONDS_PER_MINUTE);
     const rest = whole % SECONDS_PER_MINUTE;
-    return `${String(minutes)}:${String(rest).padStart(CLOCK_PAD_WIDTH, "0")}`;
+    return text("clock.time", { minutes, seconds: String(rest).padStart(CLOCK_PAD_WIDTH, "0") });
 }
-export const TRAY_HINT = "Set tiles aside here to exchange or park them.";
-export const PARK_HERE = "Park here";
-export const RETURN_HERE = "Return here";
-export const BLANK_PICKER_HEADING = "Choose the blank's letter";
-export const BLANK_PICKER_CLOSE = "Close the letter picker";
-export const BLANK_INPUT_LABEL = "Letter";
-export const BLANK_CONFIRM = "Assign the letter";
-export const BLANK_TILE_CAPTION = "Blank tile";
-export const WORD_PANEL_CLOSE = "Close the word panel";
-export const WORD_ASKING_NOTE = "Reading the word…";
-export const WORD_FAILED_NOTE = "The word could not be read.";
-export const WORD_ABSENT_NOTE = "The dictionary refuses this word, so there is no reading.";
-export const WORD_UNCLASSIFIED_PART = "no analysis";
-export const WORD_UNCLASSIFIED_NOTE = "The word plays. The morphology sources carry no analysis for it.";
-export const WORD_SAMPLE_NOTE = "sample data";
-export const WORD_DEEPEN = "Cała odmiana";
-export const PARADIGM_BACK = "Back";
-export const PARADIGM_BACK_LABEL = "Back to the word card";
-export const PARADIGM_GAP = "—";
-export const PARADIGM_PLAIN_FORMS = "forms";
-export const PARADIGM_OTHER_FORMS = "other forms";
+export const TRAY_HINT = text("hand.tray_hint");
+export const PARK_HERE = text("hand.park_here");
+export const RETURN_HERE = text("hand.return_here");
+export const BLANK_PICKER_HEADING = text("sheets.blank_heading");
+export const BLANK_PICKER_CLOSE = text("sheets.blank_close");
+export const BLANK_INPUT_LABEL = text("sheets.blank_input_label");
+export const BLANK_CONFIRM = text("sheets.blank_confirm");
+export const BLANK_TILE_CAPTION = text("hand.blank_tile");
+export const WORD_PANEL_CLOSE = text("words.panel_close");
+export const WORD_ASKING_NOTE = text("words.asking");
+export const WORD_FAILED_NOTE = text("words.failed");
+export const WORD_ABSENT_NOTE = text("words.absent");
+export const WORD_UNCLASSIFIED_PART = text("words.unclassified_part");
+export const WORD_UNCLASSIFIED_NOTE = text("words.unclassified");
+export const WORD_SAMPLE_NOTE = text("words.sample");
+export const WORD_DEEPEN = text("words.deepen");
+export const PARADIGM_BACK = text("words.paradigm_back");
+export const PARADIGM_BACK_LABEL = text("words.paradigm_back_label");
+export const PARADIGM_GAP = text("words.paradigm_gap");
+export const PARADIGM_PLAIN_FORMS = text("words.paradigm_plain_forms");
+export const PARADIGM_OTHER_FORMS = text("words.paradigm_other_forms");
 
 export const WORD_VERDICT_CAPTIONS: Record<WordStatus, string | null> = {
     unknown: null,
-    valid: "in the dictionary",
-    invalid: "not in the dictionary",
-    standing: "standing",
+    valid: text("words.verdict_valid"),
+    invalid: text("words.verdict_invalid"),
+    standing: text("words.verdict_standing"),
 };
 
 export function wordPanelLabel(word: string): string {
-    return `${word} — dictionary reading`;
+    return text("words.panel_label", { word });
 }
 
 export function formCaption(form: string): string {
@@ -126,37 +132,36 @@ export function odmianaCaption(terms: readonly string[]): string {
 
 export function primaryCaption(premove: boolean, points: number | null): string {
     const base = premove ? PREMOVE_BUTTON : PLAY_BUTTON;
-    return points === null ? base : `${base} · ${String(points)}`;
+    return points === null ? base : text("hand.primary_scored", { action: base, points });
 }
 
 export function budgetCaption(seconds: number): string {
-    const minutes = Math.round(seconds / SECONDS_PER_MINUTE);
-    return `${String(minutes)} min`;
+    return text("clock.budget", { minutes: Math.round(seconds / SECONDS_PER_MINUTE) });
 }
 
 export function incrementCaption(seconds: number): string {
-    return seconds === 0 ? "None" : `+${String(seconds)} s`;
+    return seconds === 0 ? text("clock.increment_none") : text("clock.increment", { seconds });
 }
 
 export function exchangeCaption(count: number): string {
-    return `Exchange ${String(count)}`;
+    return text("hand.exchange_button", { tiles: count });
 }
 
 export function exchangeGuidance(block: ExchangeBlock, remaining: number | null, minBag: number): string {
     if (block === "bag-low") {
-        return `Exchanging needs at least ${String(minBag)} tiles left in the bag.`;
+        return text("hand.exchange_bag_low", { minimum: minBag });
     }
     if (block === "limit-spent") {
-        return "No exchanges left this game.";
+        return text("hand.exchange_spent");
     }
     if (remaining === null) {
-        return "Tap Exchange to swap the tray tiles.";
+        return text("hand.exchange_hint");
     }
-    return `${String(remaining)} ${remaining === 1 ? "exchange" : "exchanges"} left this game.`;
+    return counted("hand.exchange_left", remaining);
 }
 
 export function bingoCaption(bonus: number): string {
-    return `Bingo +${String(bonus)}`;
+    return text("hand.bingo", { bonus });
 }
 
 export function queuedCaption(kind: PremoveKind): string {
@@ -165,23 +170,26 @@ export function queuedCaption(kind: PremoveKind): string {
 
 export function premoveReturnedCaption(reason: string | null): string {
     if (reason === null) {
-        return "Premove returned to your rack.";
+        return text("docket.premove_returned");
     }
-    return `Premove returned — ${reason.replaceAll("_", " ")}.`;
+    return text("docket.premove_returned_reason", { reason: spoken(reason) });
 }
 
 export function logCaption(entry: LogEntry): string {
     switch (entry.kind) {
         case "play":
-            return `${entry.words.map((word) => word.text).join(", ")} · ${String(entry.points ?? 0)}`;
+            return text("docket.log_play", {
+                words: entry.words.map((word) => word.text).join(LIST_SEPARATOR),
+                points: entry.points ?? 0,
+            });
         case "exchange":
-            return "exchanged tiles";
+            return text("docket.log_exchange");
         case "pass":
-            return "passed";
+            return text("docket.log_pass");
         case "premove-returned":
             return entry.reason === null
-                ? "premove returned"
-                : `premove returned · ${entry.reason.replaceAll("_", " ")}`;
+                ? text("docket.log_premove_returned")
+                : text("docket.log_premove_returned_reason", { reason: spoken(entry.reason) });
     }
 }
 
@@ -189,11 +197,11 @@ export function tileCaption(tile: Tile): string {
     if (tile.blank) {
         return BLANK_TILE_CAPTION;
     }
-    return `Tile ${tile.letter} · ${String(tile.value)}`;
+    return text("hand.tile", { letter: tile.letter, value: tile.value });
 }
 
 export function squareCaption(row: number, column: number): string {
-    return `Square ${String(row + 1)}·${String(column + 1)}`;
+    return text("board.square", { row: row + 1, column: column + 1 });
 }
 
 export function guidanceCaption(guidance: Guidance): string | null {
@@ -201,22 +209,22 @@ export function guidanceCaption(guidance: Guidance): string | null {
         case null:
             return null;
         case "place":
-            return "Tap an empty square to place the tile.";
+            return text("guidance.place");
         case "opening-short":
-            return "The first word needs at least two tiles.";
+            return text("guidance.opening_short");
         case "off-center":
-            return "The first word must cross the center star.";
+            return text("guidance.off_center");
         case "detached":
-            return "Connect the word to the tiles on the board.";
+            return text("guidance.detached");
         case "scattered":
-            return "Keep the word in a single row or column.";
+            return text("guidance.scattered");
         case "gapped":
-            return "Fill every gap in the word.";
+            return text("guidance.gapped");
     }
 }
 
 export function fallbackNameFor(seat: number): string {
-    return `Player ${String(seat + 1)}`;
+    return text("seats.fallback_name", { seat: seat + 1 });
 }
 
 export function nameFor(company: CompanyView, seat: number): string {
@@ -228,30 +236,27 @@ export function nameFor(company: CompanyView, seat: number): string {
 }
 
 export function bagCaption(count: number): string {
-    return `Bag ${String(count)}`;
+    return text("docket.bag", { tiles: count });
 }
 
 export function offeringCaption(name: string, minimum: number, maximum: number): string {
-    const span = minimum === maximum ? String(minimum) : `${String(minimum)}–${String(maximum)}`;
-    return `${name} · ${span} ${maximum === 1 ? "player" : "players"}`;
+    const span = minimum === maximum ? String(minimum) : text("arrive.span", { minimum, maximum });
+    return counted("arrive.offering", maximum, { name, span });
 }
 
 export function gatheringCaption(present: number, total: number): string {
-    return `Gathering players — ${String(present)} of ${String(total)} at the table`;
+    return text("seats.gathering", { present, total });
 }
 
 export function thinkingCaption(names: readonly string[]): string {
     if (names.length === 0) {
-        return "Waiting…";
+        return text("seats.waiting");
     }
-    return `${listed(names)} ${names.length === 1 ? "is" : "are"} thinking…`;
+    return counted("seats.thinking", names.length, { names: listed(names) });
 }
 
 export function wonCaption(names: readonly string[], points: number): string {
-    if (names.length === 1) {
-        return `${names[0] ?? ""} wins with ${String(points)}`;
-    }
-    return `${listed(names)} share the win with ${String(points)}`;
+    return counted("seats.won", names.length, { names: listed(names), points });
 }
 
 export function captionFor(story: Story, company: CompanyView): string {
@@ -276,5 +281,12 @@ function listed(names: readonly string[]): string {
     if (names.length <= 1) {
         return names[0] ?? "";
     }
-    return `${names.slice(0, -1).join(", ")} and ${names.at(-1) ?? ""}`;
+    return text("general.list_pair", {
+        leading: names.slice(0, -1).join(LIST_SEPARATOR),
+        last: names.at(-1) ?? "",
+    });
+}
+
+function spoken(reason: string): string {
+    return reason.replaceAll(REASON_SEPARATOR, REASON_SPACE);
 }

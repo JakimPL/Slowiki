@@ -7,6 +7,7 @@ import type { Offering, TableAdmission } from "../../api/tables";
 import type { Tile } from "../../api/views";
 import { MOVE_INCREMENTS, timeRequestOf, TURN_BUDGETS } from "../../play/clock/timing";
 import { rememberName, storedName } from "../../play/seats/identity";
+import { LocaleToggle } from "../seats/LocaleToggle";
 import { ModeToggle } from "../seats/ModeToggle";
 import {
     budgetCaption,
@@ -122,6 +123,7 @@ export function Home({ invitedCode, themeNote, onArrive }: HomeProps): ReactElem
         <main className="home">
             <div className="home-mode">
                 <ModeToggle />
+                <LocaleToggle />
             </div>
             <header className="brand">
                 <div className="specimen" aria-hidden="true">
