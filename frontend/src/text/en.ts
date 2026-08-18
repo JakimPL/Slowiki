@@ -28,6 +28,8 @@ export const EN: Catalog = {
         "arrive.switch_to_join": "Have an invitation code?",
         "arrive.time_label": "Time per player",
         "arrive.untimed": "Untimed",
+        "board.fit": "Fit",
+        "board.fit_label": "Fit the board to the screen",
         "board.label": "Board",
         "board.square": "Square {row}·{column}",
         "clock.budget": "{minutes} min",

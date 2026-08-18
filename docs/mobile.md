@@ -46,7 +46,10 @@ keeps a single code path:
   expectations. Switching the turn notice on keeps it connected while hidden, which serves a
   desktop tab well; a backgrounded phone suspends the page either way, so store builds get their
   turn alerts from a push plugin instead.
-- One fixed scale: the viewport meta pins `maximum-scale=1` and the table surface allows panning
-  only, so pinch and double-tap zoom stay out of the way of dragging tiles. In a Capacitor shell the
-  same result comes from the platform WebView — Android sets `setBuiltInZoomControls(false)` on the
-  `WebSettings`, iOS keeps the default `WKWebView` behavior with this viewport.
+- One fixed page scale, with the board carrying a scale of its own: the viewport meta pins
+  `maximum-scale=1` and the table surface allows panning only, so the browser's pinch and double-tap
+  zoom stay out of the way of dragging tiles, and the board answers a two-finger pinch itself, up to
+  three times its fitted size, bounded so it can never be lost off-screen. In a Capacitor shell the
+  page scale comes out the same from the platform WebView — Android sets
+  `setBuiltInZoomControls(false)` on the `WebSettings`, iOS keeps the default `WKWebView` behavior
+  with this viewport — and the board's own scale rides along inside the page.

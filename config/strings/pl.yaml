@@ -81,6 +81,8 @@ seats:
 board:
   label: Plansza
   square: "Pole {row:number}·{column:number}"
+  fit: Dopasuj
+  fit_label: Dopasuj planszę do ekranu
 
 hand:
   rack_label: Twoje płytki

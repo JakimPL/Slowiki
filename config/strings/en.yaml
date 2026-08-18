@@ -77,6 +77,8 @@ seats:
 board:
   label: Board
   square: "Square {row:number}·{column:number}"
+  fit: Fit
+  fit_label: Fit the board to the screen
 
 hand:
   rack_label: Your tiles

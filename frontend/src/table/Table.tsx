@@ -45,6 +45,7 @@ import { useJudgements } from "../play/words/useJudgements";
 import { useWordPanel } from "../play/words/useWordPanel";
 import { CodeChip } from "./arrive/CodeChip";
 import { Board } from "./board/Board";
+import { BoardStage } from "./board/BoardStage";
 import { MoveLog } from "./docket/MoveLog";
 import { RemainingTiles } from "./docket/RemainingTiles";
 import { Controls } from "./hand/Controls";
@@ -52,7 +53,7 @@ import { Rack } from "./hand/Rack";
 import { Tray } from "./hand/Tray";
 import type { TileBindings } from "./input/bindings";
 import type { Carry, Grasp, GraspSession } from "./input/dragging";
-import { carriedTo, isCarry } from "./input/dragging";
+import { carriedTo, crowded, isCarry } from "./input/dragging";
 import type { KeyHandlers } from "./input/keys";
 import { boundKeys } from "./input/keys";
 import { targetsFrom } from "./input/targets";
@@ -381,6 +382,25 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
         sessionRef.current = null;
         setCarry(null);
     };
+    const pointersRef = useRef<Set<number>>(new Set());
+    const arrive = (event: ReactPointerEvent<HTMLDivElement>): void => {
+        pointersRef.current.add(event.pointerId);
+        if (crowded(pointersRef.current)) {
+            abandon();
+            hold?.release();
+        }
+    };
+    const depart = (event: ReactPointerEvent<HTMLDivElement>): void => {
+        pointersRef.current.delete(event.pointerId);
+    };
+    const settle = (event: ReactPointerEvent<HTMLDivElement>): void => {
+        depart(event);
+        release(event);
+    };
+    const forsake = (event: ReactPointerEvent<HTMLDivElement>): void => {
+        depart(event);
+        abandon();
+    };
 
     const incoming = (region: RowRegion): Incoming | null =>
         carry === null ? null : incomingOf(carry.target, carry.tile.identifier, region);
@@ -408,9 +428,10 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
             className="table"
             data-acting={story.kind === "acting" ? "true" : undefined}
             style={style}
+            onPointerDown={arrive}
             onPointerMove={travel}
-            onPointerUp={release}
-            onPointerCancel={abandon}
+            onPointerUp={settle}
+            onPointerCancel={forsake}
         >
             <header className="status-strip">
                 <StatusLine
@@ -446,22 +467,24 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
                 clocked={clock !== null}
             />
             <div className="board-region" onPointerDown={noticeLastPlay}>
-                <Board
-                    board={state.view.board}
-                    pending={pendingFacesOf(desk.draft)}
-                    ghosts={ghosts}
-                    targeting={mayAct && desk.lift !== null}
-                    dropCell={
-                        carry?.target?.kind === "cell" && !ghosts.has(carry.target.cell) ? carry.target.cell : null
-                    }
-                    fresh={fresh}
-                    freshFrame={freshFrame}
-                    freshTint={freshTint}
-                    freshWaving={freshWaving}
-                    onLay={mayAct ? layLifted : null}
-                    bindings={atDesk ? bindings : null}
-                    hold={hold}
-                />
+                <BoardStage onZoom={noticeLastPlay}>
+                    <Board
+                        board={state.view.board}
+                        pending={pendingFacesOf(desk.draft)}
+                        ghosts={ghosts}
+                        targeting={mayAct && desk.lift !== null}
+                        dropCell={
+                            carry?.target?.kind === "cell" && !ghosts.has(carry.target.cell) ? carry.target.cell : null
+                        }
+                        fresh={fresh}
+                        freshFrame={freshFrame}
+                        freshTint={freshTint}
+                        freshWaving={freshWaving}
+                        onLay={mayAct ? layLifted : null}
+                        bindings={atDesk ? bindings : null}
+                        hold={hold}
+                    />
+                </BoardStage>
             </div>
             <div className="side">
                 {gathering ? (

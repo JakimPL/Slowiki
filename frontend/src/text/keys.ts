@@ -35,6 +35,8 @@ export interface PlainValues {
     readonly "arrive.switch_to_join": EmptyValues;
     readonly "arrive.time_label": EmptyValues;
     readonly "arrive.untimed": EmptyValues;
+    readonly "board.fit": EmptyValues;
+    readonly "board.fit_label": EmptyValues;
     readonly "board.label": EmptyValues;
     readonly "board.square": { readonly column: number; readonly row: number };
     readonly "clock.budget": { readonly minutes: number };

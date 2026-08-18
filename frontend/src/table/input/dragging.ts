@@ -31,6 +31,12 @@ export interface GraspSession {
 
 export const CARRY_THRESHOLD = 6;
 
+const SOLE_POINTER = 1;
+
+export function crowded(pointers: ReadonlySet<number>): boolean {
+    return pointers.size > SOLE_POINTER;
+}
+
 export function isCarry(start: DragPoint, point: DragPoint): boolean {
     const traveled = Math.hypot(point.x - start.x, point.y - start.y);
     return traveled > CARRY_THRESHOLD;

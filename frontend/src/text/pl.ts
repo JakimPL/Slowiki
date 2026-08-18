@@ -28,6 +28,8 @@ export const PL: Catalog = {
         "arrive.switch_to_join": "Masz kod zaproszenia?",
         "arrive.time_label": "Czas na gracza",
         "arrive.untimed": "Bez czasu",
+        "board.fit": "Dopasuj",
+        "board.fit_label": "Dopasuj planszę do ekranu",
         "board.label": "Plansza",
         "board.square": "Pole {row}·{column}",
         "clock.budget": "{minutes} min",
