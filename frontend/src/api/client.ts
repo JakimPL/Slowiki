@@ -1,5 +1,6 @@
 import { fetchEventSource } from "@microsoft/fetch-event-source";
 
+import type { GameHighlights } from "./highlights";
 import type { Move, MoveAccepted, MoveRequest } from "./moves";
 import { parsed } from "./parsing";
 import { refusalOf } from "./refusal";
@@ -73,6 +74,13 @@ export async function readWordVerdicts(seat: Seat, words: readonly string[]): Pr
         await fetch(`/tables/${encodeURIComponent(seat.table)}/words?${asked}`, { headers: headersFor(seat) }),
     );
     return parsed<WordVerdicts>(response);
+}
+
+export async function readHighlights(seat: Seat): Promise<GameHighlights> {
+    const response = await answered(
+        await fetch(`/tables/${encodeURIComponent(seat.table)}/highlights`, { headers: headersFor(seat) }),
+    );
+    return parsed<GameHighlights>(response);
 }
 
 export async function readView(seat: Seat): Promise<TableViewResponse> {

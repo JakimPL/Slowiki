@@ -120,6 +120,9 @@ export interface PlainValues {
     readonly "sheets.game_over_heading": EmptyValues;
     readonly "sheets.game_over_leave": EmptyValues;
     readonly "sheets.game_over_victory": EmptyValues;
+    readonly "sheets.highlight_best": EmptyValues;
+    readonly "sheets.highlight_both": EmptyValues;
+    readonly "sheets.highlight_longest": EmptyValues;
     readonly "words.absent": EmptyValues;
     readonly "words.asking": EmptyValues;
     readonly "words.deepen": EmptyValues;

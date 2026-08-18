@@ -2120,6 +2120,80 @@ button.word-chip[data-open] {
     font-weight: 600;
 }
 
+.highlights {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    gap: 4px;
+    margin: 0;
+    padding-top: 8px;
+    border-top: 1px solid var(--chrome-edge);
+}
+
+.highlight {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+    padding: 3px 8px 3px 6px;
+    border-left: 3px solid var(--tint);
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--tint) 10%, var(--chrome-surface));
+}
+
+.highlight-label {
+    flex: none;
+    width: 84px;
+    color: var(--chrome-muted);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.highlight[data-kind="both"] {
+    flex-wrap: wrap;
+}
+
+.highlight[data-kind="both"] .highlight-label {
+    width: 100%;
+}
+
+.highlight-value {
+    display: flex;
+    flex: 1;
+    gap: 6px;
+    align-items: baseline;
+    min-width: 0;
+    margin: 0;
+}
+
+.highlight-words {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 13.5px;
+    font-weight: 800;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.highlight-by {
+    flex: none;
+    max-width: 40%;
+    overflow: hidden;
+    color: var(--chrome-muted);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.highlight-points {
+    flex: none;
+    font-size: 13px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+}
+
 .game-over-actions {
     display: flex;
     gap: 10px;

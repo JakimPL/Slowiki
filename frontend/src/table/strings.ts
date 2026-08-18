@@ -1,8 +1,10 @@
 import type { CompanyView, Tile } from "../api/views";
+import type { ScoredWord } from "../play/board/scoring";
 import type { Mode } from "../play/device/mode";
 import type { Motion } from "../play/device/motion";
 import type { Connection } from "../play/live/connection";
 import type { Guidance } from "../play/story/guidance";
+import type { HighlightKind } from "../play/story/highlights";
 import type { LogEntry } from "../play/story/log";
 import type { Story } from "../play/story/story";
 import type { ExchangeBlock } from "../play/tiles/exchange";
@@ -46,6 +48,11 @@ export const GAME_OVER_VICTORY = text("sheets.game_over_victory");
 export const GAME_OVER_CLOSE = text("sheets.game_over_close");
 export const GAME_OVER_LEAVE = text("sheets.game_over_leave");
 export const GAME_OVER_DISMISS = text("sheets.game_over_dismiss");
+export const HIGHLIGHT_LABELS: Record<HighlightKind, string> = {
+    best: text("sheets.highlight_best"),
+    longest: text("sheets.highlight_longest"),
+    both: text("sheets.highlight_both"),
+};
 export const STANDING_REOPEN = text("seats.standing_reopen");
 export const RETURN_BUTTON = text("arrive.return_button");
 export const FORGET_BUTTON = text("arrive.forget_button");
@@ -195,11 +202,15 @@ export function premoveReturnedCaption(reason: string | null): string {
     return text("docket.premove_returned_reason", { reason: spoken(reason) });
 }
 
+export function wordsCaption(words: readonly ScoredWord[]): string {
+    return words.map((word) => word.text).join(LIST_SEPARATOR);
+}
+
 export function logCaption(entry: LogEntry): string {
     switch (entry.kind) {
         case "play":
             return text("docket.log_play", {
-                words: entry.words.map((word) => word.text).join(LIST_SEPARATOR),
+                words: wordsCaption(entry.words),
                 points: entry.points ?? 0,
             });
         case "exchange":

@@ -27,6 +27,7 @@ import { remainingTally } from "../play/story/remaining";
 import type { StoryKind } from "../play/story/story";
 import { storyFor } from "../play/story/story";
 import { useFreshPlay } from "../play/story/useFreshPlay";
+import { useHighlights } from "../play/story/useHighlights";
 import { arrangedTiles, shuffledArrangement } from "../play/tiles/arrangement";
 import type { DeskEffect } from "../play/tiles/desk";
 import type { Draft } from "../play/tiles/draft";
@@ -107,6 +108,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
     const mySeat = arrival.seated ?? seatedAs(state.view);
     const description = useDescription(arrival.seat);
     const remaining = useCountdown(clock);
+    const highlights = useHighlights(arrival.seat, state.view.phase === "game_over");
 
     const story = storyFor(state.view, state.company, mySeat);
     const present = state.company.seats.filter((seated) => seated.claimed).length;
@@ -577,6 +579,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
                     view={state.view}
                     company={state.company}
                     story={story}
+                    highlights={highlights}
                     mySeat={mySeat}
                     onClose={(): void => {
                         setStandingShown(false);

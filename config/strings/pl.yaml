@@ -157,6 +157,9 @@ sheets:
   game_over_close: Zamknij
   game_over_leave: Opuść stół
   game_over_dismiss: Zamknij podsumowanie gry
+  highlight_best: Najlepszy ruch
+  highlight_longest: Najdłuższe słowo
+  highlight_both: Najlepszy ruch i najdłuższe słowo
 
 clock:
   empty: "—"

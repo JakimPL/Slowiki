@@ -47,9 +47,11 @@ by amending it. The palette is the *Lniany* proposition chosen from the phase-0 
   of them; at two or three players the winner alone is raised, and a shared win raises everyone who
   took it. A win of the reader's own is announced in the heading, ringed on the card, and swept once
   with a light that the calm motion setting holds back. Eight players fit the smallest phone in
-  common use without scrolling, and the card keeps room for the best and longest move of the game.
-  *Close* returns to the board with the final position and the move log readable, and the status
-  line then reopens the standing; *Leave the table* returns to the main view.
+  common use without scrolling. Under the standing the card names the best move of the game and its
+  longest word, each in the tint of the player who made it and carrying that player's name and the
+  points it scored; a game played out in passes alone leaves the room empty. *Close* returns to the
+  board with the final position and the move log readable, and the status line then reopens the
+  standing; *Leave the table* returns to the main view.
 
 ## Table regions
 

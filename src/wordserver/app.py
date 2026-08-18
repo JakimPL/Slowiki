@@ -21,6 +21,7 @@ from wordcore.games.game import Game
 from wordcore.models.base import BaseFrozen
 from wordcore.moves.move import Move
 from wordcore.views.events import EventView
+from wordcore.views.highlights import GameHighlights
 from wordserver.describe import table_description, word_check_offered
 from wordserver.errors.body import ErrorBody
 from wordserver.errors.code import ErrorCode, code_for
@@ -373,6 +374,10 @@ def create_app() -> FastAPI:
         _ensure_words_within_limit(asked)
         lexicon = await service.get(scheme.dictionary)
         return WordVerdicts(verdicts={word: lexicon.judge(word) for word in asked})
+
+    @app.get("/tables/{table_id}/highlights", responses={404: {"model": ErrorBody}})
+    def table_highlights(table_id: str) -> GameHighlights:
+        return session_for(table_id).highlights()
 
     @app.get("/tables/{table_id}/view", responses={404: {"model": ErrorBody}})
     def table_view(table_id: str, request: Request) -> TableViewResponse:

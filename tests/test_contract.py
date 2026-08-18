@@ -4,6 +4,7 @@ import httpx
 import pytest
 from scripts.openapi import main
 
+from wordcore.views.highlights import GameHighlights
 from wordserver.app import MAX_JUDGED_WORDS, create_app
 from wordserver.models.table import TableViewResponse
 from wordserver.models.table_admission import TableAdmission
@@ -191,6 +192,19 @@ async def test_word_check_refuses_an_overlong_request(client: httpx.AsyncClient)
     assert response.json()["code"] == "too_many_words"
 
 
+async def test_highlights_are_served_for_a_table(client: httpx.AsyncClient) -> None:
+    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
+    table_id = created.json()["table_id"]
+    response = await client.get(f"/tables/{table_id}/highlights")
+    assert response.status_code == 200
+    highlights = GameHighlights.model_validate(response.json())
+    assert highlights.best_play is None
+    assert highlights.longest_word is None
+    absent = await client.get("/tables/absent/highlights")
+    assert absent.status_code == 404
+    assert absent.json()["code"] == "unknown_table"
+
+
 async def test_created_table_carries_the_asked_time_control(client: httpx.AsyncClient) -> None:
     created = await client.post(
         "/tables",
@@ -254,6 +268,9 @@ def test_openapi_document_carries_schemas(app) -> None:
         "MoveRequest",
         "WordVerdict",
         "WordVerdicts",
+        "GameHighlights",
+        "PlayHighlight",
+        "WordHighlight",
         "Tile",
         "Board",
     }

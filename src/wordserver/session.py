@@ -10,6 +10,7 @@ from wordcore.moves.kind import ActionKind
 from wordcore.moves.move import Move
 from wordcore.states.phase import Phase
 from wordcore.views.events import EventView
+from wordcore.views.highlights import GameHighlights
 from wordcore.views.projection import PositionView
 from wordserver.clocks import TurnClock
 from wordserver.errors.exceptions import SeatTokenMismatch, TableGathering
@@ -104,6 +105,9 @@ class TableSession:
             return self._game.view(None)
 
         return self._game.view(observer)
+
+    def highlights(self) -> GameHighlights:
+        return self._game.highlights()
 
     def clock(self) -> ClockView | None:
         return self._clock.view()

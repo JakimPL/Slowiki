@@ -123,6 +123,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/tables/{table_id}/highlights": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Table Highlights */
+        get: operations["table_highlights_tables__table_id__highlights_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/tables/{table_id}/moves": {
         parameters: {
             query?: never;
@@ -316,6 +333,11 @@ export interface components {
             /** Tile Ids */
             tile_ids: number[];
         };
+        /** GameHighlights */
+        GameHighlights: {
+            best_play: components["schemas"]["PlayHighlight"] | null;
+            longest_word: components["schemas"]["WordHighlight"] | null;
+        };
         /**
          * GameName
          * @enum {string}
@@ -401,6 +423,17 @@ export interface components {
             kind: "play";
             /** Placements */
             placements: components["schemas"]["PlayPlacement"][];
+        };
+        /** PlayHighlight */
+        PlayHighlight: {
+            /** Player */
+            player: number;
+            /** Points */
+            points: number;
+            /** Turn Number */
+            turn_number: number;
+            /** Words */
+            words: components["schemas"]["ScoredWord"][];
         };
         /** PlayPlacement */
         PlayPlacement: {
@@ -665,6 +698,17 @@ export interface components {
             /** Error Type */
             type: string;
         };
+        /** WordHighlight */
+        WordHighlight: {
+            /** Player */
+            player: number;
+            /** Points */
+            points: number;
+            /** Turn Number */
+            turn_number: number;
+            /** Word */
+            word: string;
+        };
         /** WordVerdict */
         WordVerdict: {
             /** Allowed */
@@ -903,6 +947,46 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EventView"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    table_highlights_tables__table_id__highlights_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                table_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GameHighlights"];
                 };
             };
             /** @description Not Found */

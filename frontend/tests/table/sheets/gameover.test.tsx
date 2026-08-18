@@ -1,6 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
+import type { GameHighlights } from "../../../src/api/highlights";
 import { storyFor } from "../../../src/play/story/story";
 import { GameOver } from "../../../src/table/sheets/GameOver";
 import { aCompany, aSeatView, aView } from "../../fixtures/positions";
@@ -11,7 +12,13 @@ const NOBODY = (): void => {
 
 const NAMES = ["Ala", "Ola", "Ela", "Ula"];
 
-function anEnding(mySeat: number | null, scores: Record<number, number>): string {
+const NO_HIGHLIGHTS: GameHighlights = { best_play: null, longest_word: null };
+
+function anEnding(
+    mySeat: number | null,
+    scores: Record<number, number>,
+    highlights: GameHighlights | null = null,
+): string {
     const players = Object.keys(scores).map(Number);
     const view = aView({ phase: "game_over", scores, players });
     const company = aCompany(players.map((seat) => aSeatView(seat, { name: NAMES[seat] ?? null })));
@@ -20,6 +27,7 @@ function anEnding(mySeat: number | null, scores: Record<number, number>): string
             view={view}
             company={company}
             story={storyFor(view, company, mySeat)}
+            highlights={highlights}
             mySeat={mySeat}
             onClose={NOBODY}
             onLeave={NOBODY}
@@ -62,6 +70,50 @@ describe("GameOver", () => {
         expect(three.match(/data-podium="\d"/g)).toEqual(['data-podium="1"']);
         const four = anEnding(0, { 0: 30, 1: 42, 2: 12, 3: 20 });
         expect(four.match(/data-podium="\d"/g)).toEqual(['data-podium="1"', 'data-podium="2"', 'data-podium="3"']);
+    });
+
+    it("names the best move and the longest word of the game", () => {
+        const markup = anEnding(
+            0,
+            { 0: 30, 1: 42 },
+            {
+                best_play: {
+                    player: 1,
+                    words: [
+                        { text: "KOTLETY", points: 30 },
+                        { text: "OS", points: 4 },
+                    ],
+                    points: 84,
+                    turn_number: 6,
+                },
+                longest_word: { player: 0, word: "PODESZWA", points: 18, turn_number: 3 },
+            },
+        );
+        expect(markup).toContain("Best move");
+        expect(markup).toContain("KOTLETY, OS");
+        expect(markup).toContain("84");
+        expect(markup).toContain("Longest word");
+        expect(markup).toContain("PODESZWA");
+        expect(markup).toContain("Ala");
+    });
+
+    it("folds the best move and the longest word into one row when they are the same play", () => {
+        const markup = anEnding(
+            0,
+            { 0: 30, 1: 42 },
+            {
+                best_play: { player: 1, words: [{ text: "DLUBALO", points: 32 }], points: 82, turn_number: 4 },
+                longest_word: { player: 1, word: "DLUBALO", points: 32, turn_number: 4 },
+            },
+        );
+        expect(markup).toContain("Best move and longest word");
+        expect(markup.match(/DLUBALO/g)).toHaveLength(1);
+        expect(markup).toContain("82");
+    });
+
+    it("keeps the room quiet while the game left no highlight", () => {
+        expect(anEnding(0, { 0: 30, 1: 42 }, NO_HIGHLIGHTS)).not.toContain("highlights");
+        expect(anEnding(0, { 0: 30, 1: 42 })).not.toContain("highlights");
     });
 
     it("offers both ways out of the standing", () => {

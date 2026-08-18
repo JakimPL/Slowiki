@@ -79,6 +79,9 @@ design contract.
   and the turn clock.
 - `GET /tables/{table_id}/words` — dictionary verdicts for up to sixteen words,
   offered while the scheme validates on play (`parameters.word_check`).
+- `GET /tables/{table_id}/highlights` — the best play and the longest word of
+  the game, walked from the journal, so the answer stays whole however late a
+  client connects.
 - `POST /tables/{table_id}/moves`, `DELETE /tables/{table_id}/premove` — play.
 - `GET /tables/{table_id}/events` — the SSE stream: numbered journal frames plus
   unnumbered `presence` and `clock` frames.

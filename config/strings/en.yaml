@@ -152,6 +152,9 @@ sheets:
   game_over_close: Close
   game_over_leave: Leave the table
   game_over_dismiss: Close the final standing
+  highlight_best: Best move
+  highlight_longest: Longest word
+  highlight_both: Best move and longest word
 
 clock:
   empty: "—"
