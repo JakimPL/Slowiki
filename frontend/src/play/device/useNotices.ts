@@ -5,22 +5,24 @@ import { requestedNotices } from "./notices";
 
 export interface NoticeHold {
     readonly wanted: boolean;
-    readonly flip: () => void;
+    readonly choose: (wanted: boolean) => void;
 }
 
 export function useNotices(): NoticeHold {
     const { settings, change } = useSettings();
-    const wanted = settings.notices;
 
-    const flip = useCallback((): void => {
-        if (wanted) {
-            change({ notices: false });
-            return;
-        }
-        void requestedNotices().then((granted) => {
-            change({ notices: granted });
-        });
-    }, [wanted, change]);
+    const choose = useCallback(
+        (wanted: boolean): void => {
+            if (!wanted) {
+                change({ notices: false });
+                return;
+            }
+            void requestedNotices().then((granted) => {
+                change({ notices: granted });
+            });
+        },
+        [change],
+    );
 
-    return { wanted, flip };
+    return { wanted: settings.notices, choose };
 }

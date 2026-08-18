@@ -66,13 +66,16 @@ seats:
   mode_dark: ● Dark
   motion_label: Interface motion
   motion_system: ◐ Auto
-  motion_full: ∿ Motion
+  motion_full: ∿ Full
   motion_calm: ─ Calm
-  notice_label: Notify me when my turn comes while this tab rests
-  notice_off: 🔔 Off
-  notice_on: 🔔 On
+  notice_label: Turn notices
+  notice_note: Sends a notification when your turn opens while this tab rests.
+  notice_off: "Off"
+  notice_on: "On"
   locale_label: Language
   locale_caption: EN
+  menu_label: Table menu
+  menu_caption: "☰"
 
 board:
   label: Board
@@ -152,11 +155,14 @@ sheets:
   game_over_heading: Game over
   game_over_victory: You win!
   game_over_close: Close
-  game_over_leave: Leave the table
+  table_leave: Leave the table
   game_over_dismiss: Close the final standing
   highlight_best: Best word
   highlight_longest: Longest word
   highlight_both: Best and longest word
+  menu_heading: Table
+  menu_close: Close the table menu
+  menu_invitation: Invitation
 
 clock:
   empty: "—"

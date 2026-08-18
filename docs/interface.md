@@ -36,7 +36,9 @@ by amending it. The palette is the *Lniany* proposition chosen from the phase-0 
   the premove color, the forgetting beside it — until the game ends or the player lets it go.
   Credentials live in the URL fragment; a reload rejoins by token, and while no seat is held the
   page follows the address bar, so an invitation pasted over an idle page opens its join card. A
-  held seat keeps its own address.
+  held seat keeps its own address. The color mode and the language rest as quiet chips in the corner
+  of the card, which is where the language is chosen: it is a pre-game choice, and a guest arriving
+  by invitation meets it before joining.
 - **Table** — the one screen where the game lives. Until every seat is claimed it doubles as the
   room: a gathering banner with the join code, a copy-invitation control, and claimed/empty
   plaques.
@@ -62,11 +64,16 @@ gesture surface owns every touch; long panels scroll internally). Landscape and 
 grid areas only: the board sits height-bound on the left; the right column stacks status, plaques,
 feedback line, rack, tray, controls, and the docket at its foot.
 
-- **Status strip** — turn banner ("Your turn" at accent strength; "Ola is thinking — 1:12" quiet,
-  and once the game is over a control that reopens the final standing), clock, connection state, and
-  four quiet toggles: the turn notice, the color mode, the interface motion, and the language. The
-  bag count and the join-code chip (a click copies the code) stand while the game runs, and the
-  banner takes their width once it ends.
+- **Status strip** — only what changes with the game: the turn banner ("Your turn" at accent
+  strength; "Ola is thinking — 1:12" quiet, and once the game is over a control that reopens the
+  final standing), the bag count while the game runs, the connection chip while the connection is
+  troubled, and the control that opens the table menu. Four items at their most, so the banner reads
+  at a glance on the smallest phone and the bag count stands at every viewport.
+- **Table menu** — a sheet holding everything about the table that is not the game itself: the
+  invitation, with the code and a control that copies the link; the turn notice, the color mode, and
+  the interface motion, each as a row of options with the one in force filled; and *Leave the table*
+  at the foot. It stands in the sheet stratum the blank picker uses, and Escape closes it. The
+  language belongs to the main view, where a table is chosen.
 - **Plaques** — one per player, one to eight: tint dot, name, score, acting ring at full tint
   strength that breathes while the seat is on turn, premove diamond, and — on a timed table — a
   clock line under the name: the thinking seat counts down live, everyone else shows the budget
@@ -232,8 +239,9 @@ language, and the turn notice. They travel together as one record that every tab
 shares, and the first three follow the same three-state shape — a system setting that reads what the
 device already says, and an explicit choice that overrides it on the document root (`data-mode`,
 `data-motion`, `lang`). Motion at `calm` stills the acting plaque's breath, the fresh-play cue, and
-the tile lift; at the system setting `prefers-reduced-motion` decides. A device that made its choices
-under an earlier version keeps them.
+the tile lift; at the system setting `prefers-reduced-motion` decides. The table menu holds the
+color mode, the motion, and the turn notice while a game runs; the main view holds the color mode
+and the language. A device that made its choices under an earlier version keeps them.
 
 ## Theming and tokens
 

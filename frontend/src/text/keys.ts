@@ -96,6 +96,8 @@ export interface PlainValues {
     readonly "seats.gathering": { readonly present: number; readonly total: number };
     readonly "seats.locale_caption": EmptyValues;
     readonly "seats.locale_label": EmptyValues;
+    readonly "seats.menu_caption": EmptyValues;
+    readonly "seats.menu_label": EmptyValues;
     readonly "seats.mode_dark": EmptyValues;
     readonly "seats.mode_label": EmptyValues;
     readonly "seats.mode_light": EmptyValues;
@@ -105,6 +107,7 @@ export interface PlainValues {
     readonly "seats.motion_label": EmptyValues;
     readonly "seats.motion_system": EmptyValues;
     readonly "seats.notice_label": EmptyValues;
+    readonly "seats.notice_note": EmptyValues;
     readonly "seats.notice_off": EmptyValues;
     readonly "seats.notice_on": EmptyValues;
     readonly "seats.open_seat": EmptyValues;
@@ -120,11 +123,14 @@ export interface PlainValues {
     readonly "sheets.game_over_close": EmptyValues;
     readonly "sheets.game_over_dismiss": EmptyValues;
     readonly "sheets.game_over_heading": EmptyValues;
-    readonly "sheets.game_over_leave": EmptyValues;
     readonly "sheets.game_over_victory": EmptyValues;
     readonly "sheets.highlight_best": EmptyValues;
     readonly "sheets.highlight_both": EmptyValues;
     readonly "sheets.highlight_longest": EmptyValues;
+    readonly "sheets.menu_close": EmptyValues;
+    readonly "sheets.menu_heading": EmptyValues;
+    readonly "sheets.menu_invitation": EmptyValues;
+    readonly "sheets.table_leave": EmptyValues;
     readonly "words.absent": EmptyValues;
     readonly "words.asking": EmptyValues;
     readonly "words.deepen": EmptyValues;

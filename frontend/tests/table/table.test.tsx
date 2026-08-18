@@ -107,8 +107,30 @@ describe("Table", () => {
         expect(markup).toContain('aria-label="Players"');
         expect(markup).toContain("--row-count:1");
         expect(markup).toContain('name="docket"');
-        expect(markup).toContain("Notify me when my turn comes while this tab rests");
-        expect(markup).toContain('aria-pressed="false"');
+    });
+
+    it("keeps the strip to the turn line, the bag, and the menu control", () => {
+        const response = aTableResponse({ view: aView({ to_act: [0] }) });
+        const markup = renderToStaticMarkup(
+            <SettingsProvider>
+                <Table
+                    arrival={ARRIVAL}
+                    connection="live"
+                    state={openedFrom(response)}
+                    clock={null}
+                    trouble={null}
+                    onOutdated={() => Promise.resolve(null)}
+                    onLeave={STAYS}
+                />
+            </SettingsProvider>,
+        );
+        const strip = markup.slice(markup.indexOf('<header class="status-strip">'), markup.indexOf("</header>"));
+        expect(strip).toContain("Your turn");
+        expect(strip).toContain("Bag 80");
+        expect(strip).toContain('aria-label="Table menu"');
+        expect(strip).not.toContain("Color mode");
+        expect(strip).not.toContain("Language");
+        expect(strip).not.toContain("KWPZTR");
     });
 
     it("mirrors a queued premove as ghosts, a chip with Cancel, and a resting rack", () => {

@@ -11,10 +11,10 @@ import {
     GAME_OVER_CLOSE,
     GAME_OVER_DISMISS,
     GAME_OVER_HEADING,
-    GAME_OVER_LEAVE,
     GAME_OVER_VICTORY,
     HIGHLIGHT_LABELS,
     nameFor,
+    TABLE_LEAVE,
     YOU_MARKER,
 } from "../strings";
 
@@ -63,7 +63,7 @@ export function GameOver({ view, company, story, highlights, mySeat, onClose, on
                         {GAME_OVER_CLOSE}
                     </button>
                     <button type="button" className="action action-quiet" onClick={onLeave}>
-                        {GAME_OVER_LEAVE}
+                        {TABLE_LEAVE}
                     </button>
                 </div>
             </div>

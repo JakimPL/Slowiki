@@ -469,6 +469,14 @@ button.status-line {
     cursor: pointer;
 }
 
+.chip-menu {
+    padding: 5px 11px;
+    color: var(--chrome-muted);
+    font-size: 15px;
+    line-height: 1.2;
+    cursor: pointer;
+}
+
 .status-meta {
     color: var(--chrome-muted);
     font-size: 13px;
@@ -484,17 +492,6 @@ button.status-line {
     font-family: inherit;
     white-space: nowrap;
     cursor: pointer;
-}
-
-.status-strip .code-chip {
-    padding: 4px 9px;
-    border: 1px solid var(--chrome-edge);
-    border-radius: 7px;
-    background: var(--chrome-panel);
-    color: var(--chrome-muted);
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.12em;
 }
 
 .code-chip[data-copied] {
@@ -1159,11 +1156,6 @@ button.status-line {
 
 @media (width < 900px) and (orientation: portrait) and (height <= 620px) {
     .feedback {
-        display: none;
-    }
-
-    .status-meta,
-    .status-strip .code-chip {
         display: none;
     }
 }
@@ -1880,6 +1872,57 @@ button.word-chip[data-open] {
     cursor: pointer;
 }
 
+.menu-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.menu-label {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.menu-note {
+    flex-basis: 100%;
+    margin: 0;
+    color: var(--chrome-muted);
+    font-size: 12px;
+}
+
+.menu-options {
+    display: flex;
+    gap: 4px;
+    padding: 3px;
+    border: 1px solid var(--chrome-edge);
+    border-radius: 999px;
+    background: var(--chrome-surface);
+}
+
+.menu-option {
+    padding: 5px 11px;
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    color: var(--chrome-muted);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.menu-option[aria-pressed="true"] {
+    background: var(--accent-primary);
+    color: var(--accent-on-primary);
+}
+
+.menu .action-quiet {
+    margin-top: 2px;
+}
+
 .sheet-free {
     display: flex;
     gap: 10px;
@@ -2249,6 +2292,8 @@ button.word-chip[data-open] {
 .control-quiet:focus-visible,
 .control-primary:focus-visible,
 .chip-mode:focus-visible,
+.chip-menu:focus-visible,
+.menu-option:focus-visible,
 .home-switch:focus-visible,
 .status-line:focus-visible,
 .docket summary:focus-visible,

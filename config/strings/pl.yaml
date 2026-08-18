@@ -70,13 +70,16 @@ seats:
   mode_dark: ● Ciemny
   motion_label: Ruch interfejsu
   motion_system: ◐ Auto
-  motion_full: ∿ Ruch
+  motion_full: ∿ Pełny
   motion_calm: ─ Spokój
-  notice_label: Powiadom mnie o moim ruchu, kiedy ta karta odpoczywa
-  notice_off: 🔔 Nie
-  notice_on: 🔔 Tak
+  notice_label: Powiadomienia o ruchu
+  notice_note: Powiadomi Cię, gdy nadejdzie Twój ruch, a ta karta odpoczywa.
+  notice_off: Nie
+  notice_on: Tak
   locale_label: Język
   locale_caption: PL
+  menu_label: Menu stołu
+  menu_caption: "☰"
 
 board:
   label: Plansza
@@ -157,11 +160,14 @@ sheets:
   game_over_heading: Koniec gry
   game_over_victory: Wygrana!
   game_over_close: Zamknij
-  game_over_leave: Opuść stół
+  table_leave: Opuść stół
   game_over_dismiss: Zamknij podsumowanie gry
   highlight_best: Najlepsze słowo
   highlight_longest: Najdłuższe słowo
   highlight_both: Najlepsze i najdłuższe słowo
+  menu_heading: Stół
+  menu_close: Zamknij menu stołu
+  menu_invitation: Zaproszenie
 
 clock:
   empty: "—"

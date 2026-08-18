@@ -1,6 +1,6 @@
 export type Motion = "system" | "full" | "calm";
 
-const MOTIONS: readonly Motion[] = ["system", "full", "calm"];
+export const MOTIONS: readonly Motion[] = ["system", "full", "calm"];
 
 export function knownMotion(raw: string | null): Motion | null {
     return MOTIONS.find((candidate) => candidate === raw) ?? null;

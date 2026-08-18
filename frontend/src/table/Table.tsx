@@ -43,7 +43,6 @@ import { invalidTextsOf, wordStatusFor } from "../play/words/feedback";
 import { askedWord, panelStanding } from "../play/words/panel";
 import { useJudgements } from "../play/words/useJudgements";
 import { useWordPanel } from "../play/words/useWordPanel";
-import { CodeChip } from "./arrive/CodeChip";
 import { Board } from "./board/Board";
 import { BoardStage } from "./board/BoardStage";
 import { MoveLog } from "./docket/MoveLog";
@@ -58,10 +57,8 @@ import type { KeyHandlers } from "./input/keys";
 import { boundKeys } from "./input/keys";
 import { targetsFrom } from "./input/targets";
 import { useHold } from "./input/useHold";
-import { LocaleToggle } from "./seats/LocaleToggle";
-import { ModeToggle } from "./seats/ModeToggle";
-import { MotionToggle } from "./seats/MotionToggle";
-import { NoticeToggle } from "./seats/NoticeToggle";
+import { MenuButton } from "./menu/MenuButton";
+import { TableMenu } from "./menu/TableMenu";
 import type { SeatClock } from "./seats/Plaques";
 import { Plaques } from "./seats/Plaques";
 import { Room } from "./seats/Room";
@@ -153,6 +150,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
     };
     const [blankChoice, setBlankChoice] = useState<BlankChoice | null>(null);
     const [standingShown, setStandingShown] = useState(true);
+    const [menuShown, setMenuShown] = useState(false);
     const {
         panel,
         open: openPanel,
@@ -309,6 +307,10 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
             setStandingShown(false);
             return;
         }
+        if (menuShown) {
+            setMenuShown(false);
+            return;
+        }
         if (blankChoice !== null) {
             dismissBlank();
             return;
@@ -446,18 +448,16 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
                     }
                 />
                 {story.kind === "over" ? null : <span className="status-meta">{bagCaption(state.view.bag_count)}</span>}
-                {story.kind !== "over" && description !== null && description.code !== null ? (
-                    <CodeChip code={description.code} />
-                ) : null}
                 {connection === "live" ? null : (
                     <span className="chip chip-connection" data-connection={connection}>
                         {CONNECTION_CAPTIONS[connection]}
                     </span>
                 )}
-                <NoticeToggle />
-                <ModeToggle />
-                <MotionToggle />
-                <LocaleToggle />
+                <MenuButton
+                    onOpen={(): void => {
+                        setMenuShown(true);
+                    }}
+                />
             </header>
             <Plaques
                 view={state.view}
@@ -581,6 +581,16 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
                     <TileFace tile={carry.tile} />
                 </div>
             )}
+            {menuShown ? (
+                <TableMenu
+                    table={arrival.seat.table}
+                    code={arrival.code}
+                    onLeave={onLeave}
+                    onClose={(): void => {
+                        setMenuShown(false);
+                    }}
+                />
+            ) : null}
             {blankChoice !== null ? (
                 <BlankPicker alphabet={rules.alphabet} onPick={pick} onClose={dismissBlank} />
             ) : null}

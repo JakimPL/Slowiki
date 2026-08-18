@@ -46,8 +46,13 @@ export const YOUR_TURN_CAPTION = text("seats.your_turn");
 export const GAME_OVER_HEADING = text("sheets.game_over_heading");
 export const GAME_OVER_VICTORY = text("sheets.game_over_victory");
 export const GAME_OVER_CLOSE = text("sheets.game_over_close");
-export const GAME_OVER_LEAVE = text("sheets.game_over_leave");
+export const TABLE_LEAVE = text("sheets.table_leave");
 export const GAME_OVER_DISMISS = text("sheets.game_over_dismiss");
+export const MENU_HEADING = text("sheets.menu_heading");
+export const MENU_CLOSE = text("sheets.menu_close");
+export const MENU_INVITATION = text("sheets.menu_invitation");
+export const MENU_LABEL = text("seats.menu_label");
+export const MENU_CAPTION = text("seats.menu_caption");
 export const HIGHLIGHT_LABELS: Record<HighlightKind, string> = {
     best: text("sheets.highlight_best"),
     longest: text("sheets.highlight_longest"),
@@ -84,6 +89,7 @@ export const MODE_LABEL = text("seats.mode_label");
 export const LOCALE_LABEL = text("seats.locale_label");
 export const LOCALE_CAPTION = text("seats.locale_caption");
 export const NOTICE_LABEL = text("seats.notice_label");
+export const NOTICE_NOTE = text("seats.notice_note");
 export const NOTICE_CAPTIONS: Record<"off" | "on", string> = {
     off: text("seats.notice_off"),
     on: text("seats.notice_on"),
