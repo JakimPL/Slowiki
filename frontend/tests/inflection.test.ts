@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { DEPRECATIVE_TERM, inflectionTerms, NEGATED_TERM } from "../src/play/inflection";
+import { inflectionTerms } from "../src/play/inflection";
+import { DEPRECATIVE_TERM, NEGATED_TERM } from "../src/play/tagset";
 import { someInflection } from "./lore";
 
 describe("inflectionTerms", () => {

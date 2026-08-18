@@ -11,6 +11,9 @@ __pycache__/
 .venv/
 .vscode/
 
+/server.state
+/tmp/
+
 /assets/
 /dictionaries/
 

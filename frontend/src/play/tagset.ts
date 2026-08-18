@@ -4,6 +4,7 @@ import type {
     Degree,
     Gender,
     GrammaticalNumber,
+    Inflection,
     Mood,
     NumeralType,
     Part,
@@ -12,6 +13,25 @@ import type {
     Tense,
     VerbForm,
 } from "../api/lore";
+
+export type Dimension =
+    | "verbForm"
+    | "numeralType"
+    | "pronounType"
+    | "mood"
+    | "tense"
+    | "aspect"
+    | "person"
+    | "case"
+    | "number"
+    | "gender"
+    | "degree"
+    | "negation"
+    | "deprecative";
+
+export const NEGATED_TERM = "zaprzeczony";
+
+export const DEPRECATIVE_TERM = "deprecjatywny";
 
 export const PART_ORDER: Record<Part, number> = {
     rzeczownik: 0,
@@ -114,6 +134,83 @@ export const PRONOUN_TYPE_ORDER: Record<PronounType, number> = {
     przeczący: 7,
 };
 
+export const DIMENSION_ORDER: readonly Dimension[] = [
+    "verbForm",
+    "numeralType",
+    "pronounType",
+    "mood",
+    "tense",
+    "aspect",
+    "person",
+    "case",
+    "number",
+    "gender",
+    "degree",
+    "negation",
+    "deprecative",
+];
+
+const ABSENT_RANK = -1;
+
+const RANKS_ON: Record<Dimension, Readonly<Record<string, number>>> = {
+    verbForm: VERB_FORM_ORDER,
+    numeralType: NUMERAL_TYPE_ORDER,
+    pronounType: PRONOUN_TYPE_ORDER,
+    mood: MOOD_ORDER,
+    tense: TENSE_ORDER,
+    aspect: ASPECT_ORDER,
+    person: PERSON_ORDER,
+    case: CASE_ORDER,
+    number: NUMBER_ORDER,
+    gender: GENDER_ORDER,
+    degree: DEGREE_ORDER,
+    negation: { [NEGATED_TERM]: 0 },
+    deprecative: { [DEPRECATIVE_TERM]: 0 },
+};
+
+const TERMS_ON: Record<Dimension, (tags: Inflection) => readonly string[]> = {
+    verbForm: (tags) => stated(tags.verb_form),
+    numeralType: (tags) => stated(tags.numeral_type),
+    pronounType: (tags) => stated(tags.pronoun_type),
+    mood: (tags) => stated(tags.mood),
+    tense: (tags) => stated(tags.tense),
+    aspect: (tags) => tags.aspects,
+    person: (tags) => stated(tags.person),
+    case: (tags) => tags.cases,
+    number: (tags) => stated(tags.number),
+    gender: (tags) => tags.genders,
+    degree: (tags) => stated(tags.degree),
+    negation: (tags) => (tags.negation === true ? [NEGATED_TERM] : []),
+    deprecative: (tags) => (tags.deprecative ? [DEPRECATIVE_TERM] : []),
+};
+
 export function inOrder<Term extends string>(terms: readonly Term[], order: Record<Term, number>): readonly Term[] {
     return [...terms].sort((one, other) => order[one] - order[other]);
+}
+
+export function orderedTerms(terms: readonly string[], dimension: Dimension): readonly string[] {
+    return inOrder(terms, RANKS_ON[dimension]);
+}
+
+export function termsOn(tags: Inflection, dimension: Dimension): readonly string[] {
+    return orderedTerms(TERMS_ON[dimension](tags), dimension);
+}
+
+export function compareInflections(one: Inflection, other: Inflection): number {
+    for (const dimension of DIMENSION_ORDER) {
+        const apart = leadingRank(one, dimension) - leadingRank(other, dimension);
+        if (apart !== 0) {
+            return apart;
+        }
+    }
+    return 0;
+}
+
+function leadingRank(tags: Inflection, dimension: Dimension): number {
+    const leading = termsOn(tags, dimension)[0];
+    return leading === undefined ? ABSENT_RANK : (RANKS_ON[dimension][leading] ?? ABSENT_RANK);
+}
+
+function stated(term: string | null): readonly string[] {
+    return term === null ? [] : [term];
 }
