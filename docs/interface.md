@@ -47,8 +47,8 @@ grid areas only: the board sits height-bound on the left; the right column stack
 feedback line, rack, tray, controls, and the docket at its foot.
 
 - **Status strip** — turn banner ("Your turn" at accent strength; "Ola is thinking — 1:12" quiet),
-  clock, bag count, join-code chip (a click copies the code), connection state, and two quiet
-  toggles: the turn notice and the color mode.
+  clock, bag count, join-code chip (a click copies the code), connection state, and four quiet
+  toggles: the turn notice, the color mode, the interface motion, and the language.
 - **Plaques** — one per player, one to eight: tint dot, name, score, acting ring at full tint
   strength that breathes while the seat is on turn, premove diamond, and — on a timed table — a
   clock line under the name: the thinking seat counts down live, everyone else shows the budget
@@ -189,6 +189,16 @@ dictionary is loaded; the interface asks `GET /tables/{id}/words` for the words 
 remembers every answer. The word-status vocabulary above is the seam that lets challenge schemes
 arrive without redesign.
 
+## Preferences
+
+Four choices belong to the device rather than to a table: the color mode, the interface motion, the
+language, and the turn notice. They travel together as one record that every tab on the device
+shares, and the first three follow the same three-state shape — a system setting that reads what the
+device already says, and an explicit choice that overrides it on the document root (`data-mode`,
+`data-motion`, `lang`). Motion at `calm` stills the acting plaque's breath, the fresh-play cue, and
+the tile lift; at the system setting `prefers-reduced-motion` decides. A device that made its choices
+under an earlier version keeps them.
+
 ## Theming and tokens
 
 A theme is a named token set with light and dark variants, sourced from `config/styles/<name>.yaml`,
@@ -243,7 +253,7 @@ says whose turn.
 | board.grid | `#D9CEB6` | `#453B2B` |
 | board.frame | `#7A5F44` | `#4A3A29` |
 | board.star | `#8F3A24` | `#E8967E` |
-| board.premium_label_share | `0.32` | `0.32` |
+| board.premium_label_share | `0.20` | `0.20` |
 | premiums.word_2 | `#D8CBA8` / `#6C5B39` | `#4A4030` / `#C8B98F` |
 | premiums.word_3 | `#7B6142` / `#F3EBDA` | `#6B5334` / `#EFE3C8` |
 | premiums.letter_2 | `#C4D5DE` / `#38607A` | `#24394A` / `#8FC0DE` |

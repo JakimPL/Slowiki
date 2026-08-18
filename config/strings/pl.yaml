@@ -60,6 +60,10 @@ seats:
   mode_system: ◐ Auto
   mode_light: ○ Jasny
   mode_dark: ● Ciemny
+  motion_label: Ruch interfejsu
+  motion_system: ◐ Auto
+  motion_full: ∿ Ruch
+  motion_calm: ─ Spokój
   notice_label: Powiadom mnie o moim ruchu, kiedy ta karta odpoczywa
   notice_off: 🔔 Nie
   notice_on: 🔔 Tak

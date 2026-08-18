@@ -57,6 +57,10 @@ seats:
   mode_system: ◐ Auto
   mode_light: ○ Light
   mode_dark: ● Dark
+  motion_label: Interface motion
+  motion_system: ◐ Auto
+  motion_full: ∿ Motion
+  motion_calm: ─ Calm
   notice_label: Notify me when my turn comes while this tab rests
   notice_off: 🔔 Off
   notice_on: 🔔 On

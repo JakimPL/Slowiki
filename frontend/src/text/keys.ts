@@ -96,6 +96,10 @@ export interface PlainValues {
     readonly "seats.mode_label": EmptyValues;
     readonly "seats.mode_light": EmptyValues;
     readonly "seats.mode_system": EmptyValues;
+    readonly "seats.motion_calm": EmptyValues;
+    readonly "seats.motion_full": EmptyValues;
+    readonly "seats.motion_label": EmptyValues;
+    readonly "seats.motion_system": EmptyValues;
     readonly "seats.notice_label": EmptyValues;
     readonly "seats.notice_off": EmptyValues;
     readonly "seats.notice_on": EmptyValues;

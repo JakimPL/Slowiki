@@ -1,4 +1,5 @@
-import { preferredLocale, storedLocale } from "../play/device/locale";
+import { preferredLocale } from "../play/device/locale";
+import { currentSettings } from "../play/settings/storage";
 import { EN } from "./en";
 import type { Catalog, Locale, PlainKey, PlainValues, PluralKey, PluralValues } from "./keys";
 import { DEFAULT_LOCALE } from "./keys";
@@ -29,5 +30,5 @@ function resolvedLocale(): Locale {
     if (typeof window === "undefined") {
         return DEFAULT_LOCALE;
     }
-    return preferredLocale(storedLocale(window.localStorage), window.navigator.languages);
+    return preferredLocale(currentSettings().locale, window.navigator.languages);
 }

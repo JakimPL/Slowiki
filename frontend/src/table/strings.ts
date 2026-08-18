@@ -1,4 +1,6 @@
 import type { CompanyView, Tile } from "../api/views";
+import type { Mode } from "../play/device/mode";
+import type { Motion } from "../play/device/motion";
 import type { Connection } from "../play/live/connection";
 import type { Guidance } from "../play/story/guidance";
 import type { LogEntry } from "../play/story/log";
@@ -70,10 +72,16 @@ export const NOTICE_CAPTIONS: Record<"off" | "on", string> = {
     off: text("seats.notice_off"),
     on: text("seats.notice_on"),
 };
-export const MODE_CAPTIONS: Record<"system" | "light" | "dark", string> = {
+export const MODE_CAPTIONS: Record<Mode, string> = {
     system: text("seats.mode_system"),
     light: text("seats.mode_light"),
     dark: text("seats.mode_dark"),
+};
+export const MOTION_LABEL = text("seats.motion_label");
+export const MOTION_CAPTIONS: Record<Motion, string> = {
+    system: text("seats.motion_system"),
+    full: text("seats.motion_full"),
+    calm: text("seats.motion_calm"),
 };
 
 const SECONDS_PER_MINUTE = 60;

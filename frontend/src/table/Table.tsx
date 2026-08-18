@@ -12,7 +12,6 @@ import { standingWordsAt } from "../play/board/standing";
 import { remainingFor, urgencyOf } from "../play/clock/clock";
 import { useCountdown } from "../play/clock/useCountdown";
 import { useAlerts } from "../play/device/useAlerts";
-import type { NoticeHold } from "../play/device/useNotices";
 import type { Connection } from "../play/live/connection";
 import type { TableState } from "../play/live/events";
 import { seatedAs } from "../play/live/events";
@@ -22,6 +21,7 @@ import { usePlay } from "../play/live/usePlay";
 import { useLore } from "../play/lore/useLore";
 import { tintFor } from "../play/seats/tints";
 import type { Arrival } from "../play/seats/useStanding";
+import { useSettings } from "../play/settings/useSettings";
 import { guidanceFor } from "../play/story/guidance";
 import { remainingTally } from "../play/story/remaining";
 import type { StoryKind } from "../play/story/story";
@@ -57,6 +57,7 @@ import { targetsFrom } from "./input/targets";
 import { useHold } from "./input/useHold";
 import { LocaleToggle } from "./seats/LocaleToggle";
 import { ModeToggle } from "./seats/ModeToggle";
+import { MotionToggle } from "./seats/MotionToggle";
 import { NoticeToggle } from "./seats/NoticeToggle";
 import type { SeatClock } from "./seats/Plaques";
 import { Plaques } from "./seats/Plaques";
@@ -91,7 +92,6 @@ export interface TableProps {
     readonly state: TableState;
     readonly clock: ClockView | null;
     readonly trouble: string | null;
-    readonly notices: NoticeHold;
     readonly onOutdated: () => Promise<number | null>;
 }
 
@@ -100,7 +100,8 @@ interface BlankChoice {
     readonly tile: Tile;
 }
 
-export function Table({ arrival, connection, state, clock, trouble, notices, onOutdated }: TableProps): ReactElement {
+export function Table({ arrival, connection, state, clock, trouble, onOutdated }: TableProps): ReactElement {
+    const { settings } = useSettings();
     const mySeat = arrival.seated ?? seatedAs(state.view);
     const description = useDescription(arrival.seat);
     const remaining = useCountdown(clock);
@@ -155,7 +156,7 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
               }
             : null,
     );
-    useAlerts(story.kind === "acting", PRODUCT_NAME, notices.wanted, YOUR_TURN_CAPTION);
+    useAlerts(story.kind === "acting", PRODUCT_NAME, settings.notices, YOUR_TURN_CAPTION);
 
     const lastPlay = state.view.last_play;
     const freshCells = new Set(lastPlay?.indices ?? []);
@@ -405,8 +406,9 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
                         {CONNECTION_CAPTIONS[connection]}
                     </span>
                 )}
-                <NoticeToggle wanted={notices.wanted} onFlip={notices.flip} />
+                <NoticeToggle />
                 <ModeToggle />
+                <MotionToggle />
                 <LocaleToggle />
             </header>
             <Plaques

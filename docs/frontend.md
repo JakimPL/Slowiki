@@ -56,7 +56,9 @@ F9. **One pointer path.** Every pointing device — mouse, pen, touch — goes t
 F10. **Preferences are a layer.** Choices a player makes about the app rather than about a game live
      in one typed record with one owner, one set of defaults, and one surface that changes them.
      Storage scope is a deliberate decision: a per-device preference persists across tabs, a per-tab
-     fact stays in its tab. Reading a preference works before the app renders as well as during it.
+     fact stays in its tab. Reading a preference works before the app renders as well as during it,
+     and one provider at the root carries the record to whatever reads it — a route reserved for
+     device facts, never for the state of a game.
 
 F11. **Failures are states.** A refusal becomes a typed value at the boundary, carrying its code and
      its sentence, and renders into a slot that reserves its space. The interface distinguishes what

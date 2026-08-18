@@ -1,28 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-    knownLocale,
-    LOCALE_STORAGE_KEY,
-    nextLocale,
-    preferredLocale,
-    rememberLocale,
-    storedLocale,
-} from "../../../src/play/device/locale";
-
-function aStorage(initial: Record<string, string> = {}): {
-    getItem: (key: string) => string | null;
-    setItem: (key: string, value: string) => void;
-    entries: Map<string, string>;
-} {
-    const entries = new Map(Object.entries(initial));
-    return {
-        getItem: (key): string | null => entries.get(key) ?? null,
-        setItem: (key, value): void => {
-            entries.set(key, value);
-        },
-        entries,
-    };
-}
+import { knownLocale, nextLocale, preferredLocale } from "../../../src/play/device/locale";
 
 describe("locale", () => {
     it("recognizes a catalog locale and refuses the rest", () => {
@@ -30,11 +8,6 @@ describe("locale", () => {
         expect(knownLocale("pl")).toBe("pl");
         expect(knownLocale("kl")).toBeNull();
         expect(knownLocale(null)).toBeNull();
-    });
-
-    it("reads a stored choice", () => {
-        expect(storedLocale(aStorage({ [LOCALE_STORAGE_KEY]: "en" }))).toBe("en");
-        expect(storedLocale(aStorage())).toBeNull();
     });
 
     it("prefers the stored choice over the browser languages", () => {
@@ -54,11 +27,5 @@ describe("locale", () => {
     it("cycles through the catalog locales", () => {
         expect(nextLocale("en")).toBe("pl");
         expect(nextLocale("pl")).toBe("en");
-    });
-
-    it("remembers the choice", () => {
-        const storage = aStorage();
-        rememberLocale("pl", storage);
-        expect(storage.entries.get(LOCALE_STORAGE_KEY)).toBe("pl");
     });
 });

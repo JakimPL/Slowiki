@@ -24,6 +24,10 @@
     --tile-face-green: color-mix(in srgb, var(--tile-face) 75%, var(--band-green) 25%);
     --tile-face-blue: color-mix(in srgb, var(--tile-face) 75%, var(--band-blue) 25%);
     --tile-face-red: color-mix(in srgb, var(--tile-face) 75%, var(--band-red) 25%);
+    --motion-breath: plaque-breath;
+    --motion-fresh: fresh-pop;
+    --motion-hold: cell-hold;
+    --motion-lift: 120ms;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -74,6 +78,22 @@
     --band-green: #7ba34c;
     --band-blue: #4e86b4;
     --band-red: #c04e33;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :root:not([data-motion="full"]) {
+        --motion-breath: none;
+        --motion-fresh: none;
+        --motion-hold: none;
+        --motion-lift: 0s;
+    }
+}
+
+:root[data-motion="calm"] {
+    --motion-breath: none;
+    --motion-fresh: none;
+    --motion-hold: none;
+    --motion-lift: 0s;
 }
 
 * {
@@ -463,7 +483,7 @@ select {
     border-color: var(--tint);
     background: color-mix(in srgb, var(--tint) 16%, transparent);
     box-shadow: 0 0 0 2px color-mix(in srgb, var(--tint) 30%, transparent);
-    animation: plaque-breath 2.6s ease-in-out infinite;
+    animation: var(--motion-breath) 2.6s ease-in-out infinite;
 }
 
 @keyframes plaque-breath {
@@ -474,12 +494,6 @@ select {
 
     50% {
         box-shadow: 0 0 0 6px color-mix(in srgb, var(--tint) 18%, transparent);
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .plaque[data-acting] {
-        animation: none;
     }
 }
 
@@ -777,7 +791,7 @@ select {
     outline: 2px solid var(--fresh, var(--accent-primary));
     outline-offset: -1px;
     z-index: 1;
-    animation: fresh-pop 360ms ease;
+    animation: var(--motion-fresh) 360ms ease;
 }
 
 @keyframes fresh-pop {
@@ -787,12 +801,6 @@ select {
 
     100% {
         transform: scale(1);
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .cell[data-fresh] {
-        animation: none;
     }
 }
 
@@ -1045,7 +1053,7 @@ select {
 }
 
 .rack-tile .tile {
-    transition: transform 120ms ease;
+    transition: transform var(--motion-lift) ease;
 }
 
 .rack-tile[data-lifted] .tile {
@@ -1056,23 +1064,13 @@ select {
     transform: translateY(-6px);
 }
 
-@media (prefers-reduced-motion: reduce) {
-    .rack-tile .tile {
-        transition: none;
-    }
-
-    .cell[data-holding="true"]::after {
-        animation: none;
-    }
-}
-
 .cell[data-holding="true"]::after {
     position: absolute;
     inset: 0;
     z-index: 2;
     border-radius: inherit;
     box-shadow: inset 0 0 0 2px var(--accent-primary);
-    animation: cell-hold var(--hold) linear both;
+    animation: var(--motion-hold) var(--hold) linear both;
     content: "";
 }
 

@@ -2,10 +2,10 @@ import type { ReactElement } from "react";
 import { useEffect, useState } from "react";
 
 import { readStyle } from "./api/client";
-import { useNotices } from "./play/device/useNotices";
 import { useTable } from "./play/live/useTable";
 import type { Arrival } from "./play/seats/useStanding";
 import { useStanding } from "./play/seats/useStanding";
+import { useSettings } from "./play/settings/useSettings";
 import { Home } from "./table/arrive/Home";
 import { JOINING_CAPTION, STYLE_FALLBACK_NOTE } from "./table/strings";
 import { Table } from "./table/Table";
@@ -42,11 +42,11 @@ interface TableScreenProps {
 }
 
 function TableScreen({ arrival }: TableScreenProps): ReactElement {
-    const notices = useNotices();
+    const { settings } = useSettings();
     const { connection, state, clock, trouble, refresh } = useTable(
         arrival.seat.table,
         arrival.seat.token,
-        notices.wanted,
+        settings.notices,
     );
     if (state === null) {
         return (
@@ -62,7 +62,6 @@ function TableScreen({ arrival }: TableScreenProps): ReactElement {
             state={state}
             clock={clock}
             trouble={trouble}
-            notices={notices}
             onOutdated={refresh}
         />
     );

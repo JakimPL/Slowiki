@@ -1,6 +1,7 @@
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 
-import { rememberNotices, requestedNotices, storedNotices } from "./notices";
+import { useSettings } from "../settings/useSettings";
+import { requestedNotices } from "./notices";
 
 export interface NoticeHold {
     readonly wanted: boolean;
@@ -8,19 +9,18 @@ export interface NoticeHold {
 }
 
 export function useNotices(): NoticeHold {
-    const [wanted, setWanted] = useState(() => (typeof window === "undefined" ? false : storedNotices(localStorage)));
+    const { settings, change } = useSettings();
+    const wanted = settings.notices;
 
     const flip = useCallback((): void => {
         if (wanted) {
-            rememberNotices(false, localStorage);
-            setWanted(false);
+            change({ notices: false });
             return;
         }
         void requestedNotices().then((granted) => {
-            rememberNotices(granted, localStorage);
-            setWanted(granted);
+            change({ notices: granted });
         });
-    }, [wanted]);
+    }, [wanted, change]);
 
     return { wanted, flip };
 }

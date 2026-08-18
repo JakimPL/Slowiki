@@ -66,7 +66,7 @@ dark:
     grid: "#453B2B"
     frame: "#4A3A29"
     star: "#E8967E"
-    premium_label_share: 0.32
+    premium_label_share: 0.20
   premiums:
     word_2:
       fill: "#4A4030"

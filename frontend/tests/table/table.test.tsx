@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
 import { openedFrom } from "../../src/play/live/events";
+import { SettingsProvider } from "../../src/play/settings/useSettings";
 import { Table } from "../../src/table/Table";
 import { aBoard, aCompany, aPlayRecord, aSeatView, aTableResponse, aTile, aView } from "../fixtures/positions";
 
@@ -14,15 +15,16 @@ describe("Table", () => {
             company: aCompany([aSeatView(0, { name: "Ala" }), aSeatView(1, { claimed: false })]),
         });
         const markup = renderToStaticMarkup(
-            <Table
-                arrival={ARRIVAL}
-                connection="live"
-                state={openedFrom(response)}
-                clock={null}
-                trouble={null}
-                notices={{ wanted: false, flip: () => undefined }}
-                onOutdated={() => Promise.resolve(null)}
-            />,
+            <SettingsProvider>
+                <Table
+                    arrival={ARRIVAL}
+                    connection="live"
+                    state={openedFrom(response)}
+                    clock={null}
+                    trouble={null}
+                    onOutdated={() => Promise.resolve(null)}
+                />
+            </SettingsProvider>,
         );
         expect(markup).toContain("Gathering players — 1 of 2 at the table");
         expect(markup).toContain("KWPZTR");
@@ -35,15 +37,16 @@ describe("Table", () => {
     it("marks my turn on the frame once the table is full", () => {
         const response = aTableResponse({ view: aView({ to_act: [0] }) });
         const markup = renderToStaticMarkup(
-            <Table
-                arrival={ARRIVAL}
-                connection="live"
-                state={openedFrom(response)}
-                clock={null}
-                trouble={null}
-                notices={{ wanted: false, flip: () => undefined }}
-                onOutdated={() => Promise.resolve(null)}
-            />,
+            <SettingsProvider>
+                <Table
+                    arrival={ARRIVAL}
+                    connection="live"
+                    state={openedFrom(response)}
+                    clock={null}
+                    trouble={null}
+                    onOutdated={() => Promise.resolve(null)}
+                />
+            </SettingsProvider>,
         );
         expect(markup).toContain("Your turn");
         expect(markup).toContain('data-acting="true"');
@@ -53,15 +56,16 @@ describe("Table", () => {
     it("offers the desk controls to a seated player", () => {
         const response = aTableResponse({ view: aView({ to_act: [0] }) });
         const markup = renderToStaticMarkup(
-            <Table
-                arrival={ARRIVAL}
-                connection="live"
-                state={openedFrom(response)}
-                clock={null}
-                trouble={null}
-                notices={{ wanted: false, flip: () => undefined }}
-                onOutdated={() => Promise.resolve(null)}
-            />,
+            <SettingsProvider>
+                <Table
+                    arrival={ARRIVAL}
+                    connection="live"
+                    state={openedFrom(response)}
+                    clock={null}
+                    trouble={null}
+                    onOutdated={() => Promise.resolve(null)}
+                />
+            </SettingsProvider>,
         );
         expect(markup).toContain(">Play</button>");
         expect(markup).toContain(">Pass</button>");
@@ -90,15 +94,16 @@ describe("Table", () => {
             }),
         });
         const markup = renderToStaticMarkup(
-            <Table
-                arrival={ARRIVAL}
-                connection="live"
-                state={openedFrom(response)}
-                clock={null}
-                trouble={null}
-                notices={{ wanted: false, flip: () => undefined }}
-                onOutdated={() => Promise.resolve(null)}
-            />,
+            <SettingsProvider>
+                <Table
+                    arrival={ARRIVAL}
+                    connection="live"
+                    state={openedFrom(response)}
+                    clock={null}
+                    trouble={null}
+                    onOutdated={() => Promise.resolve(null)}
+                />
+            </SettingsProvider>,
         );
         expect(markup).toContain('data-ghost="true"');
         expect(markup).toContain("Premove queued");
@@ -109,15 +114,16 @@ describe("Table", () => {
     it("keeps Pass for the acting turn only", () => {
         const response = aTableResponse({ view: aView({ to_act: [1] }) });
         const markup = renderToStaticMarkup(
-            <Table
-                arrival={ARRIVAL}
-                connection="live"
-                state={openedFrom(response)}
-                clock={null}
-                trouble={null}
-                notices={{ wanted: false, flip: () => undefined }}
-                onOutdated={() => Promise.resolve(null)}
-            />,
+            <SettingsProvider>
+                <Table
+                    arrival={ARRIVAL}
+                    connection="live"
+                    state={openedFrom(response)}
+                    clock={null}
+                    trouble={null}
+                    onOutdated={() => Promise.resolve(null)}
+                />
+            </SettingsProvider>,
         );
         expect(markup).toContain('disabled="">Pass</button>');
     });
@@ -138,15 +144,16 @@ describe("Table", () => {
             ],
         };
         const markup = renderToStaticMarkup(
-            <Table
-                arrival={ARRIVAL}
-                connection="live"
-                state={state}
-                clock={null}
-                trouble={null}
-                notices={{ wanted: false, flip: () => undefined }}
-                onOutdated={() => Promise.resolve(null)}
-            />,
+            <SettingsProvider>
+                <Table
+                    arrival={ARRIVAL}
+                    connection="live"
+                    state={state}
+                    clock={null}
+                    trouble={null}
+                    onOutdated={() => Promise.resolve(null)}
+                />
+            </SettingsProvider>,
         );
         expect(markup).toContain("Premove returned — invalid word.");
     });
@@ -159,15 +166,16 @@ describe("Table", () => {
             }),
         });
         const markup = renderToStaticMarkup(
-            <Table
-                arrival={ARRIVAL}
-                connection="live"
-                state={openedFrom(response)}
-                clock={null}
-                trouble={null}
-                notices={{ wanted: false, flip: () => undefined }}
-                onOutdated={() => Promise.resolve(null)}
-            />,
+            <SettingsProvider>
+                <Table
+                    arrival={ARRIVAL}
+                    connection="live"
+                    state={openedFrom(response)}
+                    clock={null}
+                    trouble={null}
+                    onOutdated={() => Promise.resolve(null)}
+                />
+            </SettingsProvider>,
         );
         expect(markup).toContain('data-fresh="true"');
     });
@@ -176,15 +184,16 @@ describe("Table", () => {
         const response = aTableResponse({ view: aView({ racks: { 0: null, 1: null } }) });
         const spectator = { seat: { table: "t1", token: null }, code: null, seated: null };
         const markup = renderToStaticMarkup(
-            <Table
-                arrival={spectator}
-                connection="live"
-                state={openedFrom(response)}
-                clock={null}
-                trouble={null}
-                notices={{ wanted: false, flip: () => undefined }}
-                onOutdated={() => Promise.resolve(null)}
-            />,
+            <SettingsProvider>
+                <Table
+                    arrival={spectator}
+                    connection="live"
+                    state={openedFrom(response)}
+                    clock={null}
+                    trouble={null}
+                    onOutdated={() => Promise.resolve(null)}
+                />
+            </SettingsProvider>,
         );
         expect(markup).not.toContain(">Play</button>");
         expect(markup).not.toContain("rack-tile");
@@ -193,15 +202,16 @@ describe("Table", () => {
     it("surfaces the connection chip and reads the trouble in the feedback slot", () => {
         const response = aTableResponse();
         const markup = renderToStaticMarkup(
-            <Table
-                arrival={ARRIVAL}
-                connection="resuming"
-                state={openedFrom(response)}
-                clock={null}
-                trouble="stream lost"
-                notices={{ wanted: false, flip: () => undefined }}
-                onOutdated={() => Promise.resolve(null)}
-            />,
+            <SettingsProvider>
+                <Table
+                    arrival={ARRIVAL}
+                    connection="resuming"
+                    state={openedFrom(response)}
+                    clock={null}
+                    trouble="stream lost"
+                    onOutdated={() => Promise.resolve(null)}
+                />
+            </SettingsProvider>,
         );
         expect(markup).toContain("Reconnecting");
         expect(markup).toContain('data-tone="danger">stream lost');
@@ -213,15 +223,16 @@ describe("Table", () => {
             company: aCompany([aSeatView(0, { name: "Ala" }), aSeatView(1, { claimed: false })]),
         });
         const markup = renderToStaticMarkup(
-            <Table
-                arrival={ARRIVAL}
-                connection="lost"
-                state={openedFrom(response)}
-                clock={null}
-                trouble="stream lost"
-                notices={{ wanted: false, flip: () => undefined }}
-                onOutdated={() => Promise.resolve(null)}
-            />,
+            <SettingsProvider>
+                <Table
+                    arrival={ARRIVAL}
+                    connection="lost"
+                    state={openedFrom(response)}
+                    clock={null}
+                    trouble="stream lost"
+                    onOutdated={() => Promise.resolve(null)}
+                />
+            </SettingsProvider>,
         );
         expect(markup).toContain('class="trouble">stream lost');
         expect(markup).not.toContain("feedback");
