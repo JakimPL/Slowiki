@@ -3,6 +3,7 @@
 * While executing plans, stop after each phase, unless told otherwise.
 * After ending each phase, write one sentence at the end about the next phase or the plan finalization. Propose a brief commit message of the following form: _Did: what_, e.g. _Refactored: musical arrangement dataclass_.
 * While developing, look for `guidelines.md` in the working repository. Read this before coding.
+* Frontend work follows `docs/frontend.md`; interface changes start by amending `docs/interface.md`.
 
 ## Git
 
@@ -67,7 +68,7 @@
 
 * Documentation should explain the intention of a class/function and context of usage.
 * Be concise and stay factual. Avoid dwelling into technical nuances unless such discussion is necessary.
-* State functionality in positive terms. Describe what a class or function *does* — not what it avoids, omits, skips, differs from, or no longer does. Reframe every negation ("does not", "rather than", "instead of", "without", "never", "cannot", "no longer") into the behaviour that actually happens. Do not contrast with rejected alternatives as justification; the positive statement carries the meaning. Negative phrasing is allowed only where the condition itself is the contract: exception triggers in `Raises:` clauses, precondition/postcondition bounds (prefer "must be at least X" over "cannot be less than X" where natural), and documented edge-case returns. Outside these concrete cases, negative descriptions are information noise and must be removed.
+* State functionality in positive terms. Describe what a class or function *does* — not what it avoids, omits, skips, differs from, or no longer does. Reframe every negation ("does not", "rather than", "instead of", "without", "never", "cannot", "no longer") into the behavior that actually happens. Do not contrast with rejected alternatives as justification; the positive statement carries the meaning. Negative phrasing is allowed only where the condition itself is the contract: exception triggers in `Raises:` clauses, precondition/postcondition bounds (prefer "must be at least X" over "cannot be less than X" where natural), and documented edge-case returns. Outside these concrete cases, negative descriptions are information noise and must be removed.
 * Avoid code comments. Comments are acceptable for tensor shapes, third-party API quirks, or non-obvious invariants.
 * Avoid comments and docstrings that restate code.
 * Don't write module docstrings and constant descriptions.

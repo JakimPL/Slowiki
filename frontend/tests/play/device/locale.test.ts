@@ -25,7 +25,7 @@ function aStorage(initial: Record<string, string> = {}): {
 }
 
 describe("locale", () => {
-    it("recognizes a catalogue locale and refuses the rest", () => {
+    it("recognizes a catalog locale and refuses the rest", () => {
         expect(knownLocale("en")).toBe("en");
         expect(knownLocale("pl")).toBe("pl");
         expect(knownLocale("kl")).toBeNull();
@@ -51,7 +51,7 @@ describe("locale", () => {
         expect(preferredLocale(null, ["kl"])).toBe("en");
     });
 
-    it("cycles through the catalogue locales", () => {
+    it("cycles through the catalog locales", () => {
         expect(nextLocale("en")).toBe("pl");
         expect(nextLocale("pl")).toBe("en");
     });

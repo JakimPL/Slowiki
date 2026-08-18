@@ -16,7 +16,7 @@ from wordassets.icons import favicon_ico_bytes, icon_painting, icon_png_bytes, i
 from wordassets.slugs import letter_slug
 from wordgames.names import GameName
 from wordserver.app import create_app
-from wordtable.catalogue import resolve_scheme
+from wordtable.catalog import resolve_scheme
 from wordtable.config import ThemeTokens, load_style_tokens
 from wordtable.paths import CONFIG_DIR
 

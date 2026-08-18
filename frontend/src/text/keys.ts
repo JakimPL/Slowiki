@@ -143,7 +143,7 @@ export type PlainKey = keyof PlainValues;
 
 export type PluralKey = keyof PluralValues;
 
-export interface Catalogue {
+export interface Catalog {
     readonly plain: Record<PlainKey, string>;
     readonly plural: Record<PluralKey, Record<PluralCategory, string>>;
 }

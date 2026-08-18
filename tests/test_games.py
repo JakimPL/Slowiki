@@ -16,7 +16,7 @@ from wordcore.views.projection import project
 from wordgames.backend.base import WordGameRules
 from wordgames.backend.parameters import GameParameters
 from wordtable.build import build_rules
-from wordtable.catalogue import resolve_scheme
+from wordtable.catalog import resolve_scheme
 from wordtable.paths import CONFIG_DIR
 
 TINY_TILES = TilePreset(

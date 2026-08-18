@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import { EN } from "../../src/text/en";
-import type { Catalogue, PluralCategory } from "../../src/text/keys";
+import type { Catalog, PluralCategory } from "../../src/text/keys";
 import { countedFrom, filled, textFrom } from "../../src/text/message";
 import { PL } from "../../src/text/pl";
 
-const CATALOGUES: readonly Catalogue[] = [EN, PL];
+const CATALOGS: readonly Catalog[] = [EN, PL];
 
 const CATEGORIES: readonly PluralCategory[] = ["one", "few", "many", "other"];
 
@@ -53,12 +53,12 @@ describe("countedFrom", () => {
     });
 });
 
-describe("every catalogue", () => {
+describe("every catalog", () => {
     it("carries a message for every key", () => {
-        for (const catalogue of CATALOGUES) {
+        for (const catalog of CATALOGS) {
             const templates = [
-                ...Object.values(catalogue.plain),
-                ...Object.values(catalogue.plural).flatMap((entry) => Object.values(entry)),
+                ...Object.values(catalog.plain),
+                ...Object.values(catalog.plural).flatMap((entry) => Object.values(entry)),
             ];
             expect(templates.length).toBeGreaterThan(0);
             for (const template of templates) {
@@ -68,16 +68,16 @@ describe("every catalogue", () => {
     });
 
     it("prints placeholders without their declared type", () => {
-        for (const catalogue of CATALOGUES) {
-            for (const template of Object.values(catalogue.plain)) {
+        for (const catalog of CATALOGS) {
+            for (const template of Object.values(catalog.plain)) {
                 expect(template).not.toContain(":number");
             }
         }
     });
 
     it("agrees on placeholders across the categories of one plural message", () => {
-        for (const catalogue of CATALOGUES) {
-            for (const entry of Object.values(catalogue.plural)) {
+        for (const catalog of CATALOGS) {
+            for (const entry of Object.values(catalog.plural)) {
                 const named = CATEGORIES.map((category) => placeholders(entry[category]).join(","));
                 expect(new Set(named).size).toBe(1);
             }
@@ -93,7 +93,7 @@ describe("every catalogue", () => {
     });
 });
 
-describe("the Polish catalogue", () => {
+describe("the Polish catalog", () => {
     it("counts in three categories", () => {
         expect(countedFrom(PL, "pl", "hand.exchange_left", 1)).toBe("Została 1 wymiana w tej grze.");
         expect(countedFrom(PL, "pl", "hand.exchange_left", 3)).toBe("Zostały 3 wymiany w tej grze.");

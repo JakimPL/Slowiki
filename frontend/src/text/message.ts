@@ -1,4 +1,4 @@
-import type { Catalogue, Locale, PlainKey, PlainValues, PluralKey, PluralValues } from "./keys";
+import type { Catalog, Locale, PlainKey, PlainValues, PluralKey, PluralValues } from "./keys";
 import { pluralCategory } from "./plural";
 
 export type Values = Readonly<Record<string, string | number>>;
@@ -11,23 +11,19 @@ export function filled(template: string, values: Values): string {
     return template.replace(PLACEHOLDER, (_whole: string, name: string): string => substituted(template, values, name));
 }
 
-export function textFrom<Key extends PlainKey>(
-    catalogue: Catalogue,
-    key: Key,
-    ...given: Given<PlainValues[Key]>
-): string {
-    return filled(catalogue.plain[key], given[0] ?? {});
+export function textFrom<Key extends PlainKey>(catalog: Catalog, key: Key, ...given: Given<PlainValues[Key]>): string {
+    return filled(catalog.plain[key], given[0] ?? {});
 }
 
 export function countedFrom<Key extends PluralKey>(
-    catalogue: Catalogue,
+    catalog: Catalog,
     locale: Locale,
     key: Key,
     count: number,
     ...given: Given<PluralValues[Key]>
 ): string {
     const category = pluralCategory(locale, count);
-    return filled(catalogue.plural[key][category], { ...given[0], count });
+    return filled(catalog.plural[key][category], { ...given[0], count });
 }
 
 function substituted(template: string, values: Values, name: string): string {

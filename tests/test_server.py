@@ -12,7 +12,7 @@ from wordcore.moves.move import Move
 from wordserver.app import create_app
 from wordserver.session import TableSession
 from wordtable.build import build_rules
-from wordtable.catalogue import resolve_scheme
+from wordtable.catalog import resolve_scheme
 from wordtable.config import TimeConfig
 from wordtable.paths import CONFIG_DIR
 

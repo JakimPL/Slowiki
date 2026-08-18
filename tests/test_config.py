@@ -4,7 +4,7 @@ from pydantic import ValidationError
 from lexica.names import DictionaryName
 from wordcore.board.preset import board_from_preset
 from wordtable import paths
-from wordtable.catalogue import list_schemes, offerings, resolve_scheme
+from wordtable.catalog import list_schemes, offerings, resolve_scheme
 from wordtable.config import StyleTokens, load_style_tokens, read_config
 from wordtable.lexicons import dictionary_ready
 from wordtable.paths import CONFIG_DIR
@@ -25,7 +25,7 @@ def test_schemes_are_listed() -> None:
     assert {"literaki", "scrabble", "solo-literaki"} <= set(schemes)
 
 
-def test_catalogue_offers_every_scheme() -> None:
+def test_catalog_offers_every_scheme() -> None:
     by_name = {offering.name: offering for offering in offerings(CONFIG_DIR)}
     assert {"literaki", "scrabble", "solo-literaki"} <= set(by_name)
     assert by_name["scrabble"].dictionary == DictionaryName.ENGLISH

@@ -9,7 +9,7 @@ import yaml
 from wordcore.errors.exceptions import InvalidConfiguration
 
 PROJECT_ROOT: Final[Path] = Path(__file__).resolve().parents[1]
-CATALOGUE_DIR: Final[Path] = PROJECT_ROOT / "config" / "strings"
+CATALOG_DIR: Final[Path] = PROJECT_ROOT / "config" / "strings"
 OUTPUT_DIR: Final[Path] = PROJECT_ROOT / "frontend" / "src" / "text"
 
 REFERENCE_LOCALE: Final = "en"
@@ -33,7 +33,7 @@ class Placeholder(NamedTuple):
     numeric: bool
 
 
-class Catalogue(NamedTuple):
+class Catalog(NamedTuple):
     plain: dict[str, str]
     plural: dict[str, dict[str, str]]
 
@@ -45,9 +45,9 @@ class Shape(NamedTuple):
 
 def main(directory: Path, output: Path) -> None:
     locales = locale_names(directory)
-    authored = {locale: read_catalogue(directory / f"{locale}.yaml") for locale in locales}
+    authored = {locale: read_catalog(directory / f"{locale}.yaml") for locale in locales}
     shape = shape_of(authored[REFERENCE_LOCALE])
-    resolved = {locale: resolved_catalogue(locale, authored[locale], shape) for locale in locales}
+    resolved = {locale: resolved_catalog(locale, authored[locale], shape) for locale in locales}
     sources = {output / "keys.ts": keys_source(locales, shape)} | {
         output / f"{locale}.ts": locale_source(locale, resolved[locale]) for locale in locales
     }
@@ -62,7 +62,7 @@ def locale_names(directory: Path) -> tuple[str, ...]:
     return (REFERENCE_LOCALE, *(name for name in names if name != REFERENCE_LOCALE))
 
 
-def read_catalogue(path: Path) -> Catalogue:
+def read_catalog(path: Path) -> Catalog:
     plain: dict[str, str] = {}
     plural: dict[str, dict[str, str]] = {}
     for key, message in _messages("", _document(path)):
@@ -70,10 +70,10 @@ def read_catalogue(path: Path) -> Catalogue:
             plain[key] = message
         else:
             plural[key] = message
-    return Catalogue(plain=plain, plural=plural)
+    return Catalog(plain=plain, plural=plural)
 
 
-def shape_of(reference: Catalogue) -> Shape:
+def shape_of(reference: Catalog) -> Shape:
     plain = {
         key: placeholders_of(key, template, plural=False)
         for key, template in reference.plain.items()
@@ -84,7 +84,7 @@ def shape_of(reference: Catalogue) -> Shape:
     return Shape(plain=plain, plural=plural)
 
 
-def resolved_catalogue(locale: str, authored: Catalogue, shape: Shape) -> Catalogue:
+def resolved_catalog(locale: str, authored: Catalog, shape: Shape) -> Catalog:
     _ensure_locale_known(locale)
     _ensure_same_keys(locale, authored, shape)
     plain = {
@@ -95,7 +95,7 @@ def resolved_catalogue(locale: str, authored: Catalogue, shape: Shape) -> Catalo
         key: _resolved_plural(locale, key, templates, shape.plural[key])
         for key, templates in authored.plural.items()
     }
-    return Catalogue(plain=plain, plural=plural)
+    return Catalog(plain=plain, plural=plural)
 
 
 def placeholders_of(key: str, template: str, plural: bool) -> tuple[Placeholder, ...]:
@@ -127,7 +127,7 @@ def keys_source(locales: tuple[str, ...], shape: Shape) -> str:
         "",
         "export type PluralKey = keyof PluralValues;",
         "",
-        "export interface Catalogue {",
+        "export interface Catalog {",
         f"{_INDENT}readonly plain: Record<PlainKey, string>;",
         f"{_INDENT}readonly plural: Record<PluralKey, Record<PluralCategory, string>>;",
         "}",
@@ -135,21 +135,21 @@ def keys_source(locales: tuple[str, ...], shape: Shape) -> str:
     return "\n".join(lines) + "\n"
 
 
-def locale_source(locale: str, catalogue: Catalogue) -> str:
+def locale_source(locale: str, catalog: Catalog) -> str:
     lines = [
         _BANNER,
         "",
-        'import type { Catalogue } from "./keys";',
+        'import type { Catalog } from "./keys";',
         "",
-        f"export const {locale.upper()}: Catalogue = {{",
+        f"export const {locale.upper()}: Catalog = {{",
         f"{_INDENT}plain: {{",
         *(
-            f"{_INDENT * 2}{_quoted(key)}: {_quoted(catalogue.plain[key])},"
-            for key in sorted(catalogue.plain)
+            f"{_INDENT * 2}{_quoted(key)}: {_quoted(catalog.plain[key])},"
+            for key in sorted(catalog.plain)
         ),
         f"{_INDENT}}},",
         f"{_INDENT}plural: {{",
-        *_plural_entries(catalogue.plural),
+        *_plural_entries(catalog.plural),
         f"{_INDENT}}},",
         "};",
     ]
@@ -278,7 +278,7 @@ def _quoted(value: str) -> str:
 
 def _ensure_reference_present(names: list[str]) -> None:
     if REFERENCE_LOCALE not in names:
-        raise InvalidConfiguration(f"the reference catalogue {REFERENCE_LOCALE}.yaml is missing")
+        raise InvalidConfiguration(f"the reference catalog {REFERENCE_LOCALE}.yaml is missing")
 
 
 def _ensure_locale_known(locale: str) -> None:
@@ -286,7 +286,7 @@ def _ensure_locale_known(locale: str) -> None:
         raise InvalidConfiguration(f"{locale}: plural categories are undeclared for this locale")
 
 
-def _ensure_same_keys(locale: str, authored: Catalogue, shape: Shape) -> None:
+def _ensure_same_keys(locale: str, authored: Catalog, shape: Shape) -> None:
     for kind, present, expected in (
         ("message", set(authored.plain), set(shape.plain)),
         ("plural message", set(authored.plural), set(shape.plural)),
@@ -355,4 +355,4 @@ def _named(placeholders: tuple[Placeholder, ...]) -> str:
 
 
 if __name__ == "__main__":
-    main(CATALOGUE_DIR, OUTPUT_DIR)
+    main(CATALOG_DIR, OUTPUT_DIR)

@@ -52,6 +52,14 @@ into `wordcore.rules.words` (placements and word geometry) and
 `wordcore.rules.score` (word and move scoring). Dictionary source loaders live
 under `lexica.dictionaries`, one module per source.
 
+## Frontend
+
+The player interface lives in `frontend/` and splits into two strata: one reasons about the game on
+the client — state derivation, board geometry, score previews, session and device concerns — and one
+presents it. Its types come from the server's OpenAPI document, so the wire contract is generated
+rather than restated. `docs/frontend.md` holds the code principles; `docs/interface.md` holds the
+design contract.
+
 ## Vocabulary
 
 - `wordgames.names.GameName` — literaki, scrabble.
