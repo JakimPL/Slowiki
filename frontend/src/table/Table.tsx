@@ -135,7 +135,11 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
         }
     };
     const lastPlay = state.view.last_play;
-    const { marks: fresh, acknowledge: noticeLastPlay } = useFreshPlay(lastPlay, mySeat);
+    const {
+        marks: fresh,
+        frame: freshFrame,
+        acknowledge: noticeLastPlay,
+    } = useFreshPlay(lastPlay, mySeat, state.view.board.size);
     const perform = (effect: DeskEffect): void => {
         clear();
         dismissReturned();
@@ -430,6 +434,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
                         carry?.target?.kind === "cell" && !ghosts.has(carry.target.cell) ? carry.target.cell : null
                     }
                     fresh={fresh}
+                    freshFrame={freshFrame}
                     freshTint={freshTint}
                     onLay={mayAct ? layLifted : null}
                     bindings={atDesk ? bindings : null}

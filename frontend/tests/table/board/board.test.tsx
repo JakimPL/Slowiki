@@ -14,6 +14,7 @@ const PASSIVE = {
     targeting: false,
     dropCell: null,
     fresh: new Map<number, FreshMark>(),
+    freshFrame: null,
     freshTint: null,
     onLay: null,
     bindings: null,
@@ -119,18 +120,29 @@ describe("Board", () => {
         expect(markup).not.toContain("data-holding");
     });
 
-    it("rings the fresh play in the mover's tint", () => {
-        const board = aBoard({ [CENTER]: aTile({ letter: "W" }) });
+    it("frames the fresh play once, in the mover's tint", () => {
+        const board = aBoard({ [CENTER]: aTile({ letter: "W" }), [CENTER + 1]: aTile({ letter: "Ó" }) });
         const markup = renderToStaticMarkup(
             <Board
                 {...PASSIVE}
                 board={board}
-                fresh={new Map([[CENTER, { ordinal: 0, waving: false }]])}
-                freshTint="#c95b79"
+                fresh={
+                    new Map([
+                        [CENTER, { ordinal: 0, waving: false }],
+                        [CENTER + 1, { ordinal: 1, waving: false }],
+                    ])
+                }
+                freshFrame={{ row: 7, column: 7, rows: 1, columns: 2 }}
+                freshTint="#af4a54"
             />,
         );
+        expect(markup).toContain("--fresh:#af4a54");
+        expect(markup.match(/board-fresh/g)).toHaveLength(1);
+        expect(markup).toContain("--frame-row:7");
+        expect(markup).toContain("--frame-column:7");
+        expect(markup).toContain("--frame-rows:1");
+        expect(markup).toContain("--frame-columns:2");
         expect(markup).toContain('data-fresh="true"');
-        expect(markup).toContain("--fresh:#c95b79");
         expect(markup).not.toContain("data-waving");
     });
 
@@ -146,7 +158,7 @@ describe("Board", () => {
                         [CENTER + 1, { ordinal: 1, waving: true }],
                     ])
                 }
-                freshTint="#c95b79"
+                freshTint="#af4a54"
             />,
         );
         expect(markup).toContain('data-waving="true"');

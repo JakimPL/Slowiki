@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { BEFORE_ANY_TURN, freshMarks } from "../../../src/play/story/fresh";
+import { BEFORE_ANY_TURN, freshFrame, freshMarks } from "../../../src/play/story/fresh";
 import { aPlayRecord } from "../../fixtures/positions";
 
 const MY_SEAT = 0;
 const OPPONENT = 1;
+const SIZE = 15;
 
 describe("freshMarks", () => {
     it("numbers the played squares along the reading of the word", () => {
@@ -42,5 +43,26 @@ describe("freshMarks", () => {
 
     it("marks nothing before the first play", () => {
         expect(freshMarks(null, MY_SEAT, BEFORE_ANY_TURN).size).toBe(0);
+    });
+});
+
+describe("freshFrame", () => {
+    it("spans the played squares from end to end along a row", () => {
+        const play = aPlayRecord({ indices: [114, 112, 113] });
+        expect(freshFrame(play, SIZE)).toEqual({ row: 7, column: 7, rows: 1, columns: 3 });
+    });
+
+    it("spans a column the same way", () => {
+        const play = aPlayRecord({ indices: [112, 127, 142] });
+        expect(freshFrame(play, SIZE)).toEqual({ row: 7, column: 7, rows: 3, columns: 1 });
+    });
+
+    it("reaches over the standing letters a play hooks through", () => {
+        const play = aPlayRecord({ indices: [112, 115] });
+        expect(freshFrame(play, SIZE)).toEqual({ row: 7, column: 7, rows: 1, columns: 4 });
+    });
+
+    it("frames nothing before the first play", () => {
+        expect(freshFrame(null, SIZE)).toBeNull();
     });
 });

@@ -179,6 +179,7 @@ describe("Table", () => {
         );
         expect(markup).toContain('data-fresh="true"');
         expect(markup).toContain('data-waving="true"');
+        expect(markup).toContain("board-fresh");
     });
 
     it("keeps the desk away from spectators", () => {

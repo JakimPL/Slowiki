@@ -589,15 +589,21 @@ select {
 }
 
 .board {
-    --cell: calc((100cqw - (var(--cells) - 1) * 1px) / var(--cells));
+    --board-gap: 1px;
+    --board-padding: 3px;
+    --tile-share: 0.9;
+    --letter-share: 0.5;
+    --cell: calc((100cqw - (var(--cells) - 1) * var(--board-gap)) / var(--cells));
+    --tile-side: calc(var(--cell) * var(--tile-share));
 
+    position: relative;
     display: grid;
     grid-template-columns: repeat(var(--cells), 1fr);
     grid-auto-rows: 1fr;
-    gap: 1px;
+    gap: var(--board-gap);
     aspect-ratio: 1;
     width: min(100cqw, 100cqh);
-    padding: 3px;
+    padding: var(--board-padding);
     border: 2px solid var(--board-frame);
     border-radius: 8px;
     background: var(--board-grid);
@@ -643,11 +649,11 @@ select {
 
 .cell .tile {
     position: absolute;
-    inset: 0;
-    border-radius: calc(var(--cell) / 7);
-    font-size: calc(var(--cell) * 0.46);
+    inset: calc((var(--cell) - var(--tile-side)) / 2);
+    border-radius: calc(var(--tile-side) / 7);
+    font-size: calc(var(--tile-side) * var(--letter-share));
     box-shadow:
-        inset 0 calc(var(--cell) / -7) 0 var(--band, transparent),
+        inset 0 calc(var(--tile-side) / -7) 0 var(--band, transparent),
         0 1px 2px rgb(0 0 0 / 25%);
 }
 
@@ -787,11 +793,20 @@ select {
     z-index: 1;
 }
 
-.cell[data-fresh] {
-    outline: 2px solid var(--fresh, var(--accent-primary));
-    outline-offset: -1px;
+.cell[data-fresh][data-waving] {
     z-index: 1;
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--fresh, var(--accent-primary)) 30%, transparent);
+}
+
+.board-fresh {
+    position: absolute;
+    top: calc(var(--board-padding) + var(--frame-row) * (var(--cell) + var(--board-gap)));
+    left: calc(var(--board-padding) + var(--frame-column) * (var(--cell) + var(--board-gap)));
+    width: calc(var(--frame-columns) * var(--cell) + (var(--frame-columns) - 1) * var(--board-gap));
+    height: calc(var(--frame-rows) * var(--cell) + (var(--frame-rows) - 1) * var(--board-gap));
+    border-radius: calc(var(--cell) / 6);
+    outline: 2px solid var(--fresh, var(--accent-primary));
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--fresh, var(--accent-primary)) 24%, transparent);
+    pointer-events: none;
 }
 
 .docket {
@@ -1125,7 +1140,7 @@ select {
     outline: 3px solid var(--accent-primary);
     outline-offset: 0;
     box-shadow:
-        inset 0 calc(var(--cell) / -7) 0 var(--band, transparent),
+        inset 0 calc(var(--tile-side) / -7) 0 var(--band, transparent),
         0 4px 10px rgb(0 0 0 / 35%);
     transform: scale(1.14);
 }
@@ -1154,7 +1169,7 @@ select {
     100% {
         transform: translateY(0);
         box-shadow:
-            inset 0 calc(var(--cell) / -7) 0 var(--band, transparent),
+            inset 0 calc(var(--tile-side) / -7) 0 var(--band, transparent),
             0 1px 2px rgb(0 0 0 / 25%);
     }
 
@@ -1163,7 +1178,7 @@ select {
     27.5% {
         transform: translateY(-22%);
         box-shadow:
-            inset 0 calc(var(--cell) / -7) 0 var(--band, transparent),
+            inset 0 calc(var(--tile-side) / -7) 0 var(--band, transparent),
             0 calc(var(--cell) / 9) calc(var(--cell) / 6) rgb(0 0 0 / 32%);
     }
 }

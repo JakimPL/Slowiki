@@ -1,8 +1,8 @@
 import type { CSSProperties, ReactElement } from "react";
 
 import type { Board as BoardView, Tile } from "../../api/views";
-import { columnOf, rowOf } from "../../play/board/board";
-import type { FreshMark } from "../../play/story/fresh";
+import { centerIndex, columnOf, rowOf } from "../../play/board/board";
+import type { FreshFrame, FreshMark } from "../../play/story/fresh";
 import type { TileBindings } from "../input/bindings";
 import type { HoldBinding } from "../input/useHold";
 import { HOLD_MILLISECONDS } from "../input/useHold";
@@ -16,13 +16,12 @@ export interface BoardProps {
     readonly targeting: boolean;
     readonly dropCell: number | null;
     readonly fresh: ReadonlyMap<number, FreshMark>;
+    readonly freshFrame: FreshFrame | null;
     readonly freshTint: string | null;
     readonly onLay: ((cell: number) => void) | null;
     readonly bindings: TileBindings | null;
     readonly hold: HoldBinding | null;
 }
-
-const CENTER_DIVISOR = 2;
 
 export function Board({
     board,
@@ -31,13 +30,13 @@ export function Board({
     targeting,
     dropCell,
     fresh,
+    freshFrame,
     freshTint,
     onLay,
     bindings,
     hold,
 }: BoardProps): ReactElement {
-    const middle = Math.floor(board.size / CENTER_DIVISOR);
-    const center = middle * board.size + middle;
+    const center = centerIndex(board.size);
     const style: CSSProperties = { "--cells": board.size };
     if (freshTint !== null) {
         style["--fresh"] = freshTint;
@@ -76,6 +75,16 @@ export function Board({
                     />
                 );
             })}
+            {freshFrame === null ? null : <div className="board-fresh" style={frameStyleFor(freshFrame)} />}
         </div>
     );
+}
+
+function frameStyleFor(frame: FreshFrame): CSSProperties {
+    return {
+        "--frame-row": frame.row,
+        "--frame-column": frame.column,
+        "--frame-rows": frame.rows,
+        "--frame-columns": frame.columns,
+    };
 }

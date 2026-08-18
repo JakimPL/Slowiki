@@ -20,8 +20,8 @@ describe("PLAYER_TINTS", () => {
 
 describe("tintFor", () => {
     it("assigns seats in order and wraps past eight", () => {
-        expect(tintFor(0).name).toBe("rose");
+        expect(tintFor(0).name).toBe("carmine");
         expect(tintFor(7).name).toBe("graphite");
-        expect(tintFor(8).name).toBe("rose");
+        expect(tintFor(8).name).toBe("carmine");
     });
 });

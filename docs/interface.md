@@ -9,8 +9,8 @@ by amending it. The palette is the *Lniany* proposition chosen from the phase-0 
 1. **The board is the hero.** Every other region yields space to a maximally large, always-square
    board, and every region reserves the height its rules demand rather than the height its current
    contents happen to need, so the board keeps one size from the first tile of a turn to the last.
-2. **Hue says who; strength says whose turn.** Player tints color chrome: plaques, rings, fresh-play
-   highlights, log entries. The four Literaki categories color tile faces and premium squares. The
+2. **Hue says who; strength says whose turn.** Player tints color chrome: plaques, rings, the frame
+   around a fresh play, log entries. The four Literaki categories color tile faces and premium squares. The
    two palettes stay on separate surfaces, and printed values accompany every color.
 3. **State over toasts.** Whose turn it is, a queued premove, a staged exchange, a running clock —
    each is a persistent visual state that survives looking away.
@@ -56,9 +56,10 @@ feedback line, rack, tray, controls, and the docket at its foot.
   through every turn.
 - **Board** — 15 × 15 (size is data), premium squares whose `×3` / `2×` / `3×` glyph is printed as
   a watermark of its own fill — legible when read, quiet at a glance — the center star at full
-  strength over whatever square it falls on, the last play ringed and haloed in the mover's tint and
-  waving until the player has seen it, pending tiles raised above their neighbors with a solid
-  accent ring, premove ghosts at reduced opacity in the premove accent.
+  strength over whatever square it falls on, every tile keeping a margin inside its square so a word
+  reads as a row of tiles, the last play framed end to end in the mover's tint and waving until the
+  player has seen it, pending tiles raised above their neighbors with a solid accent ring, premove
+  ghosts at reduced opacity in the premove accent.
 - **Feedback line** — one fixed-height slot showing, in order of precedence: the refusal or
   notice sentence, the formed-word chips (points and status dot each) while a draft stands, the
   returned-premove explanation, the queued-premove chip with its Cancel action, the connection
@@ -177,13 +178,14 @@ sheet with the scheme's own alphabet.
   exchange budget and the bag minimum.
 - **Connection**: `joining` · `live` · `resuming` · `lost`, shown as a quiet chip in the status
   strip.
-- **Fresh play**: the latest play's tiles carry the mover's tint ring and a soft halo of the same
-  tint until the next play. While the play is still someone else's news, its tiles bob in place one
-  after another along the word — three hops, a few seconds of quiet, again — and settle for good at
-  the first sign the player has seen them: a press anywhere on the board, or any tile moved at the
-  desk. A play of your own arrives already seen. The `calm` motion setting and a device asking for
-  reduced motion keep the ring and the halo and leave the tiles still. The move log keeps the longer
-  memory.
+- **Fresh play**: one frame in the mover's tint, haloed in the same tint, drawn around the latest
+  play as a whole — a single rectangle from its first new letter to its last, taking in the standing
+  letters the play hooked through — and it stands until the next play. While the play is still
+  someone else's news, its tiles bob in place one after another along the word — three hops, a few
+  seconds of quiet, again — and settle for good at the first sign the player has seen them: a press
+  anywhere on the board, or any tile moved at the desk. A play of your own arrives already seen. The
+  `calm` motion setting and a device asking for reduced motion keep the frame and the halo and leave
+  the tiles still. The move log keeps the longer memory.
 
 ## Feedback policy
 
@@ -240,7 +242,7 @@ says whose turn.
 
 | tint | value |
 |---|---|
-| rose | `#C95B79` |
+| carmine | `#AF4A54` |
 | coral | `#D07A4F` |
 | copper | `#A8703D` |
 | teal | `#2FA08C` |

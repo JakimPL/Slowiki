@@ -3,10 +3,10 @@ export interface Tint {
     readonly hex: string;
 }
 
-const ROSE: Tint = { name: "rose", hex: "#C95B79" };
+const CARMINE: Tint = { name: "carmine", hex: "#AF4A54" };
 
 export const PLAYER_TINTS: readonly Tint[] = [
-    ROSE,
+    CARMINE,
     { name: "coral", hex: "#D07A4F" },
     { name: "copper", hex: "#A8703D" },
     { name: "teal", hex: "#2FA08C" },
@@ -17,5 +17,5 @@ export const PLAYER_TINTS: readonly Tint[] = [
 ];
 
 export function tintFor(seat: number): Tint {
-    return PLAYER_TINTS[seat % PLAYER_TINTS.length] ?? ROSE;
+    return PLAYER_TINTS[seat % PLAYER_TINTS.length] ?? CARMINE;
 }
