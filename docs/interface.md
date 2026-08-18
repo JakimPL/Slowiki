@@ -54,8 +54,8 @@ feedback line, rack, tray, controls, and the docket at its foot.
   clock line under the name: the thinking seat counts down live, everyone else shows the budget
   they have banked, and a seat without a clock of its own holds a dash so the row keeps its height
   through every turn.
-- **Board** — 15 × 15 (size is data), premium squares with `×3` / `2×` / `3×` glyphs, the center
-  star, fresh-play rings in the mover's tint, pending tiles raised above their neighbours with a
+- **Board** — 15 × 15 (size is data), premium squares whose `×3` / `2×` / `3×` glyph is printed as
+  a watermark of its own fill — legible when read, quiet at a glance — the center star, fresh-play rings in the mover's tint, pending tiles raised above their neighbours with a
   solid accent ring, premove ghosts at reduced opacity in the premove accent.
 - **Feedback line** — one fixed-height slot showing, in order of precedence: the refusal or
   notice sentence, the formed-word chips (points and status dot each) while a draft stands, the
@@ -198,14 +198,21 @@ tile side, the category band ≈ 1/7 of the board-tile side, hairline grid of 1 
 least 40 px wide, board cells degrade to a 20 px floor.
 
 Token vocabulary (per variant): `chrome` (surface, panel, edge, text, muted) · `board` (surface,
-grid, frame, star) · `premiums.word_2/word_3/letter_2/letter_3` (fill, label) ·
+grid, frame, star, premium_label_share) · `premiums.word_2/word_3/letter_2/letter_3` (fill, label) ·
 `category_premiums.yellow/green/blue/red` (fill, label) · `tiles` (face, edge, text, face_tint;
 band per category) · `accents` (primary, on_primary, danger, success, premove).
 
 Each category's tile face is derived, per variant, as `mix(tiles.face, tiles.band[category],
 tiles.face_tint)` — a linear per-channel sRGB blend — so tiles carry a wash of the color they hold.
-Every consumer of the tokens (the CSS custom properties, the asset generator) derives the faces
-with the same formula.
+
+The premium glyph is derived by the same blend: `mix(premium.fill, premium.label,
+board.premium_label_share)`. The authored `label` stays the ink that belongs on each fill, and one
+number per variant says how much of it to print, so the board holds its multipliers as a watermark
+readable on inspection and unobtrusive at a glance. Both games and every layout follow the one
+number.
+
+Every consumer of the tokens (the CSS custom properties, the asset generator) derives faces and
+glyphs with the same formulas.
 
 ### Player tints
 
@@ -236,6 +243,7 @@ says whose turn.
 | board.grid | `#D9CEB6` | `#453B2B` |
 | board.frame | `#7A5F44` | `#4A3A29` |
 | board.star | `#8F3A24` | `#E8967E` |
+| board.premium_label_share | `0.32` | `0.32` |
 | premiums.word_2 | `#D8CBA8` / `#6C5B39` | `#4A4030` / `#C8B98F` |
 | premiums.word_3 | `#7B6142` / `#F3EBDA` | `#6B5334` / `#EFE3C8` |
 | premiums.letter_2 | `#C4D5DE` / `#38607A` | `#24394A` / `#8FC0DE` |
@@ -258,7 +266,7 @@ says whose turn.
 | accents.success | `#3F7A4B` | `#7FBF8C` |
 | accents.premove | `#6D5E8E` | `#8E7FB5` |
 
-Premium cells carry a fill and a label glyph; tiles keep a light face in both variants — physical
+Premium cells carry a fill and a glyph washed toward it; tiles keep a light face in both variants — physical
 tiles under lamplight — with the category as an enamel band along the bottom edge and a
 `face_tint` wash of the band color across the face. A blank belongs to no category, so its band is
 derived as the midpoint of `tiles.edge` and `chrome.muted` and washes the face through the same

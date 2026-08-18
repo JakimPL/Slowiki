@@ -36,13 +36,14 @@ export function declarationsFor(theme: ThemeTokens): readonly string[] {
         `--accent-success: ${theme.accents.success};`,
         `--accent-premove: ${theme.accents.premove};`,
     ];
+    const share = theme.board.premium_label_share;
     for (const [name, premium] of Object.entries(theme.premiums)) {
         declarations.push(`--premium-${slugOf(name)}-fill: ${premium.fill};`);
-        declarations.push(`--premium-${slugOf(name)}-label: ${premium.label};`);
+        declarations.push(`--premium-${slugOf(name)}-glyph: ${mixHex(premium.fill, premium.label, share)};`);
     }
     for (const [category, premium] of Object.entries(theme.category_premiums)) {
         declarations.push(`--category-${slugOf(category)}-fill: ${premium.fill};`);
-        declarations.push(`--category-${slugOf(category)}-label: ${premium.label};`);
+        declarations.push(`--category-${slugOf(category)}-glyph: ${mixHex(premium.fill, premium.label, share)};`);
     }
     for (const [category, band] of Object.entries(theme.tiles.bands)) {
         declarations.push(`--band-${slugOf(category)}: ${band};`);

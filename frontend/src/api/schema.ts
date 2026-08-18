@@ -223,6 +223,8 @@ export interface components {
             frame: string;
             /** Grid */
             grid: string;
+            /** Premium Label Share */
+            premium_label_share: number;
             /** Star */
             star: string;
             /** Surface */

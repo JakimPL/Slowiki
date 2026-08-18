@@ -610,7 +610,7 @@ select {
     justify-content: center;
     border-radius: inherit;
     background: var(--fill);
-    color: var(--label);
+    color: var(--glyph);
     font-size: calc(var(--cell) * 0.34);
     font-style: normal;
     font-weight: 700;

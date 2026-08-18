@@ -1,5 +1,6 @@
 from typing import Final
 
+from wordassets.colors import mixed_hex
 from wordassets.drawing.node import Element
 from wordassets.drawing.shapes import glyph, polygon, rect, svg
 from wordassets.geometry import star_points
@@ -86,7 +87,7 @@ def _cell_shapes(
                 x + _CELL / 2,
                 y + _CELL * _LABEL_DROP_RATIO,
                 _premium_label(bonus),
-                fill=tokens.label,
+                fill=_glyph_color(tokens, theme),
                 size=_CELL * _LABEL_SIZE_RATIO,
                 weight=_LABEL_WEIGHT,
                 anchor="middle",
@@ -101,6 +102,10 @@ def _premium_tokens(bonus: Bonus, theme: ThemeTokens) -> PremiumTokens:
 
     family = "word" if bonus.kind == BonusKind.WORD_MULTIPLIER else "letter"
     return theme.premiums[f"{family}_{bonus.multiplier}"]
+
+
+def _glyph_color(tokens: PremiumTokens, theme: ThemeTokens) -> str:
+    return mixed_hex(tokens.fill, tokens.label, theme.board.premium_label_share)
 
 
 def _premium_label(bonus: Bonus) -> str:

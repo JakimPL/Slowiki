@@ -122,14 +122,14 @@ function premiumStyleFor(bonus: Bonus): CSSProperties {
         const slug = slugOf(bonus.category ?? "");
         return {
             "--fill": `var(--category-${slug}-fill)`,
-            "--label": `var(--category-${slug}-label)`,
+            "--glyph": `var(--category-${slug}-glyph)`,
         };
     }
     const family = bonus.kind === "word_multiplier" ? "word" : "letter";
     const strength = String(bonus.multiplier);
     return {
         "--fill": `var(--premium-${family}-${strength}-fill)`,
-        "--label": `var(--premium-${family}-${strength}-label)`,
+        "--glyph": `var(--premium-${family}-${strength}-glyph)`,
     };
 }
 

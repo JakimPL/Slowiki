@@ -3,7 +3,13 @@ import type { StyleTokens, ThemeTokens } from "../../src/api/views";
 function aTheme(surface: string): ThemeTokens {
     return {
         chrome: { surface, panel: "#e9e1cd", edge: "#d8cdb2", text: "#2b2419", muted: "#7a6c55" },
-        board: { surface: "#ede5d1", grid: "#d9ceb6", frame: "#7a5f44", star: "#8f3a24" },
+        board: {
+            surface: "#ede5d1",
+            grid: "#d9ceb6",
+            frame: "#7a5f44",
+            star: "#8f3a24",
+            premium_label_share: 0.32,
+        },
         premiums: {
             word_2: { fill: "#d8cba8", label: "#6c5b39" },
             word_3: { fill: "#7b6142", label: "#f3ebda" },

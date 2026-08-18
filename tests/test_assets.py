@@ -102,7 +102,7 @@ def _token_palette(theme: ThemeTokens) -> set[str]:
     }
     for premium in list(theme.premiums.values()) + list(theme.category_premiums.values()):
         palette.add(premium.fill)
-        palette.add(premium.label)
+        palette.add(mixed_hex(premium.fill, premium.label, theme.board.premium_label_share))
     for band in theme.tiles.bands.values():
         palette.add(band)
         palette.add(mixed_hex(theme.tiles.face, band, theme.tiles.face_tint))
