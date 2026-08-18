@@ -1,10 +1,10 @@
 import type { CompanyView, Tile } from "../api/views";
-import type { Connection } from "../play/connection";
-import type { ExchangeBlock } from "../play/exchange";
-import type { Guidance } from "../play/guidance";
-import type { LogEntry } from "../play/log";
-import type { PremoveKind } from "../play/premoves";
-import type { Story } from "../play/story";
+import type { Connection } from "../play/live/connection";
+import type { Guidance } from "../play/story/guidance";
+import type { LogEntry } from "../play/story/log";
+import type { Story } from "../play/story/story";
+import type { ExchangeBlock } from "../play/tiles/exchange";
+import type { PremoveKind } from "../play/tiles/premoves";
 
 export const PRODUCT_NAME = "Literabble";
 export const PRODUCT_TAGLINE = "A configurable Literaki and Scrabble table.";

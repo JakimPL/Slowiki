@@ -2,11 +2,11 @@ import type { ReactElement } from "react";
 import { useEffect, useState } from "react";
 
 import { readStyle } from "./api/client";
-import { useNotices } from "./play/useNotices";
-import type { Arrival } from "./play/useStanding";
-import { useStanding } from "./play/useStanding";
-import { useTable } from "./play/useTable";
-import { Home } from "./table/Home";
+import { useNotices } from "./play/device/useNotices";
+import { useTable } from "./play/live/useTable";
+import type { Arrival } from "./play/seats/useStanding";
+import { useStanding } from "./play/seats/useStanding";
+import { Home } from "./table/arrive/Home";
 import { JOINING_CAPTION, STYLE_FALLBACK_NOTE } from "./table/strings";
 import { Table } from "./table/Table";
 import { applyTheme } from "./table/theme";

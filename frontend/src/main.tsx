@@ -4,7 +4,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import { App } from "./App";
-import { appliedMode, storedMode } from "./play/mode";
+import { appliedMode, storedMode } from "./play/device/mode";
 
 appliedMode(storedMode(window.localStorage), document.documentElement);
 

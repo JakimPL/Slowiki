@@ -13,7 +13,12 @@ from wordcore.rules.words.placement import Placement, board_with_placements
 from wordcore.tiles.tile import Tile
 
 OUTPUT: Final[Path] = (
-    Path(__file__).resolve().parents[1] / "frontend" / "tests" / "parity" / "scoring.json"
+    Path(__file__).resolve().parents[1]
+    / "frontend"
+    / "tests"
+    / "fixtures"
+    / "parity"
+    / "scoring.json"
 )
 
 _SEED: Final = 20260817
