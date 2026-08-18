@@ -1,4 +1,4 @@
-.PHONY: install check test play serve types assets frontend build dictionary
+.PHONY: install check test play serve types parity assets frontend build dictionary
 
 install:
 	uv sync --all-extras --all-groups
@@ -27,6 +27,9 @@ serve:
 types:
 	uv run python scripts/openapi.py
 	npm run types --workspace frontend
+
+parity:
+	uv run python -m scripts.parity
 
 assets:
 	uv run python -m wordassets.cli build --output assets --docs docs/media
