@@ -25,7 +25,7 @@
     --tile-face-blue: color-mix(in srgb, var(--tile-face) 75%, var(--band-blue) 25%);
     --tile-face-red: color-mix(in srgb, var(--tile-face) 75%, var(--band-red) 25%);
     --motion-breath: plaque-breath;
-    --motion-fresh: fresh-pop;
+    --motion-fresh: fresh-wave;
     --motion-hold: cell-hold;
     --motion-lift: 120ms;
 }
@@ -645,7 +645,7 @@ select {
     position: absolute;
     inset: 0;
     border-radius: calc(var(--cell) / 7);
-    font-size: calc(var(--cell) * 0.52);
+    font-size: calc(var(--cell) * 0.46);
     box-shadow:
         inset 0 calc(var(--cell) / -7) 0 var(--band, transparent),
         0 1px 2px rgb(0 0 0 / 25%);
@@ -791,17 +791,7 @@ select {
     outline: 2px solid var(--fresh, var(--accent-primary));
     outline-offset: -1px;
     z-index: 1;
-    animation: var(--motion-fresh) 360ms ease;
-}
-
-@keyframes fresh-pop {
-    0% {
-        transform: scale(1.12);
-    }
-
-    100% {
-        transform: scale(1);
-    }
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--fresh, var(--accent-primary)) 30%, transparent);
 }
 
 .docket {
@@ -1146,6 +1136,36 @@ select {
     outline-color: transparent;
     box-shadow: none;
     transform: none;
+}
+
+.cell[data-fresh][data-waving] .tile {
+    animation-name: var(--motion-fresh);
+    animation-duration: 5.4s;
+    animation-timing-function: ease-in-out;
+    animation-delay: calc(var(--ordinal, 0) * 110ms);
+    animation-iteration-count: infinite;
+}
+
+@keyframes fresh-wave {
+    0%,
+    11%,
+    22%,
+    33%,
+    100% {
+        transform: translateY(0);
+        box-shadow:
+            inset 0 calc(var(--cell) / -7) 0 var(--band, transparent),
+            0 1px 2px rgb(0 0 0 / 25%);
+    }
+
+    5.5%,
+    16.5%,
+    27.5% {
+        transform: translateY(-22%);
+        box-shadow:
+            inset 0 calc(var(--cell) / -7) 0 var(--band, transparent),
+            0 calc(var(--cell) / 9) calc(var(--cell) / 6) rgb(0 0 0 / 32%);
+    }
 }
 
 .words {

@@ -26,6 +26,7 @@ import { guidanceFor } from "../play/story/guidance";
 import { remainingTally } from "../play/story/remaining";
 import type { StoryKind } from "../play/story/story";
 import { storyFor } from "../play/story/story";
+import { useFreshPlay } from "../play/story/useFreshPlay";
 import { arrangedTiles, shuffledArrangement } from "../play/tiles/arrangement";
 import type { DeskEffect } from "../play/tiles/desk";
 import type { Draft } from "../play/tiles/draft";
@@ -133,9 +134,12 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
             setReturnedSeen(returned.seq);
         }
     };
+    const lastPlay = state.view.last_play;
+    const { marks: fresh, acknowledge: noticeLastPlay } = useFreshPlay(lastPlay, mySeat);
     const perform = (effect: DeskEffect): void => {
         clear();
         dismissReturned();
+        noticeLastPlay();
         performDesk(effect);
     };
     const [blankChoice, setBlankChoice] = useState<BlankChoice | null>(null);
@@ -158,8 +162,6 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
     );
     useAlerts(story.kind === "acting", PRODUCT_NAME, settings.notices, YOUR_TURN_CAPTION);
 
-    const lastPlay = state.view.last_play;
-    const freshCells = new Set(lastPlay?.indices ?? []);
     const freshTint = lastPlay === null ? null : tintFor(lastPlay.player).hex;
     const clocks = seatClocks(state.company, clock, remaining, state.view.phase === "turn");
     const tally = description === null ? null : remainingTally(description, state.view.board, rack);
@@ -418,7 +420,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
                 clocks={clocks}
                 clocked={clock !== null}
             />
-            <div className="board-region">
+            <div className="board-region" onPointerDown={noticeLastPlay}>
                 <Board
                     board={state.view.board}
                     pending={pendingFacesOf(desk.draft)}
@@ -427,7 +429,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
                     dropCell={
                         carry?.target?.kind === "cell" && !ghosts.has(carry.target.cell) ? carry.target.cell : null
                     }
-                    fresh={freshCells}
+                    fresh={fresh}
                     freshTint={freshTint}
                     onLay={mayAct ? layLifted : null}
                     bindings={atDesk ? bindings : null}

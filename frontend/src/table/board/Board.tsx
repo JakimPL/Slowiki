@@ -2,6 +2,7 @@ import type { CSSProperties, ReactElement } from "react";
 
 import type { Board as BoardView, Tile } from "../../api/views";
 import { columnOf, rowOf } from "../../play/board/board";
+import type { FreshMark } from "../../play/story/fresh";
 import type { TileBindings } from "../input/bindings";
 import type { HoldBinding } from "../input/useHold";
 import { HOLD_MILLISECONDS } from "../input/useHold";
@@ -14,7 +15,7 @@ export interface BoardProps {
     readonly ghosts: ReadonlyMap<number, Tile>;
     readonly targeting: boolean;
     readonly dropCell: number | null;
-    readonly fresh: ReadonlySet<number>;
+    readonly fresh: ReadonlyMap<number, FreshMark>;
     readonly freshTint: string | null;
     readonly onLay: ((cell: number) => void) | null;
     readonly bindings: TileBindings | null;
@@ -67,7 +68,7 @@ export function Board({
                         ghost={shadowed}
                         target={targeting && tile === null && shown === null && shadowed === null && onLay !== null}
                         drop={dropCell === index}
-                        fresh={fresh.has(index)}
+                        fresh={fresh.get(index) ?? null}
                         label={squareCaption(rowOf(board.size, index), columnOf(board.size, index))}
                         onLay={onLay}
                         bindings={bindings}

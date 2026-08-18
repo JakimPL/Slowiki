@@ -178,6 +178,7 @@ describe("Table", () => {
             </SettingsProvider>,
         );
         expect(markup).toContain('data-fresh="true"');
+        expect(markup).toContain('data-waving="true"');
     });
 
     it("keeps the desk away from spectators", () => {

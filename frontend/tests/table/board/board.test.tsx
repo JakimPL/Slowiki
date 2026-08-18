@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
 import type { Tile } from "../../../src/api/views";
+import type { FreshMark } from "../../../src/play/story/fresh";
 import { Board } from "../../../src/table/board/Board";
 import { stubBindings } from "../../fixtures/bindings";
 import { aBoard, aTile } from "../../fixtures/positions";
@@ -12,7 +13,7 @@ const PASSIVE = {
     ghosts: new Map<number, Tile>(),
     targeting: false,
     dropCell: null,
-    fresh: new Set<number>(),
+    fresh: new Map<number, FreshMark>(),
     freshTint: null,
     onLay: null,
     bindings: null,
@@ -121,9 +122,35 @@ describe("Board", () => {
     it("rings the fresh play in the mover's tint", () => {
         const board = aBoard({ [CENTER]: aTile({ letter: "W" }) });
         const markup = renderToStaticMarkup(
-            <Board {...PASSIVE} board={board} fresh={new Set([CENTER])} freshTint="#c95b79" />,
+            <Board
+                {...PASSIVE}
+                board={board}
+                fresh={new Map([[CENTER, { ordinal: 0, waving: false }]])}
+                freshTint="#c95b79"
+            />,
         );
         expect(markup).toContain('data-fresh="true"');
         expect(markup).toContain("--fresh:#c95b79");
+        expect(markup).not.toContain("data-waving");
+    });
+
+    it("carries each waving tile its place along the play", () => {
+        const board = aBoard({ [CENTER]: aTile({ letter: "W" }), [CENTER + 1]: aTile({ letter: "Ó" }) });
+        const markup = renderToStaticMarkup(
+            <Board
+                {...PASSIVE}
+                board={board}
+                fresh={
+                    new Map([
+                        [CENTER, { ordinal: 0, waving: true }],
+                        [CENTER + 1, { ordinal: 1, waving: true }],
+                    ])
+                }
+                freshTint="#c95b79"
+            />,
+        );
+        expect(markup).toContain('data-waving="true"');
+        expect(markup).toContain("--ordinal:0");
+        expect(markup).toContain("--ordinal:1");
     });
 });

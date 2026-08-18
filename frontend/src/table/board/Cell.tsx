@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactElement } from "react";
 
 import type { Bonus, Tile } from "../../api/views";
+import type { FreshMark } from "../../play/story/fresh";
 import type { TileBindings } from "../input/bindings";
 import type { HoldBinding } from "../input/useHold";
 import { slugOf } from "../theme";
@@ -16,7 +17,7 @@ export interface CellProps {
     readonly ghost: Tile | null;
     readonly target: boolean;
     readonly drop: boolean;
-    readonly fresh: boolean;
+    readonly fresh: FreshMark | null;
     readonly label: string;
     readonly onLay: ((cell: number) => void) | null;
     readonly bindings: TileBindings | null;
@@ -44,8 +45,10 @@ export function Cell({
         return (
             <div
                 className="cell"
+                style={fresh === null ? undefined : waveStyleFor(fresh)}
                 data-drop={drop ? "true" : undefined}
-                data-fresh={fresh ? "true" : undefined}
+                data-fresh={fresh === null ? undefined : "true"}
+                data-waving={fresh?.waving === true ? "true" : undefined}
                 data-holding={hold?.held === cell ? "true" : undefined}
                 onPointerDown={
                     hold === null
@@ -107,14 +110,30 @@ export function Cell({
 }
 
 function ground(bonus: Bonus | null, star: boolean): ReactElement | null {
-    if (bonus !== null) {
+    if (star) {
         return (
-            <i className="cell-premium" style={premiumStyleFor(bonus)}>
-                {star ? STAR_GLYPH : glyphFor(bonus)}
-            </i>
+            <>
+                {premiumFill(bonus)}
+                <i className="cell-star">{STAR_GLYPH}</i>
+            </>
         );
     }
-    return star ? <i className="cell-star">{STAR_GLYPH}</i> : null;
+    if (bonus === null) {
+        return null;
+    }
+    return (
+        <i className="cell-premium" style={premiumStyleFor(bonus)}>
+            {glyphFor(bonus)}
+        </i>
+    );
+}
+
+function waveStyleFor(fresh: FreshMark): CSSProperties {
+    return { "--ordinal": fresh.ordinal };
+}
+
+function premiumFill(bonus: Bonus | null): ReactElement | null {
+    return bonus === null ? null : <i className="cell-premium" style={premiumStyleFor(bonus)} />;
 }
 
 function premiumStyleFor(bonus: Bonus): CSSProperties {

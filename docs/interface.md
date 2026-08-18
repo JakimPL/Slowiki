@@ -55,8 +55,10 @@ feedback line, rack, tray, controls, and the docket at its foot.
   they have banked, and a seat without a clock of its own holds a dash so the row keeps its height
   through every turn.
 - **Board** — 15 × 15 (size is data), premium squares whose `×3` / `2×` / `3×` glyph is printed as
-  a watermark of its own fill — legible when read, quiet at a glance — the center star, fresh-play rings in the mover's tint, pending tiles raised above their neighbours with a
-  solid accent ring, premove ghosts at reduced opacity in the premove accent.
+  a watermark of its own fill — legible when read, quiet at a glance — the center star at full
+  strength over whatever square it falls on, the last play ringed and haloed in the mover's tint and
+  waving until the player has seen it, pending tiles raised above their neighbors with a solid
+  accent ring, premove ghosts at reduced opacity in the premove accent.
 - **Feedback line** — one fixed-height slot showing, in order of precedence: the refusal or
   notice sentence, the formed-word chips (points and status dot each) while a draft stands, the
   returned-premove explanation, the queued-premove chip with its Cancel action, the connection
@@ -175,8 +177,13 @@ sheet with the scheme's own alphabet.
   exchange budget and the bag minimum.
 - **Connection**: `joining` · `live` · `resuming` · `lost`, shown as a quiet chip in the status
   strip.
-- **Fresh play**: the latest play's tiles carry the mover's tint ring until the next play; the move
-  log keeps the longer memory.
+- **Fresh play**: the latest play's tiles carry the mover's tint ring and a soft halo of the same
+  tint until the next play. While the play is still someone else's news, its tiles bob in place one
+  after another along the word — three hops, a few seconds of quiet, again — and settle for good at
+  the first sign the player has seen them: a press anywhere on the board, or any tile moved at the
+  desk. A play of your own arrives already seen. The `calm` motion setting and a device asking for
+  reduced motion keep the ring and the halo and leave the tiles still. The move log keeps the longer
+  memory.
 
 ## Feedback policy
 
@@ -219,7 +226,9 @@ The premium glyph is derived by the same blend: `mix(premium.fill, premium.label
 board.premium_label_share)`. The authored `label` stays the ink that belongs on each fill, and one
 number per variant says how much of it to print, so the board holds its multipliers as a watermark
 readable on inspection and unobtrusive at a glance. Both games and every layout follow the one
-number.
+number. The center square is the exception the watermark makes: it keeps its premium fill and prints
+the star in `board.star` at full strength, because where the first word must cross is information the
+player needs at a glance.
 
 Every consumer of the tokens (the CSS custom properties, the asset generator) derives faces and
 glyphs with the same formulas.
