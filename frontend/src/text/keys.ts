@@ -52,6 +52,7 @@ export interface PlainValues {
     readonly "docket.log_play": { readonly points: number; readonly words: string };
     readonly "docket.log_premove_returned": EmptyValues;
     readonly "docket.log_premove_returned_reason": { readonly reason: string };
+    readonly "docket.log_score": { readonly points: number };
     readonly "docket.premove_returned": EmptyValues;
     readonly "docket.premove_returned_reason": { readonly reason: string };
     readonly "docket.remaining_label": EmptyValues;
@@ -113,6 +114,7 @@ export interface PlainValues {
     readonly "words.deepen": EmptyValues;
     readonly "words.failed": EmptyValues;
     readonly "words.label": EmptyValues;
+    readonly "words.open_word": { readonly word: string };
     readonly "words.panel_close": EmptyValues;
     readonly "words.panel_label": { readonly word: string };
     readonly "words.paradigm_back": EmptyValues;
@@ -127,6 +129,7 @@ export interface PlainValues {
     readonly "words.verdict_invalid": EmptyValues;
     readonly "words.verdict_standing": EmptyValues;
     readonly "words.verdict_valid": EmptyValues;
+    readonly "words.words_here": EmptyValues;
 }
 
 export interface PluralValues {

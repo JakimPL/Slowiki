@@ -2,6 +2,7 @@ import type { CSSProperties, ReactElement } from "react";
 
 import type { Bonus, Tile } from "../../api/views";
 import type { TileBindings } from "../input/bindings";
+import type { HoldBinding } from "../input/useHold";
 import { slugOf } from "../theme";
 import { GraspTile } from "../tiles/GraspTile";
 import { TileFace } from "../tiles/TileFace";
@@ -19,6 +20,7 @@ export interface CellProps {
     readonly label: string;
     readonly onLay: ((cell: number) => void) | null;
     readonly bindings: TileBindings | null;
+    readonly hold: HoldBinding | null;
 }
 
 const STAR_GLYPH = "✦";
@@ -36,10 +38,27 @@ export function Cell({
     label,
     onLay,
     bindings,
+    hold,
 }: CellProps): ReactElement {
     if (tile !== null) {
         return (
-            <div className="cell" data-drop={drop ? "true" : undefined} data-fresh={fresh ? "true" : undefined}>
+            <div
+                className="cell"
+                data-drop={drop ? "true" : undefined}
+                data-fresh={fresh ? "true" : undefined}
+                data-holding={hold?.held === cell ? "true" : undefined}
+                onPointerDown={
+                    hold === null
+                        ? undefined
+                        : (): void => {
+                              hold.press(cell);
+                          }
+                }
+                onPointerUp={hold?.release}
+                onPointerCancel={hold?.release}
+                onPointerLeave={hold?.release}
+                onTouchEnd={hold?.consumed}
+            >
                 <TileFace tile={tile} />
             </div>
         );

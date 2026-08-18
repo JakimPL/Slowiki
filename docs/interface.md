@@ -98,8 +98,28 @@ overlay — and reads at two depths.
 The panel holds the word it opened for, so a move arriving from another seat leaves it standing and
 honest. Escape steps the sheet back to the card, the card to closed, and reaches the lift and recall
 vocabulary only after that; the primary action rests while the panel stands. A long paradigm scrolls
-inside the sheet, so the board keeps its size at every depth. The chips are the way in, so the panel is
-available wherever the feedback line stands.
+inside the sheet, so the board keeps its size at every depth.
+
+Three gestures reach the panel:
+
+- **A chip in the feedback line** opens the word the arrangement in progress forms, carrying the verdict
+  the table gave it.
+- **A played word in the move log** opens as a control of its own, so every word the table has accepted
+  stays readable. The log is also the keyboard route into the panel, since it names the words the board
+  carries.
+- **A press and hold on a standing tile** opens the words running through that square. The board answers
+  for what stands on it, and tiles still being arranged answer through their chips, which keeps the hold
+  clear of the drag gesture. The square shows the press building for the length of the hold, so the
+  gesture teaches itself, and a release before the end leaves the board as it was. The hold consumes the
+  press it rides on, so the tap a touch would spawn stops at the tile instead of reaching the panel. The
+  board stands at every viewport, which makes the hold the one way in that survives the compressed
+  portrait layout folding the docket away.
+
+A square where two words cross opens the card with a **word strip** — the pill toggle the odmiana sheet
+uses for readings — so each word is reachable from every tile it owns. The strip stands on the card; the
+sheet keeps the reading strip. The panel prints a score where the score is known, which is the chip and
+the log; a standing word read from the board prints its state alone, since the bonuses under it were
+spent on the turn that played it.
 
 Grammar terms arrive as data in Polish — `rzeczownik`, `mianownik`, `pojedyncza` — and print as they
 arrive. The frame around them is interface text, and the asked word prints in the canonical uppercase the
@@ -108,7 +128,7 @@ tiles carry while base forms and paradigm cells print lowercase.
 ## Gesture vocabulary
 
 One pointer code path serves mouse and touch: press-and-release within 6 px is a tap, further
-travel is a drag. On touch, the carried tile ghosts above the finger and the computed target cell
+travel is a drag, and a press held in place on a standing tile reads the word instead of moving it. On touch, the carried tile ghosts above the finger and the computed target cell
 shows a high-contrast ring. While a tile travels, its resting place dims to a shadow, and the row it
 would join — rack or tray — carries an accent ring with a tile-shaped landing slot at the insertion
 point. The page holds one scale: pinch zoom, double-tap zoom, and the long-press callout stay off, so

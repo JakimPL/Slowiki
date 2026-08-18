@@ -16,6 +16,7 @@ const PASSIVE = {
     freshTint: null,
     onLay: null,
     bindings: null,
+    hold: null,
 };
 
 describe("Board", () => {
@@ -95,6 +96,26 @@ describe("Board", () => {
     it("rings the computed drop cell while carrying", () => {
         const markup = renderToStaticMarkup(<Board {...PASSIVE} board={aBoard()} dropCell={CENTER} />);
         expect(markup).toContain('data-drop="true"');
+    });
+
+    it("announces the hold duration while the board answers for its words", () => {
+        const board = aBoard({ [CENTER]: aTile({ letter: "W" }) });
+        const hold = {
+            held: CENTER,
+            press: () => undefined,
+            release: () => undefined,
+            consumed: () => undefined,
+        };
+        const markup = renderToStaticMarkup(<Board {...PASSIVE} board={board} hold={hold} />);
+        expect(markup).toContain("--hold:450ms");
+        expect(markup).toContain('data-holding="true"');
+    });
+
+    it("leaves standing tiles quiet where the panel is not offered", () => {
+        const board = aBoard({ [CENTER]: aTile({ letter: "W" }) });
+        const markup = renderToStaticMarkup(<Board {...PASSIVE} board={board} />);
+        expect(markup).not.toContain("--hold");
+        expect(markup).not.toContain("data-holding");
     });
 
     it("rings the fresh play in the mover's tint", () => {

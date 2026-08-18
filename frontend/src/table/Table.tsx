@@ -8,6 +8,7 @@ import type { Incoming, Landing, RowRegion } from "../play/board/landing";
 import { incomingOf } from "../play/board/landing";
 import { prospectOf } from "../play/board/prospects";
 import type { DeskSpot } from "../play/board/spot";
+import { standingWordsAt } from "../play/board/standing";
 import { remainingFor, urgencyOf } from "../play/clock/clock";
 import { useCountdown } from "../play/clock/useCountdown";
 import { useAlerts } from "../play/device/useAlerts";
@@ -35,8 +36,9 @@ import { NO_COMMITTED_TILES, queuedPremoveOf, returnedPremoveOf } from "../play/
 import { liftedIdentifier } from "../play/tiles/selection";
 import { trayTilesOf } from "../play/tiles/tray";
 import { useDesk } from "../play/tiles/useDesk";
+import { askedPlayed, askedStanding } from "../play/words/asked";
 import { invalidTextsOf, wordStatusFor } from "../play/words/feedback";
-import { panelStanding } from "../play/words/panel";
+import { askedWord, panelStanding } from "../play/words/panel";
 import { useJudgements } from "../play/words/useJudgements";
 import { useWordPanel } from "../play/words/useWordPanel";
 import { CodeChip } from "./arrive/CodeChip";
@@ -52,6 +54,7 @@ import { carriedTo, isCarry } from "./input/dragging";
 import type { KeyHandlers } from "./input/keys";
 import { boundKeys } from "./input/keys";
 import { targetsFrom } from "./input/targets";
+import { useHold } from "./input/useHold";
 import { LocaleToggle } from "./seats/LocaleToggle";
 import { ModeToggle } from "./seats/ModeToggle";
 import { NoticeToggle } from "./seats/NoticeToggle";
@@ -135,8 +138,23 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
         performDesk(effect);
     };
     const [blankChoice, setBlankChoice] = useState<BlankChoice | null>(null);
-    const { panel, open: openPanel, deepen: deepenPanel, retreat: retreatPanel, close: closePanel } = useWordPanel();
-    const loreAnswer = useLore(panel.chip);
+    const {
+        panel,
+        open: openPanel,
+        choose: choosePanel,
+        deepen: deepenPanel,
+        retreat: retreatPanel,
+        close: closePanel,
+    } = useWordPanel();
+    const asked = askedWord(panel);
+    const loreAnswer = useLore(asked);
+    const hold = useHold(
+        rules.lore
+            ? (cell: number): void => {
+                  openPanel(standingWordsAt(state.view.board, cell).map((word) => askedStanding(word.text)));
+              }
+            : null,
+    );
     useAlerts(story.kind === "acting", PRODUCT_NAME, notices.wanted, YOUR_TURN_CAPTION);
 
     const lastPlay = state.view.last_play;
@@ -184,8 +202,14 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
                 <Words
                     chips={chips}
                     bingo={prospect.bingo ? rules.bingoBonus : 0}
-                    openText={panel.chip?.text ?? null}
-                    onOpen={rules.lore ? openPanel : null}
+                    openText={asked?.text ?? null}
+                    onOpen={
+                        rules.lore
+                            ? (chip): void => {
+                                  openPanel([chip]);
+                              }
+                            : null
+                    }
                 />
             );
         }
@@ -405,6 +429,7 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
                     freshTint={freshTint}
                     onLay={mayAct ? layLifted : null}
                     bindings={atDesk ? bindings : null}
+                    hold={hold}
                 />
             </div>
             <div className="side">
@@ -477,7 +502,17 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
                 ) : null}
                 {gathering ? null : (
                     <div className="docket">
-                        <MoveLog log={state.log} company={state.company} />
+                        <MoveLog
+                            log={state.log}
+                            company={state.company}
+                            onOpen={
+                                rules.lore
+                                    ? (word): void => {
+                                          openPanel([askedPlayed(word)]);
+                                      }
+                                    : null
+                            }
+                        />
                         {tally === null ? null : <RemainingTiles tally={tally} />}
                     </div>
                 )}
@@ -495,11 +530,14 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
             {blankChoice !== null ? (
                 <BlankPicker alphabet={rules.alphabet} onPick={pick} onClose={dismissBlank} />
             ) : null}
-            {panel.chip === null ? null : (
+            {asked === null ? null : (
                 <WordPanel
-                    chip={panel.chip}
+                    asked={asked}
+                    words={panel.words}
+                    chosen={panel.chosen}
                     answer={loreAnswer}
                     lexeme={panel.lexeme}
+                    onChoose={choosePanel}
                     onDeepen={deepenPanel}
                     onRetreat={retreatPanel}
                     onClose={closePanel}

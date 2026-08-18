@@ -45,6 +45,7 @@ export const PL: Catalogue = {
         "docket.log_play": "{words} · {points}",
         "docket.log_premove_returned": "ruch wrócił",
         "docket.log_premove_returned_reason": "ruch wrócił · {reason}",
+        "docket.log_score": " · {points}",
         "docket.premove_returned": "Ruch wrócił na twój stojak.",
         "docket.premove_returned_reason": "Ruch wrócił — {reason}.",
         "docket.remaining_label": "Pozostałe płytki",
@@ -106,6 +107,7 @@ export const PL: Catalogue = {
         "words.deepen": "Cała odmiana",
         "words.failed": "Nie udało się odczytać słowa.",
         "words.label": "Utworzone słowa",
+        "words.open_word": "Odczytaj {word}",
         "words.panel_close": "Zamknij panel słowa",
         "words.panel_label": "{word} — odczyt ze słownika",
         "words.paradigm_back": "Wróć",
@@ -120,6 +122,7 @@ export const PL: Catalogue = {
         "words.verdict_invalid": "nie ma go w słowniku",
         "words.verdict_standing": "na planszy",
         "words.verdict_valid": "jest w słowniku",
+        "words.words_here": "Słowa na tym polu",
     },
     plural: {
         "arrive.offering": {

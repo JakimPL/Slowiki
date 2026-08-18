@@ -105,6 +105,8 @@ words:
   verdict_standing: na planszy
   panel_label: "{word} — odczyt ze słownika"
   panel_close: Zamknij panel słowa
+  open_word: "Odczytaj {word}"
+  words_here: Słowa na tym polu
   asking: Czytamy słowo…
   failed: Nie udało się odczytać słowa.
   absent: Słownik odrzuca to słowo, więc nie ma odczytu.
@@ -125,6 +127,7 @@ docket:
   blank_row_mark: "◇"
   bag: "Worek {tiles:number}"
   log_play: "{words} · {points:number}"
+  log_score: " · {points:number}"
   log_exchange: wymiana płytek
   log_pass: pas
   log_premove_returned: ruch wrócił

@@ -68,7 +68,7 @@ function formedOnLines(combined: readonly (Tile | null)[], size: number, laid: r
         return { verdict: "empty", words: [] };
     }
     if (laid.length === 1) {
-        return singleTileFormation(combined, size, first);
+        return { verdict: "playable", words: wordsThroughCell(combined, size, first.cell) };
     }
     const rows = new Set(laid.map((piece) => rowOf(size, piece.cell)));
     const columns = new Set(laid.map((piece) => columnOf(size, piece.cell)));
@@ -81,13 +81,16 @@ function formedOnLines(combined: readonly (Tile | null)[], size: number, laid: r
     return { verdict: "scattered", words: [] };
 }
 
-function singleTileFormation(combined: readonly (Tile | null)[], size: number, piece: Laid): Formation {
-    const row = rowOf(size, piece.cell);
-    const column = columnOf(size, piece.cell);
+export function wordsThroughCell(
+    combined: readonly (Tile | null)[],
+    size: number,
+    cell: number,
+): readonly FormedWord[] {
+    const row = rowOf(size, cell);
+    const column = columnOf(size, cell);
     const across = lineWord(combined, size, row, column, true);
     const down = lineWord(combined, size, column, row, false);
-    const words = [across, down].filter((word) => word !== null);
-    return { verdict: "playable", words };
+    return [across, down].filter((word) => word !== null);
 }
 
 function axisFormation(

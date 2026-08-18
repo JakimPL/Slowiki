@@ -45,6 +45,7 @@ export const EN: Catalogue = {
         "docket.log_play": "{words} · {points}",
         "docket.log_premove_returned": "premove returned",
         "docket.log_premove_returned_reason": "premove returned · {reason}",
+        "docket.log_score": " · {points}",
         "docket.premove_returned": "Premove returned to your rack.",
         "docket.premove_returned_reason": "Premove returned — {reason}.",
         "docket.remaining_label": "Remaining tiles",
@@ -106,6 +107,7 @@ export const EN: Catalogue = {
         "words.deepen": "Cała odmiana",
         "words.failed": "The word could not be read.",
         "words.label": "Formed words",
+        "words.open_word": "Read {word}",
         "words.panel_close": "Close the word panel",
         "words.panel_label": "{word} — dictionary reading",
         "words.paradigm_back": "Back",
@@ -120,6 +122,7 @@ export const EN: Catalogue = {
         "words.verdict_invalid": "not in the dictionary",
         "words.verdict_standing": "standing",
         "words.verdict_valid": "in the dictionary",
+        "words.words_here": "Words at this square",
     },
     plural: {
         "arrive.offering": {

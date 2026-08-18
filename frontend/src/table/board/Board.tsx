@@ -3,6 +3,8 @@ import type { CSSProperties, ReactElement } from "react";
 import type { Board as BoardView, Tile } from "../../api/views";
 import { columnOf, rowOf } from "../../play/board/board";
 import type { TileBindings } from "../input/bindings";
+import type { HoldBinding } from "../input/useHold";
+import { HOLD_MILLISECONDS } from "../input/useHold";
 import { BOARD_LABEL, squareCaption } from "../strings";
 import { Cell } from "./Cell";
 
@@ -16,6 +18,7 @@ export interface BoardProps {
     readonly freshTint: string | null;
     readonly onLay: ((cell: number) => void) | null;
     readonly bindings: TileBindings | null;
+    readonly hold: HoldBinding | null;
 }
 
 const CENTER_DIVISOR = 2;
@@ -30,11 +33,17 @@ export function Board({
     freshTint,
     onLay,
     bindings,
+    hold,
 }: BoardProps): ReactElement {
     const middle = Math.floor(board.size / CENTER_DIVISOR);
     const center = middle * board.size + middle;
-    const style: CSSProperties =
-        freshTint === null ? { "--cells": board.size } : { "--cells": board.size, "--fresh": freshTint };
+    const style: CSSProperties = { "--cells": board.size };
+    if (freshTint !== null) {
+        style["--fresh"] = freshTint;
+    }
+    if (hold !== null) {
+        style["--hold"] = `${String(HOLD_MILLISECONDS)}ms`;
+    }
     const interactive = onLay !== null || bindings !== null;
     return (
         <div
@@ -62,6 +71,7 @@ export function Board({
                         label={squareCaption(rowOf(board.size, index), columnOf(board.size, index))}
                         onLay={onLay}
                         bindings={bindings}
+                        hold={hold}
                     />
                 );
             })}

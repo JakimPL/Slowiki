@@ -101,6 +101,8 @@ words:
   verdict_standing: standing
   panel_label: "{word} — dictionary reading"
   panel_close: Close the word panel
+  open_word: "Read {word}"
+  words_here: Words at this square
   asking: Reading the word…
   failed: The word could not be read.
   absent: The dictionary refuses this word, so there is no reading.
@@ -121,6 +123,7 @@ docket:
   blank_row_mark: "◇"
   bag: "Bag {tiles:number}"
   log_play: "{words} · {points:number}"
+  log_score: " · {points:number}"
   log_exchange: exchanged tiles
   log_pass: passed
   log_premove_returned: premove returned

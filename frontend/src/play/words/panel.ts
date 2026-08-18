@@ -1,27 +1,42 @@
-import type { WordChip } from "./chips";
+import type { AskedWord } from "./asked";
 
 export interface WordPanel {
-    readonly chip: WordChip | null;
+    readonly words: readonly AskedWord[];
+    readonly chosen: number;
     readonly lexeme: string | null;
 }
 
-export const PANEL_CLOSED: WordPanel = { chip: null, lexeme: null };
+export const PANEL_CLOSED: WordPanel = { words: [], chosen: 0, lexeme: null };
 
-export function opened(chip: WordChip): WordPanel {
-    return { chip, lexeme: null };
+export function opened(words: readonly AskedWord[]): WordPanel {
+    if (words.length === 0) {
+        return PANEL_CLOSED;
+    }
+    return { words, chosen: 0, lexeme: null };
+}
+
+export function chose(panel: WordPanel, chosen: number): WordPanel {
+    if (panel.words[chosen] === undefined) {
+        return panel;
+    }
+    return { words: panel.words, chosen, lexeme: null };
 }
 
 export function deepened(panel: WordPanel, lexeme: string): WordPanel {
-    return panel.chip === null ? panel : { chip: panel.chip, lexeme };
+    return panelStanding(panel) ? { words: panel.words, chosen: panel.chosen, lexeme } : panel;
 }
 
 export function retreated(panel: WordPanel): WordPanel {
-    if (panel.chip !== null && panel.lexeme !== null) {
-        return { chip: panel.chip, lexeme: null };
+    if (panelStanding(panel) && panel.lexeme !== null) {
+        return { words: panel.words, chosen: panel.chosen, lexeme: null };
     }
     return PANEL_CLOSED;
 }
 
 export function panelStanding(panel: WordPanel): boolean {
-    return panel.chip !== null;
+    return panel.words.length > 0;
+}
+
+export function askedWord(panel: WordPanel): AskedWord | null {
+    return panel.words[panel.chosen] ?? null;
 }

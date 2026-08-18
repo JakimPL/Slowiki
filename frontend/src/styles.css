@@ -883,6 +883,22 @@ select {
     font-weight: 600;
 }
 
+.log-word {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-decoration: underline dotted;
+    text-underline-offset: 3px;
+    cursor: pointer;
+}
+
+.log-word:hover {
+    color: var(--accent-primary);
+    text-decoration-style: solid;
+}
+
 .remaining-grid {
     position: absolute;
     right: 0;
@@ -1043,6 +1059,32 @@ select {
 @media (prefers-reduced-motion: reduce) {
     .rack-tile .tile {
         transition: none;
+    }
+
+    .cell[data-holding="true"]::after {
+        animation: none;
+    }
+}
+
+.cell[data-holding="true"]::after {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 2px var(--accent-primary);
+    animation: cell-hold var(--hold) linear both;
+    content: "";
+}
+
+@keyframes cell-hold {
+    from {
+        transform: scale(1.4);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
     }
 }
 
@@ -1334,6 +1376,7 @@ button.word-chip[data-open] {
     cursor: pointer;
 }
 
+.word-strip,
 .paradigm-strip {
     display: flex;
     gap: 6px;
@@ -1344,6 +1387,7 @@ button.word-chip[data-open] {
     list-style: none;
 }
 
+.word-tab,
 .paradigm-tab {
     display: inline-flex;
     gap: 6px;
@@ -1360,6 +1404,7 @@ button.word-chip[data-open] {
     cursor: pointer;
 }
 
+.word-tab[aria-pressed="true"],
 .paradigm-tab[aria-pressed="true"] {
     border-color: var(--accent-primary);
     background: color-mix(in srgb, var(--accent-primary) 14%, transparent);
@@ -1769,6 +1814,8 @@ button.word-chip[data-open] {
 .word-deepen:focus-visible,
 .paradigm-back:focus-visible,
 .paradigm-tab:focus-visible,
+.word-tab:focus-visible,
+.log-word:focus-visible,
 .slot-action:focus-visible,
 .sheet-letter:focus-visible,
 .control-quiet:focus-visible,

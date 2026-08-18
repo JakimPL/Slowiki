@@ -79,7 +79,7 @@ export const MODE_CAPTIONS: Record<"system" | "light" | "dark", string> = {
 const SECONDS_PER_MINUTE = 60;
 const CLOCK_PAD_WIDTH = 2;
 const TERM_SEPARATOR = text("words.term_separator");
-const LIST_SEPARATOR = text("general.list_separator");
+export const LIST_SEPARATOR = text("general.list_separator");
 const REASON_SEPARATOR = "_";
 const REASON_SPACE = " ";
 
@@ -110,6 +110,7 @@ export const PARADIGM_BACK_LABEL = text("words.paradigm_back_label");
 export const PARADIGM_GAP = text("words.paradigm_gap");
 export const PARADIGM_PLAIN_FORMS = text("words.paradigm_plain_forms");
 export const PARADIGM_OTHER_FORMS = text("words.paradigm_other_forms");
+export const WORDS_HERE_LABEL = text("words.words_here");
 
 export const WORD_VERDICT_CAPTIONS: Record<WordStatus, string | null> = {
     unknown: null,
@@ -120,6 +121,10 @@ export const WORD_VERDICT_CAPTIONS: Record<WordStatus, string | null> = {
 
 export function wordPanelLabel(word: string): string {
     return text("words.panel_label", { word });
+}
+
+export function openWordLabel(word: string): string {
+    return text("words.open_word", { word });
 }
 
 export function formCaption(form: string): string {
@@ -191,6 +196,10 @@ export function logCaption(entry: LogEntry): string {
                 ? text("docket.log_premove_returned")
                 : text("docket.log_premove_returned_reason", { reason: spoken(entry.reason) });
     }
+}
+
+export function logScoreCaption(points: number): string {
+    return text("docket.log_score", { points });
 }
 
 export function tileCaption(tile: Tile): string {

@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { loreFor, SAMPLE_SOURCE } from "../../../src/play/lore/lore";
 import type { LoreAnswer } from "../../../src/play/lore/readings";
 import { NO_LORE_ANSWER } from "../../../src/play/lore/readings";
+import type { AskedWord } from "../../../src/play/words/asked";
 import type { WordChip } from "../../../src/play/words/chips";
 import { WordPanel } from "../../../src/table/words/WordPanel";
 import { aForm, aLore, aReading, someInflection } from "../../fixtures/lore";
@@ -12,12 +13,23 @@ const CHIP: WordChip = { text: "PIŁA", points: 7, status: "valid" };
 const NOTHING = (): void => undefined;
 const DEEPEN = (): void => undefined;
 
-function panelOf(chip: WordChip, answer: LoreAnswer, lexeme: string | null): string {
+function panelOf(chip: AskedWord, answer: LoreAnswer, lexeme: string | null): string {
+    return wordsPanelOf([chip], 0, answer, lexeme);
+}
+
+function wordsPanelOf(words: readonly AskedWord[], chosen: number, answer: LoreAnswer, lexeme: string | null): string {
+    const asked = words[chosen];
+    if (asked === undefined) {
+        throw new Error("the panel needs a word");
+    }
     return renderToStaticMarkup(
         <WordPanel
-            chip={chip}
+            asked={asked}
+            words={words}
+            chosen={chosen}
             answer={answer}
             lexeme={lexeme}
+            onChoose={NOTHING}
             onDeepen={DEEPEN}
             onRetreat={NOTHING}
             onClose={NOTHING}
@@ -25,13 +37,16 @@ function panelOf(chip: WordChip, answer: LoreAnswer, lexeme: string | null): str
     );
 }
 
-function cardOf(chip: WordChip, answer: LoreAnswer): string {
+function cardOf(chip: AskedWord, answer: LoreAnswer): string {
     return panelOf(chip, answer, null);
 }
 
 function readyWith(lore: LoreAnswer["lore"], sample: boolean): LoreAnswer {
     return { state: "ready", lore, sample };
 }
+
+const ACROSS: AskedWord = { text: "PIŁA", points: null, status: "standing" };
+const DOWN: AskedWord = { text: "KOT", points: null, status: "standing" };
 
 describe("WordPanel", () => {
     it("stands in the sheet stratum as a dialog for the word it opened for", () => {
@@ -124,5 +139,35 @@ describe("WordPanel", () => {
         expect(panelOf(CHIP, readyWith(aLore({ readings: [] }), false), "rzeczownik:PIŁA:SF")).toContain(
             'data-depth="card"',
         );
+    });
+
+    it("prints the state alone for a word read off the board, where no score is known", () => {
+        const markup = cardOf(ACROSS, readyWith(loreFor("PIŁA", true), SAMPLE_SOURCE));
+        expect(markup).toContain(">PIŁA</h2>");
+        expect(markup).not.toContain("word-score");
+        expect(markup).toContain('data-status="standing"');
+        expect(markup).toContain(">standing</span>");
+    });
+
+    it("offers a strip where two words cross the held square, marking the one it reads", () => {
+        const markup = wordsPanelOf([ACROSS, DOWN], 1, readyWith(loreFor("KOT", true), SAMPLE_SOURCE), null);
+        expect(markup).toContain('aria-label="Words at this square"');
+        expect(markup).toContain('class="word-tab" aria-pressed="false"');
+        expect(markup).toContain('class="word-tab" aria-pressed="true"');
+        expect(markup).toContain(">KOT</h2>");
+        expect(markup.indexOf("word-strip")).toBeLessThan(markup.indexOf("word-head"));
+    });
+
+    it("keeps the strip away from a square carrying one word", () => {
+        const markup = cardOf(ACROSS, readyWith(loreFor("PIŁA", true), SAMPLE_SOURCE));
+        expect(markup).not.toContain("word-strip");
+    });
+
+    it("leaves the word strip for the card, so the sheet keeps the reading strip", () => {
+        const lore = loreFor("PIŁA", true);
+        const lexeme = lore.readings[0]?.lexeme ?? null;
+        const markup = wordsPanelOf([ACROSS, DOWN], 0, readyWith(lore, SAMPLE_SOURCE), lexeme);
+        expect(markup).toContain('data-depth="paradigm"');
+        expect(markup).not.toContain("word-strip");
     });
 });
