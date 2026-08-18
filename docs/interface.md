@@ -42,13 +42,14 @@ by amending it. The palette is the *Lniany* proposition chosen from the phase-0 
   plaques.
 - **Game over** — the final standing as an overlay: one row per player in placing order, each
   carrying its place, the player's tint, and the final score after rack deductions, with the board
-  still readable beneath. Tied players share a place. The first three rows carry the tint in
-  descending strength with a filled place medal each, the winning row the fullest of them, and a win
-  of the reader's own is announced in the heading, ringed on the card, and swept once with a light
-  that the calm motion setting holds back. Eight players fit the
-  smallest phone in common use without scrolling, and the card keeps room for the best and longest
-  move of the game. *Close* returns to the board with the final position and the move log readable,
-  and the status line then reopens the standing; *Leave the table* returns to the main view.
+  still readable beneath. Tied players share a place. From four players up, the first three rows
+  carry the tint in descending strength with a filled place medal each, the winning row the fullest
+  of them; at two or three players the winner alone is raised, and a shared win raises everyone who
+  took it. A win of the reader's own is announced in the heading, ringed on the card, and swept once
+  with a light that the calm motion setting holds back. Eight players fit the smallest phone in
+  common use without scrolling, and the card keeps room for the best and longest move of the game.
+  *Close* returns to the board with the final position and the move log readable, and the status
+  line then reopens the standing; *Leave the table* returns to the main view.
 
 ## Table regions
 
@@ -196,9 +197,10 @@ sheet with the scheme's own alphabet.
   play as a whole — a single rectangle from its first new letter to its last, taking in the standing
   letters the play hooked through — and it stands until the next play. While the play is still
   someone else's news, its tiles bob in place one after another along the word and a light sweeps
-  the frame with them — three hops and one sweep, a few seconds of quiet, again — and they settle
-  for good at the first sign the player has seen them: a press anywhere on the board, or any tile
-  moved at the desk. A play of your own arrives already seen. The `calm` motion setting and a device
+  the frame with them — three hops and one sweep, a few seconds of quiet, again. The frame lies
+  under the tiles and the light over them, so a tile at the top of its hop stands clear of the ring
+  and still catches the light. They settle for good at the first sign the player has seen them: a
+  press anywhere on the board, or any tile moved at the desk. A play of your own arrives already seen. The `calm` motion setting and a device
   asking for reduced motion keep the frame and the halo and leave the tiles still. The move log
   keeps the longer memory.
 

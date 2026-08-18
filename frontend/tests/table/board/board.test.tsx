@@ -145,9 +145,10 @@ describe("Board", () => {
         expect(markup).toContain("--frame-columns:2");
         expect(markup).toContain('data-fresh="true"');
         expect(markup).not.toContain("data-waving");
+        expect(markup).not.toContain("board-sweep");
     });
 
-    it("sweeps the frame while the play still waves", () => {
+    it("lays the sweeping light over the tiles and keeps the frame under them", () => {
         const board = aBoard({ [CENTER]: aTile({ letter: "W" }) });
         const markup = renderToStaticMarkup(
             <Board
@@ -158,8 +159,7 @@ describe("Board", () => {
                 freshWaving
             />,
         );
-        const frame = markup.slice(markup.indexOf("board-fresh"));
-        expect(frame).toContain('data-waving="true"');
+        expect(markup.indexOf("board-fresh")).toBeLessThan(markup.indexOf("board-sweep"));
     });
 
     it("carries each waving tile its place along the play", () => {

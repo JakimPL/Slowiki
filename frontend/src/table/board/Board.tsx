@@ -77,12 +77,9 @@ export function Board({
                     />
                 );
             })}
-            {freshFrame === null ? null : (
-                <div
-                    className="board-fresh"
-                    style={frameStyleFor(freshFrame)}
-                    data-waving={freshWaving ? "true" : undefined}
-                />
+            {freshFrame === null ? null : <div className="board-fresh" style={frameStyleFor(freshFrame)} />}
+            {freshFrame === null || !freshWaving ? null : (
+                <div className="board-sweep" style={frameStyleFor(freshFrame)} />
             )}
         </div>
     );

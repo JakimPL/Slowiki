@@ -852,21 +852,29 @@ button.status-line {
     z-index: 1;
 }
 
-.board-fresh {
+.board-fresh,
+.board-sweep {
     position: absolute;
-    z-index: 2;
-    overflow: hidden;
     top: calc(var(--board-padding) + var(--frame-row) * (var(--cell) + var(--board-gap)));
     left: calc(var(--board-padding) + var(--frame-column) * (var(--cell) + var(--board-gap)));
     width: calc(var(--frame-columns) * var(--cell) + (var(--frame-columns) - 1) * var(--board-gap));
     height: calc(var(--frame-rows) * var(--cell) + (var(--frame-rows) - 1) * var(--board-gap));
     border-radius: calc(var(--cell) / 6);
-    outline: 2px solid var(--fresh, var(--accent-primary));
-    box-shadow: 0 0 0 5px color-mix(in srgb, var(--fresh, var(--accent-primary)) 24%, transparent);
     pointer-events: none;
 }
 
-.board-fresh[data-waving]::after {
+.board-fresh {
+    z-index: 0;
+    outline: 2px solid var(--fresh, var(--accent-primary));
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--fresh, var(--accent-primary)) 24%, transparent);
+}
+
+.board-sweep {
+    z-index: 2;
+    overflow: hidden;
+}
+
+.board-sweep::after {
     content: "";
     position: absolute;
     inset: 0;
@@ -2023,23 +2031,23 @@ button.word-chip[data-open] {
     overflow: hidden;
 }
 
-.standing-row[data-place="3"] {
+.standing-row[data-podium="3"] {
     border-color: color-mix(in srgb, var(--tint) 48%, transparent);
     background: color-mix(in srgb, var(--tint) 19%, var(--chrome-surface));
 }
 
-.standing-row[data-place="2"] {
+.standing-row[data-podium="2"] {
     border-color: color-mix(in srgb, var(--tint) 64%, transparent);
     background: color-mix(in srgb, var(--tint) 22%, var(--chrome-surface));
 }
 
-.standing-row[data-place="1"] {
+.standing-row[data-podium="1"] {
     border-color: var(--tint);
     background: color-mix(in srgb, var(--tint) 28%, var(--chrome-surface));
     font-size: 15.5px;
 }
 
-.standing-row[data-place="1"][data-mine]::after {
+.standing-row[data-podium="1"][data-mine]::after {
     content: "";
     position: absolute;
     inset: 0;
@@ -2074,8 +2082,8 @@ button.word-chip[data-open] {
     text-align: center;
 }
 
-.standing-row[data-place="2"] .standing-place,
-.standing-row[data-place="3"] .standing-place {
+.standing-row[data-podium="2"] .standing-place,
+.standing-row[data-podium="3"] .standing-place {
     width: 19px;
     height: 19px;
     border-radius: 50%;
@@ -2083,7 +2091,7 @@ button.word-chip[data-open] {
     line-height: 19px;
 }
 
-.standing-row[data-place="1"] .standing-place {
+.standing-row[data-podium="1"] .standing-place {
     width: 19px;
     height: 19px;
     border-radius: 50%;

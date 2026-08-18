@@ -43,7 +43,7 @@ export function GameOver({ view, company, story, mySeat, onClose, onLeave }: Gam
                             key={ranked.seat}
                             className="standing-row"
                             style={{ "--tint": tintFor(ranked.seat).hex }}
-                            data-place={String(ranked.place)}
+                            data-podium={ranked.podium === null ? undefined : String(ranked.podium)}
                             data-mine={ranked.seat === mySeat ? "true" : undefined}
                         >
                             <span className="standing-place">{ranked.place}</span>
