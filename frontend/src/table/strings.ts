@@ -5,6 +5,7 @@ import type { LogEntry } from "../play/story/log";
 import type { Story } from "../play/story/story";
 import type { ExchangeBlock } from "../play/tiles/exchange";
 import type { PremoveKind } from "../play/tiles/premoves";
+import type { WordStatus } from "../play/words/feedback";
 
 export const PRODUCT_NAME = "Literabble";
 export const PRODUCT_TAGLINE = "A configurable Literaki and Scrabble table.";
@@ -74,6 +75,7 @@ export const MODE_CAPTIONS: Record<"system" | "light" | "dark", string> = {
 
 const SECONDS_PER_MINUTE = 60;
 const CLOCK_PAD_WIDTH = 2;
+const TERM_SEPARATOR = " · ";
 
 export function clockCaption(seconds: number): string {
     const whole = Math.max(0, Math.floor(seconds));
@@ -89,6 +91,32 @@ export const BLANK_PICKER_CLOSE = "Close the letter picker";
 export const BLANK_INPUT_LABEL = "Letter";
 export const BLANK_CONFIRM = "Assign the letter";
 export const BLANK_TILE_CAPTION = "Blank tile";
+export const WORD_PANEL_CLOSE = "Close the word panel";
+export const WORD_ASKING_NOTE = "Reading the word…";
+export const WORD_FAILED_NOTE = "The word could not be read.";
+export const WORD_ABSENT_NOTE = "The dictionary refuses this word, so there is no reading.";
+export const WORD_UNCLASSIFIED_PART = "no analysis";
+export const WORD_UNCLASSIFIED_NOTE = "The word plays. The morphology sources carry no analysis for it.";
+export const WORD_SAMPLE_NOTE = "sample data";
+
+export const WORD_VERDICT_CAPTIONS: Record<WordStatus, string | null> = {
+    unknown: null,
+    valid: "in the dictionary",
+    invalid: "not in the dictionary",
+    standing: "standing",
+};
+
+export function wordPanelLabel(word: string): string {
+    return `${word} — dictionary reading`;
+}
+
+export function baseCaption(base: string): string {
+    return base.toLowerCase();
+}
+
+export function odmianaCaption(terms: readonly string[]): string {
+    return terms.join(TERM_SEPARATOR);
+}
 
 export function primaryCaption(premove: boolean, points: number | null): string {
     const base = premove ? PREMOVE_BUTTON : PLAY_BUTTON;

@@ -18,6 +18,7 @@ import { seatedAs } from "../play/live/events";
 import { rulesFrom } from "../play/live/rules";
 import { useDescription } from "../play/live/useDescription";
 import { usePlay } from "../play/live/usePlay";
+import { useLore } from "../play/lore/useLore";
 import { tintFor } from "../play/seats/tints";
 import type { Arrival } from "../play/seats/useStanding";
 import { guidanceFor } from "../play/story/guidance";
@@ -35,7 +36,9 @@ import { liftedIdentifier } from "../play/tiles/selection";
 import { trayTilesOf } from "../play/tiles/tray";
 import { useDesk } from "../play/tiles/useDesk";
 import { invalidTextsOf, wordStatusFor } from "../play/words/feedback";
+import { panelStanding } from "../play/words/panel";
 import { useJudgements } from "../play/words/useJudgements";
+import { useWordPanel } from "../play/words/useWordPanel";
 import { CodeChip } from "./arrive/CodeChip";
 import { Board } from "./board/Board";
 import { MoveLog } from "./docket/MoveLog";
@@ -75,6 +78,7 @@ import {
     YOUR_TURN_CAPTION,
 } from "./strings";
 import { TileFace } from "./tiles/TileFace";
+import { WordPanel } from "./words/WordPanel";
 import { Words } from "./words/Words";
 
 export interface TableProps {
@@ -130,6 +134,8 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
         performDesk(effect);
     };
     const [blankChoice, setBlankChoice] = useState<BlankChoice | null>(null);
+    const { panel, open: openPanel, retreat: retreatPanel, close: closePanel } = useWordPanel();
+    const loreAnswer = useLore(panel.chip);
     useAlerts(story.kind === "acting", PRODUCT_NAME, notices.wanted, YOUR_TURN_CAPTION);
 
     const lastPlay = state.view.last_play;
@@ -150,13 +156,13 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
     const exchanging = desk.draft.length === 0 && desk.tray.length > 0;
     const exchange = mySeat === null ? null : exchangeProspectOf(desk.tray.length, state.view, mySeat, rules);
     const playArmed = mayAct && prospect.verdict === "playable";
-    const primaryArmed = exchanging ? mayAct && (exchange?.allowed ?? false) : playArmed;
+    const primaryArmed = (exchanging ? mayAct && (exchange?.allowed ?? false) : playArmed) && !panelStanding(panel);
 
     const invalidTexts = invalidTextsOf(noticeCode, notice);
     const judged = useJudgements(
         arrival.seat,
         prospect.words.map((word) => word.text),
-        rules.feedback === "live" && blankChoice === null,
+        rules.feedback === "live" && blankChoice === null && !panelStanding(panel),
     );
     const chips = prospect.words.map((word) => ({
         ...word,
@@ -172,7 +178,14 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
             return danger(shownNotice);
         }
         if (chips.length > 0) {
-            return <Words chips={chips} bingo={prospect.bingo ? rules.bingoBonus : 0} />;
+            return (
+                <Words
+                    chips={chips}
+                    bingo={prospect.bingo ? rules.bingoBonus : 0}
+                    openText={panel.chip?.text ?? null}
+                    onOpen={rules.lore ? openPanel : null}
+                />
+            );
         }
         if (returnedNotice !== null) {
             return danger(returnedNotice);
@@ -252,6 +265,10 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
     const retreat = (): void => {
         if (blankChoice !== null) {
             dismissBlank();
+            return;
+        }
+        if (panelStanding(panel)) {
+            retreatPanel();
             return;
         }
         perform({ kind: desk.lift !== null ? "clear-lift" : "recall" });
@@ -472,6 +489,7 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
             {blankChoice !== null ? (
                 <BlankPicker alphabet={rules.alphabet} onPick={pick} onClose={dismissBlank} />
             ) : null}
+            {panel.chip === null ? null : <WordPanel chip={panel.chip} answer={loreAnswer} onClose={closePanel} />}
             {story.kind === "over" ? <GameOver view={state.view} company={state.company} story={story} /> : null}
         </div>
     );
