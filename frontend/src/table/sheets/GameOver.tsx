@@ -15,7 +15,6 @@ import {
     GAME_OVER_VICTORY,
     HIGHLIGHT_LABELS,
     nameFor,
-    wordsCaption,
     YOU_MARKER,
 } from "../strings";
 
@@ -93,7 +92,7 @@ function Highlights({ highlights, company }: HighlightsProps): ReactElement | nu
                 >
                     <dt className="highlight-label">{HIGHLIGHT_LABELS[row.kind]}</dt>
                     <dd className="highlight-value">
-                        <span className="highlight-words">{wordsCaption(row.words)}</span>
+                        <span className="highlight-word">{row.word}</span>
                         <span className="highlight-by">{nameFor(company, row.player)}</span>
                         <span className="highlight-points">{row.points}</span>
                     </dd>

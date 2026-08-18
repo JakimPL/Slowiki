@@ -2166,7 +2166,7 @@ button.word-chip[data-open] {
     margin: 0;
 }
 
-.highlight-words {
+.highlight-word {
     flex: 1;
     min-width: 0;
     overflow: hidden;

@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 
 from wordcore.games.journal import JournalEntry
 from wordcore.games.kind import EntryKind
@@ -6,13 +6,6 @@ from wordcore.models.base import BaseFrozen
 from wordcore.moves.kind import ActionKind
 from wordcore.rules.score.word import ScoredWord
 from wordcore.states.record import PlayRecord
-
-
-class PlayHighlight(BaseFrozen):
-    player: int
-    words: tuple[ScoredWord, ...]
-    points: int
-    turn_number: int
 
 
 class WordHighlight(BaseFrozen):
@@ -23,16 +16,23 @@ class WordHighlight(BaseFrozen):
 
 
 class GameHighlights(BaseFrozen):
-    best_play: PlayHighlight | None
+    best_word: WordHighlight | None
     longest_word: WordHighlight | None
 
 
+Spoken = tuple[ScoredWord, PlayRecord]
+
+
 def highlights_of(entries: Iterable[JournalEntry]) -> GameHighlights:
-    plays = tuple(_plays(entries))
+    spoken = tuple(_spoken(entries))
     return GameHighlights(
-        best_play=_best_play(plays),
-        longest_word=_longest_word(plays),
+        best_word=_chosen(spoken, _best_rank),
+        longest_word=_chosen(spoken, _longest_rank),
     )
+
+
+def _spoken(entries: Iterable[JournalEntry]) -> Iterable[Spoken]:
+    return ((word, record) for record in _plays(entries) for word in record.words)
 
 
 def _plays(entries: Iterable[JournalEntry]) -> Iterable[PlayRecord]:
@@ -49,22 +49,10 @@ def _played(entry: JournalEntry) -> PlayRecord | None:
     return entry.position.state.last_play
 
 
-def _best_play(plays: tuple[PlayRecord, ...]) -> PlayHighlight | None:
-    record = max(plays, key=_play_rank, default=None)
-    if record is None:
-        return None
-
-    return PlayHighlight(
-        player=record.player,
-        words=record.words,
-        points=record.points,
-        turn_number=record.turn_number,
-    )
-
-
-def _longest_word(plays: tuple[PlayRecord, ...]) -> WordHighlight | None:
-    spoken = [(word, record) for record in plays for word in record.words]
-    chosen = max(spoken, key=_word_rank, default=None)
+def _chosen(
+    spoken: tuple[Spoken, ...], rank: Callable[[Spoken], tuple[int, int, int]]
+) -> WordHighlight | None:
+    chosen = max(spoken, key=rank, default=None)
     if chosen is None:
         return None
 
@@ -77,10 +65,11 @@ def _longest_word(plays: tuple[PlayRecord, ...]) -> WordHighlight | None:
     )
 
 
-def _play_rank(record: PlayRecord) -> tuple[int, int]:
-    return record.points, -record.turn_number
+def _best_rank(spoken: Spoken) -> tuple[int, int, int]:
+    word, record = spoken
+    return word.points, len(word.text), -record.turn_number
 
 
-def _word_rank(spoken: tuple[ScoredWord, PlayRecord]) -> tuple[int, int, int]:
+def _longest_rank(spoken: Spoken) -> tuple[int, int, int]:
     word, record = spoken
     return len(word.text), word.points, -record.turn_number

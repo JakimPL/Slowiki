@@ -335,7 +335,7 @@ export interface components {
         };
         /** GameHighlights */
         GameHighlights: {
-            best_play: components["schemas"]["PlayHighlight"] | null;
+            best_word: components["schemas"]["WordHighlight"] | null;
             longest_word: components["schemas"]["WordHighlight"] | null;
         };
         /**
@@ -423,17 +423,6 @@ export interface components {
             kind: "play";
             /** Placements */
             placements: components["schemas"]["PlayPlacement"][];
-        };
-        /** PlayHighlight */
-        PlayHighlight: {
-            /** Player */
-            player: number;
-            /** Points */
-            points: number;
-            /** Turn Number */
-            turn_number: number;
-            /** Words */
-            words: components["schemas"]["ScoredWord"][];
         };
         /** PlayPlacement */
         PlayPlacement: {

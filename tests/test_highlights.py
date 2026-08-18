@@ -88,26 +88,42 @@ def make_queued(record: PlayRecord, standing: PlayRecord | None) -> JournalEntry
     )
 
 
-def test_highlights_name_the_best_play_and_the_longest_word() -> None:
-    first = make_record(0, (("DOM", 12), ("OS", 4)), 16, 0)
-    second = make_record(1, (("KOTLETY", 30),), 80, 1)
+def test_highlights_name_the_best_word_and_the_longest_word() -> None:
+    first = make_record(0, (("PODESZWA", 18), ("OS", 4)), 22, 0)
+    second = make_record(1, (("DOM", 40),), 40, 1)
     highlights = highlights_of([make_play(first), make_play(second)])
-    assert highlights.best_play is not None
-    assert highlights.best_play.player == 1
-    assert highlights.best_play.points == 80
-    assert [word.text for word in highlights.best_play.words] == ["KOTLETY"]
+    assert highlights.best_word is not None
+    assert highlights.best_word.word == "DOM"
+    assert highlights.best_word.points == 40
+    assert highlights.best_word.player == 1
     assert highlights.longest_word is not None
-    assert highlights.longest_word.word == "KOTLETY"
-    assert highlights.longest_word.points == 30
-    assert highlights.longest_word.player == 1
+    assert highlights.longest_word.word == "PODESZWA"
+    assert highlights.longest_word.points == 18
+    assert highlights.longest_word.player == 0
 
 
-def test_best_play_ties_to_the_earlier() -> None:
+def test_the_best_word_is_read_from_the_word_rather_than_the_play() -> None:
+    record = make_record(0, (("OS", 4), ("PODESZWA", 18)), 72, 0)
+    highlights = highlights_of([make_play(record)])
+    assert highlights.best_word is not None
+    assert highlights.best_word.word == "PODESZWA"
+    assert highlights.best_word.points == 18
+
+
+def test_the_best_word_ties_to_the_longer() -> None:
+    first = make_record(0, (("DOM", 24),), 24, 0)
+    second = make_record(1, (("KOTLETY", 24),), 24, 1)
+    highlights = highlights_of([make_play(first), make_play(second)])
+    assert highlights.best_word is not None
+    assert highlights.best_word.word == "KOTLETY"
+
+
+def test_the_best_word_ties_to_the_earlier_at_equal_length() -> None:
     first = make_record(0, (("DOM", 24),), 24, 0)
     second = make_record(1, (("KOT", 24),), 24, 3)
     highlights = highlights_of([make_play(first), make_play(second)])
-    assert highlights.best_play is not None
-    assert highlights.best_play.player == 0
+    assert highlights.best_word is not None
+    assert highlights.best_word.player == 0
 
 
 def test_longest_word_ties_to_the_higher_scoring() -> None:
@@ -126,24 +142,23 @@ def test_longest_word_ties_to_the_earlier_at_equal_points() -> None:
     assert highlights.longest_word.word == "KOTY"
 
 
+def test_one_word_can_be_both_the_best_and_the_longest() -> None:
+    first = make_record(0, (("DOM", 12),), 12, 0)
+    second = make_record(1, (("KOTLETY", 30),), 80, 1)
+    highlights = highlights_of([make_play(first), make_play(second)])
+    assert highlights.best_word == highlights.longest_word
+    assert highlights.best_word is not None
+    assert highlights.best_word.word == "KOTLETY"
+
+
 def test_a_highlight_names_the_turn_it_was_made_on() -> None:
     first = make_record(0, (("KOTLETY", 30),), 30, 4)
     second = make_record(1, (("DOM", 40),), 40, 7)
     highlights = highlights_of([make_play(first), make_play(second)])
-    assert highlights.best_play is not None
-    assert highlights.best_play.turn_number == 7
+    assert highlights.best_word is not None
+    assert highlights.best_word.turn_number == 7
     assert highlights.longest_word is not None
     assert highlights.longest_word.turn_number == 4
-
-
-def test_the_longest_word_can_come_from_another_play_than_the_best() -> None:
-    first = make_record(0, (("KOTLETY", 30),), 30, 0)
-    second = make_record(1, (("DOM", 40),), 40, 1)
-    highlights = highlights_of([make_play(first), make_play(second)])
-    assert highlights.best_play is not None
-    assert highlights.best_play.player == 1
-    assert highlights.longest_word is not None
-    assert highlights.longest_word.player == 0
 
 
 def test_a_crossing_word_can_be_the_longest() -> None:
@@ -155,13 +170,13 @@ def test_a_crossing_word_can_be_the_longest() -> None:
 
 def test_a_game_without_plays_has_no_highlights() -> None:
     highlights = highlights_of([make_pass(0, None), make_exchange(1, None)])
-    assert highlights.best_play is None
+    assert highlights.best_word is None
     assert highlights.longest_word is None
 
 
 def test_an_empty_journal_has_no_highlights() -> None:
     highlights = highlights_of([])
-    assert highlights.best_play is None
+    assert highlights.best_word is None
     assert highlights.longest_word is None
 
 
@@ -176,7 +191,7 @@ def test_passes_and_queued_moves_leave_the_highlights_on_the_plays() -> None:
             make_exchange(0, played),
         ]
     )
-    assert highlights.best_play is not None
-    assert highlights.best_play.points == 12
+    assert highlights.best_word is not None
+    assert highlights.best_word.points == 12
     assert highlights.longest_word is not None
     assert highlights.longest_word.word == "DOM"

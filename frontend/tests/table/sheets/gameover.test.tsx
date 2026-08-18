@@ -12,7 +12,7 @@ const NOBODY = (): void => {
 
 const NAMES = ["Ala", "Ola", "Ela", "Ula"];
 
-const NO_HIGHLIGHTS: GameHighlights = { best_play: null, longest_word: null };
+const NO_HIGHLIGHTS: GameHighlights = { best_word: null, longest_word: null };
 
 function anEnding(
     mySeat: number | null,
@@ -72,43 +72,29 @@ describe("GameOver", () => {
         expect(four.match(/data-podium="\d"/g)).toEqual(['data-podium="1"', 'data-podium="2"', 'data-podium="3"']);
     });
 
-    it("names the best move and the longest word of the game", () => {
+    it("names the best word and the longest word of the game", () => {
         const markup = anEnding(
             0,
             { 0: 30, 1: 42 },
             {
-                best_play: {
-                    player: 1,
-                    words: [
-                        { text: "KOTLETY", points: 30 },
-                        { text: "OS", points: 4 },
-                    ],
-                    points: 84,
-                    turn_number: 6,
-                },
+                best_word: { player: 1, word: "KOTLETY", points: 62, turn_number: 6 },
                 longest_word: { player: 0, word: "PODESZWA", points: 18, turn_number: 3 },
             },
         );
-        expect(markup).toContain("Best move");
-        expect(markup).toContain("KOTLETY, OS");
-        expect(markup).toContain("84");
+        expect(markup).toContain("Best word");
+        expect(markup).toContain("KOTLETY");
+        expect(markup).toContain("62");
         expect(markup).toContain("Longest word");
         expect(markup).toContain("PODESZWA");
         expect(markup).toContain("Ala");
     });
 
-    it("folds the best move and the longest word into one row when they are the same play", () => {
-        const markup = anEnding(
-            0,
-            { 0: 30, 1: 42 },
-            {
-                best_play: { player: 1, words: [{ text: "DLUBALO", points: 32 }], points: 82, turn_number: 4 },
-                longest_word: { player: 1, word: "DLUBALO", points: 32, turn_number: 4 },
-            },
-        );
-        expect(markup).toContain("Best move and longest word");
+    it("folds the best word and the longest word into one row when they are the same word", () => {
+        const laid = { player: 1, word: "DLUBALO", points: 32, turn_number: 4 };
+        const markup = anEnding(0, { 0: 30, 1: 42 }, { best_word: laid, longest_word: laid });
+        expect(markup).toContain("Best and longest word");
         expect(markup.match(/DLUBALO/g)).toHaveLength(1);
-        expect(markup).toContain("82");
+        expect(markup).toContain("32");
     });
 
     it("keeps the room quiet while the game left no highlight", () => {

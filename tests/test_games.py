@@ -376,15 +376,14 @@ def test_game_highlights_walk_the_journal() -> None:
         base_seq=1,
     )
     highlights = game.highlights()
-    assert highlights.best_play is not None
-    assert highlights.best_play.player == 0
-    assert highlights.best_play.points == 53
-    assert highlights.longest_word is not None
-    assert highlights.longest_word.word == "AB"
+    assert highlights.best_word is not None
+    assert highlights.best_word.player == 0
+    assert highlights.best_word.word == "AB"
+    assert highlights.best_word == highlights.longest_word
 
 
 def test_a_game_yet_to_be_played_has_no_highlights() -> None:
     rules = make_rules(TextLexicon.from_words(["ab"]))
     game = Game(rules, random.Random(0), premoves_allowed=True)
-    assert game.highlights().best_play is None
+    assert game.highlights().best_word is None
     assert game.highlights().longest_word is None

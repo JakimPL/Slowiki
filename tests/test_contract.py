@@ -198,7 +198,7 @@ async def test_highlights_are_served_for_a_table(client: httpx.AsyncClient) -> N
     response = await client.get(f"/tables/{table_id}/highlights")
     assert response.status_code == 200
     highlights = GameHighlights.model_validate(response.json())
-    assert highlights.best_play is None
+    assert highlights.best_word is None
     assert highlights.longest_word is None
     absent = await client.get("/tables/absent/highlights")
     assert absent.status_code == 404
@@ -269,7 +269,6 @@ def test_openapi_document_carries_schemas(app) -> None:
         "WordVerdict",
         "WordVerdicts",
         "GameHighlights",
-        "PlayHighlight",
         "WordHighlight",
         "Tile",
         "Board",
