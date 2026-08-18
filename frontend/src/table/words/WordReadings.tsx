@@ -6,10 +6,11 @@ import type { LoreAnswer } from "../../play/lore/readings";
 import { askedFormsOf, loreStateOf } from "../../play/lore/readings";
 import type { Dimension } from "../../play/lore/tagset";
 import {
-    baseCaption,
+    formCaption,
     odmianaCaption,
     WORD_ABSENT_NOTE,
     WORD_ASKING_NOTE,
+    WORD_DEEPEN,
     WORD_FAILED_NOTE,
     WORD_SAMPLE_NOTE,
     WORD_UNCLASSIFIED_NOTE,
@@ -21,9 +22,10 @@ const NO_DIMENSIONS: readonly Dimension[] = [];
 export interface WordReadingsProps {
     readonly answer: LoreAnswer;
     readonly word: string;
+    readonly onDeepen: (lexeme: string) => void;
 }
 
-export function WordReadings({ answer, word }: WordReadingsProps): ReactElement {
+export function WordReadings({ answer, word, onDeepen }: WordReadingsProps): ReactElement {
     if (answer.state === "asking") {
         return <p className="word-note">{WORD_ASKING_NOTE}</p>;
     }
@@ -39,7 +41,9 @@ export function WordReadings({ answer, word }: WordReadingsProps): ReactElement 
             {state === "unclassified" ? (
                 <Unclassified />
             ) : (
-                answer.lore.readings.map((reading) => <Reading key={reading.lexeme} reading={reading} word={word} />)
+                answer.lore.readings.map((reading) => (
+                    <Reading key={reading.lexeme} reading={reading} word={word} onDeepen={onDeepen} />
+                ))
             )}
             {answer.sample ? <p className="word-sample">{WORD_SAMPLE_NOTE}</p> : null}
         </div>
@@ -49,22 +53,32 @@ export function WordReadings({ answer, word }: WordReadingsProps): ReactElement 
 interface ReadingProps {
     readonly reading: LoreReading;
     readonly word: string;
+    readonly onDeepen: (lexeme: string) => void;
 }
 
-function Reading({ reading, word }: ReadingProps): ReactElement {
+function Reading({ reading, word, onDeepen }: ReadingProps): ReactElement {
     const asked = askedFormsOf(reading, word);
     const lines = [...new Set(asked.map((form) => odmianaCaption(inflectionTerms(form.tags, NO_DIMENSIONS))))];
     return (
         <div className="word-reading">
             <span className="word-lemma">
                 <span className="word-part">{reading.part}</span>
-                {baseCaption(reading.base)}
+                {formCaption(reading.base)}
             </span>
             {lines.map((line) => (
                 <span key={line} className="word-odmiana">
                     {line}
                 </span>
             ))}
+            <button
+                type="button"
+                className="word-deepen"
+                onClick={(): void => {
+                    onDeepen(reading.lexeme);
+                }}
+            >
+                {WORD_DEEPEN}
+            </button>
         </div>
     );
 }

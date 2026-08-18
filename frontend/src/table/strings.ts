@@ -98,6 +98,12 @@ export const WORD_ABSENT_NOTE = "The dictionary refuses this word, so there is n
 export const WORD_UNCLASSIFIED_PART = "no analysis";
 export const WORD_UNCLASSIFIED_NOTE = "The word plays. The morphology sources carry no analysis for it.";
 export const WORD_SAMPLE_NOTE = "sample data";
+export const WORD_DEEPEN = "Cała odmiana";
+export const PARADIGM_BACK = "Back";
+export const PARADIGM_BACK_LABEL = "Back to the word card";
+export const PARADIGM_GAP = "—";
+export const PARADIGM_PLAIN_FORMS = "forms";
+export const PARADIGM_OTHER_FORMS = "other forms";
 
 export const WORD_VERDICT_CAPTIONS: Record<WordStatus, string | null> = {
     unknown: null,
@@ -110,8 +116,8 @@ export function wordPanelLabel(word: string): string {
     return `${word} — dictionary reading`;
 }
 
-export function baseCaption(base: string): string {
-    return base.toLowerCase();
+export function formCaption(form: string): string {
+    return form.toLowerCase();
 }
 
 export function odmianaCaption(terms: readonly string[]): string {

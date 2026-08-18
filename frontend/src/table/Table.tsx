@@ -134,7 +134,7 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
         performDesk(effect);
     };
     const [blankChoice, setBlankChoice] = useState<BlankChoice | null>(null);
-    const { panel, open: openPanel, retreat: retreatPanel, close: closePanel } = useWordPanel();
+    const { panel, open: openPanel, deepen: deepenPanel, retreat: retreatPanel, close: closePanel } = useWordPanel();
     const loreAnswer = useLore(panel.chip);
     useAlerts(story.kind === "acting", PRODUCT_NAME, notices.wanted, YOUR_TURN_CAPTION);
 
@@ -493,7 +493,16 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
             {blankChoice !== null ? (
                 <BlankPicker alphabet={rules.alphabet} onPick={pick} onClose={dismissBlank} />
             ) : null}
-            {panel.chip === null ? null : <WordPanel chip={panel.chip} answer={loreAnswer} onClose={closePanel} />}
+            {panel.chip === null ? null : (
+                <WordPanel
+                    chip={panel.chip}
+                    answer={loreAnswer}
+                    lexeme={panel.lexeme}
+                    onDeepen={deepenPanel}
+                    onRetreat={retreatPanel}
+                    onClose={closePanel}
+                />
+            )}
             {story.kind === "over" ? <GameOver view={state.view} company={state.company} story={story} /> : null}
         </div>
     );

@@ -9,10 +9,24 @@ import { WordPanel } from "../../../src/table/words/WordPanel";
 import { aForm, aLore, aReading, someInflection } from "../../fixtures/lore";
 
 const CHIP: WordChip = { text: "PIŁA", points: 7, status: "valid" };
-const CLOSE = (): void => undefined;
+const NOTHING = (): void => undefined;
+const DEEPEN = (): void => undefined;
+
+function panelOf(chip: WordChip, answer: LoreAnswer, lexeme: string | null): string {
+    return renderToStaticMarkup(
+        <WordPanel
+            chip={chip}
+            answer={answer}
+            lexeme={lexeme}
+            onDeepen={DEEPEN}
+            onRetreat={NOTHING}
+            onClose={NOTHING}
+        />,
+    );
+}
 
 function cardOf(chip: WordChip, answer: LoreAnswer): string {
-    return renderToStaticMarkup(<WordPanel chip={chip} answer={answer} onClose={CLOSE} />);
+    return panelOf(chip, answer, null);
 }
 
 function readyWith(lore: LoreAnswer["lore"], sample: boolean): LoreAnswer {
@@ -82,5 +96,33 @@ describe("WordPanel", () => {
     it("holds the asking and failed answers as their own notes", () => {
         expect(cardOf(CHIP, NO_LORE_ANSWER)).toContain("Reading the word");
         expect(cardOf(CHIP, { state: "failed", lore: null, sample: false })).toContain("could not be read");
+    });
+
+    it("offers the whole odmiana on every reading of the card", () => {
+        const markup = cardOf(CHIP, readyWith(loreFor("PIŁA", true), SAMPLE_SOURCE));
+        expect(markup.match(/class="word-deepen"/g)).toHaveLength(2);
+        expect(markup).toContain("Cała odmiana");
+    });
+
+    it("grows into the odmiana sheet for the chosen reading", () => {
+        const markup = panelOf(CHIP, readyWith(loreFor("PIŁA", true), SAMPLE_SOURCE), "czasownik:PIĆ:V");
+        expect(markup).toContain('data-depth="paradigm"');
+        expect(markup).toContain('aria-label="PIŁA — dictionary reading"');
+        expect(markup).toContain(">PIŁA</h2>");
+        expect(markup).toContain("<caption>forma przeszła · oznajmujący · przeszły</caption>");
+        expect(markup).not.toContain("word-deepen");
+    });
+
+    it("stands at the card while the chosen reading is stale", () => {
+        const markup = panelOf(CHIP, readyWith(loreFor("PIŁA", true), SAMPLE_SOURCE), "czasownik:PISAĆ:V");
+        expect(markup).toContain('data-depth="card"');
+        expect(markup).not.toContain("paradigm");
+    });
+
+    it("stands at the card while the answer carries no reading to deepen", () => {
+        expect(panelOf(CHIP, NO_LORE_ANSWER, "rzeczownik:PIŁA:SF")).toContain('data-depth="card"');
+        expect(panelOf(CHIP, readyWith(aLore({ readings: [] }), false), "rzeczownik:PIŁA:SF")).toContain(
+            'data-depth="card"',
+        );
     });
 });

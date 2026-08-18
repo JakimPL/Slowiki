@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 
+import type { LoreAnswer } from "../../../src/play/lore/readings";
 import {
     askedFormsOf,
     assumedPlayable,
+    chosenReading,
     firstLexeme,
     loreStateOf,
     readingByLexeme,
@@ -47,6 +49,29 @@ describe("readingByLexeme", () => {
 
     it("finds nothing for a lexeme the word never carried", () => {
         expect(readingByLexeme(aLore(), "czasownik:PIĆ:V")).toBeNull();
+    });
+});
+
+describe("chosenReading", () => {
+    const drinking = aReading({ lexeme: "czasownik:PIĆ:V", part: "czasownik", base: "PIĆ" });
+    const readings = [aReading(), drinking];
+    const ready: LoreAnswer = { state: "ready", lore: aLore({ readings }), sample: true };
+
+    it("carries the chosen reading beside the siblings it can switch to", () => {
+        expect(chosenReading(ready, "czasownik:PIĆ:V")).toEqual({ readings, reading: drinking });
+    });
+
+    it("chooses nothing while the card asked for no reading", () => {
+        expect(chosenReading(ready, null)).toBeNull();
+    });
+
+    it("chooses nothing for a lexeme the served word never carried", () => {
+        expect(chosenReading(ready, "czasownik:PISAĆ:V")).toBeNull();
+    });
+
+    it("chooses nothing while the answer is still on its way or lost", () => {
+        expect(chosenReading({ state: "asking", lore: null, sample: false }, "czasownik:PIĆ:V")).toBeNull();
+        expect(chosenReading({ ...ready, state: "failed" }, "czasownik:PIĆ:V")).toBeNull();
     });
 });
 
