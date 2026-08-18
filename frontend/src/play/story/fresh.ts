@@ -17,6 +17,10 @@ export const BEFORE_ANY_TURN = -1;
 
 const NO_MARKS: ReadonlyMap<number, FreshMark> = new Map();
 
+export function freshWaving(play: PlayRecord | null, mySeat: number | null, acknowledged: number): boolean {
+    return play !== null && play.player !== mySeat && play.turn_number > acknowledged;
+}
+
 export function freshMarks(
     play: PlayRecord | null,
     mySeat: number | null,
@@ -25,7 +29,7 @@ export function freshMarks(
     if (play === null) {
         return NO_MARKS;
     }
-    const waving = play.player !== mySeat && play.turn_number > acknowledged;
+    const waving = freshWaving(play, mySeat, acknowledged);
     const along = [...play.indices].sort((left, right) => left - right);
     return new Map(along.map((cell, ordinal) => [cell, { ordinal, waving }]));
 }

@@ -107,7 +107,7 @@ export function Home({ invitedCode, themeNote, onArrive, onResume, onForget }: H
 
     const create: SubmitEventHandler<HTMLFormElement> = (submission) => {
         submission.preventDefault();
-        if (chosen === null) {
+        if (chosen === null || cleanedName === null) {
             return;
         }
         const time = timeRequestOf({ totalSeconds: budget, incrementSeconds: increment });
@@ -117,7 +117,7 @@ export function Home({ invitedCode, themeNote, onArrive, onResume, onForget }: H
     const join: SubmitEventHandler<HTMLFormElement> = (submission) => {
         submission.preventDefault();
         const cleanedCode = code.trim().toUpperCase();
-        if (cleanedCode === "") {
+        if (cleanedCode === "" || cleanedName === null) {
             return;
         }
         void settle(() => joinTable(cleanedCode, { name: cleanedName }));
@@ -138,17 +138,7 @@ export function Home({ invitedCode, themeNote, onArrive, onResume, onForget }: H
                 <h1>{PRODUCT_NAME}</h1>
                 <p className="tagline">{PRODUCT_TAGLINE}</p>
             </header>
-            {onResume === null ? null : (
-                <div className="home-return">
-                    <button type="button" className="action" onClick={onResume}>
-                        {RETURN_BUTTON}
-                    </button>
-                    <button type="button" className="home-forget" onClick={onForget}>
-                        {FORGET_BUTTON}
-                    </button>
-                </div>
-            )}
-            <label className="field home-name">
+            <label className="field home-name" data-wanted={cleanedName === null ? "true" : undefined}>
                 <span>{NAME_LABEL}</span>
                 <input
                     type="text"
@@ -159,6 +149,16 @@ export function Home({ invitedCode, themeNote, onArrive, onResume, onForget }: H
                     }}
                 />
             </label>
+            {onResume === null ? null : (
+                <div className="home-return">
+                    <button type="button" className="home-switch home-resume" onClick={onResume}>
+                        {RETURN_BUTTON}
+                    </button>
+                    <button type="button" className="home-switch" onClick={onForget}>
+                        {FORGET_BUTTON}
+                    </button>
+                </div>
+            )}
             <div className="home-panels">
                 {joining ? (
                     <form className="panel" onSubmit={join}>
@@ -175,7 +175,11 @@ export function Home({ invitedCode, themeNote, onArrive, onResume, onForget }: H
                                 }}
                             />
                         </label>
-                        <button type="submit" className="action" disabled={busy || code.trim() === ""}>
+                        <button
+                            type="submit"
+                            className="action"
+                            disabled={busy || cleanedName === null || code.trim() === ""}
+                        >
                             {JOIN_BUTTON}
                         </button>
                     </form>
@@ -261,7 +265,11 @@ export function Home({ invitedCode, themeNote, onArrive, onResume, onForget }: H
                                 </div>
                             </>
                         )}
-                        <button type="submit" className="action" disabled={busy || chosen === null}>
+                        <button
+                            type="submit"
+                            className="action"
+                            disabled={busy || cleanedName === null || chosen === null}
+                        >
                             {CREATE_BUTTON}
                         </button>
                     </form>

@@ -13,7 +13,7 @@ from fastapi import FastAPI, Header, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import Field
+from pydantic import StringConstraints
 
 from lexica.names import DictionaryName
 from wordcore.errors.exceptions import WordcoreError
@@ -44,16 +44,21 @@ from wordtable.paths import ASSETS_DIR, CONFIG_DIR, FRONTEND_DIST_DIR, RUN_CONFI
 MAX_PLAYER_NAME_LENGTH: Final = 32
 MAX_JUDGED_WORDS: Final = 16
 
+PlayerName = Annotated[
+    str,
+    StringConstraints(strip_whitespace=True, min_length=1, max_length=MAX_PLAYER_NAME_LENGTH),
+]
+
 
 class TableRequest(BaseFrozen):
     scheme: str
     seats: int
-    name: str | None = Field(default=None, max_length=MAX_PLAYER_NAME_LENGTH)
+    name: PlayerName
     time: TableTimeRequest | None = None
 
 
 class JoinRequest(BaseFrozen):
-    name: str | None = Field(default=None, max_length=MAX_PLAYER_NAME_LENGTH)
+    name: PlayerName
 
 
 class MoveRequest(BaseFrozen):
@@ -76,14 +81,6 @@ class _TableIdentity(NamedTuple):
 
 def _new_join_code() -> str:
     return "".join(secrets.choice(_JOIN_ALPHABET) for _ in range(_JOIN_CODE_LENGTH))
-
-
-def _cleaned_name(name: str | None) -> str | None:
-    if name is None:
-        return None
-
-    stripped = name.strip()
-    return stripped if stripped else None
 
 
 def _resolved_offering(scheme_name: str) -> ResolvedScheme:
@@ -160,7 +157,7 @@ def _minted_identity(seats: int) -> _TableIdentity:
     )
 
 
-def _creator_names(seats: int, creator: str | None) -> dict[int, str | None]:
+def _creator_names(seats: int, creator: str) -> dict[int, str | None]:
     names: dict[int, str | None] = {seat: None for seat in range(seats)}
     names[0] = creator
     return names
@@ -184,7 +181,7 @@ def _open_table(
     body: TableRequest,
 ) -> TableAdmission:
     identity = _minted_identity(body.seats)
-    creator = _cleaned_name(body.name)
+    creator = body.name
     played_time = _table_time(resolved.scheme, body.time)
     meta = TableMeta(
         scheme=body.scheme,
@@ -229,10 +226,7 @@ def _table_for_code(
     return table_id, session, meta
 
 
-async def _claimed_seat(
-    session: TableSession,
-    name: str | None,
-) -> tuple[int, str]:
+async def _claimed_seat(session: TableSession, name: str) -> tuple[int, str]:
     claimed = await session.claim(name)
     if claimed is None:
         raise Refusal(409, "table is full", ErrorCode.TABLE_FULL)
@@ -346,20 +340,16 @@ def create_app() -> FastAPI:
         "/tables/{code}/join",
         responses={404: {"model": ErrorBody}, 409: {"model": ErrorBody}},
     )
-    async def join_table(
-        code: str,
-        body: JoinRequest | None = None,
-    ) -> TableAdmission:
+    async def join_table(code: str, body: JoinRequest) -> TableAdmission:
         table_id, session, meta = _table_for_code(registry, code)
-        name = _cleaned_name(body.name if body is not None else None)
-        seat, token = await _claimed_seat(session, name)
+        seat, token = await _claimed_seat(session, body.name)
         return _admission(
             table_id,
             code.upper(),
             meta,
             seat=seat,
             token=token,
-            name=name,
+            name=body.name,
         )
 
     @app.get("/tables/{table_id}", responses={404: {"model": ErrorBody}})

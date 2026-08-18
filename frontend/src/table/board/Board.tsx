@@ -18,6 +18,7 @@ export interface BoardProps {
     readonly fresh: ReadonlyMap<number, FreshMark>;
     readonly freshFrame: FreshFrame | null;
     readonly freshTint: string | null;
+    readonly freshWaving: boolean;
     readonly onLay: ((cell: number) => void) | null;
     readonly bindings: TileBindings | null;
     readonly hold: HoldBinding | null;
@@ -32,6 +33,7 @@ export function Board({
     fresh,
     freshFrame,
     freshTint,
+    freshWaving,
     onLay,
     bindings,
     hold,
@@ -75,7 +77,13 @@ export function Board({
                     />
                 );
             })}
-            {freshFrame === null ? null : <div className="board-fresh" style={frameStyleFor(freshFrame)} />}
+            {freshFrame === null ? null : (
+                <div
+                    className="board-fresh"
+                    style={frameStyleFor(freshFrame)}
+                    data-waving={freshWaving ? "true" : undefined}
+                />
+            )}
         </div>
     );
 }

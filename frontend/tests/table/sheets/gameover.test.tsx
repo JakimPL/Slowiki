@@ -31,7 +31,7 @@ describe("GameOver", () => {
         expect(markup).toContain("Ola wins with 42");
         const standing = markup.slice(markup.indexOf("<ol"));
         expect(standing.indexOf("Ola")).toBeLessThan(standing.indexOf("Ala"));
-        expect(standing).toContain('data-crowned="true"');
+        expect(standing).toContain('data-place="1"');
         expect(markup).toContain("30");
     });
 
@@ -45,7 +45,7 @@ describe("GameOver", () => {
     it("spells out a win the player only shares", () => {
         const markup = anEnding(0, { 0: 42, 1: 42 });
         expect(markup).toContain("You share the win with 42");
-        expect(markup.match(/data-crowned/g)).toHaveLength(2);
+        expect(markup.match(/data-place="1"/g)).toHaveLength(2);
     });
 
     it("marks where the player landed", () => {

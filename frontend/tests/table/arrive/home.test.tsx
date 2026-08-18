@@ -49,6 +49,16 @@ describe("Home", () => {
         expect(markup).not.toContain("Return to your table");
     });
 
+    it("asks for a name before either table can be started", () => {
+        const markup = renderToStaticMarkup(
+            <SettingsProvider>
+                <Home invitedCode="KWPZTR" themeNote={null} onArrive={NOBODY} onResume={null} onForget={NOBODY} />
+            </SettingsProvider>,
+        );
+        expect(markup).toContain('data-wanted="true"');
+        expect(markup).toContain('disabled=""');
+    });
+
     it("opens on the create card with a switch toward joining", () => {
         const markup = renderToStaticMarkup(
             <SettingsProvider>

@@ -139,6 +139,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
     const {
         marks: fresh,
         frame: freshFrame,
+        waving: freshWaving,
         acknowledge: noticeLastPlay,
     } = useFreshPlay(lastPlay, mySeat, state.view.board.size);
     const perform = (effect: DeskEffect): void => {
@@ -454,6 +455,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
                     fresh={fresh}
                     freshFrame={freshFrame}
                     freshTint={freshTint}
+                    freshWaving={freshWaving}
                     onLay={mayAct ? layLifted : null}
                     bindings={atDesk ? bindings : null}
                     hold={hold}

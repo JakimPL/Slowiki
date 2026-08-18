@@ -16,6 +16,7 @@ const PASSIVE = {
     fresh: new Map<number, FreshMark>(),
     freshFrame: null,
     freshTint: null,
+    freshWaving: false,
     onLay: null,
     bindings: null,
     hold: null,
@@ -144,6 +145,21 @@ describe("Board", () => {
         expect(markup).toContain("--frame-columns:2");
         expect(markup).toContain('data-fresh="true"');
         expect(markup).not.toContain("data-waving");
+    });
+
+    it("sweeps the frame while the play still waves", () => {
+        const board = aBoard({ [CENTER]: aTile({ letter: "W" }) });
+        const markup = renderToStaticMarkup(
+            <Board
+                {...PASSIVE}
+                board={board}
+                fresh={new Map([[CENTER, { ordinal: 0, waving: true }]])}
+                freshFrame={{ row: 7, column: 7, rows: 1, columns: 1 }}
+                freshWaving
+            />,
+        );
+        const frame = markup.slice(markup.indexOf("board-fresh"));
+        expect(frame).toContain('data-waving="true"');
     });
 
     it("carries each waving tile its place along the play", () => {

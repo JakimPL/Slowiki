@@ -329,7 +329,7 @@ export interface components {
         /** JoinRequest */
         JoinRequest: {
             /** Name */
-            name?: string | null;
+            name: string;
         };
         /** Letter */
         Letter: {
@@ -575,7 +575,7 @@ export interface components {
         /** TableRequest */
         TableRequest: {
             /** Name */
-            name?: string | null;
+            name: string;
             /** Scheme */
             scheme: string;
             /** Seats */
@@ -799,9 +799,9 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: {
+        requestBody: {
             content: {
-                "application/json": components["schemas"]["JoinRequest"] | null;
+                "application/json": components["schemas"]["JoinRequest"];
             };
         };
         responses: {

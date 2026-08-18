@@ -30,6 +30,8 @@
     --motion-lift: 120ms;
     --motion-crown: crown-rise;
     --motion-shine: crown-shine;
+    --motion-wanted: name-wanted;
+    --motion-sweep: fresh-sweep;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -90,6 +92,8 @@
         --motion-lift: 0s;
         --motion-crown: none;
         --motion-shine: none;
+        --motion-wanted: none;
+        --motion-sweep: none;
     }
 }
 
@@ -100,6 +104,8 @@
     --motion-lift: 0s;
     --motion-crown: none;
     --motion-shine: none;
+    --motion-wanted: none;
+    --motion-sweep: none;
 }
 
 * {
@@ -266,19 +272,9 @@ select {
 
 .home-return {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-}
-
-.home-forget {
-    padding: 2px 8px;
-    border: 0;
-    background: none;
-    color: var(--chrome-muted);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
+    flex-wrap: wrap;
+    gap: 2px 10px;
+    justify-content: center;
 }
 
 .home-switch {
@@ -290,6 +286,10 @@ select {
     font-weight: 600;
     text-decoration: underline;
     cursor: pointer;
+}
+
+.home-resume {
+    color: var(--accent-premove);
 }
 
 .panel {
@@ -348,6 +348,22 @@ select {
     color: color-mix(in srgb, var(--chrome-muted) 80%, transparent);
 }
 
+.home-name[data-wanted] input {
+    border-color: var(--accent-danger);
+    animation: var(--motion-wanted) 2.6s ease-in-out infinite;
+}
+
+@keyframes name-wanted {
+    0%,
+    100% {
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-danger) 16%, transparent);
+    }
+
+    50% {
+        box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent-danger) 26%, transparent);
+    }
+}
+
 .code-input {
     font-weight: 600;
     letter-spacing: 0.2em;
@@ -368,10 +384,6 @@ select {
     border: 1.5px solid var(--chrome-edge);
     background: none;
     color: var(--chrome-muted);
-}
-
-.home-return .action {
-    background: var(--accent-premove);
 }
 
 .action:disabled {
@@ -842,6 +854,8 @@ button.status-line {
 
 .board-fresh {
     position: absolute;
+    z-index: 2;
+    overflow: hidden;
     top: calc(var(--board-padding) + var(--frame-row) * (var(--cell) + var(--board-gap)));
     left: calc(var(--board-padding) + var(--frame-column) * (var(--cell) + var(--board-gap)));
     width: calc(var(--frame-columns) * var(--cell) + (var(--frame-columns) - 1) * var(--board-gap));
@@ -850,6 +864,36 @@ button.status-line {
     outline: 2px solid var(--fresh, var(--accent-primary));
     box-shadow: 0 0 0 5px color-mix(in srgb, var(--fresh, var(--accent-primary)) 24%, transparent);
     pointer-events: none;
+}
+
+.board-fresh[data-waving]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    background: linear-gradient(100deg, transparent 26%, rgb(255 255 255 / 62%) 50%, transparent 74%);
+    animation: var(--motion-sweep) 5.4s ease-out infinite;
+}
+
+@keyframes fresh-sweep {
+    0% {
+        opacity: 0;
+        transform: translateX(-80%);
+    }
+
+    6% {
+        opacity: 1;
+    }
+
+    26% {
+        opacity: 0;
+        transform: translateX(80%);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateX(80%);
+    }
 }
 
 .docket {
@@ -1979,13 +2023,23 @@ button.word-chip[data-open] {
     overflow: hidden;
 }
 
-.standing-row[data-crowned] {
+.standing-row[data-place="3"] {
+    border-color: color-mix(in srgb, var(--tint) 48%, transparent);
+    background: color-mix(in srgb, var(--tint) 19%, var(--chrome-surface));
+}
+
+.standing-row[data-place="2"] {
+    border-color: color-mix(in srgb, var(--tint) 64%, transparent);
+    background: color-mix(in srgb, var(--tint) 22%, var(--chrome-surface));
+}
+
+.standing-row[data-place="1"] {
     border-color: var(--tint);
     background: color-mix(in srgb, var(--tint) 28%, var(--chrome-surface));
     font-size: 15.5px;
 }
 
-.standing-row[data-crowned][data-mine]::after {
+.standing-row[data-place="1"][data-mine]::after {
     content: "";
     position: absolute;
     inset: 0;
@@ -2020,7 +2074,16 @@ button.word-chip[data-open] {
     text-align: center;
 }
 
-.standing-row[data-crowned] .standing-place {
+.standing-row[data-place="2"] .standing-place,
+.standing-row[data-place="3"] .standing-place {
+    width: 19px;
+    height: 19px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--tint) 45%, var(--chrome-surface));
+    line-height: 19px;
+}
+
+.standing-row[data-place="1"] .standing-place {
     width: 19px;
     height: 19px;
     border-radius: 50%;
@@ -2081,7 +2144,6 @@ button.word-chip[data-open] {
 .control-primary:focus-visible,
 .chip-mode:focus-visible,
 .home-switch:focus-visible,
-.home-forget:focus-visible,
 .status-line:focus-visible,
 .docket summary:focus-visible,
 .queued-cancel:focus-visible,

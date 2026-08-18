@@ -28,10 +28,12 @@ by amending it. The palette is the *Lniany* proposition chosen from the phase-0 
   bonus quiet and inert while the table stays untimed, so the card holds its size through every
   choice) and a quiet switch to the join card for holders of a code. An invitation link opens
   straight onto the join card with the code prefilled, and that card keeps the switch, so a guest
-  can start a table of their own. The name field persists in local storage across visits, and a tab
-  remembers the seat it arrived at while that game runs, so the main view offers the way back — in
-  the premove color, distinct from the two starting actions — until the game ends or the player
-  forgets it.
+  can start a table of their own. A name is what both cards ask for first: the field carries a red
+  glow that breathes while it stands empty, and neither table can be started until it holds
+  something — the server asks for the same, so a nameless table cannot be minted by any client. The
+  name persists in local storage across visits. A tab remembers the seat it arrived at while that
+  game runs, so a quiet pair of switches under the name field offers the way back — the return in
+  the premove color, the forgetting beside it — until the game ends or the player lets it go.
   Credentials live in the URL fragment; a reload rejoins by token, and while no seat is held the
   page follows the address bar, so an invitation pasted over an idle page opens its join card. A
   held seat keeps its own address.
@@ -40,9 +42,10 @@ by amending it. The palette is the *Lniany* proposition chosen from the phase-0 
   plaques.
 - **Game over** — the final standing as an overlay: one row per player in placing order, each
   carrying its place, the player's tint, and the final score after rack deductions, with the board
-  still readable beneath. Tied players share a place. The winning row wears the fullest tint and a
-  filled place medal, and a win of the reader's own is announced in the heading, ringed on the card,
-  and swept once with a light that the calm motion setting holds back. Eight players fit the
+  still readable beneath. Tied players share a place. The first three rows carry the tint in
+  descending strength with a filled place medal each, the winning row the fullest of them, and a win
+  of the reader's own is announced in the heading, ringed on the card, and swept once with a light
+  that the calm motion setting holds back. Eight players fit the
   smallest phone in common use without scrolling, and the card keeps room for the best and longest
   move of the game. *Close* returns to the board with the final position and the move log readable,
   and the status line then reopens the standing; *Leave the table* returns to the main view.
@@ -192,11 +195,12 @@ sheet with the scheme's own alphabet.
 - **Fresh play**: one frame in the mover's tint, haloed in the same tint, drawn around the latest
   play as a whole — a single rectangle from its first new letter to its last, taking in the standing
   letters the play hooked through — and it stands until the next play. While the play is still
-  someone else's news, its tiles bob in place one after another along the word — three hops, a few
-  seconds of quiet, again — and settle for good at the first sign the player has seen them: a press
-  anywhere on the board, or any tile moved at the desk. A play of your own arrives already seen. The
-  `calm` motion setting and a device asking for reduced motion keep the frame and the halo and leave
-  the tiles still. The move log keeps the longer memory.
+  someone else's news, its tiles bob in place one after another along the word and a light sweeps
+  the frame with them — three hops and one sweep, a few seconds of quiet, again — and they settle
+  for good at the first sign the player has seen them: a press anywhere on the board, or any tile
+  moved at the desk. A play of your own arrives already seen. The `calm` motion setting and a device
+  asking for reduced motion keep the frame and the halo and leave the tiles still. The move log
+  keeps the longer memory.
 
 ## Feedback policy
 
