@@ -190,7 +190,7 @@ describe("Table", () => {
         expect(markup).not.toContain("rack-tile");
     });
 
-    it("surfaces the connection chip when the stream drops", () => {
+    it("surfaces the connection chip and reads the trouble in the feedback slot", () => {
         const response = aTableResponse();
         const markup = renderToStaticMarkup(
             <Table
@@ -204,6 +204,26 @@ describe("Table", () => {
             />,
         );
         expect(markup).toContain("Reconnecting");
-        expect(markup).toContain("stream lost");
+        expect(markup).toContain('data-tone="danger">stream lost');
+        expect(markup).not.toContain('class="trouble"');
+    });
+
+    it("keeps the trouble line under the room while the table gathers", () => {
+        const response = aTableResponse({
+            company: aCompany([aSeatView(0, { name: "Ala" }), aSeatView(1, { claimed: false })]),
+        });
+        const markup = renderToStaticMarkup(
+            <Table
+                arrival={ARRIVAL}
+                connection="lost"
+                state={openedFrom(response)}
+                clock={null}
+                trouble="stream lost"
+                notices={{ wanted: false, flip: () => undefined }}
+                onOutdated={() => Promise.resolve(null)}
+            />,
+        );
+        expect(markup).toContain('class="trouble">stream lost');
+        expect(markup).not.toContain("feedback");
     });
 });

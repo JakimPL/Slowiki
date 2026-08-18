@@ -169,6 +169,7 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
         status: wordStatusFor(rules.feedback, word.text, invalidTexts, judged),
     }));
     const shownNotice = noticeCode === STALE_POSITION_CODE ? STALE_NOTICE : notice;
+    const offline = connection === "live" ? null : trouble;
     const hint =
         exchanging && exchange !== null
             ? exchangeGuidance(exchange.block, exchange.remaining, rules.exchangeMinBag)
@@ -199,6 +200,9 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
                     </button>
                 </div>
             );
+        }
+        if (offline !== null) {
+            return danger(offline);
         }
         return (
             <p className="guidance" role="status" data-tone="hint">
@@ -475,7 +479,7 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
                         {tally === null ? null : <RemainingTiles tally={tally} />}
                     </div>
                 )}
-                {trouble !== null && connection !== "live" ? <p className="trouble">{trouble}</p> : null}
+                {atDesk || offline === null ? null : <p className="trouble">{offline}</p>}
             </div>
             {carry === null ? null : (
                 <div

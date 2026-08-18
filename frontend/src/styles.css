@@ -642,20 +642,23 @@ select {
 }
 
 .rack {
-    --tile-width: clamp(40px, calc((100cqw - (var(--row-count, 7) - 1) * 6px) / var(--row-count, 7)), 46px);
+    --row-gap: 6px;
+    --row-padding: 4px;
+    --tile-width: clamp(40px, calc((100cqw - (var(--row-count, 7) - 1) * var(--row-gap)) / var(--row-count, 7)), 46px);
+    --tile-height: calc(var(--tile-width) + 4px);
 
     container-type: inline-size;
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: var(--row-gap);
     justify-content: center;
-    padding: 4px 0;
+    padding: var(--row-padding) 0;
 }
 
 .rack .tile {
-    width: var(--tile-width, 46px);
-    height: calc(var(--tile-width, 46px) + 4px);
-    font-size: calc(var(--tile-width, 46px) * 0.48);
+    width: var(--tile-width);
+    height: var(--tile-height);
+    font-size: calc(var(--tile-width) * 0.48);
 }
 
 .rack-tile {
@@ -673,13 +676,17 @@ select {
 }
 
 .tray {
+    --row-gap: 6px;
+    --row-padding: 4px;
+    --tile-width: 40px;
+    --tile-height: 44px;
+
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: var(--row-gap);
     align-items: center;
     justify-content: center;
-    min-height: 54px;
-    padding: 5px 6px;
+    padding: var(--row-padding) 6px;
     border: 1px solid var(--chrome-edge);
     border-radius: 12px;
     background: color-mix(in srgb, var(--chrome-text) 5%, transparent);
@@ -687,9 +694,18 @@ select {
 }
 
 .tray .tile {
-    width: 40px;
-    height: 44px;
+    width: var(--tile-width);
+    height: var(--tile-height);
     font-size: 19px;
+}
+
+.rack::before,
+.tray::before {
+    flex: none;
+    width: 0;
+    height: var(--tile-height);
+    margin-inline-end: calc(-1 * var(--row-gap));
+    content: "";
 }
 
 .tray-hint {
@@ -712,14 +728,10 @@ select {
     background: color-mix(in srgb, var(--accent-primary) 9%, transparent);
 }
 
-.rack .slot-shadow {
-    width: var(--tile-width, 46px);
-    height: calc(var(--tile-width, 46px) + 4px);
-}
-
+.rack .slot-shadow,
 .tray .slot-shadow {
-    width: 40px;
-    height: 44px;
+    width: var(--tile-width);
+    height: var(--tile-height);
 }
 
 .slot-action {
@@ -916,16 +928,16 @@ select {
     }
 
     .rack {
-        padding: 2px 0;
+        --row-padding: 2px;
     }
 
     .tray {
-        min-height: 46px;
+        --row-padding: 2px;
+        --tile-width: 36px;
+        --tile-height: 40px;
     }
 
     .tray .tile {
-        width: 36px;
-        height: 40px;
         font-size: 17px;
     }
 }

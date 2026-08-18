@@ -7,7 +7,8 @@ by amending it. The palette is the *Lniany* proposition chosen from the phase-0 
 ## Principles
 
 1. **The board is the hero.** Every other region yields space to a maximally large, always-square
-   board.
+   board, and every region reserves the height its rules demand rather than the height its current
+   contents happen to need, so the board keeps one size from the first tile of a turn to the last.
 2. **Hue says who; strength says whose turn.** Player tints color chrome: plaques, rings, fresh-play
    highlights, log entries. The four Literaki categories color tile faces and premium squares. The
    two palettes stay on separate surfaces, and printed values accompany every color.
@@ -58,11 +59,13 @@ feedback line, rack, tray, controls, and the docket at its foot.
   solid accent ring, premove ghosts at reduced opacity in the premove accent.
 - **Feedback line** — one fixed-height slot showing, in order of precedence: the refusal or
   notice sentence, the formed-word chips (points and status dot each) while a draft stands, the
-  returned-premove explanation, the queued-premove chip with its Cancel action, or the guidance
-  hint (`role="status"`). Each word chip is a button opening the word panel; the bingo chip reads as a
-  plain label.
+  returned-premove explanation, the queued-premove chip with its Cancel action, the connection
+  trouble sentence, or the guidance hint (`role="status"`). Each word chip is a button opening the
+  word panel; the bingo chip reads as a plain label.
 - **Rack and tray** — the rack row holds the hand; the recessed tray beneath stages exchanges and
-  doubles as parking space while thinking.
+  doubles as parking space while thinking. Each row reserves exactly one tile of height, so lifting
+  a tile, staging an exchange, or laying the whole hand on the board leaves every other region
+  where it stands.
 - **Controls** — three fixed slots: quiet Pass on the left, armed while the seat is acting, the
   primary contextual button (`Play · 34`, `Premove · 21`, `Exchange 3`) centered, and a quiet
   toggle on the right that reads Recall while pending tiles stand on the board and Shuffle when
