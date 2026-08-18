@@ -2,40 +2,54 @@ import type { ReactElement } from "react";
 
 import type { CompanyView, PositionView } from "../../api/views";
 import { tintFor } from "../../play/seats/tints";
+import { rankingOf } from "../../play/story/ranking";
 import type { Story } from "../../play/story/story";
 import {
+    captionFor,
     GAME_OVER_CLOSE,
     GAME_OVER_DISMISS,
     GAME_OVER_HEADING,
     GAME_OVER_LEAVE,
+    GAME_OVER_VICTORY,
     nameFor,
-    wonCaption,
+    YOU_MARKER,
 } from "../strings";
 
 export interface GameOverProps {
     readonly view: PositionView;
     readonly company: CompanyView;
     readonly story: Story;
+    readonly mySeat: number | null;
     readonly onClose: () => void;
     readonly onLeave: () => void;
 }
 
-export function GameOver({ view, company, story, onClose, onLeave }: GameOverProps): ReactElement {
-    const ranked = [...view.players].sort(
-        (left, right) => (view.scores[String(right)] ?? 0) - (view.scores[String(left)] ?? 0),
-    );
-    const winners = story.seats.map((seat) => nameFor(company, seat));
+export function GameOver({ view, company, story, mySeat, onClose, onLeave }: GameOverProps): ReactElement {
+    const crowned = story.mine && story.seats.length === 1;
     return (
         <section className="game-over">
             <button type="button" className="game-over-scrim" aria-label={GAME_OVER_DISMISS} onClick={onClose} />
-            <div className="game-over-card" role="dialog" aria-label={GAME_OVER_HEADING}>
-                <h2>{GAME_OVER_HEADING}</h2>
-                <p className="game-over-verdict">{wonCaption(winners, story.points ?? 0)}</p>
+            <div
+                className="game-over-card"
+                role="dialog"
+                aria-label={GAME_OVER_HEADING}
+                data-mine={story.mine ? "true" : undefined}
+            >
+                <h2>{story.mine ? GAME_OVER_VICTORY : GAME_OVER_HEADING}</h2>
+                {crowned ? null : <p className="game-over-verdict">{captionFor(story, company)}</p>}
                 <ol className="standing">
-                    {ranked.map((seat) => (
-                        <li key={seat} className="standing-row" style={{ "--tint": tintFor(seat).hex }}>
-                            <span className="standing-name">{nameFor(company, seat)}</span>
-                            <span className="standing-score">{view.scores[String(seat)] ?? 0}</span>
+                    {rankingOf(view).map((ranked) => (
+                        <li
+                            key={ranked.seat}
+                            className="standing-row"
+                            style={{ "--tint": tintFor(ranked.seat).hex }}
+                            data-crowned={ranked.place === 1 ? "true" : undefined}
+                            data-mine={ranked.seat === mySeat ? "true" : undefined}
+                        >
+                            <span className="standing-place">{ranked.place}</span>
+                            <span className="standing-name">{nameFor(company, ranked.seat)}</span>
+                            {ranked.seat === mySeat ? <em className="standing-you">{YOU_MARKER}</em> : null}
+                            <span className="standing-score">{ranked.points}</span>
                         </li>
                     ))}
                 </ol>

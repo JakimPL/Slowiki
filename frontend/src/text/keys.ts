@@ -119,6 +119,7 @@ export interface PlainValues {
     readonly "sheets.game_over_dismiss": EmptyValues;
     readonly "sheets.game_over_heading": EmptyValues;
     readonly "sheets.game_over_leave": EmptyValues;
+    readonly "sheets.game_over_victory": EmptyValues;
     readonly "words.absent": EmptyValues;
     readonly "words.asking": EmptyValues;
     readonly "words.deepen": EmptyValues;
@@ -147,6 +148,7 @@ export interface PluralValues {
     readonly "hand.exchange_left": EmptyValues;
     readonly "seats.thinking": { readonly names: string };
     readonly "seats.won": { readonly names: string; readonly points: number };
+    readonly "seats.won_yours": { readonly points: number };
 }
 
 export type PlainKey = keyof PlainValues;

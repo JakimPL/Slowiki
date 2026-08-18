@@ -43,10 +43,20 @@ describe("captions", () => {
 
 describe("captionFor", () => {
     it("announces my turn", () => {
-        expect(captionFor({ kind: "acting", seats: [0], points: null }, aCompany())).toBe("Your turn");
+        expect(captionFor({ kind: "acting", seats: [0], points: null, mine: true }, aCompany())).toBe("Your turn");
+    });
+
+    it("hands the win to the player who took it", () => {
+        expect(captionFor({ kind: "over", seats: [0], points: 42, mine: true }, aCompany())).toBe("You win with 42");
+        expect(captionFor({ kind: "over", seats: [0, 1], points: 42, mine: true }, aCompany())).toBe(
+            "You share the win with 42",
+        );
+        expect(captionFor({ kind: "over", seats: [1], points: 42, mine: false }, aCompany())).toBe("Ola wins with 42");
     });
 
     it("names the watched actors", () => {
-        expect(captionFor({ kind: "watching", seats: [1], points: null }, aCompany())).toBe("Ola is thinking…");
+        expect(captionFor({ kind: "watching", seats: [1], points: null, mine: false }, aCompany())).toBe(
+            "Ola is thinking…",
+        );
     });
 });

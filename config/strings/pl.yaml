@@ -58,6 +58,11 @@ seats:
       one: "{names} wygrywa z wynikiem {points:number}"
       few: "{names} dzielą zwycięstwo z wynikiem {points:number}"
       many: "{names} dzielą zwycięstwo z wynikiem {points:number}"
+  won_yours:
+    plural:
+      one: "Wygrywasz z wynikiem {points:number}"
+      few: "Dzielisz zwycięstwo z wynikiem {points:number}"
+      many: "Dzielisz zwycięstwo z wynikiem {points:number}"
   standing_reopen: Pokaż podsumowanie gry
   mode_label: Tryb kolorów
   mode_system: ◐ Auto
@@ -148,6 +153,7 @@ sheets:
   blank_input_label: Litera
   blank_confirm: Przypisz literę
   game_over_heading: Koniec gry
+  game_over_victory: Wygrana!
   game_over_close: Zamknij
   game_over_leave: Opuść stół
   game_over_dismiss: Zamknij podsumowanie gry

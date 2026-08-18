@@ -28,6 +28,8 @@
     --motion-fresh: fresh-wave;
     --motion-hold: cell-hold;
     --motion-lift: 120ms;
+    --motion-crown: crown-rise;
+    --motion-shine: crown-shine;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -86,6 +88,8 @@
         --motion-fresh: none;
         --motion-hold: none;
         --motion-lift: 0s;
+        --motion-crown: none;
+        --motion-shine: none;
     }
 }
 
@@ -94,6 +98,8 @@
     --motion-fresh: none;
     --motion-hold: none;
     --motion-lift: 0s;
+    --motion-crown: none;
+    --motion-shine: none;
 }
 
 * {
@@ -364,6 +370,10 @@ select {
     color: var(--chrome-muted);
 }
 
+.home-return .action {
+    background: var(--accent-premove);
+}
+
 .action:disabled {
     background: color-mix(in srgb, var(--chrome-text) 8%, transparent);
     color: color-mix(in srgb, var(--chrome-muted) 75%, transparent);
@@ -485,9 +495,10 @@ button.status-line {
 }
 
 .home-mode {
-    position: absolute;
-    top: 12px;
-    right: 14px;
+    display: flex;
+    gap: 8px;
+    align-self: stretch;
+    justify-content: flex-end;
 }
 
 .plaques {
@@ -508,12 +519,12 @@ button.status-line {
     padding: 4px 9px;
     border: 1.5px solid color-mix(in srgb, var(--tint) 38%, transparent);
     border-radius: 10px;
-    background: color-mix(in srgb, var(--tint) 10%, transparent);
+    background: color-mix(in srgb, var(--tint) 15%, transparent);
 }
 
 .plaque[data-acting] {
     border-color: var(--tint);
-    background: color-mix(in srgb, var(--tint) 16%, transparent);
+    background: color-mix(in srgb, var(--tint) 26%, transparent);
     box-shadow: 0 0 0 2px color-mix(in srgb, var(--tint) 30%, transparent);
     animation: var(--motion-breath) 2.6s ease-in-out infinite;
 }
@@ -981,6 +992,53 @@ button.status-line {
 
 .remaining-cell[data-spent] {
     opacity: 0.45;
+}
+
+@media (width < 900px) and (orientation: portrait) {
+    .home {
+        gap: 12px;
+        padding: 16px;
+        padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    }
+
+    .brand {
+        gap: 6px;
+    }
+
+    .brand h1 {
+        font-size: 32px;
+    }
+
+    .specimen .tile {
+        width: 36px;
+        height: 40px;
+        font-size: 18px;
+    }
+
+    .home .panel {
+        gap: 10px;
+        padding: 14px;
+    }
+}
+
+@media (width < 900px) and (orientation: portrait) and (height <= 640px) {
+    .home {
+        gap: 8px;
+    }
+
+    .brand h1 {
+        font-size: 27px;
+    }
+
+    .tagline {
+        display: none;
+    }
+
+    .specimen .tile {
+        width: 32px;
+        height: 36px;
+        font-size: 16px;
+    }
 }
 
 @media (width < 900px) and (orientation: portrait) and (height <= 760px) {
@@ -1838,32 +1896,63 @@ button.word-chip[data-open] {
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    width: min(100%, 380px);
+    gap: 10px;
+    width: min(100%, 420px);
     max-height: 100%;
-    padding: 22px;
+    padding: 16px;
     border: 1px solid var(--chrome-edge);
     border-radius: 16px;
     background: var(--chrome-panel);
     box-shadow: 0 12px 40px rgb(0 0 0 / 30%);
 }
 
+.game-over-card[data-mine] {
+    border-color: color-mix(in srgb, var(--accent-primary) 55%, transparent);
+    box-shadow:
+        0 12px 40px rgb(0 0 0 / 30%),
+        0 0 0 3px color-mix(in srgb, var(--accent-primary) 20%, transparent);
+}
+
 .game-over-card h2 {
     margin: 0;
-    font-size: 24px;
+    font-size: 21px;
     font-weight: 900;
+    line-height: 1.15;
+}
+
+.game-over-card[data-mine] h2 {
+    color: var(--accent-primary);
+    animation: var(--motion-crown) 640ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+
+@keyframes crown-rise {
+    0% {
+        opacity: 0;
+        transform: translateY(7px) scale(0.94);
+    }
+
+    60% {
+        opacity: 1;
+        transform: translateY(0) scale(1.04);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 .game-over-verdict {
     margin: 0;
     color: var(--chrome-muted);
+    font-size: 13.5px;
     font-weight: 600;
 }
 
 .standing {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
     min-height: 0;
     margin: 0;
     padding: 0;
@@ -1876,13 +1965,87 @@ button.word-chip[data-open] {
 
 .standing-row {
     display: flex;
+    position: relative;
     flex: none;
-    gap: 10px;
-    justify-content: space-between;
-    padding: 8px 12px;
+    gap: 8px;
+    align-items: center;
+    padding: 4px 10px 4px 7px;
+    border: 1px solid color-mix(in srgb, var(--tint) 30%, transparent);
     border-left: 4px solid var(--tint);
     border-radius: 8px;
-    background: var(--chrome-surface);
+    background: color-mix(in srgb, var(--tint) 15%, var(--chrome-surface));
+    font-size: 14px;
+    font-weight: 600;
+    overflow: hidden;
+}
+
+.standing-row[data-crowned] {
+    border-color: var(--tint);
+    background: color-mix(in srgb, var(--tint) 28%, var(--chrome-surface));
+    font-size: 15.5px;
+}
+
+.standing-row[data-crowned][data-mine]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    background: linear-gradient(100deg, transparent 30%, rgb(255 255 255 / 58%) 50%, transparent 70%);
+    animation: var(--motion-shine) 1500ms ease-out 240ms;
+}
+
+@keyframes crown-shine {
+    0% {
+        opacity: 0;
+        transform: translateX(-70%);
+    }
+
+    35% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateX(70%);
+    }
+}
+
+.standing-place {
+    flex: none;
+    width: 17px;
+    color: var(--chrome-muted);
+    font-size: 12px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+}
+
+.standing-row[data-crowned] .standing-place {
+    width: 19px;
+    height: 19px;
+    border-radius: 50%;
+    background: var(--tint);
+    color: var(--chrome-surface);
+    font-size: 12px;
+    line-height: 19px;
+}
+
+.standing-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.standing-you {
+    flex: none;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--tint);
+    color: var(--chrome-surface);
+    font-size: 10.5px;
+    font-style: normal;
     font-weight: 600;
 }
 
@@ -1893,9 +2056,13 @@ button.word-chip[data-open] {
 
 .game-over-actions .action {
     flex: 1;
+    padding: 9px 12px;
+    font-size: 13px;
+    white-space: nowrap;
 }
 
 .standing-score {
+    flex: none;
     font-weight: 900;
     font-variant-numeric: tabular-nums;
 }

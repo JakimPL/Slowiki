@@ -29,19 +29,23 @@ by amending it. The palette is the *Lniany* proposition chosen from the phase-0 
   choice) and a quiet switch to the join card for holders of a code. An invitation link opens
   straight onto the join card with the code prefilled, and that card keeps the switch, so a guest
   can start a table of their own. The name field persists in local storage across visits, and a tab
-  remembers the seat it arrived at, so the main view offers the way back to that table until the
-  player forgets it.
+  remembers the seat it arrived at while that game runs, so the main view offers the way back — in
+  the premove color, distinct from the two starting actions — until the game ends or the player
+  forgets it.
   Credentials live in the URL fragment; a reload rejoins by token, and while no seat is held the
   page follows the address bar, so an invitation pasted over an idle page opens its join card. A
   held seat keeps its own address.
 - **Table** — the one screen where the game lives. Until every seat is claimed it doubles as the
   room: a gathering banner with the join code, a copy-invitation control, and claimed/empty
   plaques.
-- **Game over** — the final standing as an overlay: winner, rack deductions, the board still
-  readable beneath. Heading and actions hold their place while a long standing scrolls inside the
-  card, so a table of eight fits a phone. *Close* returns to the board with the final position and
-  the move log readable, and the status line then reopens the standing; *Leave the table* returns
-  to the main view, which keeps the way back.
+- **Game over** — the final standing as an overlay: one row per player in placing order, each
+  carrying its place, the player's tint, and the final score after rack deductions, with the board
+  still readable beneath. Tied players share a place. The winning row wears the fullest tint and a
+  filled place medal, and a win of the reader's own is announced in the heading, ringed on the card,
+  and swept once with a light that the calm motion setting holds back. Eight players fit the
+  smallest phone in common use without scrolling, and the card keeps room for the best and longest
+  move of the game. *Close* returns to the board with the final position and the move log readable,
+  and the status line then reopens the standing; *Leave the table* returns to the main view.
 
 ## Table regions
 

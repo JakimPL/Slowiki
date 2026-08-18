@@ -43,21 +43,30 @@ export function App(): ReactElement {
             />
         );
     }
-    return <TableScreen arrival={arrival} onLeave={leave} />;
+    return <TableScreen arrival={arrival} onLeave={leave} onFinished={forget} />;
 }
 
 interface TableScreenProps {
     readonly arrival: Arrival;
     readonly onLeave: () => void;
+    readonly onFinished: () => void;
 }
 
-function TableScreen({ arrival, onLeave }: TableScreenProps): ReactElement {
+function TableScreen({ arrival, onLeave, onFinished }: TableScreenProps): ReactElement {
     const { settings } = useSettings();
     const { connection, state, clock, trouble, refresh } = useTable(
         arrival.seat.table,
         arrival.seat.token,
         settings.notices,
     );
+    const finished = state !== null && state.view.phase === "game_over";
+
+    useEffect(() => {
+        if (finished) {
+            onFinished();
+        }
+    }, [finished, onFinished]);
+
     if (state === null) {
         return (
             <main className="waiting">

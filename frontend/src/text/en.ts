@@ -112,6 +112,7 @@ export const EN: Catalog = {
         "sheets.game_over_dismiss": "Close the final standing",
         "sheets.game_over_heading": "Game over",
         "sheets.game_over_leave": "Leave the table",
+        "sheets.game_over_victory": "You win!",
         "words.absent": "The dictionary refuses this word, so there is no reading.",
         "words.asking": "Reading the word…",
         "words.deepen": "Cała odmiana",
@@ -158,6 +159,12 @@ export const EN: Catalog = {
             few: "{names} share the win with {points}",
             many: "{names} share the win with {points}",
             other: "{names} share the win with {points}",
+        },
+        "seats.won_yours": {
+            one: "You win with {points}",
+            few: "You share the win with {points}",
+            many: "You share the win with {points}",
+            other: "You share the win with {points}",
         },
     },
 };

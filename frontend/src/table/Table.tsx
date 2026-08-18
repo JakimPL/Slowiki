@@ -575,6 +575,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
                     view={state.view}
                     company={state.company}
                     story={story}
+                    mySeat={mySeat}
                     onClose={(): void => {
                         setStandingShown(false);
                     }}

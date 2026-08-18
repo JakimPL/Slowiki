@@ -42,6 +42,7 @@ export const OPEN_SEAT_LABEL = text("seats.open_seat");
 export const YOU_MARKER = text("seats.you_marker");
 export const YOUR_TURN_CAPTION = text("seats.your_turn");
 export const GAME_OVER_HEADING = text("sheets.game_over_heading");
+export const GAME_OVER_VICTORY = text("sheets.game_over_victory");
 export const GAME_OVER_CLOSE = text("sheets.game_over_close");
 export const GAME_OVER_LEAVE = text("sheets.game_over_leave");
 export const GAME_OVER_DISMISS = text("sheets.game_over_dismiss");
@@ -282,6 +283,10 @@ export function wonCaption(names: readonly string[], points: number): string {
     return counted("seats.won", names.length, { names: listed(names), points });
 }
 
+export function yourWinCaption(winners: number, points: number): string {
+    return counted("seats.won_yours", winners, { points });
+}
+
 export function captionFor(story: Story, company: CompanyView): string {
     switch (story.kind) {
         case "acting":
@@ -291,10 +296,12 @@ export function captionFor(story: Story, company: CompanyView): string {
             return gatheringCaption(present, company.seats.length);
         }
         case "over":
-            return wonCaption(
-                story.seats.map((seat) => nameFor(company, seat)),
-                story.points ?? 0,
-            );
+            return story.mine
+                ? yourWinCaption(story.seats.length, story.points ?? 0)
+                : wonCaption(
+                      story.seats.map((seat) => nameFor(company, seat)),
+                      story.points ?? 0,
+                  );
         case "watching":
             return thinkingCaption(story.seats.map((seat) => nameFor(company, seat)));
     }

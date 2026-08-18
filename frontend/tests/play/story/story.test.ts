@@ -7,7 +7,14 @@ describe("storyFor", () => {
     it("crowns the top score when the game is over", () => {
         const view = aView({ phase: "game_over", scores: { 0: 30, 1: 42 } });
         const story = storyFor(view, aCompany(), 0);
-        expect(story).toEqual({ kind: "over", seats: [1], points: 42 });
+        expect(story).toEqual({ kind: "over", seats: [1], points: 42, mine: false });
+    });
+
+    it("tells the winner it is their own win", () => {
+        const view = aView({ phase: "game_over", scores: { 0: 42, 1: 30 } });
+        expect(storyFor(view, aCompany(), 0).mine).toBe(true);
+        expect(storyFor(view, aCompany(), 1).mine).toBe(false);
+        expect(storyFor(view, aCompany(), null).mine).toBe(false);
     });
 
     it("shares the win between tied players", () => {
