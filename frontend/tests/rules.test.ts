@@ -8,6 +8,7 @@ describe("rulesFrom", () => {
         expect(rulesFrom(null)).toBe(FALLBACK_RULES);
         expect(FALLBACK_RULES.premovesAllowed).toBe(false);
         expect(FALLBACK_RULES.feedback).toBe("submit");
+        expect(FALLBACK_RULES.lore).toBe(false);
     });
 
     it("maps the served parameters onto client rules", () => {
@@ -19,6 +20,7 @@ describe("rulesFrom", () => {
         expect(rules.bingoBonus).toBe(50);
         expect(rules.premovesAllowed).toBe(true);
         expect(rules.feedback).toBe("submit");
+        expect(rules.lore).toBe(true);
         expect(rules.alphabet?.map((letter) => letter.symbol)).toEqual(["A", "K"]);
     });
 

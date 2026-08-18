@@ -3,6 +3,16 @@ import type { WordStatus } from "./feedback";
 
 export type LoreState = "absent" | "unclassified" | "read";
 
+export type LoreProgress = "asking" | "ready" | "failed";
+
+export interface LoreAnswer {
+    readonly state: LoreProgress;
+    readonly lore: WordLore | null;
+    readonly sample: boolean;
+}
+
+export const NO_LORE_ANSWER: LoreAnswer = { state: "asking", lore: null, sample: false };
+
 export function loreStateOf(lore: WordLore): LoreState {
     if (!lore.playable) {
         return "absent";
