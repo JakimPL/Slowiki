@@ -16,6 +16,7 @@ export interface PlainValues {
     readonly "arrive.copy_code_label": EmptyValues;
     readonly "arrive.create_button": EmptyValues;
     readonly "arrive.create_heading": EmptyValues;
+    readonly "arrive.forget_button": EmptyValues;
     readonly "arrive.increment_label": EmptyValues;
     readonly "arrive.invite_button": EmptyValues;
     readonly "arrive.invite_copied": EmptyValues;
@@ -25,6 +26,7 @@ export interface PlainValues {
     readonly "arrive.name_label": EmptyValues;
     readonly "arrive.name_placeholder": EmptyValues;
     readonly "arrive.offerings_loading": EmptyValues;
+    readonly "arrive.return_button": EmptyValues;
     readonly "arrive.scheme_label": EmptyValues;
     readonly "arrive.seats_label": EmptyValues;
     readonly "arrive.span": { readonly maximum: number; readonly minimum: number };
@@ -105,6 +107,7 @@ export interface PlainValues {
     readonly "seats.notice_on": EmptyValues;
     readonly "seats.open_seat": EmptyValues;
     readonly "seats.players_label": EmptyValues;
+    readonly "seats.standing_reopen": EmptyValues;
     readonly "seats.waiting": EmptyValues;
     readonly "seats.you_marker": EmptyValues;
     readonly "seats.your_turn": EmptyValues;
@@ -112,7 +115,10 @@ export interface PlainValues {
     readonly "sheets.blank_confirm": EmptyValues;
     readonly "sheets.blank_heading": EmptyValues;
     readonly "sheets.blank_input_label": EmptyValues;
+    readonly "sheets.game_over_close": EmptyValues;
+    readonly "sheets.game_over_dismiss": EmptyValues;
     readonly "sheets.game_over_heading": EmptyValues;
+    readonly "sheets.game_over_leave": EmptyValues;
     readonly "words.absent": EmptyValues;
     readonly "words.asking": EmptyValues;
     readonly "words.deepen": EmptyValues;

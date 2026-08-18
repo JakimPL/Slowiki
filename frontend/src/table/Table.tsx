@@ -94,6 +94,7 @@ export interface TableProps {
     readonly clock: ClockView | null;
     readonly trouble: string | null;
     readonly onOutdated: () => Promise<number | null>;
+    readonly onLeave: () => void;
 }
 
 interface BlankChoice {
@@ -101,7 +102,7 @@ interface BlankChoice {
     readonly tile: Tile;
 }
 
-export function Table({ arrival, connection, state, clock, trouble, onOutdated }: TableProps): ReactElement {
+export function Table({ arrival, connection, state, clock, trouble, onOutdated, onLeave }: TableProps): ReactElement {
     const { settings } = useSettings();
     const mySeat = arrival.seated ?? seatedAs(state.view);
     const description = useDescription(arrival.seat);
@@ -147,6 +148,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
         performDesk(effect);
     };
     const [blankChoice, setBlankChoice] = useState<BlankChoice | null>(null);
+    const [standingShown, setStandingShown] = useState(true);
     const {
         panel,
         open: openPanel,
@@ -299,6 +301,10 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
         perform({ kind: "arrange", arrangement: shuffledArrangement(desk.arrangement, visible, Math.random) });
     };
     const retreat = (): void => {
+        if (story.kind === "over" && standingShown) {
+            setStandingShown(false);
+            return;
+        }
         if (blankChoice !== null) {
             dismissBlank();
             return;
@@ -404,9 +410,21 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
             onPointerCancel={abandon}
         >
             <header className="status-strip">
-                <StatusLine text={captionFor(story, state.company)} tone={toneOf(story.kind)} />
-                <span className="status-meta">{bagCaption(state.view.bag_count)}</span>
-                {description !== null && description.code !== null ? <CodeChip code={description.code} /> : null}
+                <StatusLine
+                    text={captionFor(story, state.company)}
+                    tone={toneOf(story.kind)}
+                    onOpen={
+                        story.kind === "over" && !standingShown
+                            ? (): void => {
+                                  setStandingShown(true);
+                              }
+                            : null
+                    }
+                />
+                {story.kind === "over" ? null : <span className="status-meta">{bagCaption(state.view.bag_count)}</span>}
+                {story.kind !== "over" && description !== null && description.code !== null ? (
+                    <CodeChip code={description.code} />
+                ) : null}
                 {connection === "live" ? null : (
                     <span className="chip chip-connection" data-connection={connection}>
                         {CONNECTION_CAPTIONS[connection]}
@@ -552,7 +570,17 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated }
                     onClose={closePanel}
                 />
             )}
-            {story.kind === "over" ? <GameOver view={state.view} company={state.company} story={story} /> : null}
+            {story.kind === "over" && standingShown ? (
+                <GameOver
+                    view={state.view}
+                    company={state.company}
+                    story={story}
+                    onClose={(): void => {
+                        setStandingShown(false);
+                    }}
+                    onLeave={onLeave}
+                />
+            ) : null}
         </div>
     );
 }

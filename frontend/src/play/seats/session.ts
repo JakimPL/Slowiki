@@ -36,6 +36,11 @@ export function followedFragment(held: string, address: string): string {
     return standing.table !== null && standing.token !== null ? held : address;
 }
 
+export function withoutFragment(address: string): string {
+    const cut = address.indexOf("#");
+    return cut === -1 ? address : address.slice(0, cut);
+}
+
 export function invitationTo(origin: string, pathname: string, table: string, code: string): string {
     const fields = new URLSearchParams();
     fields.set(TABLE_FIELD, table);

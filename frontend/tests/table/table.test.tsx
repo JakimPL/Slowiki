@@ -8,7 +8,34 @@ import { aBoard, aCompany, aPlayRecord, aSeatView, aTableResponse, aTile, aView 
 
 const ARRIVAL = { seat: { table: "t1", token: "tok-1" }, code: "KWPZTR", seated: 0 };
 
+const STAYS = (): void => {
+    throw new Error("nobody leaves in a static render");
+};
+
 describe("Table", () => {
+    it("holds the final standing over the board and quiets the strip", () => {
+        const response = aTableResponse({
+            view: aView({ phase: "game_over", to_act: [], scores: { 0: 30, 1: 42 } }),
+        });
+        const markup = renderToStaticMarkup(
+            <SettingsProvider>
+                <Table
+                    arrival={ARRIVAL}
+                    connection="live"
+                    state={openedFrom(response)}
+                    clock={null}
+                    trouble={null}
+                    onOutdated={() => Promise.resolve(null)}
+                    onLeave={STAYS}
+                />
+            </SettingsProvider>,
+        );
+        expect(markup).toContain("Game over");
+        expect(markup).toContain("Leave the table");
+        expect(markup).toContain("Ola wins with 42");
+        expect(markup).not.toContain("Bag ");
+    });
+
     it("shows the gathering room with the code and no tiles while seats stay open", () => {
         const response = aTableResponse({
             view: aView({ to_act: [0], racks: { 0: null, 1: null } }),
@@ -23,6 +50,7 @@ describe("Table", () => {
                     clock={null}
                     trouble={null}
                     onOutdated={() => Promise.resolve(null)}
+                    onLeave={STAYS}
                 />
             </SettingsProvider>,
         );
@@ -45,6 +73,7 @@ describe("Table", () => {
                     clock={null}
                     trouble={null}
                     onOutdated={() => Promise.resolve(null)}
+                    onLeave={STAYS}
                 />
             </SettingsProvider>,
         );
@@ -64,6 +93,7 @@ describe("Table", () => {
                     clock={null}
                     trouble={null}
                     onOutdated={() => Promise.resolve(null)}
+                    onLeave={STAYS}
                 />
             </SettingsProvider>,
         );
@@ -102,6 +132,7 @@ describe("Table", () => {
                     clock={null}
                     trouble={null}
                     onOutdated={() => Promise.resolve(null)}
+                    onLeave={STAYS}
                 />
             </SettingsProvider>,
         );
@@ -122,6 +153,7 @@ describe("Table", () => {
                     clock={null}
                     trouble={null}
                     onOutdated={() => Promise.resolve(null)}
+                    onLeave={STAYS}
                 />
             </SettingsProvider>,
         );
@@ -152,6 +184,7 @@ describe("Table", () => {
                     clock={null}
                     trouble={null}
                     onOutdated={() => Promise.resolve(null)}
+                    onLeave={STAYS}
                 />
             </SettingsProvider>,
         );
@@ -174,6 +207,7 @@ describe("Table", () => {
                     clock={null}
                     trouble={null}
                     onOutdated={() => Promise.resolve(null)}
+                    onLeave={STAYS}
                 />
             </SettingsProvider>,
         );
@@ -194,6 +228,7 @@ describe("Table", () => {
                     clock={null}
                     trouble={null}
                     onOutdated={() => Promise.resolve(null)}
+                    onLeave={STAYS}
                 />
             </SettingsProvider>,
         );
@@ -212,6 +247,7 @@ describe("Table", () => {
                     clock={null}
                     trouble="stream lost"
                     onOutdated={() => Promise.resolve(null)}
+                    onLeave={STAYS}
                 />
             </SettingsProvider>,
         );
@@ -233,6 +269,7 @@ describe("Table", () => {
                     clock={null}
                     trouble="stream lost"
                     onOutdated={() => Promise.resolve(null)}
+                    onLeave={STAYS}
                 />
             </SettingsProvider>,
         );

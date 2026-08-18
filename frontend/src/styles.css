@@ -258,6 +258,23 @@ select {
     width: min(100%, 420px);
 }
 
+.home-return {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.home-forget {
+    padding: 2px 8px;
+    border: 0;
+    background: none;
+    color: var(--chrome-muted);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
 .home-switch {
     padding: 4px 8px;
     border: 0;
@@ -341,6 +358,12 @@ select {
     cursor: pointer;
 }
 
+.action-quiet {
+    border: 1.5px solid var(--chrome-edge);
+    background: none;
+    color: var(--chrome-muted);
+}
+
 .action:disabled {
     background: color-mix(in srgb, var(--chrome-text) 8%, transparent);
     color: color-mix(in srgb, var(--chrome-muted) 75%, transparent);
@@ -377,6 +400,15 @@ select {
     font-weight: 600;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+button.status-line {
+    border: 1px solid var(--chrome-edge);
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
 }
 
 .status-line[data-tone="acting"] {
@@ -1787,16 +1819,28 @@ button.word-chip[data-open] {
     inset: 0;
     z-index: 20;
     display: grid;
+    grid-template-rows: minmax(0, 1fr);
     place-items: center;
     padding: 20px;
+    padding-top: calc(20px + env(safe-area-inset-top));
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+}
+
+.game-over-scrim {
+    position: absolute;
+    inset: 0;
+    padding: 0;
+    border: 0;
     background: rgb(0 0 0 / 35%);
 }
 
 .game-over-card {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 12px;
     width: min(100%, 380px);
+    max-height: 100%;
     padding: 22px;
     border: 1px solid var(--chrome-edge);
     border-radius: 16px;
@@ -1820,13 +1864,19 @@ button.word-chip[data-open] {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    min-height: 0;
     margin: 0;
     padding: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
     list-style: none;
 }
 
 .standing-row {
     display: flex;
+    flex: none;
     gap: 10px;
     justify-content: space-between;
     padding: 8px 12px;
@@ -1834,6 +1884,15 @@ button.word-chip[data-open] {
     border-radius: 8px;
     background: var(--chrome-surface);
     font-weight: 600;
+}
+
+.game-over-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.game-over-actions .action {
+    flex: 1;
 }
 
 .standing-score {
@@ -1855,6 +1914,8 @@ button.word-chip[data-open] {
 .control-primary:focus-visible,
 .chip-mode:focus-visible,
 .home-switch:focus-visible,
+.home-forget:focus-visible,
+.status-line:focus-visible,
 .docket summary:focus-visible,
 .queued-cancel:focus-visible,
 .invitation-copy:focus-visible {

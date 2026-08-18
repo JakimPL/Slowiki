@@ -13,7 +13,7 @@ import { applyTheme } from "./table/theme";
 
 export function App(): ReactElement {
     const [themeNote, setThemeNote] = useState<string | null>(null);
-    const { arrival, invitation, arrive } = useStanding();
+    const { arrival, invitation, arrive, leave, resume, forget } = useStanding();
 
     useEffect(() => {
         let mounted = true;
@@ -32,16 +32,26 @@ export function App(): ReactElement {
     }, []);
 
     if (arrival === null) {
-        return <Home key={invitation ?? ""} invitedCode={invitation} themeNote={themeNote} onArrive={arrive} />;
+        return (
+            <Home
+                key={invitation ?? ""}
+                invitedCode={invitation}
+                themeNote={themeNote}
+                onArrive={arrive}
+                onResume={resume}
+                onForget={forget}
+            />
+        );
     }
-    return <TableScreen arrival={arrival} />;
+    return <TableScreen arrival={arrival} onLeave={leave} />;
 }
 
 interface TableScreenProps {
     readonly arrival: Arrival;
+    readonly onLeave: () => void;
 }
 
-function TableScreen({ arrival }: TableScreenProps): ReactElement {
+function TableScreen({ arrival, onLeave }: TableScreenProps): ReactElement {
     const { settings } = useSettings();
     const { connection, state, clock, trouble, refresh } = useTable(
         arrival.seat.table,
@@ -63,6 +73,7 @@ function TableScreen({ arrival }: TableScreenProps): ReactElement {
             clock={clock}
             trouble={trouble}
             onOutdated={refresh}
+            onLeave={onLeave}
         />
     );
 }

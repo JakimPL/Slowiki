@@ -27,6 +27,8 @@ arrive:
   stale_notice: The table has moved on — the latest position is shown.
   joining: Joining the table…
   offerings_loading: Reading the table offerings…
+  return_button: Return to your table
+  forget_button: Forget that table
   span: "{minimum:number}–{maximum:number}"
   offering:
     plural:
@@ -53,6 +55,7 @@ seats:
     plural:
       one: "{names} wins with {points:number}"
       other: "{names} share the win with {points:number}"
+  standing_reopen: Show the final standing
   mode_label: Color mode
   mode_system: ◐ Auto
   mode_light: ○ Light
@@ -141,6 +144,9 @@ sheets:
   blank_input_label: Letter
   blank_confirm: Assign the letter
   game_over_heading: Game over
+  game_over_close: Close
+  game_over_leave: Leave the table
+  game_over_dismiss: Close the final standing
 
 clock:
   empty: "—"

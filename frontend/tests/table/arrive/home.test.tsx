@@ -12,7 +12,7 @@ describe("Home", () => {
     it("opens the join card with the prefilled code when invited", () => {
         const markup = renderToStaticMarkup(
             <SettingsProvider>
-                <Home invitedCode="KWPZTR" themeNote={null} onArrive={NOBODY} />
+                <Home invitedCode="KWPZTR" themeNote={null} onArrive={NOBODY} onResume={null} onForget={NOBODY} />
             </SettingsProvider>,
         );
         expect(markup).toContain("Literabble");
@@ -24,16 +24,35 @@ describe("Home", () => {
     it("offers an invited visitor the way to a table of their own", () => {
         const markup = renderToStaticMarkup(
             <SettingsProvider>
-                <Home invitedCode="KWPZTR" themeNote={null} onArrive={NOBODY} />
+                <Home invitedCode="KWPZTR" themeNote={null} onArrive={NOBODY} onResume={null} onForget={NOBODY} />
             </SettingsProvider>,
         );
         expect(markup).toContain("Start your own table instead");
     });
 
+    it("offers the way back to a table this tab still remembers", () => {
+        const markup = renderToStaticMarkup(
+            <SettingsProvider>
+                <Home invitedCode={null} themeNote={null} onArrive={NOBODY} onResume={NOBODY} onForget={NOBODY} />
+            </SettingsProvider>,
+        );
+        expect(markup).toContain("Return to your table");
+        expect(markup).toContain("Forget that table");
+    });
+
+    it("keeps the main view clear when no seat is remembered", () => {
+        const markup = renderToStaticMarkup(
+            <SettingsProvider>
+                <Home invitedCode={null} themeNote={null} onArrive={NOBODY} onResume={null} onForget={NOBODY} />
+            </SettingsProvider>,
+        );
+        expect(markup).not.toContain("Return to your table");
+    });
+
     it("opens on the create card with a switch toward joining", () => {
         const markup = renderToStaticMarkup(
             <SettingsProvider>
-                <Home invitedCode={null} themeNote={null} onArrive={NOBODY} />
+                <Home invitedCode={null} themeNote={null} onArrive={NOBODY} onResume={null} onForget={NOBODY} />
             </SettingsProvider>,
         );
         expect(markup).toContain("Start the table");

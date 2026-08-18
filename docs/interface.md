@@ -28,7 +28,9 @@ by amending it. The palette is the *Lniany* proposition chosen from the phase-0 
   bonus quiet and inert while the table stays untimed, so the card holds its size through every
   choice) and a quiet switch to the join card for holders of a code. An invitation link opens
   straight onto the join card with the code prefilled, and that card keeps the switch, so a guest
-  can start a table of their own. The name field persists in local storage across visits.
+  can start a table of their own. The name field persists in local storage across visits, and a tab
+  remembers the seat it arrived at, so the main view offers the way back to that table until the
+  player forgets it.
   Credentials live in the URL fragment; a reload rejoins by token, and while no seat is held the
   page follows the address bar, so an invitation pasted over an idle page opens its join card. A
   held seat keeps its own address.
@@ -36,7 +38,10 @@ by amending it. The palette is the *Lniany* proposition chosen from the phase-0 
   room: a gathering banner with the join code, a copy-invitation control, and claimed/empty
   plaques.
 - **Game over** — the final standing as an overlay: winner, rack deductions, the board still
-  readable beneath.
+  readable beneath. Heading and actions hold their place while a long standing scrolls inside the
+  card, so a table of eight fits a phone. *Close* returns to the board with the final position and
+  the move log readable, and the status line then reopens the standing; *Leave the table* returns
+  to the main view, which keeps the way back.
 
 ## Table regions
 
@@ -46,9 +51,11 @@ gesture surface owns every touch; long panels scroll internally). Landscape and 
 grid areas only: the board sits height-bound on the left; the right column stacks status, plaques,
 feedback line, rack, tray, controls, and the docket at its foot.
 
-- **Status strip** — turn banner ("Your turn" at accent strength; "Ola is thinking — 1:12" quiet),
-  clock, bag count, join-code chip (a click copies the code), connection state, and four quiet
-  toggles: the turn notice, the color mode, the interface motion, and the language.
+- **Status strip** — turn banner ("Your turn" at accent strength; "Ola is thinking — 1:12" quiet,
+  and once the game is over a control that reopens the final standing), clock, connection state, and
+  four quiet toggles: the turn notice, the color mode, the interface motion, and the language. The
+  bag count and the join-code chip (a click copies the code) stand while the game runs, and the
+  banner takes their width once it ends.
 - **Plaques** — one per player, one to eight: tint dot, name, score, acting ring at full tint
   strength that breathes while the seat is on turn, premove diamond, and — on a timed table — a
   clock line under the name: the thinking seat counts down live, everyone else shows the budget

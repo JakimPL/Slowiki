@@ -27,6 +27,8 @@ arrive:
   stale_notice: Stół poszedł dalej — pokazujemy najnowszą pozycję.
   joining: Dołączanie do stołu…
   offerings_loading: Czytamy ofertę stołów…
+  return_button: Wróć do swojego stołu
+  forget_button: Zapomnij ten stół
   span: "{minimum:number}–{maximum:number}"
   offering:
     plural:
@@ -56,6 +58,7 @@ seats:
       one: "{names} wygrywa z wynikiem {points:number}"
       few: "{names} dzielą zwycięstwo z wynikiem {points:number}"
       many: "{names} dzielą zwycięstwo z wynikiem {points:number}"
+  standing_reopen: Pokaż podsumowanie gry
   mode_label: Tryb kolorów
   mode_system: ◐ Auto
   mode_light: ○ Jasny
@@ -145,6 +148,9 @@ sheets:
   blank_input_label: Litera
   blank_confirm: Przypisz literę
   game_over_heading: Koniec gry
+  game_over_close: Zamknij
+  game_over_leave: Opuść stół
+  game_over_dismiss: Zamknij podsumowanie gry
 
 clock:
   empty: "—"

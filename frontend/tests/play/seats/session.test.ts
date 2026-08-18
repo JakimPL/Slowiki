@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { followedFragment, fragmentFor, invitationTo, standingIn } from "../../../src/play/seats/session";
+import {
+    followedFragment,
+    fragmentFor,
+    invitationTo,
+    standingIn,
+    withoutFragment,
+} from "../../../src/play/seats/session";
 
 describe("standingIn", () => {
     it("reads table, token, code, and seat from a fragment", () => {
@@ -51,6 +57,16 @@ describe("followedFragment", () => {
     it("keeps a held seat when the address changes", () => {
         const held = "#table=abc123&token=tok-1&code=KWPZTR&seat=1";
         expect(followedFragment(held, "#table=other&code=ZZZZZZ")).toBe(held);
+    });
+});
+
+describe("withoutFragment", () => {
+    it("drops the seat from an address, keeping path and query", () => {
+        expect(withoutFragment("http://host/?pass=3#table=abc123&token=tok-1&seat=1")).toBe("http://host/?pass=3");
+    });
+
+    it("leaves an address that carries no fragment alone", () => {
+        expect(withoutFragment("http://host/play")).toBe("http://host/play");
     });
 });
 

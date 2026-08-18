@@ -14,6 +14,7 @@ import {
     CODE_LABEL,
     CREATE_BUTTON,
     CREATE_HEADING,
+    FORGET_BUTTON,
     INCREMENT_LABEL,
     incrementCaption,
     JOIN_BUTTON,
@@ -24,6 +25,7 @@ import {
     OFFERINGS_LOADING,
     PRODUCT_NAME,
     PRODUCT_TAGLINE,
+    RETURN_BUTTON,
     SCHEME_LABEL,
     SEATS_LABEL,
     SWITCH_TO_CREATE,
@@ -37,6 +39,8 @@ export interface HomeProps {
     readonly invitedCode: string | null;
     readonly themeNote: string | null;
     readonly onArrive: (admission: TableAdmission) => void;
+    readonly onResume: (() => void) | null;
+    readonly onForget: () => void;
 }
 
 const SPECIMEN: readonly Tile[] = [
@@ -47,7 +51,7 @@ const SPECIMEN: readonly Tile[] = [
     { identifier: 5, letter: "A", value: 0, category: "red", blank: false },
 ];
 
-export function Home({ invitedCode, themeNote, onArrive }: HomeProps): ReactElement {
+export function Home({ invitedCode, themeNote, onArrive, onResume, onForget }: HomeProps): ReactElement {
     const [offerings, setOfferings] = useState<readonly Offering[] | null>(null);
     const [name, setName] = useState(() => (typeof window === "undefined" ? "" : storedName(window.localStorage)));
     const [code, setCode] = useState(invitedCode ?? "");
@@ -134,6 +138,16 @@ export function Home({ invitedCode, themeNote, onArrive }: HomeProps): ReactElem
                 <h1>{PRODUCT_NAME}</h1>
                 <p className="tagline">{PRODUCT_TAGLINE}</p>
             </header>
+            {onResume === null ? null : (
+                <div className="home-return">
+                    <button type="button" className="action" onClick={onResume}>
+                        {RETURN_BUTTON}
+                    </button>
+                    <button type="button" className="home-forget" onClick={onForget}>
+                        {FORGET_BUTTON}
+                    </button>
+                </div>
+            )}
             <label className="field home-name">
                 <span>{NAME_LABEL}</span>
                 <input
