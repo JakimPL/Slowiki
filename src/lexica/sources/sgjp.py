@@ -1,7 +1,7 @@
 from typing import Final, Protocol
 
-from lexica.morph.mapping import build_analysis
-from lexica.morph.models import Analysis, MorphSource
+from lexica.lore.analysis import Analysis, analysis_of
+from lexica.lore.analysis_source import AnalysisSource
 from wordcore.errors.exceptions import InvalidConfiguration
 
 try:
@@ -44,30 +44,10 @@ def head_interpretations(
     return [(start, end, analysis) for start, end, analysis in analyses if start == 0]
 
 
-def analyse_word_entries(
-    analyzer: MorfeuszAnalyzer,
-    word: str,
-) -> tuple[tuple[str, str, str], ...]:
-    rows: list[tuple[str, str, str]] = []
-    for _, _, (_, lemma, tag, _, _) in head_interpretations(analyzer.analyse(word)):
-        if tag.split(":", 1)[0] in _IGNORED_PREFIXES:
-            continue
-        rows.append((lemma.upper(), lemma, tag))
-    return tuple(rows)
-
-
 def analyse_word(analyzer: MorfeuszAnalyzer, word: str) -> tuple[Analysis, ...]:
     analyses: list[Analysis] = []
-    for _, _, (_, lemma, tag, names, qualifiers) in head_interpretations(analyzer.analyse(word)):
+    for _, _, (_, lemma, tag, names, labels) in head_interpretations(analyzer.analyse(word)):
         if tag.split(":", 1)[0] in _IGNORED_PREFIXES:
             continue
-        analyses.append(
-            build_analysis(
-                word.upper(),
-                lemma.upper(),
-                tag,
-                MorphSource.SGJP,
-                tuple(dict.fromkeys((*names, *qualifiers))),
-            )
-        )
+        analyses.append(analysis_of(word.upper(), lemma, tag, AnalysisSource.SGJP, names, labels))
     return tuple(analyses)

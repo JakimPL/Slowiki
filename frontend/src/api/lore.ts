@@ -31,6 +31,7 @@ export type VerbForm =
     | "bezokolicznik"
     | "forma osobowa"
     | "forma przeszła"
+    | "forma przypuszczająca"
     | "rozkaźnik"
     | "bezosobnik"
     | "imiesłów czynny"
@@ -42,14 +43,13 @@ export type VerbForm =
     | "predykatyw"
     | "winien";
 
-export type NumeralType = "główny" | "porządkowy" | "zbiorowy" | "ułamkowy" | "nieokreślony";
+export type NumeralType = "główny" | "zbiorowy";
 
-export type PronounType =
-    "osobowy" | "zwrotny" | "dzierżawczy" | "wskazujący" | "pytajny" | "względny" | "nieokreślony" | "przeczący";
+export type PronounType = "osobowy" | "zwrotny";
 
 export interface Inflection {
     readonly cases: readonly Case[];
-    readonly number: GrammaticalNumber | null;
+    readonly numbers: readonly GrammaticalNumber[];
     readonly genders: readonly Gender[];
     readonly person: Person | null;
     readonly tense: Tense | null;

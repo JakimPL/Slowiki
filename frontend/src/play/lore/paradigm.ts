@@ -60,6 +60,7 @@ const VERB_SHAPES: Record<VerbForm, GridShape | null> = {
     bezokolicznik: null,
     "forma osobowa": PERSON_BY_NUMBER,
     "forma przeszła": GENDER_BY_NUMBER,
+    "forma przypuszczająca": GENDER_BY_NUMBER,
     rozkaźnik: PERSON_BY_NUMBER,
     bezosobnik: null,
     "imiesłów czynny": CASE_BY_GENDER,

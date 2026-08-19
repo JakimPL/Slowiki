@@ -264,18 +264,18 @@ carry several).
 | subst | RZECZOWNIK | 723,526 | case, number, gender |
 | depr | RZECZOWNIK | 10,801 | deprecjatywna forma |
 | adj | PRZYMIOTNIK | 1,190,005 | case, number, gender, degree |
-| adjp | PRZYMIOTNIK | 6,232 | subtype (poprzyimkowy) |
-| adjc | PRZYMIOTNIK | 11 | subtype |
+| adjp | PRZYMIOTNIK | 6,232 | poprzyimkowy, recorded as a quality |
+| adjc | PRZYMIOTNIK | 11 | forma predykatywna (wart, gotów) |
 | adv | PRZYSŁÓWEK | 26,141 | degree where present |
-| comp | PARTYKUŁA | 166 | the conditional particle (by, bym, byś); comparative adverbs carry `adv:com` |
+| comp | SPÓJNIK | 166 | spójnik podrzędny (by:M, to:M); the conditional clitic is `by:T part` |
 | num | LICZEBNIK | 569 | główny; collective forms carry `:col` → ZBIOROWY |
 | frag | LICZEBNIK | 90 | fragment of a multiword numeral |
-| ppron12, ppron3, siebie | ZAIMEK | 100 | subtype |
+| ppron12, ppron3, siebie | ZAIMEK | 100 | osobowy, zwrotny |
 | prep | PRZYIMEK | 167 | governed case |
 | conj | SPÓJNIK | 72 | |
 | part | PARTYKUŁA | 297,406 | the 2026 tagset names particles `part` (classic `qub`) |
 | interj | WYKRZYKNIK | 378 | |
-| fin, bedzie, aglt, praet, impt, imps, inf, pcon, pant, pact, ppas, ger | CZASOWNIK | 2,193,530 | form subtype, aspect, person, tense |
+| fin, bedzie, aglt, praet, cond, impt, imps, inf, pcon, pant, pact, ppas, ger | CZASOWNIK | 2,193,530 | verb form, aspect, person, tense; `cond` arrives with composite past forms |
 | winien | CZASOWNIK | 56 | defective verb (winien/powinien) |
 | pred | CZASOWNIK | 30 | czasownik niewłaściwy |
 | brev | INNY | 24 | skrót |
@@ -286,11 +286,67 @@ Liczebniki porządkowe (piąty, drugi) carry the adjective tagset (`adj` with
 the lemma qualifier `:A`) and classify as PRZYMIOTNIK; the school-level
 ordinal reading is a lemma-level refinement.
 
-Tag dimensions observed: case nom/gen/dat/acc/inst/loc/voc (with combined
-values like nom.acc); number sg/pl; gender m1/m2/m3/f/n (with combined values
-like m1.m2.m3.f.n); person pri/sec/ter; degree pos/com/sup; aspect
-imperf/perf (with the combined value imperf.perf); negation aff/neg; extras
-ncol, col, pt, rec, congr, wok, nwok, akc, nakc, praep, npraep, nagl, npun.
+## Tag segment inventory (measured, 2026-08-19)
+
+The closed vocabulary in `lexica.grammar` comes from a full pass over
+słowa.txt (3,240,429 forms) in both analyzer modes and over the whole PoliMorf
+0.6.7 table (6,578,142 rows, every row four fields). Every distinct tag each
+source can produce parses: **576** SGJP tags in the default mode, **645** in the
+composite mode, **574** PoliMorf tags, with zero unrecognised segments. A
+segment outside the table refuses the tag and names the dialect.
+
+| Dimension | SGJP 2026 codes | PoliMorf classic codes |
+|---|---|---|
+| case | nom gen dat acc inst loc voc | same |
+| number | sg pl | same |
+| gender | m1 m2 m3 f n | m1 m2 m3 f n1 n2 p1 p2 p3 `_` |
+| person | pri sec ter | same |
+| aspect | imperf perf | same |
+| degree | pos com sup | same |
+| negation | aff neg | same |
+| quality | akc nakc praep npraep agl nagl wok nwok congr rec col ncol pt pun npun | akc nakc praep npraep agl nagl wok nwok congr rec comp |
+
+Dotted segments state alternatives on one dimension and arrive on every
+dimension a source uses them for: `nom.acc.voc` (case), `m1.m2.m3` (gender),
+`imperf.perf` (aspect), `akc.nakc` and `congr.rec` and `praep.npraep`
+(quality), and **`sg.pl`** (number, 1,540 interpretations over nouns and
+numerals). Number is therefore a set, as case, gender and aspect already were.
+
+The classic PoliMorf gender codes read into the 2026 five-gender system:
+`n1` and `n2` are NIJAKI, `p1` is MĘSKOOSOBOWY, `p2` and `p3` are NIJAKI (the
+treatment SGJP gives pluralia tantum), and `_` states no gender. The PoliMorf
+segment `comp` on a numeral and the SGJP prefix `numcomp` both state the
+quality ZŁOŻONY, so a compound-forming numeral reads the same either way.
+
+### Composite past forms (measured, both modes)
+
+`morfeusz2.Morfeusz(praet="composite")` composes the past tense instead of
+splitting it into a stem and an agglutinate:
+
+| Reading | Default mode | Composite mode |
+|---|---|---|
+| praet interpretations | 512,301 | 278,389 |
+| aglt interpretations | 282,950 | 182 |
+| cond interpretations | — | 233,900 |
+| praet carrying a person | none | 278,389 (all) |
+| distinct tags | 576 | 645 |
+
+`biegłem` reads as `praet:sg:m1.m2.m3:pri:imperf` with the person restored, and
+`zrobiłbym` reads as `cond:sg:m1.m2.m3:pri:perf` — a real conditional, where the
+default mode leaves a past form beside a movable ending. The grammar vocabulary
+carries both readings: `cond` states the mood PRZYPUSZCZAJĄCY and the verb form
+FORMA_PRZYPUSZCZAJĄCA, and `aglt` states the movable ending without claiming a
+mood of its own.
+
+### Qualifiers (measured over słowa.txt)
+
+SGJP answers with two vocabularies: **26** name categories (`nazwa_pospolita`
+711,240 interpretations, `nazwa_geograficzna` 4,180, `nazwisko` 16,347, `imię`
+1,323, and 22 rarer ones) and **533** label strings built from **119** atoms
+joined by commas (`daw.,char.`). PoliMorf answers with **12** name categories
+(`pospolita`, `nazwisko`, `imię`, `geograficzna`, `określenie dodatkowe`, and
+seven more). `lexica.grammar.qualifier` splits a joined label and types each
+code as a name or a qualifier.
 
 ## Measured coverage (Phase 0, 2026-08-17)
 

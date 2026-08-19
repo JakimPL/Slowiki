@@ -30,6 +30,8 @@ P7. Letters are canonical. Every letter inside the system is uppercase; dictiona
     their kind and format version in the header and in the filename
     (`ARTIFACT_FORMATS` in `lexica.artifact.formats`), so a normalization change
     retires stale artifacts and a reader accepts only the kind it understands.
+    `docs/lexicon-contract.md` states that boundary between `lexica` and
+    `wordtable`, and `make contract` holds the document against the code.
 
 ## Packages
 
@@ -38,8 +40,9 @@ P7. Letters are canonical. Every letter inside the system is uppercase; dictiona
 - `wordgames` — game presets: shared rules and the literaki/scrabble backends.
 - `wordserver` — the FastAPI adapter: tables, sessions, SSE, identity, time.
 - `wordtable` — configuration, paths, lexicon service, and CLI entry points.
-- `lexica` — dictionary building: word entries, SJP loader, compilation, and
-  the morphology pipeline (`docs/morphology.md`, `docs/morphology-pipeline.md`).
+- `lexica` — dictionary building: word entries, SJP loader, compilation, the
+  closed Polish grammar vocabulary in `lexica.grammar`, and the morphology
+  pipeline (`docs/morphology.md`, `docs/morphology-pipeline.md`).
 - `wordbots` — automated player stubs.
 - `wordassets` — asset generation: an SVG element tree, board specimens, and the
   build CLI writing gitignored `assets/` plus committed specimen copies in
@@ -52,7 +55,8 @@ after them (`board.bonus`, `moves.kind`, `moves.move`, `games.kind`,
 `games.rules`, `lexicon.protocol`, `lexicon.verdict`). The rules kernel splits
 into `wordcore.rules.words` (placements and word geometry) and
 `wordcore.rules.score` (word and move scoring). Dictionary source loaders live
-under `lexica.dictionaries`, one module per source.
+under `lexica.dictionaries`, one module per source, and each grammar dimension
+owns a module under `lexica.grammar`.
 
 ## Frontend
 

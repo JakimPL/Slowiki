@@ -103,35 +103,27 @@ export const VERB_FORM_ORDER: Record<VerbForm, number> = {
     bezokolicznik: 0,
     "forma osobowa": 1,
     "forma przeszła": 2,
-    rozkaźnik: 3,
-    bezosobnik: 4,
-    "imiesłów czynny": 5,
-    "imiesłów bierny": 6,
-    "imiesłów współczesny": 7,
-    "imiesłów uprzedni": 8,
-    odsłownik: 9,
-    "końcówka ruchoma": 10,
-    predykatyw: 11,
-    winien: 12,
+    "forma przypuszczająca": 3,
+    rozkaźnik: 4,
+    bezosobnik: 5,
+    "imiesłów czynny": 6,
+    "imiesłów bierny": 7,
+    "imiesłów współczesny": 8,
+    "imiesłów uprzedni": 9,
+    odsłownik: 10,
+    "końcówka ruchoma": 11,
+    predykatyw: 12,
+    winien: 13,
 };
 
 export const NUMERAL_TYPE_ORDER: Record<NumeralType, number> = {
     główny: 0,
-    porządkowy: 1,
-    zbiorowy: 2,
-    ułamkowy: 3,
-    nieokreślony: 4,
+    zbiorowy: 1,
 };
 
 export const PRONOUN_TYPE_ORDER: Record<PronounType, number> = {
     osobowy: 0,
     zwrotny: 1,
-    dzierżawczy: 2,
-    wskazujący: 3,
-    pytajny: 4,
-    względny: 5,
-    nieokreślony: 6,
-    przeczący: 7,
 };
 
 export const DIMENSION_ORDER: readonly Dimension[] = [
@@ -177,7 +169,7 @@ const TERMS_ON: Record<Dimension, (tags: Inflection) => readonly string[]> = {
     aspect: (tags) => tags.aspects,
     person: (tags) => stated(tags.person),
     case: (tags) => tags.cases,
-    number: (tags) => stated(tags.number),
+    number: (tags) => tags.numbers,
     gender: (tags) => tags.genders,
     degree: (tags) => stated(tags.degree),
     negation: (tags) => (tags.negation === true ? [NEGATED_TERM] : []),

@@ -7,7 +7,7 @@ from typing import Final, Protocol
 import yaml
 
 from lexica.dictionaries.sjp import iter_sjp_words
-from lexica.morph.sources.sgjp import Interpretation, head_interpretations
+from lexica.sources.sgjp import Interpretation, head_interpretations
 
 try:
     import morfeusz2  # type: ignore[import-untyped]

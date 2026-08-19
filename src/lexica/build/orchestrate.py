@@ -1,10 +1,12 @@
 from collections.abc import Mapping
 from pathlib import Path
 
-from lexica.morph.classes import ClassStore, assemble_classes
-from lexica.morph.models import Analysis
-from lexica.morph.sources.polimorf import rescue_analyses
-from lexica.morph.sources.sgjp import MorfeuszAnalyzer, analyse_word
+from lexica.build.assemble import assemble_classes
+from lexica.build.records import ClassStore
+from lexica.lore.analysis import Analysis
+from lexica.lore.lexeme_id import LexemeId
+from lexica.sources.polimorf import rescue_analyses
+from lexica.sources.sgjp import MorfeuszAnalyzer, analyse_word
 from wordcore.models.base import BaseFrozen
 
 
@@ -62,5 +64,5 @@ def _analyse_sgjp(
 def _generate_paradigms(
     _analyzer: MorfeuszAnalyzer,
     _analyses_by_form: Mapping[str, tuple[Analysis, ...]],
-) -> dict[str, tuple[tuple[str, str], ...]]:
+) -> dict[LexemeId, tuple[tuple[str, str], ...]]:
     return {}

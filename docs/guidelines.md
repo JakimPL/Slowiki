@@ -4,6 +4,7 @@
 * After ending each phase, write one sentence at the end about the next phase or the plan finalization. Propose a brief commit message of the following form: _Did: what_, e.g. _Refactored: musical arrangement dataclass_.
 * While developing, look for `guidelines.md` in the working repository. Read this before coding.
 * Frontend work follows `docs/frontend.md`; interface changes start by amending `docs/interface.md`.
+* Dictionary and lexicon work follows `docs/lexicon-contract.md`; read the contract before touching `lexica` or `wordtable`, and start a new artifact kind as a row in its table.
 
 ## Git
 
@@ -42,6 +43,7 @@
 * External text — CLI arguments, configuration files, request payloads — is parsed once, at the boundary, into a typed structure (`NamedTuple` or Pydantic model) with explicit arity and value checks. Positional indexing of raw input is allowed only inside that parser.
 * Normalization happens once, at ingestion. Letters are canonically uppercase across the whole system (dictionary loaders, tile presets, blank assignments); join codes are canonically uppercase. Code past the boundary compares values directly and never calls `upper()`/`lower()` again.
 * Program status output goes through `logging`, configured at the entry point. `print` is reserved for data explicitly requested by the user (e.g. a value the CLI was asked to produce).
+* Compiled dictionary artifacts obey `docs/lexicon-contract.md`: `lexica` owns the bytes, the kinds, the formats and the readers, `wordtable` owns the paths, the builds, the caching and the dispatch, and the engine sees one verdict port. An artifact kind exists once it holds a row in that document's table, and `make contract` — also a pre-commit hook — holds the document and the code in agreement.
 
 ### Typing
 

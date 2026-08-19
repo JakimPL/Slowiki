@@ -97,9 +97,9 @@ describe("WordPanel", () => {
     it("prints one odmiana line per bundle the asked form stands in", () => {
         const syncretic = aReading({
             forms: [
-                aForm({ tags: someInflection({ cases: ["mianownik"], number: "pojedyncza" }) }),
-                aForm({ tags: someInflection({ cases: ["wołacz"], number: "pojedyncza" }) }),
-                aForm({ text: "PIŁY", tags: someInflection({ cases: ["dopełniacz"], number: "pojedyncza" }) }),
+                aForm({ tags: someInflection({ cases: ["mianownik"], numbers: ["pojedyncza"] }) }),
+                aForm({ tags: someInflection({ cases: ["wołacz"], numbers: ["pojedyncza"] }) }),
+                aForm({ text: "PIŁY", tags: someInflection({ cases: ["dopełniacz"], numbers: ["pojedyncza"] }) }),
             ],
         });
         const markup = cardOf(CHIP, readyWith(aLore({ readings: [syncretic] }), false));

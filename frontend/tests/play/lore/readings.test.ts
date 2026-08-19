@@ -28,8 +28,8 @@ describe("loreStateOf", () => {
 
 describe("askedFormsOf", () => {
     it("keeps the bundles the asked form stands in", () => {
-        const nominative = aForm({ tags: someInflection({ cases: ["mianownik"], number: "pojedyncza" }) });
-        const vocative = aForm({ tags: someInflection({ cases: ["wołacz"], number: "pojedyncza" }) });
+        const nominative = aForm({ tags: someInflection({ cases: ["mianownik"], numbers: ["pojedyncza"] }) });
+        const vocative = aForm({ tags: someInflection({ cases: ["wołacz"], numbers: ["pojedyncza"] }) });
         const genitive = aForm({ text: "PIŁY", tags: someInflection({ cases: ["dopełniacz"] }) });
         const reading = aReading({ forms: [nominative, genitive, vocative] });
         expect(askedFormsOf(reading, "PIŁA")).toEqual([nominative, vocative]);

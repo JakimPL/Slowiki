@@ -2,8 +2,14 @@ from pathlib import Path
 
 import pytest
 
-from lexica.morph.manifest import compile_input_digests, load_manifest, write_manifest
-from lexica.morph.overrides import parse_overrides
+from lexica.grammar.mapping_version import MAPPING_VERSION
+from lexica.maintenance.manifest import (
+    PIPELINE_VERSION,
+    compile_input_digests,
+    load_manifest,
+    write_manifest,
+)
+from lexica.maintenance.overrides import parse_overrides
 from wordcore.errors.exceptions import InvalidConfiguration
 
 
@@ -31,7 +37,7 @@ def test_parse_overrides_validates_forms(tmp_path: Path) -> None:
 def test_manifest_round_trip(tmp_path: Path) -> None:
     archive = tmp_path / "sjp.zip"
     archive.write_bytes(b"abc")
-    digests = compile_input_digests(archive, None, None, "dict", 1, 2)
+    digests = compile_input_digests(archive, None, None, "dict", MAPPING_VERSION, PIPELINE_VERSION)
     manifest = tmp_path / "manifest.json"
     write_manifest(manifest, digests)
     assert load_manifest(manifest) == digests

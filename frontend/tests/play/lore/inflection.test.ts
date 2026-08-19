@@ -6,7 +6,7 @@ import { someInflection } from "../../fixtures/lore";
 
 describe("inflectionTerms", () => {
     it("reads a noun bundle as case, number and gender", () => {
-        const tags = someInflection({ cases: ["mianownik"], number: "pojedyncza", genders: ["żeński"] });
+        const tags = someInflection({ cases: ["mianownik"], numbers: ["pojedyncza"], genders: ["żeński"] });
         expect(inflectionTerms(tags, [])).toEqual(["mianownik", "pojedyncza", "żeński"]);
     });
 
@@ -15,7 +15,7 @@ describe("inflectionTerms", () => {
             verb_form: "forma przeszła",
             mood: "oznajmujący",
             tense: "przeszły",
-            number: "pojedyncza",
+            numbers: ["pojedyncza"],
             genders: ["męskoosobowy"],
         });
         expect(inflectionTerms(tags, [])).toEqual([
@@ -33,7 +33,7 @@ describe("inflectionTerms", () => {
     });
 
     it("drops the dimensions a surrounding heading already prints", () => {
-        const tags = someInflection({ cases: ["mianownik"], number: "pojedyncza", genders: ["żeński"] });
+        const tags = someInflection({ cases: ["mianownik"], numbers: ["pojedyncza"], genders: ["żeński"] });
         expect(inflectionTerms(tags, ["case", "number"])).toEqual(["żeński"]);
         expect(inflectionTerms(tags, ["case", "number", "gender"])).toEqual([]);
     });
@@ -43,7 +43,7 @@ describe("inflectionTerms", () => {
         expect(inflectionTerms(negated, [])).toEqual(["imiesłów bierny", NEGATED_TERM]);
         const affirmative = someInflection({ verb_form: "imiesłów bierny", negation: false });
         expect(inflectionTerms(affirmative, [])).toEqual(["imiesłów bierny"]);
-        const deprecative = someInflection({ cases: ["mianownik"], number: "mnoga", deprecative: true });
+        const deprecative = someInflection({ cases: ["mianownik"], numbers: ["mnoga"], deprecative: true });
         expect(inflectionTerms(deprecative, [])).toEqual(["mianownik", "mnoga", DEPRECATIVE_TERM]);
     });
 

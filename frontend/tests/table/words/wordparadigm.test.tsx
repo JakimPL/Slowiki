@@ -116,7 +116,7 @@ describe("WordParadigm", () => {
     it("keeps a form its grid has no room for among the other forms", () => {
         const partial = aReading({
             forms: [
-                aForm({ text: "PIŁA", tags: someInflection({ cases: ["mianownik"], number: "pojedyncza" }) }),
+                aForm({ text: "PIŁA", tags: someInflection({ cases: ["mianownik"], numbers: ["pojedyncza"] }) }),
                 aForm({ text: "PIŁOWI", tags: someInflection({ cases: ["celownik"] }) }),
             ],
         });

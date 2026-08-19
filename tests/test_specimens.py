@@ -3,8 +3,10 @@ from pathlib import Path
 import pytest
 import yaml
 
-from lexica.morph.index import analyse_dictionary
-from lexica.morph.sources.sgjp import analyse_word
+from lexica.build.orchestrate import analyse_dictionary
+from lexica.grammar.dialect import TagsetDialect
+from lexica.grammar.parse import inflection_of
+from lexica.sources.sgjp import analyse_word
 
 try:
     import morfeusz2  # type: ignore[import-untyped]
@@ -15,8 +17,11 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 STRESS_PATH = PROJECT_ROOT / "tests" / "specimens" / "stress.yaml"
 
 requires_morfeusz2 = pytest.mark.skipif(morfeusz2 is None, reason="morfeusz2 missing")
+requires_stress = pytest.mark.skipif(not STRESS_PATH.is_file(), reason="stress specimens missing")
 
 _Reference = tuple[str, str, str, list[str], list[str]]
+
+_IGNORED = ("ign", "xx")
 
 
 def _read_stress() -> tuple[str, list[tuple[str, list[_Reference]]]]:
@@ -28,24 +33,35 @@ def _read_stress() -> tuple[str, list[tuple[str, list[_Reference]]]]:
     return dict_id, specimens
 
 
+@requires_stress
+def test_every_specimen_tag_reads_in_the_sgjp_tagset() -> None:
+    _, specimens = _read_stress()
+    tags = {analysis[2] for (_, reference) in specimens for analysis in reference}
+    for tag in sorted(tags):
+        inflection_of(tag, TagsetDialect.SGJP)
+
+
 @requires_morfeusz2
-@pytest.mark.skipif(not STRESS_PATH.is_file(), reason="stress specimens missing")
+@requires_stress
 def test_stress_specimens_match_reference_analyses() -> None:
     dict_id, specimens = _read_stress()
     analyzer = morfeusz2.Morfeusz()
     assert analyzer.dict_id() == dict_id
     for word, reference in specimens:
         expected = {
-            (analysis[1].upper(), analysis[2])
+            (*_split_lemma(analysis[1]), analysis[2])
             for analysis in reference
-            if not analysis[2].startswith(("ign", "xx"))
+            if not analysis[2].startswith(_IGNORED)
         }
-        actual = {(analysis.lemma, analysis.tag) for analysis in analyse_word(analyzer, word)}
+        actual = {
+            (analysis.lexeme.lemma, analysis.lexeme.pattern, analysis.tag)
+            for analysis in analyse_word(analyzer, word)
+        }
         assert actual == expected, word
 
 
 @requires_morfeusz2
-@pytest.mark.skipif(not STRESS_PATH.is_file(), reason="stress specimens missing")
+@requires_stress
 def test_stress_pipeline_builds_classes() -> None:
     _, specimens = _read_stress()
     words = tuple(word.upper() for (word, _) in specimens)
@@ -54,9 +70,9 @@ def test_stress_pipeline_builds_classes() -> None:
     store = result.store
 
     assert len(store.entries["BRONIĄ"]) == 2
-    zamek_ids = store.entries["ZAMEK"]
-    assert len(zamek_ids) == 2
-    assert {store.classes[class_id].base for class_id in zamek_ids} == {"ZAMEK"}
+    zamek_lexemes = store.entries["ZAMEK"]
+    assert len(zamek_lexemes) == 2
+    assert {store.classes[lexeme].base for lexeme in zamek_lexemes} == {"ZAMEK"}
 
     for record in store.classes.values():
         assert record.base
@@ -65,8 +81,13 @@ def test_stress_pipeline_builds_classes() -> None:
 
     for word, reference in specimens:
         surface = word.upper()
-        has_real = any(not analysis[2].startswith(("ign", "xx")) for analysis in reference)
+        has_real = any(not analysis[2].startswith(_IGNORED) for analysis in reference)
         if has_real:
             assert surface in store.entries, surface
         else:
             assert surface in store.unknown, surface
+
+
+def _split_lemma(lemma: str) -> tuple[str, str]:
+    written, _, pattern = lemma.partition(":")
+    return written.upper(), pattern

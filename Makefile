@@ -1,4 +1,4 @@
-.PHONY: install check test play serve types strings parity assets frontend build dictionary
+.PHONY: install check test play serve types strings contract parity assets frontend build dictionary
 
 install:
 	uv sync --all-extras --all-groups
@@ -30,6 +30,9 @@ types:
 
 strings:
 	uv run python scripts/strings.py
+
+contract:
+	uv run python -m scripts.contract
 
 parity:
 	uv run python -m scripts.parity

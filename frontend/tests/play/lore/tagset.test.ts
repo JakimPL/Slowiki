@@ -79,7 +79,7 @@ describe("DIMENSION_ORDER", () => {
 
 describe("termsOn", () => {
     it("reads the terms of one dimension in their canonical order", () => {
-        const tags = someInflection({ cases: ["biernik", "mianownik"], number: "mnoga", deprecative: true });
+        const tags = someInflection({ cases: ["biernik", "mianownik"], numbers: ["mnoga"], deprecative: true });
         expect(termsOn(tags, "case")).toEqual(["mianownik", "biernik"]);
         expect(termsOn(tags, "number")).toEqual(["mnoga"]);
         expect(termsOn(tags, "deprecative")).toEqual([DEPRECATIVE_TERM]);
@@ -94,8 +94,8 @@ describe("termsOn", () => {
 
 describe("compareInflections", () => {
     it("ranks bundles by the first dimension they differ on", () => {
-        const nominative = someInflection({ cases: ["mianownik"], number: "mnoga" });
-        const genitive = someInflection({ cases: ["dopełniacz"], number: "pojedyncza" });
+        const nominative = someInflection({ cases: ["mianownik"], numbers: ["mnoga"] });
+        const genitive = someInflection({ cases: ["dopełniacz"], numbers: ["pojedyncza"] });
         expect(compareInflections(nominative, genitive)).toBeLessThan(0);
         expect(compareInflections(genitive, nominative)).toBeGreaterThan(0);
     });

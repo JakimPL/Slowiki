@@ -1,11 +1,12 @@
 import gzip
 from pathlib import Path
 
-from lexica.morph.models import MorphSource
-from lexica.morph.parts import PartOfSpeech
-from lexica.morph.sources.polimorf import rescue_analyses
-from lexica.morph.sources.sgjp import Interpretation, analyse_word, analyse_word_entries
-from lexica.morph.tags import Gender
+from lexica.grammar.gender import Gender
+from lexica.grammar.part_of_speech import PartOfSpeech
+from lexica.grammar.qualifier import Qualifier, QualifierKind
+from lexica.lore.analysis_source import AnalysisSource
+from lexica.sources.polimorf import rescue_analyses
+from lexica.sources.sgjp import Interpretation, analyse_word
 
 
 class ScriptedAnalyzer:
@@ -36,13 +37,13 @@ def test_analyse_word_filters_ign_and_uppercases() -> None:
     assert len(analyses) == 2
     noun = analyses[0]
     assert noun.surface == "BRONIĄ"
-    assert noun.lemma == "BROŃ"
-    assert noun.part is PartOfSpeech.RZECZOWNIK
-    assert noun.qualifiers == ("nazwa_pospolita",)
-    assert noun.source is MorphSource.SGJP
+    assert noun.lexeme.lemma == "BROŃ"
+    assert noun.lexeme.part is PartOfSpeech.RZECZOWNIK
+    assert noun.qualifiers == (Qualifier(kind=QualifierKind.NAZWA, code="nazwa_pospolita"),)
+    assert noun.source is AnalysisSource.SGJP
 
 
-def test_analyse_word_merges_names_with_qualifiers() -> None:
+def test_analyse_word_types_names_apart_from_labels() -> None:
     analyzer = ScriptedAnalyzer(
         {
             "marsz": [
@@ -51,13 +52,20 @@ def test_analyse_word_merges_names_with_qualifiers() -> None:
         }
     )
     analyses = analyse_word(analyzer, "marsz")
-    assert analyses[0].qualifiers == ("nazwa_pospolita", "muz.")
+    assert analyses[0].qualifiers == (
+        Qualifier(kind=QualifierKind.NAZWA, code="nazwa_pospolita"),
+        Qualifier(kind=QualifierKind.KWALIFIKATOR, code="muz."),
+    )
+    assert analyses[0].lexeme.pattern == "Sm2.m3"
 
 
-def test_analyse_word_entries_keeps_original_lemma_case() -> None:
-    analyzer = ScriptedAnalyzer({"kot": [("kot", "kot:Sm1", "subst:sg:nom:m1", [], [])]})
-    entries = analyse_word_entries(analyzer, "kot")
-    assert entries == (("KOT:SM1", "kot:Sm1", "subst:sg:nom:m1"),)
+def test_analyse_word_splits_a_joined_label() -> None:
+    analyzer = ScriptedAnalyzer({"czyżby": [("czyżby", "czyżby:T", "part", [], ["daw.,char."])]})
+    analyses = analyse_word(analyzer, "czyżby")
+    assert analyses[0].qualifiers == (
+        Qualifier(kind=QualifierKind.KWALIFIKATOR, code="daw."),
+        Qualifier(kind=QualifierKind.KWALIFIKATOR, code="char."),
+    )
 
 
 class SegmentedAnalyzer:
@@ -70,13 +78,8 @@ class SegmentedAnalyzer:
 
 def test_analyse_word_skips_movable_ending_segments() -> None:
     analyses = analyse_word(SegmentedAnalyzer(), "biegłem")
-    assert [analysis.lemma for analysis in analyses] == ["BIEC"]
+    assert [analysis.lexeme.lemma for analysis in analyses] == ["BIEC"]
     assert [analysis.surface for analysis in analyses] == ["BIEGŁEM"]
-
-
-def test_analyse_word_entries_skips_movable_ending_segments() -> None:
-    entries = analyse_word_entries(SegmentedAnalyzer(), "biegłem")
-    assert entries == (("BIEC", "biec", "praet:sg:m1.m2.m3:imperf"),)
 
 
 class MixedAnalyzer:
@@ -91,13 +94,16 @@ class MixedAnalyzer:
 
 def test_analyse_word_prefers_full_word_over_segments() -> None:
     analyses = analyse_word(MixedAnalyzer(), "czyżby")
-    assert [analysis.lemma for analysis in analyses] == ["CZYŻBY:I", "CZYŻBY:T"]
+    assert [(analysis.lexeme.lemma, analysis.lexeme.pattern) for analysis in analyses] == [
+        ("CZYŻBY", "I"),
+        ("CZYŻBY", "T"),
+    ]
 
 
 def _write_polimorf(path: Path, rows: list[tuple[str, str, str, str]]) -> None:
     with gzip.open(path, "wt", encoding="utf-8") as handle:
-        for form, lemma, tag, qualifier in rows:
-            handle.write(f"{form}\t{lemma}\t{tag}\t{qualifier}\n")
+        for form, lemma, tag, category in rows:
+            handle.write(f"{form}\t{lemma}\t{tag}\t{category}\n")
 
 
 def test_rescue_analyses_collects_and_dedupes_targets(tmp_path: Path) -> None:
@@ -116,11 +122,21 @@ def test_rescue_analyses_collects_and_dedupes_targets(tmp_path: Path) -> None:
     assert len(rescued["abadańscy"]) == 1
     analysis = rescued["abbozzo"][0]
     assert analysis.surface == "ABBOZZO"
-    assert analysis.lemma == "ABBOZZO"
-    assert analysis.part is PartOfSpeech.RZECZOWNIK
-    assert analysis.source is MorphSource.POLIMORF
-    assert analysis.qualifiers == ("pospolita",)
-    assert analysis.tags.genders == frozenset({Gender.NIJAKI})
+    assert analysis.lexeme.lemma == "ABBOZZO"
+    assert analysis.lexeme.part is PartOfSpeech.RZECZOWNIK
+    assert analysis.source is AnalysisSource.POLIMORF
+    assert analysis.qualifiers == (Qualifier(kind=QualifierKind.NAZWA, code="pospolita"),)
+    assert analysis.inflection.genders == frozenset({Gender.NIJAKI})
+
+
+def test_rescue_analyses_reads_the_plural_gender_the_old_tagset_wrote(tmp_path: Path) -> None:
+    path = tmp_path / "polimorf.tab.gz"
+    _write_polimorf(
+        path,
+        [("abadańscy", "abadański", "adj:pl:nom.voc:m1.p1:pos", "pospolita")],
+    )
+    analysis = rescue_analyses(path, frozenset({"abadańscy"}))["abadańscy"][0]
+    assert analysis.inflection.genders == frozenset({Gender.MĘSKOOSOBOWY})
 
 
 def test_rescue_analyses_returns_nothing_for_empty_targets(tmp_path: Path) -> None:

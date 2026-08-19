@@ -18,16 +18,21 @@ Source: <https://sjp.pl/sl/growy/>
 cached artifact the server loads at startup. Every compiled artifact opens with a
 header naming its kind and format, and carries both in its filename, so each kind
 occupies its own path and a reader accepts only what it understands. `lexica
-header <path>` prints that header. The `dictionaries/` directory is gitignored.
+header <path>` prints that header, and `docs/lexicon-contract.md` holds the kinds,
+the envelope and the ownership between `lexica` and `wordtable`. The
+`dictionaries/` directory is gitignored.
 
 ## Morphology
 
 The Polish morphology pipeline annotates the SJP list with parts of speech and
-inflection classes. `lexica.morph` holds the tagset, the source readers and the
-grouping; the artifact that carries the annotations into the game is next. The
-grammar reference and data-source survey live in `docs/morphology.md`, the
-pipeline design in `docs/morphology-pipeline.md`, and the diagnosis of the
-defects the first build showed in `docs/morphology-fix.md`.
+inflection. `lexica.grammar` holds the closed tagset, one module per dimension,
+with a segment table per dialect; `lexica.lore` holds the lexeme identity and
+the analysis it carries; `lexica.sources` reads SGJP and PoliMorf;
+`lexica.build` groups the analyses; `lexica.maintenance` holds the overrides and
+the build manifest. The artifact that carries the annotations into the game is
+next. The grammar reference and data-source survey live in
+`docs/morphology.md`, the pipeline design in `docs/morphology-pipeline.md`, and
+the diagnosis of the defects the first build showed in `docs/morphology-fix.md`.
 
 ## Board layout sources
 

@@ -15,44 +15,44 @@ function readingOf(part: Part, forms: readonly InflectedForm[]): LoreReading {
 }
 
 const PIŁA: readonly InflectedForm[] = [
-    form("PIŁA", { cases: ["mianownik"], number: "pojedyncza", genders: ["żeński"] }),
-    form("PIŁY", { cases: ["dopełniacz"], number: "pojedyncza", genders: ["żeński"] }),
-    form("PILE", { cases: ["celownik", "miejscownik"], number: "pojedyncza", genders: ["żeński"] }),
-    form("PIŁĘ", { cases: ["biernik"], number: "pojedyncza", genders: ["żeński"] }),
-    form("PIŁĄ", { cases: ["narzędnik"], number: "pojedyncza", genders: ["żeński"] }),
-    form("PIŁO", { cases: ["wołacz"], number: "pojedyncza", genders: ["żeński"] }),
-    form("PIŁY", { cases: ["mianownik", "biernik", "wołacz"], number: "mnoga", genders: ["żeński"] }),
-    form("PIŁ", { cases: ["dopełniacz"], number: "mnoga", genders: ["żeński"] }),
-    form("PIŁOM", { cases: ["celownik"], number: "mnoga", genders: ["żeński"] }),
-    form("PIŁAMI", { cases: ["narzędnik"], number: "mnoga", genders: ["żeński"] }),
-    form("PIŁACH", { cases: ["miejscownik"], number: "mnoga", genders: ["żeński"] }),
+    form("PIŁA", { cases: ["mianownik"], numbers: ["pojedyncza"], genders: ["żeński"] }),
+    form("PIŁY", { cases: ["dopełniacz"], numbers: ["pojedyncza"], genders: ["żeński"] }),
+    form("PILE", { cases: ["celownik", "miejscownik"], numbers: ["pojedyncza"], genders: ["żeński"] }),
+    form("PIŁĘ", { cases: ["biernik"], numbers: ["pojedyncza"], genders: ["żeński"] }),
+    form("PIŁĄ", { cases: ["narzędnik"], numbers: ["pojedyncza"], genders: ["żeński"] }),
+    form("PIŁO", { cases: ["wołacz"], numbers: ["pojedyncza"], genders: ["żeński"] }),
+    form("PIŁY", { cases: ["mianownik", "biernik", "wołacz"], numbers: ["mnoga"], genders: ["żeński"] }),
+    form("PIŁ", { cases: ["dopełniacz"], numbers: ["mnoga"], genders: ["żeński"] }),
+    form("PIŁOM", { cases: ["celownik"], numbers: ["mnoga"], genders: ["żeński"] }),
+    form("PIŁAMI", { cases: ["narzędnik"], numbers: ["mnoga"], genders: ["żeński"] }),
+    form("PIŁACH", { cases: ["miejscownik"], numbers: ["mnoga"], genders: ["żeński"] }),
 ];
 
 const DRZWI: readonly InflectedForm[] = [
-    form("DRZWI", { cases: ["mianownik", "biernik", "wołacz"], number: "mnoga", genders: ["nijaki"] }),
-    form("DRZWI", { cases: ["dopełniacz"], number: "mnoga", genders: ["nijaki"] }),
-    form("DRZWIOM", { cases: ["celownik"], number: "mnoga", genders: ["nijaki"] }),
-    form("DRZWIAMI", { cases: ["narzędnik"], number: "mnoga", genders: ["nijaki"] }),
-    form("DRZWIACH", { cases: ["miejscownik"], number: "mnoga", genders: ["nijaki"] }),
+    form("DRZWI", { cases: ["mianownik", "biernik", "wołacz"], numbers: ["mnoga"], genders: ["nijaki"] }),
+    form("DRZWI", { cases: ["dopełniacz"], numbers: ["mnoga"], genders: ["nijaki"] }),
+    form("DRZWIOM", { cases: ["celownik"], numbers: ["mnoga"], genders: ["nijaki"] }),
+    form("DRZWIAMI", { cases: ["narzędnik"], numbers: ["mnoga"], genders: ["nijaki"] }),
+    form("DRZWIACH", { cases: ["miejscownik"], numbers: ["mnoga"], genders: ["nijaki"] }),
 ];
 
 const PROFESOR: readonly InflectedForm[] = [
-    form("PROFESOR", { cases: ["mianownik"], number: "pojedyncza", genders: ["męskoosobowy"] }),
-    form("PROFESOROWIE", { cases: ["mianownik"], number: "mnoga", genders: ["męskoosobowy"] }),
+    form("PROFESOR", { cases: ["mianownik"], numbers: ["pojedyncza"], genders: ["męskoosobowy"] }),
+    form("PROFESOROWIE", { cases: ["mianownik"], numbers: ["mnoga"], genders: ["męskoosobowy"] }),
     form("PROFESORY", {
         cases: ["mianownik"],
-        number: "mnoga",
+        numbers: ["mnoga"],
         genders: ["męskoosobowy"],
         deprecative: true,
     }),
 ];
 
 const DOBRY: readonly InflectedForm[] = [
-    form("DOBRY", { cases: ["mianownik"], number: "pojedyncza", genders: ["męskoosobowy"], degree: "równy" }),
-    form("DOBRA", { cases: ["mianownik"], number: "pojedyncza", genders: ["żeński"], degree: "równy" }),
-    form("DOBREJ", { cases: ["dopełniacz"], number: "pojedyncza", genders: ["żeński"], degree: "równy" }),
-    form("DOBRZY", { cases: ["mianownik"], number: "mnoga", genders: ["męskoosobowy"], degree: "równy" }),
-    form("LEPSZY", { cases: ["mianownik"], number: "pojedyncza", genders: ["męskoosobowy"], degree: "wyższy" }),
+    form("DOBRY", { cases: ["mianownik"], numbers: ["pojedyncza"], genders: ["męskoosobowy"], degree: "równy" }),
+    form("DOBRA", { cases: ["mianownik"], numbers: ["pojedyncza"], genders: ["żeński"], degree: "równy" }),
+    form("DOBREJ", { cases: ["dopełniacz"], numbers: ["pojedyncza"], genders: ["żeński"], degree: "równy" }),
+    form("DOBRZY", { cases: ["mianownik"], numbers: ["mnoga"], genders: ["męskoosobowy"], degree: "równy" }),
+    form("LEPSZY", { cases: ["mianownik"], numbers: ["pojedyncza"], genders: ["męskoosobowy"], degree: "wyższy" }),
 ];
 
 const SZYBKO: readonly InflectedForm[] = [
@@ -68,7 +68,7 @@ const PISAĆ: readonly InflectedForm[] = [
         mood: "oznajmujący",
         tense: "teraźniejszy",
         person: "pierwsza",
-        number: "pojedyncza",
+        numbers: ["pojedyncza"],
         aspects: ["niedokonany"],
     }),
     form("PISZESZ", {
@@ -76,7 +76,7 @@ const PISAĆ: readonly InflectedForm[] = [
         mood: "oznajmujący",
         tense: "teraźniejszy",
         person: "druga",
-        number: "pojedyncza",
+        numbers: ["pojedyncza"],
         aspects: ["niedokonany"],
     }),
     form("PISZEMY", {
@@ -84,14 +84,14 @@ const PISAĆ: readonly InflectedForm[] = [
         mood: "oznajmujący",
         tense: "teraźniejszy",
         person: "pierwsza",
-        number: "mnoga",
+        numbers: ["mnoga"],
         aspects: ["niedokonany"],
     }),
     form("PISAŁ", {
         verb_form: "forma przeszła",
         mood: "oznajmujący",
         tense: "przeszły",
-        number: "pojedyncza",
+        numbers: ["pojedyncza"],
         genders: ["męskoosobowy", "męskozwierzęcy", "męskorzeczowy"],
         aspects: ["niedokonany"],
     }),
@@ -99,7 +99,7 @@ const PISAĆ: readonly InflectedForm[] = [
         verb_form: "forma przeszła",
         mood: "oznajmujący",
         tense: "przeszły",
-        number: "pojedyncza",
+        numbers: ["pojedyncza"],
         genders: ["żeński"],
         aspects: ["niedokonany"],
     }),
@@ -107,14 +107,14 @@ const PISAĆ: readonly InflectedForm[] = [
         verb_form: "forma przeszła",
         mood: "oznajmujący",
         tense: "przeszły",
-        number: "mnoga",
+        numbers: ["mnoga"],
         genders: ["męskoosobowy"],
         aspects: ["niedokonany"],
     }),
     form("PISANY", {
         verb_form: "imiesłów bierny",
         cases: ["mianownik"],
-        number: "pojedyncza",
+        numbers: ["pojedyncza"],
         genders: ["męskorzeczowy"],
         negation: false,
         aspects: ["niedokonany"],
@@ -122,7 +122,7 @@ const PISAĆ: readonly InflectedForm[] = [
     form("NIEPISANY", {
         verb_form: "imiesłów bierny",
         cases: ["mianownik"],
-        number: "pojedyncza",
+        numbers: ["pojedyncza"],
         genders: ["męskorzeczowy"],
         negation: true,
         aspects: ["niedokonany"],
@@ -131,7 +131,7 @@ const PISAĆ: readonly InflectedForm[] = [
     form("PISANIE", {
         verb_form: "odsłownik",
         cases: ["mianownik"],
-        number: "pojedyncza",
+        numbers: ["pojedyncza"],
         genders: ["nijaki"],
         aspects: ["niedokonany"],
     }),
@@ -369,7 +369,7 @@ describe("paradigmOf at the edges", () => {
     it("keeps a form no axis can hold in the rest", () => {
         const paradigm = paradigmOf(
             readingOf("rzeczownik", [
-                form("KOT", { cases: ["mianownik"], number: "pojedyncza", genders: ["męskozwierzęcy"] }),
+                form("KOT", { cases: ["mianownik"], numbers: ["pojedyncza"], genders: ["męskozwierzęcy"] }),
                 form("KOCIE", { genders: ["męskozwierzęcy"] }),
             ]),
         );
@@ -378,7 +378,7 @@ describe("paradigmOf at the edges", () => {
     });
 
     it("drops a form repeated in the same cell to one entry", () => {
-        const twice = form("KOT", { cases: ["mianownik"], number: "pojedyncza", genders: ["męskozwierzęcy"] });
+        const twice = form("KOT", { cases: ["mianownik"], numbers: ["pojedyncza"], genders: ["męskozwierzęcy"] });
         const grid = paradigmOf(readingOf("rzeczownik", [twice, twice])).grids[0];
         expect(grid?.rows[0]?.cells[0]?.forms).toHaveLength(1);
     });

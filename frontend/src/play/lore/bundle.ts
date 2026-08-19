@@ -2,7 +2,7 @@ import type { Inflection } from "../../api/lore";
 
 export const NO_INFLECTION: Inflection = {
     cases: [],
-    number: null,
+    numbers: [],
     genders: [],
     person: null,
     tense: null,

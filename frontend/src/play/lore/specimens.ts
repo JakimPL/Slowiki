@@ -28,7 +28,7 @@ function form(text: string, stated: Partial<Inflection>): InflectedForm {
 
 function byCase(texts: Record<Case, string>, number: GrammaticalNumber, gender: Gender): readonly InflectedForm[] {
     return CASES.map((grammaticalCase) =>
-        form(texts[grammaticalCase], { cases: [grammaticalCase], number, genders: [gender] }),
+        form(texts[grammaticalCase], { cases: [grammaticalCase], numbers: [number], genders: [gender] }),
     );
 }
 
@@ -47,7 +47,14 @@ function byPerson(
     aspects: readonly Aspect[],
 ): readonly InflectedForm[] {
     return PERSONS.map((person) =>
-        form(texts[person], { verb_form: "forma osobowa", mood: "oznajmujący", tense, person, number, aspects }),
+        form(texts[person], {
+            verb_form: "forma osobowa",
+            mood: "oznajmujący",
+            tense,
+            person,
+            numbers: [number],
+            aspects,
+        }),
     );
 }
 
@@ -62,7 +69,7 @@ function past(
         mood: "oznajmujący",
         tense: "przeszły",
         genders,
-        number,
+        numbers: [number],
         aspects,
     });
 }
@@ -73,7 +80,7 @@ function imperative(
     number: GrammaticalNumber,
     aspects: readonly Aspect[],
 ): InflectedForm {
-    return form(text, { verb_form: "rozkaźnik", mood: "rozkazujący", person, number, aspects });
+    return form(text, { verb_form: "rozkaźnik", mood: "rozkazujący", person, numbers: [number], aspects });
 }
 
 function participle(
@@ -88,7 +95,7 @@ function participle(
         verb_form: verbForm,
         cases: [grammaticalCase],
         genders: [gender],
-        number,
+        numbers: [number],
         negation,
         aspects: IMPERFECT,
     });
@@ -99,7 +106,7 @@ function gerund(text: string, grammaticalCase: Case, number: GrammaticalNumber):
         verb_form: "odsłownik",
         cases: [grammaticalCase],
         genders: ["nijaki"],
-        number,
+        numbers: [number],
         aspects: IMPERFECT,
     });
 }
@@ -326,29 +333,29 @@ const EXPENSIVE: LoreReading = {
     forms: [
         form("DROGI", {
             cases: ["mianownik"],
-            number: "pojedyncza",
+            numbers: ["pojedyncza"],
             genders: ["męskoosobowy"],
             degree: "równy",
         }),
         form("DROGIEGO", {
             cases: ["dopełniacz"],
-            number: "pojedyncza",
+            numbers: ["pojedyncza"],
             genders: ["męskoosobowy"],
             degree: "równy",
         }),
         form("DROGIM", {
             cases: ["narzędnik"],
-            number: "pojedyncza",
+            numbers: ["pojedyncza"],
             genders: ["męskoosobowy"],
             degree: "równy",
         }),
-        form("DROGA", { cases: ["mianownik"], number: "pojedyncza", genders: ["żeński"], degree: "równy" }),
-        form("DROGIEJ", { cases: ["dopełniacz"], number: "pojedyncza", genders: ["żeński"], degree: "równy" }),
-        form("DROGĄ", { cases: ["narzędnik"], number: "pojedyncza", genders: ["żeński"], degree: "równy" }),
-        form("DRODZY", { cases: ["mianownik"], number: "mnoga", genders: ["męskoosobowy"], degree: "równy" }),
+        form("DROGA", { cases: ["mianownik"], numbers: ["pojedyncza"], genders: ["żeński"], degree: "równy" }),
+        form("DROGIEJ", { cases: ["dopełniacz"], numbers: ["pojedyncza"], genders: ["żeński"], degree: "równy" }),
+        form("DROGĄ", { cases: ["narzędnik"], numbers: ["pojedyncza"], genders: ["żeński"], degree: "równy" }),
+        form("DRODZY", { cases: ["mianownik"], numbers: ["mnoga"], genders: ["męskoosobowy"], degree: "równy" }),
         form("DROŻSZY", {
             cases: ["mianownik"],
-            number: "pojedyncza",
+            numbers: ["pojedyncza"],
             genders: ["męskoosobowy"],
             degree: "wyższy",
         }),
