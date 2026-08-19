@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 from typing import Final
 
-PIPELINE_VERSION: Final = 2
+PIPELINE_VERSION: Final = 1
 
 
 def compile_input_digests(
