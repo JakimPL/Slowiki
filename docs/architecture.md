@@ -26,9 +26,10 @@ P6. The engine owns the cursor. Turn order, phase, and premove settlement are
 
 P7. Letters are canonical. Every letter inside the system is uppercase; dictionary
     loaders, tile presets, and move payloads normalize on ingestion, so rules,
-    scoring, and projections compare letters directly. Compiled lexicons carry a
-    format version (`LEXICON_FORMAT` in `wordtable.paths`), so a normalization
-    change retires stale artifacts by filename.
+    scoring, and projections compare letters directly. Compiled artifacts carry
+    their kind and format version in the header and in the filename
+    (`ARTIFACT_FORMATS` in `lexica.artifact.formats`), so a normalization change
+    retires stale artifacts and a reader accepts only the kind it understands.
 
 ## Packages
 

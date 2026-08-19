@@ -14,9 +14,11 @@ License: GPL 2 and Creative Commons Attribution 4.0 International.
 
 Source: <https://sjp.pl/sl/growy/>
 
-`lexica` compiles the archive into `dictionaries/sjp-20260803.v2.lexicon`, a cached
-artifact the server loads at startup. The `dictionaries/` directory is
-gitignored.
+`lexica` compiles the archive into `dictionaries/sjp-20260803.words.v1.lexicon`, a
+cached artifact the server loads at startup. Every compiled artifact opens with a
+header naming its kind and format, and carries both in its filename, so each kind
+occupies its own path and a reader accepts only what it understands. `lexica
+header <path>` prints that header. The `dictionaries/` directory is gitignored.
 
 ## Morphology
 

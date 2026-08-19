@@ -2,7 +2,8 @@ import argparse
 import itertools
 from pathlib import Path
 
-from lexica.compile import compile_lexicon
+from lexica.artifact.envelope import read_header
+from lexica.artifact.words import write_word_list
 from lexica.dictionaries.sjp import iter_sjp_words
 
 
@@ -11,6 +12,8 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(dest="command", required=True)
     inspect = subparsers.add_parser("inspect")
     inspect.add_argument("archive", type=Path)
+    header = subparsers.add_parser("header")
+    header.add_argument("artifact", type=Path)
     compile_parser = subparsers.add_parser("compile")
     compile_parser.add_argument("archive", type=Path)
     compile_parser.add_argument("output", type=Path)
@@ -30,8 +33,15 @@ def main(argv: list[str] | None = None) -> None:
             for word in words:
                 print(word)
 
+        case "header":
+            header = read_header(args.artifact)
+            print(
+                f"{args.artifact}: {header.kind} format {header.format}, "
+                f"{header.entries} entries, {args.artifact.stat().st_size} bytes"
+            )
+
         case "compile":
-            compile_lexicon(iter_sjp_words(args.archive), args.output)
+            write_word_list(iter_sjp_words(args.archive), args.output)
             print(args.output)
 
         case "fetch-osps":

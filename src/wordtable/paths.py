@@ -1,9 +1,8 @@
 from pathlib import Path
-from typing import Final
 
+from lexica.artifact.formats import ARTIFACT_FORMATS
+from lexica.artifact.kind import ArtifactKind
 from lexica.names import DictionaryName
-
-LEXICON_FORMAT: Final = 2
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 CONFIG_DIR = PROJECT_ROOT / "config"
@@ -26,8 +25,8 @@ def dictionary_archive(name: DictionaryName) -> Path:
     return DICTIONARIES_DIR / f"{_dictionary_stem(name)}.zip"
 
 
-def dictionary_compiled(name: DictionaryName) -> Path:
-    return DICTIONARIES_DIR / f"{_dictionary_stem(name)}.v{LEXICON_FORMAT}.lexicon"
+def dictionary_compiled(name: DictionaryName, kind: ArtifactKind) -> Path:
+    return DICTIONARIES_DIR / f"{_dictionary_stem(name)}.{kind}.v{ARTIFACT_FORMATS[kind]}.lexicon"
 
 
 def _dictionary_stem(name: DictionaryName) -> str:

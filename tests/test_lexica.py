@@ -3,7 +3,6 @@ import zipfile
 
 import pytest
 
-from lexica.compile import compile_lexicon, load_compiled_lexicon
 from lexica.dictionaries.catalog import iter_dictionary_words
 from lexica.dictionaries.plain import iter_plain_words
 from lexica.dictionaries.sjp import iter_sjp_words
@@ -40,15 +39,6 @@ def test_apply_rules_bounds_and_patterns() -> None:
 
 def test_letter_counts() -> None:
     assert letter_counts(["aa", "ab"]) == {"A": 3, "B": 1}
-
-
-def test_compile_round_trip(tmp_path) -> None:
-    destination = tmp_path / "tiny.lexicon"
-    compile_lexicon(["kot", "kota", "dom"], destination)
-    lexicon = load_compiled_lexicon(destination)
-    assert lexicon.judge("kot").allowed
-    assert not lexicon.judge("koty").allowed
-    assert lexicon.has_prefix("ko")
 
 
 @pytest.mark.skipif(not SJP_ARCHIVE.is_file(), reason="SJP archive not present")

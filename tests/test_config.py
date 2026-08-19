@@ -1,6 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
+from lexica.artifact.kind import ArtifactKind
 from lexica.names import DictionaryName
 from wordcore.board.preset import board_from_preset
 from wordtable import paths
@@ -38,7 +39,7 @@ def test_dictionary_readiness_follows_files(tmp_path, monkeypatch) -> None:
     (tmp_path / "english.zip").touch()
     assert dictionary_ready(DictionaryName.ENGLISH) is True
     (tmp_path / "english.zip").unlink()
-    (tmp_path / f"english.v{paths.LEXICON_FORMAT}.lexicon").touch()
+    paths.dictionary_compiled(DictionaryName.ENGLISH, ArtifactKind.WORDS).touch()
     assert dictionary_ready(DictionaryName.ENGLISH) is True
 
 
