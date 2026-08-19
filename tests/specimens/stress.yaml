@@ -1,0 +1,2277 @@
+seed: 20260817
+dictionary: sjp-20260803
+analyzer: morfeusz2
+dict_id: pl.sgjp.sgjp-2026.06.01
+purpose: hand-reviewable golden anchor; full corpus lives in dictionaries/specimens/
+  (gitignored)
+specimen_count: 159
+unknown_specimens: 2
+specimens:
+- word: aalborscy
+  analyses:
+  - - aalborscy
+    - aalborscy
+    - ign
+    - []
+    - []
+- word: abadańscy
+  analyses:
+  - - abadańscy
+    - abadańscy
+    - ign
+    - []
+    - []
+- word: aha
+  analyses:
+  - - aha
+    - aha
+    - interj
+    - []
+    - []
+- word: ale
+  analyses:
+  - - ale
+    - ale:C
+    - conj
+    - []
+    - []
+  - - ale
+    - ale:T
+    - part
+    - []
+    - []
+  - - ale
+    - ale:I
+    - interj
+    - []
+    - []
+- word: bal
+  analyses:
+  - - bal
+    - bal:Sm3~a
+    - subst:sg:nom.acc:m3
+    - - nazwa_pospolita
+    - []
+  - - bal
+    - bal:Sm3~u
+    - subst:sg:nom.acc:m3
+    - - nazwa_pospolita
+    - []
+- word: bala
+  analyses:
+  - - bala
+    - bal:Sm3~a
+    - subst:sg:gen:m3
+    - - nazwa_pospolita
+    - []
+- word: balu
+  analyses:
+  - - balu
+    - bal:Sm3~a
+    - subst:sg:loc:m3
+    - - nazwa_pospolita
+    - []
+  - - balu
+    - bal:Sm3~a
+    - subst:sg:voc:m3
+    - - nazwa_pospolita
+    - []
+  - - balu
+    - bal:Sm3~u
+    - subst:sg:gen:m3
+    - - nazwa_pospolita
+    - []
+  - - balu
+    - bal:Sm3~u
+    - subst:sg:loc:m3
+    - - nazwa_pospolita
+    - []
+  - - balu
+    - bal:Sm3~u
+    - subst:sg:voc:m3
+    - - nazwa_pospolita
+    - []
+- word: bracia
+  analyses:
+  - - bracia
+    - bracia
+    - subst:sg:nom:f
+    - - nazwa_pospolita
+    - - daw.,rzad.
+  - - bracia
+    - brat
+    - subst:pl:nom.voc:m1
+    - - nazwa_pospolita
+    - []
+- word: brat
+  analyses:
+  - - brat
+    - brat
+    - subst:sg:nom:m1
+    - - nazwa_pospolita
+    - []
+- word: bronią
+  analyses:
+  - - bronią
+    - broń
+    - subst:sg:inst:f
+    - - nazwa_pospolita
+    - []
+  - - bronią
+    - bronić
+    - fin:pl:ter:imperf
+    - []
+    - []
+- word: by
+  analyses:
+  - - by
+    - by:M
+    - comp
+    - []
+    - []
+  - - by
+    - by:T
+    - part
+    - []
+    - []
+- word: bym
+  analyses:
+  - - by
+    - by:M
+    - comp
+    - []
+    - []
+  - - by
+    - by:T
+    - part
+    - []
+    - []
+- word: być
+  analyses:
+  - - być
+    - bycie
+    - subst:pl:gen:n:ncol
+    - - nazwa_pospolita
+    - []
+  - - być
+    - być
+    - ger:pl:gen:n:imperf:aff
+    - []
+    - []
+  - - być
+    - być
+    - inf:imperf
+    - []
+    - []
+- word: był
+  analyses:
+  - - był
+    - być
+    - praet:sg:m1.m2.m3:imperf
+    - []
+    - []
+- word: była
+  analyses:
+  - - była
+    - była
+    - subst:sg:nom:f
+    - - nazwa_pospolita
+    - []
+  - - była
+    - była
+    - subst:sg:voc:f
+    - - nazwa_pospolita
+    - []
+  - - była
+    - były:A
+    - adj:sg:nom.voc:f:pos
+    - []
+    - []
+  - - była
+    - być
+    - praet:sg:f:imperf
+    - []
+    - []
+- word: byś
+  analyses:
+  - - by
+    - by:M
+    - comp
+    - []
+    - []
+  - - by
+    - by:T
+    - part
+    - []
+    - []
+- word: bądź
+  analyses:
+  - - bądź
+    - bądź:C
+    - conj
+    - []
+    - []
+  - - bądź
+    - bądź:T
+    - part
+    - []
+    - []
+  - - bądź
+    - być
+    - impt:sg:sec:imperf
+    - []
+    - []
+- word: będzie
+  analyses:
+  - - będzie
+    - być
+    - bedzie:sg:ter:imperf
+    - []
+    - []
+- word: chłop
+  analyses:
+  - - chłop
+    - chłop
+    - subst:sg:nom:m1
+    - - nazwa_pospolita
+    - []
+- word: chłopi
+  analyses:
+  - - chłopi
+    - chłopi
+    - adj:pl:nom.voc:m1:pos
+    - []
+    - - przest.
+  - - chłopi
+    - chłopi
+    - adj:sg:acc:m3:pos
+    - []
+    - - przest.
+  - - chłopi
+    - chłopi
+    - adj:sg:nom.voc:m1.m2.m3:pos
+    - []
+    - - przest.
+  - - chłopi
+    - chłop
+    - subst:pl:nom.voc:m1
+    - - nazwa_pospolita
+    - []
+- word: chłopy
+  analyses:
+  - - chłopy
+    - chłop
+    - depr:pl:nom.acc.voc:m2
+    - - nazwa_pospolita
+    - []
+- word: ci
+  analyses:
+  - - ci
+    - ci
+    - part
+    - []
+    - []
+  - - ci
+    - ty
+    - ppron12:sg:dat:m1.m2.m3.f.n:sec:nakc
+    - []
+    - []
+  - - ci
+    - ten
+    - adj:pl:nom.voc:m1:pos
+    - []
+    - []
+- word: czytanie
+  analyses:
+  - - czytanie
+    - czytać
+    - ger:sg:nom.acc:n:imperf:aff
+    - []
+    - []
+  - - czytanie
+    - czytanie
+    - subst:sg:nom.acc.voc:n:ncol
+    - - nazwa_pospolita
+    - []
+- word: czytano
+  analyses:
+  - - czytano
+    - czytać
+    - imps:imperf
+    - []
+    - []
+- word: czyżby
+  analyses:
+  - - czyżby
+    - czyżby:I
+    - interj
+    - []
+    - - książk.
+  - - czyżby
+    - czyżby:T
+    - part
+    - []
+    - - książk.
+- word: człowiek
+  analyses:
+  - - człowiek
+    - człowiek
+    - subst:sg:nom:m1
+    - - nazwa_pospolita
+    - []
+- word: dni
+  analyses:
+  - - dni
+    - dzień:Sm3
+    - subst:pl:nom.acc.voc:m3
+    - - nazwa_pospolita
+    - []
+  - - dni
+    - dzień:Sm3
+    - subst:pl:gen:m3
+    - - nazwa_pospolita
+    - []
+- word: dnia
+  analyses:
+  - - dnia
+    - dzień:Sm3
+    - subst:sg:gen:m3
+    - - nazwa_pospolita
+    - []
+- word: drogi
+  analyses:
+  - - drogi
+    - drogi:S
+    - subst:pl:nom.acc.voc:n:pt
+    - - nazwa_pospolita
+    - []
+  - - drogi
+    - droga
+    - subst:sg:gen:f
+    - - nazwa_pospolita
+    - []
+  - - drogi
+    - droga
+    - subst:pl:nom.acc.voc:f
+    - - nazwa_pospolita
+    - []
+  - - drogi
+    - drogi:A
+    - adj:sg:acc:m3:pos
+    - []
+    - []
+  - - drogi
+    - drogi:A
+    - adj:sg:nom.voc:m1.m2.m3:pos
+    - []
+    - []
+- word: drogą
+  analyses:
+  - - drogą
+    - droga
+    - subst:sg:inst:f
+    - - nazwa_pospolita
+    - []
+  - - drogą
+    - drogi:A
+    - adj:sg:acc:f:pos
+    - []
+    - []
+  - - drogą
+    - drogi:A
+    - adj:sg:inst:f:pos
+    - []
+    - []
+- word: drugi
+  analyses:
+  - - drugi
+    - drugi:A
+    - adj:sg:acc:m3:pos
+    - []
+    - []
+  - - drugi
+    - drugi:A
+    - adj:sg:nom.voc:m1.m2.m3:pos
+    - []
+    - []
+  - - drugi
+    - drugi:S
+    - subst:sg:nom.acc:m3
+    - - nazwa_pospolita
+    - []
+  - - drugi
+    - drugi:S
+    - subst:sg:nom:m2
+    - - nazwa_pospolita
+    - []
+  - - drugi
+    - drugi:S
+    - subst:sg:voc:m2
+    - - nazwa_pospolita
+    - []
+  - - drugi
+    - drugi:S
+    - subst:sg:voc:m3
+    - - nazwa_pospolita
+    - []
+- word: drugiego
+  analyses:
+  - - drugiego
+    - drugi:A
+    - adj:sg:acc:m1.m2:pos
+    - []
+    - []
+  - - drugiego
+    - drugi:A
+    - adj:sg:gen:m1.m2.m3.n:pos
+    - []
+    - []
+  - - drugiego
+    - drugie
+    - subst:sg:gen:n:ncol
+    - - nazwa_pospolita
+    - []
+  - - drugiego
+    - drugi:S
+    - subst:sg:gen.acc:m2
+    - - nazwa_pospolita
+    - []
+  - - drugiego
+    - drugi:S
+    - subst:sg:gen:m3
+    - - nazwa_pospolita
+    - []
+- word: dwa
+  analyses:
+  - - dwa
+    - dwa
+    - num:pl:nom.acc.voc:m2.m3.n:congr:ncol
+    - []
+    - []
+- word: dwie
+  analyses:
+  - - dwie
+    - dwa
+    - num:pl:nom.acc.voc:f:congr:ncol
+    - []
+    - []
+- word: dzieci
+  analyses:
+  - - dzieci
+    - dziecko
+    - subst:pl:nom.acc.voc:n:col
+    - - nazwa_pospolita
+    - []
+  - - dzieci
+    - dziecko
+    - subst:pl:gen:n:col
+    - - nazwa_pospolita
+    - []
+- word: dziecko
+  analyses:
+  - - dziecko
+    - dziecko
+    - subst:sg:nom.acc.voc:n:col
+    - - nazwa_pospolita
+    - []
+- word: dzień
+  analyses:
+  - - dzień
+    - dzień:Sf
+    - subst:sg:nom:f
+    - - nazwa_pospolita
+    - - daw.,pszcz.
+  - - dzień
+    - dzień:Sf
+    - subst:sg:acc:f
+    - - nazwa_pospolita
+    - - daw.,pszcz.
+  - - dzień
+    - dzień:Sm3
+    - subst:sg:nom.acc:m3
+    - - nazwa_pospolita
+    - []
+  - - dzień
+    - dzienia
+    - subst:pl:gen:f
+    - - nazwa_pospolita
+    - - daw.,char.
+  - - dzień
+    - dzienie
+    - subst:pl:gen:n:ncol
+    - - nazwa_pospolita
+    - - daw.
+  - - dzień
+    - dzienić
+    - impt:sg:sec:imperf
+    - []
+    - - daw.
+- word: hej
+  analyses:
+  - - hej
+    - hej
+    - interj
+    - []
+    - []
+- word: ich
+  analyses:
+  - - ich
+    - on:S
+    - ppron3:pl:acc:m1:ter:akc.nakc:npraep
+    - []
+    - []
+  - - ich
+    - on:S
+    - ppron3:pl:gen:m1.m2.m3.f.n:ter:akc.nakc:npraep
+    - []
+    - []
+- word: idąc
+  analyses:
+  - - idąc
+    - iść
+    - pcon:imperf
+    - []
+    - []
+- word: imienia
+  analyses:
+  - - imienia
+    - imienie
+    - subst:sg:gen:n:ncol
+    - - nazwa_pospolita
+    - - daw.
+  - - imienia
+    - imienie
+    - subst:pl:nom.acc.voc:n:ncol
+    - - nazwa_pospolita
+    - - daw.
+  - - imienia
+    - imię
+    - subst:sg:gen:n:col
+    - - nazwa_pospolita
+    - - przest.
+  - - imienia
+    - imię
+    - subst:sg:gen:n:ncol
+    - - nazwa_pospolita
+    - []
+- word: imię
+  analyses:
+  - - imię
+    - imię
+    - subst:sg:nom.acc.voc:n:col
+    - - nazwa_pospolita
+    - - przest.
+  - - imię
+    - imię
+    - subst:sg:nom.acc.voc:n:ncol
+    - - nazwa_pospolita
+    - []
+- word: jeden
+  analyses:
+  - - jeden
+    - jeden:A
+    - adj:sg:acc:m3:pos
+    - []
+    - []
+  - - jeden
+    - jeden:A
+    - adj:sg:nom.voc:m1.m2.m3:pos
+    - []
+    - []
+  - - jeden
+    - jeden:N
+    - num:pl:gen:m1.m2.m3.f.n:congr
+    - []
+    - []
+  - - jeden
+    - jeden:N
+    - num:pl:nom.dat.inst.acc.loc.voc:m1.m2.m3.f.n:rec
+    - []
+    - []
+  - - jeden
+    - jeden:S
+    - subst:sg:nom:m2
+    - - nazwa_pospolita
+    - - pot.
+  - - jeden
+    - jeden:S
+    - subst:sg:voc:m2
+    - - nazwa_pospolita
+    - - pot.
+- word: jednego
+  analyses:
+  - - jednego
+    - jedno:S
+    - subst:sg:gen:n:ncol
+    - []
+    - []
+  - - jednego
+    - jeden:S
+    - subst:sg:gen.acc:m2
+    - - nazwa_pospolita
+    - - pot.
+  - - jednego
+    - jeden:A
+    - adj:sg:acc:m1.m2:pos
+    - []
+    - []
+  - - jednego
+    - jeden:A
+    - adj:sg:gen:m1.m2.m3.n:pos
+    - []
+    - []
+- word: jego
+  analyses:
+  - - jego
+    - on:S
+    - ppron3:sg:acc:m1.m2.m3:ter:akc:npraep
+    - []
+    - []
+  - - jego
+    - on:S
+    - ppron3:sg:gen:m1.m2.m3:ter:akc:npraep
+    - []
+    - []
+  - - jego
+    - on:S
+    - ppron3:sg:gen:n:ter:akc:npraep
+    - []
+    - []
+- word: jest
+  analyses:
+  - - jest
+    - być
+    - fin:sg:ter:imperf
+    - []
+    - []
+- word: kocie
+  analyses:
+  - - kocie
+    - kot:Sm1
+    - subst:sg:loc:m1
+    - - nazwa_pospolita
+    - - pot.,środ.
+  - - kocie
+    - kot:Sm1
+    - subst:sg:voc:m1
+    - - nazwa_pospolita
+    - - pot.,środ.
+  - - kocie
+    - kot:Sm2
+    - subst:sg:loc:m2
+    - - nazwa_pospolita
+    - []
+  - - kocie
+    - kot:Sm2
+    - subst:sg:voc:m2
+    - - nazwa_pospolita
+    - []
+  - - kocie
+    - kota
+    - subst:sg:dat.loc:f
+    - - nazwa_pospolita
+    - []
+  - - kocie
+    - koci
+    - adj:pl:acc:m2.m3.f.n:pos
+    - []
+    - []
+  - - kocie
+    - koci
+    - adj:pl:nom.voc:m2.m3.f.n:pos
+    - []
+    - []
+  - - kocie
+    - koci
+    - adj:sg:acc:n:pos
+    - []
+    - []
+  - - kocie
+    - koci
+    - adj:sg:nom.voc:n:pos
+    - []
+    - []
+- word: kogo
+  analyses:
+  - - kogo
+    - kto
+    - subst:sg:gen:m1
+    - []
+    - []
+  - - kogo
+    - kto
+    - subst:sg:acc:m1
+    - []
+    - []
+  - - kogo
+    - koga
+    - subst:sg:voc:f
+    - - nazwa_pospolita
+    - - hist.,mors.
+- word: komu
+  analyses:
+  - - komu
+    - kto
+    - subst:sg:dat:m1
+    - []
+    - []
+- word: kot
+  analyses:
+  - - kot
+    - kot:Sm1
+    - subst:sg:nom:m1
+    - - nazwa_pospolita
+    - - pot.,środ.
+  - - kot
+    - kot:Sm2
+    - subst:sg:nom:m2
+    - - nazwa_pospolita
+    - []
+  - - kot
+    - kota
+    - subst:pl:gen:f
+    - - nazwa_pospolita
+    - []
+- word: kota
+  analyses:
+  - - kota
+    - kota
+    - subst:sg:nom:f
+    - - nazwa_pospolita
+    - []
+  - - kota
+    - kot:Sm1
+    - subst:sg:gen.acc:m1
+    - - nazwa_pospolita
+    - - pot.,środ.
+  - - kota
+    - kot:Sm2
+    - subst:sg:gen.acc:m2
+    - - nazwa_pospolita
+    - []
+- word: kotem
+  analyses:
+  - - kotem
+    - kot:Sm1
+    - subst:sg:inst:m1
+    - - nazwa_pospolita
+    - - pot.,środ.
+  - - kotem
+    - kot:Sm2
+    - subst:sg:inst:m2
+    - - nazwa_pospolita
+    - []
+- word: kotu
+  analyses:
+  - - kotu
+    - kot:Sm2
+    - subst:sg:dat:m2
+    - - nazwa_pospolita
+    - []
+- word: ksiądz
+  analyses:
+  - - ksiądz
+    - ksiądz
+    - subst:sg:nom:m1
+    - - nazwa_pospolita
+    - []
+- word: księża
+  analyses:
+  - - księża
+    - księża
+    - subst:sg:nom:f
+    - - nazwa_pospolita
+    - - daw.
+  - - księża
+    - ksiądz
+    - subst:pl:nom.voc:m1
+    - - nazwa_pospolita
+    - []
+  - - księża
+    - księży
+    - adj:sg:nom.voc:f:pos
+    - []
+    - []
+- word: kto
+  analyses:
+  - - kto
+    - kto
+    - subst:sg:nom:m1
+    - []
+    - []
+- word: którego
+  analyses:
+  - - którego
+    - który
+    - adj:sg:acc:m1.m2:pos
+    - []
+    - []
+  - - którego
+    - który
+    - adj:sg:gen:m1.m2.m3.n:pos
+    - []
+    - []
+- word: który
+  analyses:
+  - - który
+    - który
+    - adj:sg:acc:m3:pos
+    - []
+    - []
+  - - który
+    - który
+    - adj:sg:nom.voc:m1.m2.m3:pos
+    - []
+    - []
+- word: ku
+  analyses:
+  - - ku
+    - ku:S
+    - subst:sg.pl:nom.gen.dat.acc.inst.loc.voc:n:ncol
+    - - nazwa_pospolita
+    - []
+  - - ku
+    - ku:P
+    - prep:dat
+    - []
+    - []
+- word: lat
+  analyses:
+  - - lat
+    - lato
+    - subst:pl:gen:n:ncol
+    - - nazwa_pospolita
+    - []
+  - - lat
+    - rok:Sm3~lata
+    - subst:pl:gen:m3
+    - - nazwa_pospolita
+    - []
+- word: lata
+  analyses:
+  - - lata
+    - lato
+    - subst:sg:gen:n:ncol
+    - - nazwa_pospolita
+    - []
+  - - lata
+    - lato
+    - subst:pl:nom.acc.voc:n:ncol
+    - - nazwa_pospolita
+    - []
+  - - lata
+    - rok:Sm3~lata
+    - subst:pl:nom.acc.voc:m3
+    - - nazwa_pospolita
+    - []
+  - - lata
+    - latać
+    - fin:sg:ter:imperf
+    - []
+    - []
+- word: lub
+  analyses:
+  - - lub
+    - lub
+    - conj
+    - []
+    - []
+  - - lub
+    - lubić
+    - impt:sg:sec:imperf
+    - []
+    - []
+- word: ludzie
+  analyses:
+  - - ludzie
+    - lud:Sm2
+    - subst:sg:loc:m2
+    - - nazwa_pospolita
+    - []
+  - - ludzie
+    - lud:Sm2
+    - subst:sg:voc:m2
+    - - nazwa_pospolita
+    - []
+  - - ludzie
+    - lud:Sm3
+    - subst:sg:loc:m3
+    - - nazwa_pospolita
+    - []
+  - - ludzie
+    - lud:Sm3
+    - subst:sg:voc:m3
+    - - nazwa_pospolita
+    - []
+  - - ludzie
+    - człowiek
+    - subst:pl:nom.voc:m1
+    - - nazwa_pospolita
+    - []
+  - - ludzie
+    - człowiek
+    - depr:pl:nom.acc.voc:m2
+    - - nazwa_pospolita
+    - []
+- word: marsz
+  analyses:
+  - - marsz
+    - marsz:Sm2.m3
+    - subst:sg:nom.acc:m3
+    - - nazwa_pospolita
+    - - muz.
+  - - marsz
+    - marsz:Sm2.m3
+    - subst:sg:nom:m2
+    - - nazwa_pospolita
+    - - muz.
+  - - marsz
+    - marsz:Sm3
+    - subst:sg:nom.acc:m3
+    - - nazwa_pospolita
+    - - rzad.,geogr.
+- word: marsza
+  analyses:
+  - - marsza
+    - marsz:Sm2.m3
+    - subst:sg:gen.acc:m2
+    - - nazwa_pospolita
+    - - muz.
+  - - marsza
+    - marsz:Sm2.m3
+    - subst:sg:gen:m3
+    - - nazwa_pospolita
+    - - muz.
+- word: marszu
+  analyses:
+  - - marszu
+    - marsz:Sm2.m3
+    - subst:sg:loc:m2
+    - - nazwa_pospolita
+    - - muz.
+  - - marszu
+    - marsz:Sm2.m3
+    - subst:sg:loc:m3
+    - - nazwa_pospolita
+    - - muz.
+  - - marszu
+    - marsz:Sm2.m3
+    - subst:sg:voc:m2
+    - - nazwa_pospolita
+    - - muz.
+  - - marszu
+    - marsz:Sm2.m3
+    - subst:sg:voc:m3
+    - - nazwa_pospolita
+    - - muz.
+  - - marszu
+    - marsz:Sm3
+    - subst:sg:gen:m3
+    - - nazwa_pospolita
+    - - rzad.,geogr.
+  - - marszu
+    - marsz:Sm3
+    - subst:sg:loc:m3
+    - - nazwa_pospolita
+    - - rzad.,geogr.
+  - - marszu
+    - marsz:Sm3
+    - subst:sg:voc:m3
+    - - nazwa_pospolita
+    - - rzad.,geogr.
+- word: milion
+  analyses:
+  - - milion
+    - milion:S
+    - subst:sg:nom.acc:m3
+    - - nazwa_pospolita
+    - []
+  - - milion
+    - milion:N
+    - num:pl:gen:m1.m2.m3.f.n:congr
+    - []
+    - []
+  - - milion
+    - milion:N
+    - num:pl:nom.acc:m1.m2.m3.f.n:rec
+    - []
+    - []
+- word: morze
+  analyses:
+  - - morze
+    - morze
+    - subst:sg:nom.acc.voc:n:ncol
+    - - nazwa_pospolita
+    - []
+  - - morze
+    - mor
+    - subst:sg:loc:m3
+    - - nazwa_pospolita
+    - - daw.
+  - - morze
+    - mor
+    - subst:sg:voc:m3
+    - - nazwa_pospolita
+    - - daw.
+  - - morze
+    - mora
+    - subst:sg:dat.loc:f
+    - - nazwa_pospolita
+    - []
+  - - morze
+    - mór
+    - subst:sg:loc:m3
+    - - nazwa_pospolita
+    - []
+  - - morze
+    - mór
+    - subst:sg:voc:m3
+    - - nazwa_pospolita
+    - []
+- word: może
+  analyses:
+  - - może
+    - może:I
+    - interj
+    - []
+    - []
+  - - może
+    - może:T
+    - part
+    - []
+    - []
+  - - może
+    - móc
+    - fin:sg:ter:imperf
+    - []
+    - []
+- word: można
+  analyses:
+  - - można
+    - można
+    - pred
+    - []
+    - []
+  - - można
+    - możny:A
+    - adj:sg:nom.voc:f:pos
+    - []
+    - - daw.
+- word: mądry
+  analyses:
+  - - mądry
+    - mądry
+    - adj:sg:acc:m3:pos
+    - []
+    - []
+  - - mądry
+    - mądry
+    - adj:sg:nom.voc:m1.m2.m3:pos
+    - []
+    - []
+- word: mądrzejszy
+  analyses:
+  - - mądrzejszy
+    - mądry
+    - adj:sg:acc:m3:com
+    - []
+    - []
+  - - mądrzejszy
+    - mądry
+    - adj:sg:nom.voc:m1.m2.m3:com
+    - []
+    - []
+- word: męski
+  analyses:
+  - - męski
+    - męski
+    - adj:sg:acc:m3:pos
+    - []
+    - []
+  - - męski
+    - męski
+    - adj:sg:nom.voc:m1.m2.m3:pos
+    - []
+    - []
+- word: nad
+  analyses:
+  - - nad
+    - nad
+    - prep:acc:nwok
+    - []
+    - []
+  - - nad
+    - nad
+    - prep:inst:nwok
+    - []
+    - []
+- word: najmądrzejszy
+  analyses:
+  - - najmądrzejszy
+    - mądry
+    - adj:sg:acc:m3:sup
+    - []
+    - []
+  - - najmądrzejszy
+    - mądry
+    - adj:sg:nom.voc:m1.m2.m3:sup
+    - []
+    - []
+- word: najszybciej
+  analyses:
+  - - najszybciej
+    - szybko
+    - adv:sup
+    - []
+    - []
+- word: nasi
+  analyses:
+  - - nasi
+    - nasz
+    - adj:pl:nom.voc:m1:pos
+    - []
+    - []
+  - - nasi
+    - nasi
+    - subst:pl:nom.voc:m1:pt
+    - - nazwa_pospolita
+    - []
+- word: nasz
+  analyses:
+  - - nasz
+    - nasz
+    - adj:sg:acc:m3:pos
+    - []
+    - []
+  - - nasz
+    - nasz
+    - adj:sg:nom.voc:m1.m2.m3:pos
+    - []
+    - []
+- word: nie
+  analyses:
+  - - nie
+    - nie:C
+    - conj
+    - []
+    - []
+  - - nie
+    - nie:I
+    - interj
+    - []
+    - []
+  - - nie
+    - on:S
+    - ppron3:pl:acc:m2.m3.f.n:ter:akc.nakc:praep
+    - []
+    - []
+  - - nie
+    - on:S
+    - ppron3:sg:acc:n:ter:akc.nakc:praep
+    - []
+    - []
+  - - nie
+    - nie:T
+    - part
+    - []
+    - []
+- word: 'no'
+  analyses:
+  - - 'no'
+    - no:I
+    - interj
+    - []
+    - []
+  - - 'no'
+    - no:T
+    - part
+    - []
+    - []
+  - - 'no'
+    - no:S
+    - subst:sg.pl:nom.gen.dat.acc.inst.loc.voc:n:ncol
+    - - nazwa_pospolita
+    - - teatr.
+- word: noc
+  analyses:
+  - - noc
+    - noc
+    - subst:sg:nom:f
+    - - nazwa_pospolita
+    - []
+  - - noc
+    - noc
+    - subst:sg:acc:f
+    - - nazwa_pospolita
+    - []
+- word: nocy
+  analyses:
+  - - nocy
+    - noc
+    - subst:sg:gen:f
+    - - nazwa_pospolita
+    - []
+  - - nocy
+    - noc
+    - subst:sg:dat.loc:f
+    - - nazwa_pospolita
+    - []
+  - - nocy
+    - noc
+    - subst:sg:voc:f
+    - - nazwa_pospolita
+    - []
+  - - nocy
+    - noc
+    - subst:pl:gen:f
+    - - nazwa_pospolita
+    - []
+- word: oczy
+  analyses:
+  - - oczy
+    - oko:Sn_col
+    - subst:pl:nom.acc.voc:n:col
+    - - nazwa_pospolita
+    - - anat.
+  - - oczy
+    - oczyć
+    - fin:sg:ter:imperf
+    - []
+    - []
+- word: ojej
+  analyses:
+  - - ojej
+    - ojej
+    - interj
+    - []
+    - []
+- word: oka
+  analyses:
+  - - oka
+    - oko:Sn_col
+    - subst:sg:gen:n:col
+    - - nazwa_pospolita
+    - - anat.
+  - - oka
+    - oko:Sn_ncol
+    - subst:sg:gen:n:ncol
+    - - nazwa_pospolita
+    - []
+  - - oka
+    - oko:Sn_ncol
+    - subst:pl:nom.acc.voc:n:ncol
+    - - nazwa_pospolita
+    - []
+- word: oko
+  analyses:
+  - - oko
+    - oko:Sn_col
+    - subst:sg:nom.acc.voc:n:col
+    - - nazwa_pospolita
+    - - anat.
+  - - oko
+    - oko:Sn_ncol
+    - subst:sg:nom.acc.voc:n:ncol
+    - - nazwa_pospolita
+    - []
+- word: oraz
+  analyses:
+  - - oraz
+    - oraz:C
+    - conj
+    - []
+    - []
+  - - oraz
+    - oraz:D
+    - adv
+    - []
+    - - daw.
+- word: panie
+  analyses:
+  - - panie
+    - pani
+    - subst:pl:nom.acc.voc:f
+    - - nazwa_pospolita
+    - []
+  - - panie
+    - pan
+    - subst:sg:voc:m1
+    - - nazwa_pospolita
+    - []
+  - - panie
+    - panie
+    - interj
+    - []
+    - - pot.
+- word: panowie
+  analyses:
+  - - panowie
+    - pan
+    - subst:pl:nom.voc:m1
+    - - nazwa_pospolita
+    - []
+- word: pary
+  analyses:
+  - - pary
+    - par:Sm1
+    - depr:pl:nom.acc.voc:m2
+    - - nazwa_pospolita
+    - []
+  - - pary
+    - par:Sm3
+    - subst:pl:nom.acc.voc:m3
+    - - nazwa_pospolita
+    - - daw.
+  - - pary
+    - para
+    - subst:sg:gen:f
+    - - nazwa_pospolita
+    - []
+  - - pary
+    - para
+    - subst:pl:nom.acc.voc:f
+    - - nazwa_pospolita
+    - []
+- word: państwo
+  analyses:
+  - - państwo
+    - państwo:Sm1_pt
+    - subst:pl:nom.voc:m1:pt
+    - - nazwa_pospolita
+    - []
+  - - państwo
+    - państwo:Sn_ncol
+    - subst:sg:nom.acc.voc:n:ncol
+    - - nazwa_pospolita
+    - []
+- word: pieniądz
+  analyses:
+  - - pieniądz
+    - pieniądz
+    - subst:sg:nom.acc:m3
+    - - nazwa_pospolita
+    - []
+- word: pieniądze
+  analyses:
+  - - pieniądze
+    - pieniądz
+    - subst:pl:nom.acc.voc:m3
+    - - nazwa_pospolita
+    - []
+- word: pierwszy
+  analyses:
+  - - pierwszy
+    - pierwszy:A
+    - adj:sg:acc:m3:pos
+    - []
+    - []
+  - - pierwszy
+    - pierwszy:A
+    - adj:sg:nom.voc:m1.m2.m3:pos
+    - []
+    - []
+  - - pierwszy
+    - pierwszy:S
+    - subst:sg:nom.acc:m3
+    - - nazwa_pospolita
+    - []
+  - - pierwszy
+    - pierwszy:S
+    - subst:sg:nom:m2
+    - - nazwa_pospolita
+    - []
+  - - pierwszy
+    - pierwszy:S
+    - subst:sg:voc:m2
+    - - nazwa_pospolita
+    - []
+  - - pierwszy
+    - pierwszy:S
+    - subst:sg:voc:m3
+    - - nazwa_pospolita
+    - []
+- word: pisanie
+  analyses:
+  - - pisanie
+    - pisać
+    - ger:sg:nom.acc:n:imperf:aff
+    - []
+    - []
+  - - pisanie
+    - pisanie
+    - subst:sg:nom.acc.voc:n:ncol
+    - - nazwa_pospolita
+    - []
+- word: piąty
+  analyses:
+  - - piąty
+    - piąty:A
+    - adj:sg:acc:m3:pos
+    - []
+    - []
+  - - piąty
+    - piąty:A
+    - adj:sg:nom.voc:m1.m2.m3:pos
+    - []
+    - []
+  - - piąty
+    - piąty:S
+    - subst:sg:nom.acc:m3
+    - - nazwa_pospolita
+    - []
+  - - piąty
+    - piąty:S
+    - subst:sg:nom:m2
+    - - nazwa_pospolita
+    - []
+  - - piąty
+    - piąty:S
+    - subst:sg:voc:m2
+    - - nazwa_pospolita
+    - []
+  - - piąty
+    - piąty:S
+    - subst:sg:voc:m3
+    - - nazwa_pospolita
+    - []
+- word: pod
+  analyses:
+  - - pod
+    - pod
+    - prep:acc:nwok
+    - []
+    - []
+  - - pod
+    - pod
+    - prep:inst:nwok
+    - []
+    - []
+- word: polski
+  analyses:
+  - - polski
+    - polski:S
+    - subst:sg:nom.acc:m3
+    - - nazwa_pospolita
+    - []
+  - - polski
+    - polski:S
+    - subst:sg:voc:m3
+    - - nazwa_pospolita
+    - []
+  - - polski
+    - polski:A
+    - adj:sg:acc:m3:pos
+    - []
+    - []
+  - - polski
+    - polski:A
+    - adj:sg:nom.voc:m1.m2.m3:pos
+    - []
+    - []
+- word: polskiego
+  analyses:
+  - - polskiego
+    - polskie
+    - subst:sg:gen:n:ncol
+    - - nazwa_pospolita
+    - - przest.
+  - - polskiego
+    - polski:S
+    - subst:sg:gen:m3
+    - - nazwa_pospolita
+    - []
+  - - polskiego
+    - polski:A
+    - adj:sg:acc:m1.m2:pos
+    - []
+    - []
+  - - polskiego
+    - polski:A
+    - adj:sg:gen:m1.m2.m3.n:pos
+    - []
+    - []
+- word: przyjaciel
+  analyses:
+  - - przyjaciel
+    - przyjaciel
+    - subst:sg:nom:m1
+    - - nazwa_pospolita
+    - []
+- word: przyjaciółka
+  analyses:
+  - - przyjaciółka
+    - przyjaciółka
+    - subst:sg:nom:f
+    - - nazwa_pospolita
+    - []
+- word: przyszedłszy
+  analyses:
+  - - przyszedłszy
+    - przyjść
+    - pant:perf
+    - []
+    - []
+- word: psa
+  analyses:
+  - - psa
+    - pies:Sm1
+    - subst:sg:gen.acc:m1
+    - - nazwa_pospolita
+    - - pot.
+  - - psa
+    - pies:Sm2
+    - subst:sg:gen.acc:m2
+    - - nazwa_pospolita
+    - []
+- word: psem
+  analyses:
+  - - psem
+    - pies:Sm1
+    - subst:sg:inst:m1
+    - - nazwa_pospolita
+    - - pot.
+  - - psem
+    - pies:Sm2
+    - subst:sg:inst:m2
+    - - nazwa_pospolita
+    - []
+- word: psy
+  analyses:
+  - - psy
+    - pies:Sm2
+    - subst:pl:nom.acc.voc:m2
+    - - nazwa_pospolita
+    - []
+  - - psy
+    - pies:Sm1
+    - depr:pl:nom.acc.voc:m2
+    - - nazwa_pospolita
+    - - pot.
+- word: robi
+  analyses:
+  - - robi
+    - robić
+    - fin:sg:ter:imperf
+    - []
+    - []
+- word: robiono
+  analyses:
+  - - robiono
+    - robić
+    - imps:imperf
+    - []
+    - []
+- word: robiący
+  analyses:
+  - - robiący
+    - robić
+    - pact:pl:nom.voc:m1:imperf:aff
+    - []
+    - []
+  - - robiący
+    - robić
+    - pact:sg:acc:m3:imperf:aff
+    - []
+    - []
+  - - robiący
+    - robić
+    - pact:sg:nom.voc:m1.m2.m3:imperf:aff
+    - []
+    - []
+- word: robić
+  analyses:
+  - - robić
+    - robić
+    - inf:imperf
+    - []
+    - []
+- word: robił
+  analyses:
+  - - robił
+    - robić
+    - praet:sg:m1.m2.m3:imperf
+    - []
+    - []
+- word: rok
+  analyses:
+  - - rok
+    - rok:Sm3~lata
+    - subst:sg:nom.acc:m3
+    - - nazwa_pospolita
+    - []
+  - - rok
+    - rok:Sm3~roki
+    - subst:sg:nom.acc:m3
+    - - nazwa_pospolita
+    - - daw.,praw.
+- word: roku
+  analyses:
+  - - roku
+    - rok:Sm3~lata
+    - subst:sg:gen:m3
+    - - nazwa_pospolita
+    - []
+  - - roku
+    - rok:Sm3~lata
+    - subst:sg:loc:m3
+    - - nazwa_pospolita
+    - []
+  - - roku
+    - rok:Sm3~lata
+    - subst:sg:voc:m3
+    - - nazwa_pospolita
+    - []
+  - - roku
+    - rok:Sm3~roki
+    - subst:sg:gen:m3
+    - - nazwa_pospolita
+    - - daw.,praw.
+  - - roku
+    - rok:Sm3~roki
+    - subst:sg:loc:m3
+    - - nazwa_pospolita
+    - - daw.,praw.
+  - - roku
+    - rok:Sm3~roki
+    - subst:sg:voc:m3
+    - - nazwa_pospolita
+    - - daw.,praw.
+- word: rząd
+  analyses:
+  - - rząd
+    - rząd:Sm3~ądu
+    - subst:sg:nom.acc:m3
+    - - nazwa_pospolita
+    - []
+  - - rząd
+    - rząd:Sm3~ędu
+    - subst:sg:nom.acc:m3
+    - - nazwa_pospolita
+    - []
+- word: rządu
+  analyses:
+  - - rządu
+    - rząd:Sm3~ądu
+    - subst:sg:gen:m3
+    - - nazwa_pospolita
+    - []
+- word: rzędu
+  analyses:
+  - - rzędu
+    - rząd:Sm3~ędu
+    - subst:sg:gen:m3
+    - - nazwa_pospolita
+    - []
+- word: ręce
+  analyses:
+  - - ręce
+    - ręka
+    - subst:sg:dat.loc:f
+    - - nazwa_pospolita
+    - - anat.
+  - - ręce
+    - ręka
+    - subst:pl:nom.acc.voc:f
+    - - nazwa_pospolita
+    - - anat.
+- word: ręka
+  analyses:
+  - - ręka
+    - ręka
+    - subst:sg:nom:f
+    - - nazwa_pospolita
+    - - anat.
+- word: setka
+  analyses:
+  - - setka
+    - setka
+    - subst:sg:nom:f
+    - - nazwa_pospolita
+    - []
+- word: siebie
+  analyses:
+  - - siebie
+    - siebie
+    - siebie:acc
+    - []
+    - []
+  - - siebie
+    - siebie
+    - siebie:gen
+    - []
+    - []
+- word: się
+  analyses:
+  - - się
+    - się
+    - part
+    - []
+    - []
+- word: sobie
+  analyses:
+  - - sobie
+    - siebie
+    - siebie:dat
+    - []
+    - []
+  - - sobie
+    - siebie
+    - siebie:loc
+    - []
+    - []
+  - - sobie
+    - soba
+    - subst:sg:dat.loc:f
+    - - nazwa_pospolita
+    - - kulin.
+- word: soli
+  analyses:
+  - - soli
+    - sol:Sm2
+    - subst:pl:gen:m2
+    - - nazwa_pospolita
+    - - monet.
+  - - soli
+    - sola
+    - subst:sg:gen:f
+    - - nazwa_pospolita
+    - - zool.
+  - - soli
+    - sola
+    - subst:sg:dat.loc:f
+    - - nazwa_pospolita
+    - - zool.
+  - - soli
+    - sola
+    - subst:pl:gen:f
+    - - nazwa_pospolita
+    - - zool.
+  - - soli
+    - sól
+    - subst:sg:gen:f
+    - - nazwa_pospolita
+    - - chem.
+  - - soli
+    - sól
+    - subst:sg:dat.loc:f
+    - - nazwa_pospolita
+    - - chem.
+  - - soli
+    - sól
+    - subst:sg:voc:f
+    - - nazwa_pospolita
+    - - chem.
+  - - soli
+    - sól
+    - subst:pl:gen:f
+    - - nazwa_pospolita
+    - - chem.
+  - - soli
+    - solić
+    - fin:sg:ter:imperf
+    - []
+    - []
+- word: sto
+  analyses:
+  - - sto
+    - sto
+    - num:pl:nom.acc.voc:m2.m3.f.n:rec
+    - []
+    - []
+- word: stołem
+  analyses:
+  - - stołem
+    - stół
+    - subst:sg:inst:m3
+    - - nazwa_pospolita
+    - []
+- word: stołu
+  analyses:
+  - - stołu
+    - stół
+    - subst:sg:gen:m3
+    - - nazwa_pospolita
+    - []
+- word: stół
+  analyses:
+  - - stół
+    - stół
+    - subst:sg:nom.acc:m3
+    - - nazwa_pospolita
+    - []
+- word: szybciej
+  analyses:
+  - - szybciej
+    - szybko
+    - adv:com
+    - []
+    - []
+- word: szybko
+  analyses:
+  - - szybko
+    - szybka
+    - subst:sg:voc:f
+    - - nazwa_pospolita
+    - []
+  - - szybko
+    - szybko
+    - adv:pos
+    - []
+    - []
+- word: sól
+  analyses:
+  - - sól
+    - sól
+    - subst:sg:nom:f
+    - - nazwa_pospolita
+    - - chem.
+  - - sól
+    - sól
+    - subst:sg:acc:f
+    - - nazwa_pospolita
+    - - chem.
+  - - sól
+    - solić
+    - impt:sg:sec:imperf
+    - []
+    - []
+- word: są
+  analyses:
+  - - są
+    - być
+    - fin:pl:ter:imperf
+    - []
+    - []
+- word: sąsiad
+  analyses:
+  - - sąsiad
+    - sąsiad
+    - subst:sg:nom:m1
+    - - nazwa_pospolita
+    - []
+- word: sąsiedzi
+  analyses:
+  - - sąsiedzi
+    - sąsiad
+    - subst:pl:nom.voc:m1
+    - - nazwa_pospolita
+    - []
+- word: ta
+  analyses:
+  - - ta
+    - ta
+    - part
+    - []
+    - - reg.
+  - - ta
+    - ten
+    - adj:sg:nom.voc:f:pos
+    - []
+    - []
+- word: te
+  analyses:
+  - - te
+    - ten
+    - adj:pl:acc:m2.m3.f.n:pos
+    - []
+    - []
+  - - te
+    - ten
+    - adj:pl:nom.voc:m2.m3.f.n:pos
+    - []
+    - []
+  - - te
+    - ty
+    - ppron12:sg:voc:m1.m2.m3.f.n:sec
+    - []
+    - - niepopr.,pot.
+  - - te
+    - te
+    - subst:sg.pl:nom.gen.dat.acc.inst.loc.voc:n:ncol
+    - - nazwa_pospolita
+    - []
+- word: ten
+  analyses:
+  - - ten
+    - ten
+    - adj:sg:acc:m3:pos
+    - []
+    - []
+  - - ten
+    - ten
+    - adj:sg:nom.voc:m1.m2.m3:pos
+    - []
+    - []
+- word: to
+  analyses:
+  - - to
+    - to:V
+    - pred
+    - []
+    - []
+  - - to
+    - to:C
+    - conj
+    - []
+    - []
+  - - to
+    - to:T
+    - part
+    - []
+    - []
+  - - to
+    - to:M
+    - comp
+    - []
+    - []
+  - - to
+    - ten
+    - adj:sg:acc:n:pos
+    - []
+    - []
+  - - to
+    - ten
+    - adj:sg:nom.voc:n:pos
+    - []
+    - []
+  - - to
+    - to:S
+    - subst:sg:nom:n:ncol
+    - []
+    - []
+  - - to
+    - to:S
+    - subst:sg:acc:n:ncol
+    - []
+    - []
+- word: troje
+  analyses:
+  - - troje
+    - trzy
+    - num:pl:nom.acc.voc:m1.n:rec:col
+    - []
+    - []
+- word: trzeba
+  analyses:
+  - - trzeba
+    - trzeba
+    - pred
+    - []
+    - []
+- word: trzech
+  analyses:
+  - - trzech
+    - trzy
+    - num:pl:acc:m1:rec:ncol
+    - []
+    - []
+  - - trzech
+    - trzy
+    - num:pl:gen.loc:m1.m2.m3.f.n:congr:ncol
+    - []
+    - []
+  - - trzech
+    - trzy
+    - num:pl:nom.voc:m1:rec:ncol
+    - []
+    - []
+- word: trzy
+  analyses:
+  - - trzy
+    - trzy
+    - num:pl:nom.acc.voc:m2.m3.f.n:congr:ncol
+    - []
+    - []
+- word: tydzień
+  analyses:
+  - - tydzień
+    - tydzień
+    - subst:sg:nom.acc:m3
+    - - nazwa_pospolita
+    - []
+- word: tygodnia
+  analyses:
+  - - tygodnia
+    - tydzień
+    - subst:sg:gen:m3
+    - - nazwa_pospolita
+    - []
+- word: tysiąc
+  analyses:
+  - - tysiąc
+    - tysiąc:Sm2
+    - subst:sg:nom:m2
+    - - nazwa_pospolita
+    - - karc.
+  - - tysiąc
+    - tysiąc:Sm3
+    - subst:sg:nom.acc:m3
+    - - nazwa_pospolita
+    - []
+  - - tysiąc
+    - tysiąc:N
+    - num:pl:gen:m1.m2.m3.f.n:congr
+    - []
+    - []
+  - - tysiąc
+    - tysiąc:N
+    - num:pl:nom.acc:m1.m2.m3.f.n:rec
+    - []
+    - []
+- word: ucha
+  analyses:
+  - - ucha
+    - ucha
+    - subst:sg:nom:f
+    - - nazwa_pospolita
+    - - kulin.
+  - - ucha
+    - ucho:Sn_col
+    - subst:sg:gen:n:col
+    - - nazwa_pospolita
+    - - anat.
+  - - ucha
+    - ucho:Sn_ncol
+    - subst:sg:gen:n:ncol
+    - - nazwa_pospolita
+    - []
+  - - ucha
+    - ucho:Sn_ncol
+    - subst:pl:nom.acc.voc:n:ncol
+    - - nazwa_pospolita
+    - []
+- word: ucho
+  analyses:
+  - - ucho
+    - ucho:Sn_col
+    - subst:sg:nom.acc.voc:n:col
+    - - nazwa_pospolita
+    - - anat.
+  - - ucho
+    - ucho:Sn_ncol
+    - subst:sg:nom.acc.voc:n:ncol
+    - - nazwa_pospolita
+    - []
+  - - ucho
+    - ucha
+    - subst:sg:voc:f
+    - - nazwa_pospolita
+    - - kulin.
+- word: uczeń
+  analyses:
+  - - uczeń
+    - uczeń
+    - subst:sg:nom:m1
+    - - nazwa_pospolita
+    - []
+  - - uczeń
+    - uczenie:S
+    - subst:pl:gen:n:ncol
+    - - nazwa_pospolita
+    - []
+  - - uczeń
+    - uczyć
+    - ger:pl:gen:n:imperf:aff
+    - []
+    - []
+- word: ucznia
+  analyses:
+  - - ucznia
+    - uczeń
+    - subst:sg:gen.acc:m1
+    - - nazwa_pospolita
+    - []
+- word: uczniowie
+  analyses:
+  - - uczniowie
+    - uczeń
+    - subst:pl:nom.voc:m1
+    - - nazwa_pospolita
+    - []
+- word: uszy
+  analyses:
+  - - uszy
+    - ucho:Sn_col
+    - subst:pl:nom.acc.voc:n:col
+    - - nazwa_pospolita
+    - - anat.
+- word: warto
+  analyses:
+  - - warto
+    - warta
+    - subst:sg:voc:f
+    - - nazwa_pospolita
+    - []
+  - - warto
+    - warto
+    - pred
+    - []
+    - []
+- word: wina
+  analyses:
+  - - wina
+    - wina
+    - subst:sg:nom:f
+    - - nazwa_pospolita
+    - []
+  - - wina
+    - wino
+    - subst:sg:gen:n:ncol
+    - - nazwa_pospolita
+    - []
+  - - wina
+    - wino
+    - subst:pl:nom.acc.voc:n:ncol
+    - - nazwa_pospolita
+    - []
+- word: wino
+  analyses:
+  - - wino
+    - wino
+    - subst:sg:nom.acc.voc:n:ncol
+    - - nazwa_pospolita
+    - []
+  - - wino
+    - wina
+    - subst:sg:voc:f
+    - - nazwa_pospolita
+    - []
+- word: zamek
+  analyses:
+  - - zamek
+    - zamek:Sm3~a
+    - subst:sg:nom.acc:m3
+    - - nazwa_pospolita
+    - []
+  - - zamek
+    - zamek:Sm3~u
+    - subst:sg:nom.acc:m3
+    - - nazwa_pospolita
+    - []
+- word: zamka
+  analyses:
+  - - zamka
+    - zamek:Sm3~a
+    - subst:sg:gen:m3
+    - - nazwa_pospolita
+    - []
+- word: zamku
+  analyses:
+  - - zamku
+    - zamek:Sm3~a
+    - subst:sg:loc:m3
+    - - nazwa_pospolita
+    - []
+  - - zamku
+    - zamek:Sm3~a
+    - subst:sg:voc:m3
+    - - nazwa_pospolita
+    - []
+  - - zamku
+    - zamek:Sm3~u
+    - subst:sg:gen:m3
+    - - nazwa_pospolita
+    - []
+  - - zamku
+    - zamek:Sm3~u
+    - subst:sg:loc:m3
+    - - nazwa_pospolita
+    - []
+  - - zamku
+    - zamek:Sm3~u
+    - subst:sg:voc:m3
+    - - nazwa_pospolita
+    - []
+- word: zieleni
+  analyses:
+  - - zieleni
+    - zieleń
+    - subst:sg:gen:f
+    - - nazwa_pospolita
+    - []
+  - - zieleni
+    - zieleń
+    - subst:sg:dat.loc:f
+    - - nazwa_pospolita
+    - []
+  - - zieleni
+    - zieleń
+    - subst:sg:voc:f
+    - - nazwa_pospolita
+    - []
+  - - zieleni
+    - zieleń
+    - subst:pl:gen:f
+    - - nazwa_pospolita
+    - []
+  - - zieleni
+    - zielony:A
+    - adj:pl:nom.voc:m1:pos
+    - []
+    - []
+  - - zieleni
+    - zielenić
+    - fin:sg:ter:imperf
+    - []
+    - []
+- word: zieleń
+  analyses:
+  - - zieleń
+    - zielenić
+    - impt:sg:sec:imperf
+    - []
+    - []
+  - - zieleń
+    - zieleń
+    - subst:sg:nom:f
+    - - nazwa_pospolita
+    - []
+  - - zieleń
+    - zieleń
+    - subst:sg:acc:f
+    - - nazwa_pospolita
+    - []
+- word: zielony
+  analyses:
+  - - zielony
+    - zielony:Sm1
+    - subst:sg:nom:m1
+    - - nazwa_pospolita
+    - []
+  - - zielony
+    - zielony:Sm1
+    - subst:sg:voc:m1
+    - - nazwa_pospolita
+    - []
+  - - zielony
+    - zielony:Sm2
+    - subst:sg:nom:m2
+    - - nazwa_pospolita
+    - - pot.
+  - - zielony
+    - zielony:Sm2
+    - subst:sg:voc:m2
+    - - nazwa_pospolita
+    - - pot.
+  - - zielony
+    - zielony:A
+    - adj:sg:acc:m3:pos
+    - []
+    - []
+  - - zielony
+    - zielony:A
+    - adj:sg:nom.voc:m1.m2.m3:pos
+    - []
+    - []
+- word: zrobiony
+  analyses:
+  - - zrobiony
+    - zrobić
+    - ppas:sg:acc:m3:perf:aff
+    - []
+    - []
+  - - zrobiony
+    - zrobić
+    - ppas:sg:nom.voc:m1.m2.m3:perf:aff
+    - []
+    - []

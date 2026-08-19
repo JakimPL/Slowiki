@@ -26,6 +26,18 @@ def dictionary_archive(name: DictionaryName) -> Path:
     return DICTIONARIES_DIR / f"{_dictionary_stem(name)}.zip"
 
 
+def polimorf_source() -> Path:
+    return DICTIONARIES_DIR / "sources" / "PoliMorf-0.6.7.tab.gz"
+
+
+def lexicon_manifest(name: DictionaryName) -> Path:
+    return DICTIONARIES_DIR / f"{_dictionary_stem(name)}.manifest.json"
+
+
+def morph_overrides(name: DictionaryName) -> Path:
+    return DICTIONARIES_DIR / f"{_dictionary_stem(name)}.morph.yaml"
+
+
 def dictionary_compiled(name: DictionaryName) -> Path:
     return DICTIONARIES_DIR / f"{_dictionary_stem(name)}.v{LEXICON_FORMAT}.lexicon"
 

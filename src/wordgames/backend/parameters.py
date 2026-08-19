@@ -9,3 +9,5 @@ class GameParameters(BaseFrozen):
     pass_end_limit: int | None
     scoreless_end_limit: int | None
     bingo_bonus: int
+    allowed_pos: tuple[str, ...] | None
+    base_form_only: bool

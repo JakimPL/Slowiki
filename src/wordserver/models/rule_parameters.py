@@ -13,4 +13,6 @@ class RuleParameters(BaseFrozen):
     premoves_allowed: bool
     pass_end_limit: int | None
     scoreless_end_limit: int | None
+    allowed_pos: tuple[str, ...] | None
+    base_form_only: bool
     time: TimeConfig

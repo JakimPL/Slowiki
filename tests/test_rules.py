@@ -4,13 +4,14 @@ from wordcore.board.board import Board
 from wordcore.board.bonus import Bonus, BonusKind
 from wordcore.errors.exceptions import IllegalMove, InvalidWord
 from wordcore.lexicon.lexicon import TextLexicon
+from wordcore.lexicon.morph import MorphClass, MorphLexicon
 from wordcore.moves.action import Exchange
 from wordcore.positions.position import Position
 from wordcore.rules.end_conditions import final_scores
 from wordcore.rules.exchange import apply_exchange, validate_exchange
 from wordcore.rules.score.scoring import score_move
 from wordcore.rules.validity import validate_words
-from wordcore.rules.words.formed import formed_words, validate_anchor
+from wordcore.rules.words.formed import FormedWord, formed_words, validate_anchor
 from wordcore.rules.words.placement import Placement
 from wordcore.states.state import Phase, WordState
 from wordcore.tiles.tile import Tile
@@ -180,6 +181,78 @@ def test_validate_words_policy() -> None:
     validate_words(absent, words, validate=False)
     present = TextLexicon.from_words(["ab"])
     validate_words(present, words, validate=True)
+
+
+def _morph_filter_lexicon() -> MorphLexicon:
+    return MorphLexicon(
+        surfaces=("AALBORSCY", "KOT", "KOTA", "PIES"),
+        entries=(
+            (),
+            ("rzeczownik:KOT:SM1",),
+            ("rzeczownik:KOT:SM1",),
+            ("rzeczownik:PIES:SM3",),
+        ),
+        classes={
+            "rzeczownik:KOT:SM1": MorphClass(
+                class_id="rzeczownik:KOT:SM1",
+                part="rzeczownik",
+                lemma="KOT:SM1",
+                base="KOT",
+                source="sgjp",
+                variants=("KOT", "subst:sg:nom:m1", "KOTA", "subst:sg:gen.acc:m1"),
+            ),
+            "rzeczownik:PIES:SM3": MorphClass(
+                class_id="rzeczownik:PIES:SM3",
+                part="rzeczownik",
+                lemma="PIES:SM3",
+                base="PIES",
+                source="sgjp",
+                variants=("PIES", "subst:sg:nom:m3"),
+            ),
+        },
+        unknown=("AALBORSCY",),
+    )
+
+
+def _word(text: str) -> FormedWord:
+    return FormedWord(tiles=(), text=text, new_indices=frozenset())
+
+
+def test_validate_words_allowed_pos_filter() -> None:
+    lexicon = _morph_filter_lexicon()
+    validate_words(lexicon, (_word("KOT"),), True, allowed_pos=("rzeczownik",))
+    with pytest.raises(InvalidWord):
+        validate_words(lexicon, (_word("KOT"),), True, allowed_pos=("czasownik",))
+    with pytest.raises(InvalidWord):
+        validate_words(lexicon, (_word("AALBORSCY"),), True, allowed_pos=("rzeczownik",))
+
+
+def test_validate_words_base_form_only_filter() -> None:
+    lexicon = _morph_filter_lexicon()
+    validate_words(lexicon, (_word("KOT"),), True, base_form_only=True)
+    with pytest.raises(InvalidWord):
+        validate_words(lexicon, (_word("KOTA"),), True, base_form_only=True)
+    with pytest.raises(InvalidWord):
+        validate_words(lexicon, (_word("AALBORSCY"),), True, base_form_only=True)
+
+
+def test_validate_words_filters_combine() -> None:
+    lexicon = _morph_filter_lexicon()
+    validate_words(
+        lexicon,
+        (_word("KOT"),),
+        True,
+        allowed_pos=("rzeczownik",),
+        base_form_only=True,
+    )
+    with pytest.raises(InvalidWord):
+        validate_words(
+            lexicon,
+            (_word("KOTA"),),
+            True,
+            allowed_pos=("rzeczownik",),
+            base_form_only=True,
+        )
 
 
 def test_exchange_apply_and_validate() -> None:

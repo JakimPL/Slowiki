@@ -14,9 +14,18 @@ License: GPL 2 and Creative Commons Attribution 4.0 International.
 
 Source: <https://sjp.pl/sl/growy/>
 
-`lexica` compiles the archive into `dictionaries/sjp-20260803.lexicon`, a cached
-artifact the server loads at startup. The `dictionaries/` directory is
+`lexica` compiles the archive into `dictionaries/sjp-20260803.v2.lexicon`, a cached
+morphology artifact the server loads at startup; plain dictionaries compile to
+the same format as text-only artifacts. The `dictionaries/` directory is
 gitignored.
+
+## Morphology
+
+The planned Polish morphology pipeline annotates the SJP list with parts of
+speech and inflection classes. The grammar reference and data-source survey
+live in `docs/morphology.md`; the pipeline design (equivalence classes,
+homonym handling, artifact v2, incremental re-runs) lives in
+`docs/morphology-pipeline.md`.
 
 ## Board layout sources
 

@@ -2,8 +2,9 @@ from pathlib import Path
 from typing import Annotated, Any
 
 import yaml
-from pydantic import Field
+from pydantic import Field, field_validator
 
+from lexica.morph.parts import PartOfSpeech
 from lexica.names import DictionaryName
 from wordcore.board.preset import BoardPreset
 from wordcore.errors.exceptions import InvalidConfiguration
@@ -46,6 +47,22 @@ class SchemeConfig(BaseFrozen):
     pass_end_limit: int | None
     scoreless_end_limit: int | None
     bingo_bonus: int
+    allowed_pos: tuple[str, ...] | None = None
+    base_form_only: bool = False
+
+    @field_validator("allowed_pos")
+    @classmethod
+    def _validate_allowed_pos(
+        cls,
+        value: tuple[str, ...] | None,
+    ) -> tuple[str, ...] | None:
+        if value is None:
+            return value
+        known = {part.value for part in PartOfSpeech}
+        unknown = [entry for entry in value if entry not in known]
+        if unknown:
+            raise ValueError(f"unknown parts of speech: {unknown}")
+        return value
 
 
 HexColor = Annotated[str, Field(pattern=r"^#[0-9A-Fa-f]{6}$")]
