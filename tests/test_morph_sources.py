@@ -60,6 +60,40 @@ def test_analyse_word_entries_keeps_original_lemma_case() -> None:
     assert entries == (("KOT:SM1", "kot:Sm1", "subst:sg:nom:m1"),)
 
 
+class SegmentedAnalyzer:
+    def analyse(self, _text: str) -> list[tuple[int, int, Interpretation]]:
+        return [
+            (0, 1, ("biegł", "biec", "praet:sg:m1.m2.m3:imperf", [], [])),
+            (1, 2, ("em", "być", "aglt:sg:pri:imperf:wok", [], [])),
+        ]
+
+
+def test_analyse_word_skips_movable_ending_segments() -> None:
+    analyses = analyse_word(SegmentedAnalyzer(), "biegłem")
+    assert [analysis.lemma for analysis in analyses] == ["BIEC"]
+    assert [analysis.surface for analysis in analyses] == ["BIEGŁEM"]
+
+
+def test_analyse_word_entries_skips_movable_ending_segments() -> None:
+    entries = analyse_word_entries(SegmentedAnalyzer(), "biegłem")
+    assert entries == (("BIEC", "biec", "praet:sg:m1.m2.m3:imperf"),)
+
+
+class MixedAnalyzer:
+    def analyse(self, _text: str) -> list[tuple[int, int, Interpretation]]:
+        return [
+            (0, 1, ("czyż", "czyż:T", "part", [], [])),
+            (0, 2, ("czyżby", "czyżby:I", "interj", [], [])),
+            (0, 2, ("czyżby", "czyżby:T", "part", [], [])),
+            (1, 2, ("by", "by:T", "part", [], [])),
+        ]
+
+
+def test_analyse_word_prefers_full_word_over_segments() -> None:
+    analyses = analyse_word(MixedAnalyzer(), "czyżby")
+    assert [analysis.lemma for analysis in analyses] == ["CZYŻBY:I", "CZYŻBY:T"]
+
+
 def _write_polimorf(path: Path, rows: list[tuple[str, str, str, str]]) -> None:
     with gzip.open(path, "wt", encoding="utf-8") as handle:
         for form, lemma, tag, qualifier in rows:

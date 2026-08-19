@@ -146,11 +146,6 @@ specimens:
     - part
     - []
     - []
-  - - m
-    - być
-    - aglt:sg:pri:imperf:nwok
-    - []
-    - []
 - word: być
   analyses:
   - - być
@@ -207,11 +202,6 @@ specimens:
   - - by
     - by:T
     - part
-    - []
-    - []
-  - - ś
-    - być
-    - aglt:sg:sec:imperf:nwok
     - []
     - []
 - word: bądź
@@ -312,11 +302,6 @@ specimens:
     - []
 - word: czyżby
   analyses:
-  - - czyż
-    - czyż:T
-    - part
-    - []
-    - []
   - - czyżby
     - czyżby:I
     - interj
@@ -327,11 +312,6 @@ specimens:
     - part
     - []
     - - książk.
-  - - by
-    - by:T
-    - part
-    - []
-    - []
 - word: człowiek
   analyses:
   - - człowiek

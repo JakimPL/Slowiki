@@ -32,12 +32,24 @@ def build_morfeusz_analyzer() -> MorfeuszAnalyzer:
     return analyzer
 
 
+def head_interpretations(
+    analyses: list[tuple[int, int, Interpretation]],
+) -> list[tuple[int, int, Interpretation]]:
+    max_end = max((end for _, end, _ in analyses), default=0)
+    full = [
+        (start, end, analysis) for start, end, analysis in analyses if start == 0 and end == max_end
+    ]
+    if full:
+        return full
+    return [(start, end, analysis) for start, end, analysis in analyses if start == 0]
+
+
 def analyse_word_entries(
     analyzer: MorfeuszAnalyzer,
     word: str,
 ) -> tuple[tuple[str, str, str], ...]:
     rows: list[tuple[str, str, str]] = []
-    for _, _, (_, lemma, tag, _, _) in analyzer.analyse(word):
+    for _, _, (_, lemma, tag, _, _) in head_interpretations(analyzer.analyse(word)):
         if tag.split(":", 1)[0] in _IGNORED_PREFIXES:
             continue
         rows.append((lemma.upper(), lemma, tag))
@@ -46,12 +58,12 @@ def analyse_word_entries(
 
 def analyse_word(analyzer: MorfeuszAnalyzer, word: str) -> tuple[Analysis, ...]:
     analyses: list[Analysis] = []
-    for _, _, (surface, lemma, tag, names, qualifiers) in analyzer.analyse(word):
+    for _, _, (_, lemma, tag, names, qualifiers) in head_interpretations(analyzer.analyse(word)):
         if tag.split(":", 1)[0] in _IGNORED_PREFIXES:
             continue
         analyses.append(
             build_analysis(
-                surface.upper(),
+                word.upper(),
                 lemma.upper(),
                 tag,
                 MorphSource.SGJP,

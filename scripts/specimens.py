@@ -7,6 +7,7 @@ from typing import Final, Protocol
 import yaml
 
 from lexica.dictionaries.sjp import iter_sjp_words
+from lexica.morph.sources.sgjp import Interpretation, head_interpretations
 
 try:
     import morfeusz2  # type: ignore[import-untyped]
@@ -185,8 +186,6 @@ _STRESS: Final[tuple[str, ...]] = (
     "zrobiony",
 )
 
-Interpretation = tuple[str, str, str, list[str], list[str]]
-
 
 class _Analyzer(Protocol):
     def analyse(self, text: str) -> list[tuple[int, int, Interpretation]]: ...
@@ -199,7 +198,7 @@ def load_dictionary_words(archive: Path) -> tuple[str, ...]:
 
 
 def analyse_word(analyzer: _Analyzer, word: str) -> list[Interpretation]:
-    return [interpretation for (_, _, interpretation) in analyzer.analyse(word)]
+    return [interpretation for _, _, interpretation in head_interpretations(analyzer.analyse(word))]
 
 
 def real_interpretations(interpretations: list[Interpretation]) -> list[Interpretation]:

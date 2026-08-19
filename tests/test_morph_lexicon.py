@@ -92,7 +92,7 @@ def test_morph_lexicon_round_trip(tmp_path: Path) -> None:
     assert "KOTÓW" in variant_forms
     assert "KOTA" in variant_forms
 
-    assert lexicon.analysis_rows("KOT") == (("KOT:SM1", "sgjp", "subst:sg:nom:m1"),)
+    assert lexicon.analysis_rows("KOT") == (("KOT", "sgjp", "subst:sg:nom:m1"),)
     assert lexicon.analysis_rows("AALBORSCY") == ()
     assert lexicon.analysis_rows("xyz") == ()
 

@@ -4,7 +4,12 @@ from pathlib import Path
 from lexica.compile import compile_lexicon, compile_morph_lexicon, load_compiled_lexicon
 from lexica.dictionaries.catalog import iter_dictionary_words
 from lexica.dictionaries.sjp import iter_sjp_words
-from lexica.morph.manifest import compile_input_digests, load_manifest, write_manifest
+from lexica.morph.manifest import (
+    PIPELINE_VERSION,
+    compile_input_digests,
+    load_manifest,
+    write_manifest,
+)
 from lexica.morph.mapping import MAPPING_VERSION
 from lexica.morph.overrides import parse_overrides
 from lexica.morph.sources.sgjp import build_morfeusz_analyzer
@@ -47,6 +52,7 @@ def _compile_sjp(archive: Path, compiled: Path) -> None:
         overrides_path if overrides_present else None,
         analyzer.dict_id(),
         MAPPING_VERSION,
+        PIPELINE_VERSION,
     )
     manifest_path = lexicon_manifest(DictionaryName.SJP)
     if compiled.is_file() and load_manifest(manifest_path) == digests:

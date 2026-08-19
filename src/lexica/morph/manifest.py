@@ -1,6 +1,9 @@
 import hashlib
 import json
 from pathlib import Path
+from typing import Final
+
+PIPELINE_VERSION: Final = 2
 
 
 def compile_input_digests(
@@ -9,6 +12,7 @@ def compile_input_digests(
     overrides_path: Path | None,
     dict_id: str,
     mapping_version: int,
+    pipeline_version: int,
 ) -> dict[str, str]:
     digests = {
         "archive": _file_digest(archive),
@@ -16,6 +20,7 @@ def compile_input_digests(
         "overrides": _file_digest(overrides_path) if overrides_path is not None else "absent",
         "dict_id": _text_digest(dict_id),
         "mapping_version": _text_digest(str(mapping_version)),
+        "pipeline_version": _text_digest(str(pipeline_version)),
     }
     return dict(sorted(digests.items()))
 

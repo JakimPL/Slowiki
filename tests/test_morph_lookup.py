@@ -31,7 +31,7 @@ def _bronia_lexicon() -> MorphLexicon:
             "rzeczownik:KOT:SM1": MorphClass(
                 class_id="rzeczownik:KOT:SM1",
                 part="rzeczownik",
-                lemma="KOT:SM1",
+                lemma="KOT",
                 base="KOT",
                 source="sgjp",
                 variants=(
@@ -58,7 +58,7 @@ def test_lookup_lists_every_analysis_of_a_homonym() -> None:
 def test_lookup_describes_grammatical_tags() -> None:
     lines = lookup_lines(_bronia_lexicon(), "kota")
     assert lines[0] == "KOTA"
-    assert "  rzeczownik · KOT:SM1 · subst:sg:gen.acc:m1" in lines
+    assert "  rzeczownik · KOT · subst:sg:gen.acc:m1" in lines
     assert any("przypadki: biernik, dopełniacz" in line for line in lines)
     assert any("liczba: pojedyncza" in line for line in lines)
     assert any("rodzaje: męskoosobowy" in line for line in lines)

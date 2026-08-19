@@ -69,7 +69,7 @@ def test_overrides_replace_analyses(tmp_path: Path) -> None:
     )
     lexicon = load_compiled_lexicon(destination)
     assert isinstance(lexicon, MorphLexicon)
-    assert lexicon.analysis_rows("KOTA") == (("KOT:SM1", "sgjp", "subst:sg:nom:m1"),)
+    assert lexicon.analysis_rows("KOTA") == (("KOT", "sgjp", "subst:sg:nom:m1"),)
 
 
 def test_override_removal_forces_unknown(tmp_path: Path) -> None:
@@ -135,7 +135,7 @@ def test_parse_overrides_validates_forms(tmp_path: Path) -> None:
 def test_manifest_round_trip(tmp_path: Path) -> None:
     archive = tmp_path / "sjp.zip"
     archive.write_bytes(b"abc")
-    digests = compile_input_digests(archive, None, None, "dict", 1)
+    digests = compile_input_digests(archive, None, None, "dict", 1, 2)
     manifest = tmp_path / "manifest.json"
     write_manifest(manifest, digests)
     assert load_manifest(manifest) == digests

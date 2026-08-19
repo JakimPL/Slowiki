@@ -51,7 +51,7 @@ def assemble_classes(
     classes: dict[str, ClassRecord] = {}
     for class_id, variants in sorted(class_variants.items()):
         part = class_parts[class_id]
-        lemma = class_id[len(part.value) + 1 :]
+        lemma = lexeme_of(class_id[len(part.value) + 1 :])
         base = select_base(part, variants, lexeme_of(lemma))
         records = tuple(
             VariantRecord(form=form, tag=tag, in_dictionary=form in dictionary)

@@ -62,7 +62,7 @@ def compile_morph_lexicon(
             part = part_of_speech(tag)
             class_id = class_key(lemma_upper, part)
             class_parts.setdefault(class_id, part.value)
-            class_lemmas.setdefault(class_id, lemma_upper)
+            class_lemmas.setdefault(class_id, lexeme_of(lemma_upper))
             class_sources.setdefault(class_id, "sgjp")
             rows_by_class.setdefault(class_id, []).append((intern(word), intern(tag)))
             ids.add(class_id)
@@ -89,7 +89,7 @@ def compile_morph_lexicon(
                 part = part_of_speech(tag)
                 class_id = class_key(lemma, part)
                 class_parts.setdefault(class_id, part.value)
-                class_lemmas.setdefault(class_id, lemma)
+                class_lemmas.setdefault(class_id, lexeme_of(lemma))
                 class_sources.setdefault(class_id, "polimorf")
                 rows_by_class.setdefault(class_id, []).append((intern(word), intern(tag)))
                 ids.add(class_id)
@@ -115,7 +115,7 @@ def compile_morph_lexicon(
         for form, tag in rows:
             variants_by_form.setdefault(form, set()).add(tag)
         part = PartOfSpeech(class_parts[class_id])
-        base = select_base(part, variants_by_form, lexeme_of(class_lemmas[class_id]))
+        base = select_base(part, variants_by_form, class_lemmas[class_id])
         flat = tuple(piece for pair in rows for piece in pair)
         classes[class_id] = (
             part.value,
@@ -133,6 +133,8 @@ def compile_morph_lexicon(
 
 def load_compiled_lexicon(path: Path) -> TextLexicon | MorphLexicon:
     data = marshal.loads(path.read_bytes())
+    if _is_string_tuple(data):
+        raise InvalidConfiguration(f"legacy flat lexicon format; recompile the dictionary: {path}")
     if _is_text_payload(data):
         surfaces = data[2]
         if not _is_string_tuple(surfaces):
