@@ -37,7 +37,8 @@ P7. Letters are canonical. Every letter inside the system is uppercase; dictiona
 - `wordgames` — game presets: shared rules and the literaki/scrabble backends.
 - `wordserver` — the FastAPI adapter: tables, sessions, SSE, identity, time.
 - `wordtable` — configuration, paths, lexicon service, and CLI entry points.
-- `lexica` — dictionary building: word entries, SJP loader, compilation.
+- `lexica` — dictionary building: word entries, SJP loader, compilation, and
+  the morphology pipeline (`docs/morphology.md`, `docs/morphology-pipeline.md`).
 - `wordbots` — automated player stubs.
 - `wordassets` — asset generation: an SVG element tree, board specimens, and the
   build CLI writing gitignored `assets/` plus committed specimen copies in
@@ -51,6 +52,14 @@ after them (`board.bonus`, `moves.kind`, `moves.move`, `games.kind`,
 into `wordcore.rules.words` (placements and word geometry) and
 `wordcore.rules.score` (word and move scoring). Dictionary source loaders live
 under `lexica.dictionaries`, one module per source.
+
+## Frontend
+
+The player interface lives in `frontend/` and splits into two strata: one reasons about the game on
+the client — state derivation, board geometry, score previews, session and device concerns — and one
+presents it. Its types come from the server's OpenAPI document, so the wire contract is generated
+rather than restated. `docs/frontend.md` holds the code principles; `docs/interface.md` holds the
+design contract.
 
 ## Vocabulary
 
@@ -71,6 +80,9 @@ under `lexica.dictionaries`, one module per source.
   and the turn clock.
 - `GET /tables/{table_id}/words` — dictionary verdicts for up to sixteen words,
   offered while the scheme validates on play (`parameters.word_check`).
+- `GET /tables/{table_id}/highlights` — the highest-scoring word and the longest
+  word of the game, walked from the journal, so the answer stays whole however
+  late a client connects.
 - `POST /tables/{table_id}/moves`, `DELETE /tables/{table_id}/premove` — play.
 - `GET /tables/{table_id}/events` — the SSE stream: numbered journal frames plus
   unnumbered `presence` and `clock` frames.

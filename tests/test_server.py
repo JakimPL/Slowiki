@@ -12,7 +12,7 @@ from wordcore.moves.move import Move
 from wordserver.app import create_app
 from wordserver.session import TableSession
 from wordtable.build import build_rules
-from wordtable.catalogue import resolve_scheme
+from wordtable.catalog import resolve_scheme
 from wordtable.config import TimeConfig
 from wordtable.paths import CONFIG_DIR
 
@@ -61,13 +61,13 @@ async def test_scrabble_creation_refused_without_dictionary(
         "wordserver.app.dictionary_ready",
         lambda name: name == DictionaryName.SJP,
     )
-    response = await client.post("/tables", json={"scheme": "scrabble", "seats": 2})
+    response = await client.post("/tables", json={"scheme": "scrabble", "seats": 2, "name": "Ala"})
     assert response.status_code == 422
     assert response.json()["code"] == "dictionary_unavailable"
 
 
 async def test_description_serves_rules_and_alphabet(client: httpx.AsyncClient) -> None:
-    created = await client.post("/tables", json={"scheme": "literaki", "seats": 3})
+    created = await client.post("/tables", json={"scheme": "literaki", "seats": 3, "name": "Ala"})
     data = created.json()
     described = await client.get(
         f"/tables/{data['table_id']}", headers={"X-Seat-Token": data["token"]}
@@ -91,7 +91,7 @@ async def test_description_serves_rules_and_alphabet(client: httpx.AsyncClient) 
 
 
 async def test_description_hides_code_from_spectators(client: httpx.AsyncClient) -> None:
-    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2})
+    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
     table_id = created.json()["table_id"]
     described = await client.get(f"/tables/{table_id}")
     assert described.status_code == 200
@@ -101,7 +101,7 @@ async def test_description_hides_code_from_spectators(client: httpx.AsyncClient)
 
 
 async def test_create_table_and_view(client: httpx.AsyncClient) -> None:
-    response = await client.post("/tables", json={"scheme": "literaki", "seats": 2})
+    response = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
     assert response.status_code == 200
     data = response.json()
     table_id = data["table_id"]
@@ -114,14 +114,14 @@ async def test_create_table_and_view(client: httpx.AsyncClient) -> None:
     assert body["view"]["racks"]["0"] is None
     assert body["view"]["racks"]["1"] is None
     assert body["view"]["bag_count"] == 86
-    await client.post(f"/tables/{data['code']}/join")
+    await client.post(f"/tables/{data['code']}/join", json={"name": "Ola"})
     revealed = await client.get(f"/tables/{table_id}/view", headers={"X-Seat-Token": data["token"]})
     assert revealed.json()["view"]["racks"]["0"] is not None
     assert revealed.json()["view"]["racks"]["1"] is None
 
 
 async def test_move_requires_token(client: httpx.AsyncClient) -> None:
-    response = await client.post("/tables", json={"scheme": "literaki", "seats": 2})
+    response = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
     table_id = response.json()["table_id"]
     move = {"player": 0, "action": {"kind": "pass"}}
     result = await client.post(f"/tables/{table_id}/moves", json={"move": move, "base_seq": 0})
@@ -129,11 +129,11 @@ async def test_move_requires_token(client: httpx.AsyncClient) -> None:
 
 
 async def test_pass_advances_turn(client: httpx.AsyncClient) -> None:
-    response = await client.post("/tables", json={"scheme": "literaki", "seats": 2})
+    response = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
     data = response.json()
     table_id = data["table_id"]
     token = data["token"]
-    await client.post(f"/tables/{data['code']}/join")
+    await client.post(f"/tables/{data['code']}/join", json={"name": "Ola"})
     move = {"player": 0, "action": {"kind": "pass"}}
     result = await client.post(
         f"/tables/{table_id}/moves",
@@ -147,17 +147,17 @@ async def test_pass_advances_turn(client: httpx.AsyncClient) -> None:
 
 
 async def test_join_table(client: httpx.AsyncClient) -> None:
-    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2})
+    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
     data = created.json()
     code = data["code"]
-    joined = await client.post(f"/tables/{code}/join")
+    joined = await client.post(f"/tables/{code}/join", json={"name": "Ola"})
     assert joined.status_code == 200
     body = joined.json()
     assert body["seat"] == 1
     assert body["table_id"] == data["table_id"]
-    full = await client.post(f"/tables/{code}/join")
+    full = await client.post(f"/tables/{code}/join", json={"name": "Ola"})
     assert full.status_code == 409
-    missing = await client.post("/tables/ZZZZZZ/join")
+    missing = await client.post("/tables/ZZZZZZ/join", json={"name": "Ola"})
     assert missing.status_code == 404
 
 
@@ -350,7 +350,7 @@ async def test_claims_hand_out_distinct_seats_concurrently(client: httpx.AsyncCl
 
 
 async def test_gathering_hides_racks_and_blocks_moves(client: httpx.AsyncClient) -> None:
-    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2})
+    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
     data = created.json()
     table_id = data["table_id"]
     token = data["token"]
@@ -366,7 +366,7 @@ async def test_gathering_hides_racks_and_blocks_moves(client: httpx.AsyncClient)
     )
     assert blocked.status_code == 409
     assert blocked.json()["code"] == "gathering"
-    await client.post(f"/tables/{data['code']}/join")
+    await client.post(f"/tables/{data['code']}/join", json={"name": "Ola"})
     accepted = await client.post(
         f"/tables/{table_id}/moves",
         json={"move": move, "base_seq": 0},

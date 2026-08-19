@@ -65,6 +65,7 @@ class BoardTokens(BaseFrozen):
     grid: HexColor
     frame: HexColor
     star: HexColor
+    premium_label_share: TintFraction
 
 
 class PremiumTokens(BaseFrozen):

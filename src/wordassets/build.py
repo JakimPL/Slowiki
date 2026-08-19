@@ -7,7 +7,7 @@ from wordassets.brand import og_image, splash
 from wordassets.drawing.node import document
 from wordassets.icons import favicon_ico_bytes, icon_png_bytes, icon_svg_element
 from wordassets.manifest import AssetRecord, write_manifest
-from wordtable.catalogue import list_schemes
+from wordtable.catalog import list_schemes
 from wordtable.config import (
     SchemeConfig,
     StyleTokens,

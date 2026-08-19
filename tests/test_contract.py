@@ -4,6 +4,7 @@ import httpx
 import pytest
 from scripts.openapi import main
 
+from wordcore.views.highlights import GameHighlights
 from wordserver.app import MAX_JUDGED_WORDS, create_app
 from wordserver.models.table import TableViewResponse
 from wordserver.models.table_admission import TableAdmission
@@ -24,7 +25,7 @@ async def client(app):
 
 
 async def test_rejection_carries_code(client: httpx.AsyncClient) -> None:
-    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2})
+    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
     table_id = created.json()["table_id"]
     move = {"player": 0, "action": {"kind": "pass"}}
     result = await client.post(f"/tables/{table_id}/moves", json={"move": move, "base_seq": 0})
@@ -35,9 +36,9 @@ async def test_rejection_carries_code(client: httpx.AsyncClient) -> None:
 
 
 async def test_off_turn_move_carries_not_your_turn(client: httpx.AsyncClient) -> None:
-    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2})
+    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
     data = created.json()
-    joined = await client.post(f"/tables/{data['code']}/join")
+    joined = await client.post(f"/tables/{data['code']}/join", json={"name": "Ola"})
     other = joined.json()
     move = {"player": 1, "action": {"kind": "pass"}}
     result = await client.post(
@@ -50,9 +51,9 @@ async def test_off_turn_move_carries_not_your_turn(client: httpx.AsyncClient) ->
 
 
 async def test_premove_queue_and_cancel_over_http(client: httpx.AsyncClient) -> None:
-    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2})
+    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
     data = created.json()
-    joined = await client.post(f"/tables/{data['code']}/join")
+    joined = await client.post(f"/tables/{data['code']}/join", json={"name": "Ola"})
     other = joined.json()
     seen = await client.get(
         f"/tables/{data['table_id']}/view", headers={"X-Seat-Token": other["token"]}
@@ -100,9 +101,9 @@ async def test_premove_queue_and_cancel_over_http(client: httpx.AsyncClient) -> 
 
 
 async def test_stale_position_carries_code(client: httpx.AsyncClient) -> None:
-    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2})
+    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
     data = created.json()
-    await client.post(f"/tables/{data['code']}/join")
+    await client.post(f"/tables/{data['code']}/join", json={"name": "Ola"})
     move = {"player": 0, "action": {"kind": "pass"}}
     result = await client.post(
         f"/tables/{data['table_id']}/moves",
@@ -117,13 +118,13 @@ async def test_transport_refusals_carry_codes(client: httpx.AsyncClient) -> None
     view = await client.get("/tables/absent/view")
     assert view.status_code == 404
     assert view.json()["code"] == "unknown_table"
-    scheme = await client.post("/tables", json={"scheme": "absent", "seats": 2})
+    scheme = await client.post("/tables", json={"scheme": "absent", "seats": 2, "name": "Ala"})
     assert scheme.status_code == 404
     assert scheme.json()["code"] == "unknown_scheme"
-    joined = await client.post("/tables/ZZZZZZ/join")
+    joined = await client.post("/tables/ZZZZZZ/join", json={"name": "Ola"})
     assert joined.status_code == 404
     assert joined.json()["code"] == "unknown_code"
-    seats = await client.post("/tables", json={"scheme": "literaki", "seats": 9})
+    seats = await client.post("/tables", json={"scheme": "literaki", "seats": 9, "name": "Ala"})
     assert seats.status_code == 422
     assert seats.json()["code"] == "seats_out_of_range"
 
@@ -134,14 +135,24 @@ async def test_names_are_trimmed_and_served_in_company(client: httpx.AsyncClient
     )
     data = created.json()
     assert data["name"] == "Ala"
-    joined = await client.post(f"/tables/{data['code']}/join", json={"name": "   "})
-    assert joined.json()["name"] is None
+    await client.post(f"/tables/{data['code']}/join", json={"name": " Ola "})
     view = await client.get(f"/tables/{data['table_id']}/view")
     company = view.json()["company"]["seats"]
-    assert company[0]["name"] == "Ala"
-    assert company[0]["claimed"] is True
-    assert company[1]["name"] is None
-    assert company[1]["claimed"] is True
+    assert [seat["name"] for seat in company] == ["Ala", "Ola"]
+    assert all(seat["claimed"] for seat in company)
+
+
+async def test_blank_names_are_refused(client: httpx.AsyncClient) -> None:
+    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "   "})
+    assert created.status_code == 422
+    nameless = await client.post("/tables", json={"scheme": "literaki", "seats": 2})
+    assert nameless.status_code == 422
+    host = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
+    code = host.json()["code"]
+    blank = await client.post(f"/tables/{code}/join", json={"name": " "})
+    assert blank.status_code == 422
+    bodiless = await client.post(f"/tables/{code}/join")
+    assert bodiless.status_code == 422
 
 
 async def test_overlong_name_is_rejected(client: httpx.AsyncClient) -> None:
@@ -160,7 +171,7 @@ async def test_style_endpoint_serves_tokens(client: httpx.AsyncClient) -> None:
 
 
 async def test_word_check_judges_asked_words(client: httpx.AsyncClient) -> None:
-    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2})
+    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
     table_id = created.json()["table_id"]
     described = await client.get(f"/tables/{table_id}")
     assert described.json()["parameters"]["word_check"] is True
@@ -173,12 +184,25 @@ async def test_word_check_judges_asked_words(client: httpx.AsyncClient) -> None:
 
 
 async def test_word_check_refuses_an_overlong_request(client: httpx.AsyncClient) -> None:
-    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2})
+    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
     table_id = created.json()["table_id"]
     asked = [f"WORD{index}" for index in range(MAX_JUDGED_WORDS + 1)]
     response = await client.get(f"/tables/{table_id}/words", params={"words": asked})
     assert response.status_code == 422
     assert response.json()["code"] == "too_many_words"
+
+
+async def test_highlights_are_served_for_a_table(client: httpx.AsyncClient) -> None:
+    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
+    table_id = created.json()["table_id"]
+    response = await client.get(f"/tables/{table_id}/highlights")
+    assert response.status_code == 200
+    highlights = GameHighlights.model_validate(response.json())
+    assert highlights.best_word is None
+    assert highlights.longest_word is None
+    absent = await client.get("/tables/absent/highlights")
+    assert absent.status_code == 404
+    assert absent.json()["code"] == "unknown_table"
 
 
 async def test_created_table_carries_the_asked_time_control(client: httpx.AsyncClient) -> None:
@@ -187,6 +211,7 @@ async def test_created_table_carries_the_asked_time_control(client: httpx.AsyncC
         json={
             "scheme": "literaki",
             "seats": 2,
+            "name": "Ala",
             "time": {"total_seconds": 600, "increment_seconds": 15},
         },
     )
@@ -197,7 +222,7 @@ async def test_created_table_carries_the_asked_time_control(client: httpx.AsyncC
         "increment_seconds": 15,
         "total_seconds": 600,
     }
-    await client.post(f"/tables/{data['code']}/join")
+    await client.post(f"/tables/{data['code']}/join", json={"name": "Ola"})
     view = await client.get(
         f"/tables/{data['table_id']}/view", headers={"X-Seat-Token": data["token"]}
     )
@@ -216,7 +241,7 @@ async def test_time_control_stays_within_bounds(client: httpx.AsyncClient) -> No
 
 
 async def test_responses_validate_against_models(client: httpx.AsyncClient) -> None:
-    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2})
+    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
     admission = TableAdmission.model_validate(created.json())
     view = await client.get(
         f"/tables/{admission.table_id}/view", headers={"X-Seat-Token": admission.token}
@@ -243,6 +268,8 @@ def test_openapi_document_carries_schemas(app) -> None:
         "MoveRequest",
         "WordVerdict",
         "WordVerdicts",
+        "GameHighlights",
+        "WordHighlight",
         "Tile",
         "Board",
     }

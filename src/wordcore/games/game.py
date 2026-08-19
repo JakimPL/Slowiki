@@ -17,6 +17,7 @@ from wordcore.moves.move import Move
 from wordcore.positions.position import Position
 from wordcore.states.phase import Phase
 from wordcore.views.events import EventView, event_view
+from wordcore.views.highlights import GameHighlights, highlights_of
 from wordcore.views.projection import PositionView, project
 
 
@@ -46,6 +47,9 @@ class Game:
 
     def view(self, observer: int | None) -> PositionView:
         return project(self.position, observer)
+
+    def highlights(self) -> GameHighlights:
+        return highlights_of(self._entries)
 
     def events(self, observer: int | None, since: int) -> tuple[EventView, ...]:
         return tuple(

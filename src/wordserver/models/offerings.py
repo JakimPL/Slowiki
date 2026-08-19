@@ -1,5 +1,5 @@
 from wordcore.models.base import BaseFrozen
-from wordtable.catalogue import Offering
+from wordtable.catalog import Offering
 
 
 class OfferingsResponse(BaseFrozen):

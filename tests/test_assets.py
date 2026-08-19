@@ -16,7 +16,7 @@ from wordassets.icons import favicon_ico_bytes, icon_painting, icon_png_bytes, i
 from wordassets.slugs import letter_slug
 from wordgames.names import GameName
 from wordserver.app import create_app
-from wordtable.catalogue import resolve_scheme
+from wordtable.catalog import resolve_scheme
 from wordtable.config import ThemeTokens, load_style_tokens
 from wordtable.paths import CONFIG_DIR
 
@@ -102,7 +102,7 @@ def _token_palette(theme: ThemeTokens) -> set[str]:
     }
     for premium in list(theme.premiums.values()) + list(theme.category_premiums.values()):
         palette.add(premium.fill)
-        palette.add(premium.label)
+        palette.add(mixed_hex(premium.fill, premium.label, theme.board.premium_label_share))
     for band in theme.tiles.bands.values():
         palette.add(band)
         palette.add(mixed_hex(theme.tiles.face, band, theme.tiles.face_tint))

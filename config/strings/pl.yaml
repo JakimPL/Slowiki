@@ -1,0 +1,189 @@
+product:
+  name: Literabble
+  tagline: Konfigurowalny stół do literaków i scrabble.
+  style_fallback: Styl z serwera jest niedostępny — pokazujemy wbudowaną paletę.
+
+connection:
+  joining: Dołączanie
+  live: Na żywo
+  resuming: Ponowne łączenie
+  lost: Rozłączono
+
+arrive:
+  name_label: Twoje imię
+  name_placeholder: Pokażemy je na tabliczce
+  create_heading: Załóż stół
+  join_heading: Dołącz do stołu
+  scheme_label: Gra
+  seats_label: Gracze
+  time_label: Czas na gracza
+  increment_label: Dodatek na ruch
+  untimed: Bez czasu
+  code_label: Kod stołu
+  create_button: Załóż stół
+  join_button: Dołącz do stołu
+  switch_to_join: Masz kod zaproszenia?
+  switch_to_create: Załóż własny stół
+  stale_notice: Stół poszedł dalej — pokazujemy najnowszą pozycję.
+  joining: Dołączanie do stołu…
+  offerings_loading: Czytamy ofertę stołów…
+  return_button: Wróć do swojego stołu
+  forget_button: Zapomnij ten stół
+  span: "{minimum:number}–{maximum:number}"
+  offering:
+    plural:
+      one: "{name} · {span} gracz"
+      few: "{name} · {span} gracze"
+      many: "{name} · {span} graczy"
+  invite_button: Kopiuj zaproszenie
+  invite_copied: Zaproszenie skopiowane
+  copy_code_label: Skopiuj kod stołu
+  copied_mark: "✓"
+
+seats:
+  open_seat: Wolne miejsce
+  you_marker: ty
+  players_label: Gracze
+  your_turn: Twój ruch
+  fallback_name: "Gracz {seat:number}"
+  gathering: "Zbieramy graczy — {present:number} z {total:number} przy stole"
+  waiting: Czekamy…
+  thinking:
+    plural:
+      one: "{names} myśli…"
+      few: "{names} myślą…"
+      many: "{names} myślą…"
+  won:
+    plural:
+      one: "{names} wygrywa z wynikiem {points:number}"
+      few: "{names} dzielą zwycięstwo z wynikiem {points:number}"
+      many: "{names} dzielą zwycięstwo z wynikiem {points:number}"
+  won_yours:
+    plural:
+      one: "Wygrywasz z wynikiem {points:number}"
+      few: "Dzielisz zwycięstwo z wynikiem {points:number}"
+      many: "Dzielisz zwycięstwo z wynikiem {points:number}"
+  standing_reopen: Pokaż podsumowanie gry
+  mode_label: Tryb kolorów
+  mode_system: ◐ Auto
+  mode_light: ○ Jasny
+  mode_dark: ● Ciemny
+  motion_label: Ruch interfejsu
+  motion_system: ◐ Auto
+  motion_full: ∿ Pełny
+  motion_calm: ─ Spokój
+  notice_label: Powiadomienia o ruchu
+  notice_note: Powiadomi Cię, gdy nadejdzie Twój ruch, a ta karta odpoczywa.
+  notice_off: Nie
+  notice_on: Tak
+  locale_label: Język
+  locale_caption: PL
+  menu_label: Menu stołu
+  menu_caption: "☰"
+
+board:
+  label: Plansza
+  square: "Pole {row:number}·{column:number}"
+  fit: Dopasuj
+  fit_label: Dopasuj planszę do ekranu
+
+hand:
+  rack_label: Twoje płytki
+  tray_label: Taca wymiany
+  tray_hint: Odłóż tu płytki, aby je wymienić albo odstawić.
+  park_here: Odstaw tutaj
+  return_here: Wróć tutaj
+  play_button: Zagraj
+  premove_button: Zagraj z góry
+  premove_queued: Ruch w kolejce
+  exchange_queued: Wymiana w kolejce
+  cancel_premove: Anuluj
+  pass_button: Pas
+  recall_button: Cofnij
+  shuffle_button: Przetasuj
+  primary_scored: "{action} · {points:number}"
+  exchange_button: "Wymień {tiles:number}"
+  exchange_bag_low: "Wymiana wymaga co najmniej {minimum:number} płytek w worku."
+  exchange_spent: Wymiany w tej grze się skończyły.
+  exchange_hint: Dotknij Wymień, aby wymienić płytki z tacy.
+  exchange_left:
+    plural:
+      one: "Została {count:number} wymiana w tej grze."
+      few: "Zostały {count:number} wymiany w tej grze."
+      many: "Zostało {count:number} wymian w tej grze."
+  bingo: "Bingo +{bonus:number}"
+  tile: "Płytka {letter} · {value:number}"
+  blank_tile: Blank
+
+words:
+  label: Utworzone słowa
+  verdict_valid: jest w słowniku
+  verdict_invalid: nie ma go w słowniku
+  verdict_standing: na planszy
+  panel_label: "{word} — odczyt ze słownika"
+  panel_close: Zamknij panel słowa
+  open_word: "Odczytaj {word}"
+  words_here: Słowa na tym polu
+  asking: Czytamy słowo…
+  failed: Nie udało się odczytać słowa.
+  absent: Słownik odrzuca to słowo, więc nie ma odczytu.
+  unclassified_part: brak analizy
+  unclassified: Słowo jest dozwolone. Źródła morfologiczne nie opisują go.
+  sample: dane przykładowe
+  deepen: Cała odmiana
+  paradigm_back: Wróć
+  paradigm_back_label: Wróć do karty słowa
+  paradigm_gap: "—"
+  paradigm_plain_forms: formy
+  paradigm_other_forms: pozostałe formy
+  term_separator: " · "
+
+docket:
+  log_label: Ostatnie ruchy
+  remaining_label: Pozostałe płytki
+  blank_row_mark: "◇"
+  bag: "Worek {tiles:number}"
+  log_play: "{words} · {points:number}"
+  log_score: " · {points:number}"
+  log_exchange: wymiana płytek
+  log_pass: pas
+  log_premove_returned: ruch wrócił
+  log_premove_returned_reason: "ruch wrócił · {reason}"
+  premove_returned: Ruch wrócił na twój stojak.
+  premove_returned_reason: "Ruch wrócił — {reason}."
+
+sheets:
+  blank_heading: Wybierz literę blanka
+  blank_close: Zamknij wybór litery
+  blank_input_label: Litera
+  blank_confirm: Przypisz literę
+  game_over_heading: Koniec gry
+  game_over_victory: Wygrana!
+  game_over_close: Zamknij
+  table_leave: Opuść stół
+  game_over_dismiss: Zamknij podsumowanie gry
+  highlight_best: Najlepsze słowo
+  highlight_longest: Najdłuższe słowo
+  highlight_both: Najlepsze i najdłuższe słowo
+  menu_heading: Stół
+  menu_close: Zamknij menu stołu
+  menu_invitation: Zaproszenie
+
+clock:
+  empty: "—"
+  time: "{minutes:number}:{seconds}"
+  budget: "{minutes:number} min"
+  increment_none: Brak
+  increment: "+{seconds:number} s"
+
+guidance:
+  place: Dotknij pustego pola, aby położyć płytkę.
+  opening_short: Pierwsze słowo musi mieć co najmniej dwie płytki.
+  off_center: Pierwsze słowo musi przechodzić przez gwiazdkę na środku.
+  detached: Połącz słowo z płytkami na planszy.
+  scattered: Ułóż słowo w jednym rzędzie albo w jednej kolumnie.
+  gapped: Wypełnij każdą lukę w słowie.
+
+general:
+  list_separator: ", "
+  list_pair: "{leading} i {last}"

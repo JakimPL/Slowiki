@@ -123,6 +123,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/tables/{table_id}/highlights": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Table Highlights */
+        get: operations["table_highlights_tables__table_id__highlights_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/tables/{table_id}/moves": {
         parameters: {
             query?: never;
@@ -223,6 +240,8 @@ export interface components {
             frame: string;
             /** Grid */
             grid: string;
+            /** Premium Label Share */
+            premium_label_share: number;
             /** Star */
             star: string;
             /** Surface */
@@ -314,6 +333,11 @@ export interface components {
             /** Tile Ids */
             tile_ids: number[];
         };
+        /** GameHighlights */
+        GameHighlights: {
+            best_word: components["schemas"]["WordHighlight"] | null;
+            longest_word: components["schemas"]["WordHighlight"] | null;
+        };
         /**
          * GameName
          * @enum {string}
@@ -327,7 +351,7 @@ export interface components {
         /** JoinRequest */
         JoinRequest: {
             /** Name */
-            name?: string | null;
+            name: string;
         };
         /** Letter */
         Letter: {
@@ -573,7 +597,7 @@ export interface components {
         /** TableRequest */
         TableRequest: {
             /** Name */
-            name?: string | null;
+            name: string;
             /** Scheme */
             scheme: string;
             /** Seats */
@@ -662,6 +686,17 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
+        };
+        /** WordHighlight */
+        WordHighlight: {
+            /** Player */
+            player: number;
+            /** Points */
+            points: number;
+            /** Turn Number */
+            turn_number: number;
+            /** Word */
+            word: string;
         };
         /** WordVerdict */
         WordVerdict: {
@@ -797,9 +832,9 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: {
+        requestBody: {
             content: {
-                "application/json": components["schemas"]["JoinRequest"] | null;
+                "application/json": components["schemas"]["JoinRequest"];
             };
         };
         responses: {
@@ -901,6 +936,46 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EventView"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    table_highlights_tables__table_id__highlights_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                table_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GameHighlights"];
                 };
             };
             /** @description Not Found */

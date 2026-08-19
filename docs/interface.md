@@ -7,9 +7,10 @@ by amending it. The palette is the *Lniany* proposition chosen from the phase-0 
 ## Principles
 
 1. **The board is the hero.** Every other region yields space to a maximally large, always-square
-   board.
-2. **Hue says who; strength says whose turn.** Player tints color chrome: plaques, rings, fresh-play
-   highlights, log entries. The four Literaki categories color tile faces and premium squares. The
+   board, and every region reserves the height its rules demand rather than the height its current
+   contents happen to need, so the board keeps one size from the first tile of a turn to the last.
+2. **Hue says who; strength says whose turn.** Player tints color chrome: plaques, rings, the frame
+   around a fresh play, log entries. The four Literaki categories color tile faces and premium squares. The
    two palettes stay on separate surfaces, and printed values accompany every color.
 3. **State over toasts.** Whose turn it is, a queued premove, a staged exchange, a running clock —
    each is a persistent visual state that survives looking away.
@@ -27,15 +28,33 @@ by amending it. The palette is the *Lniany* proposition chosen from the phase-0 
   bonus quiet and inert while the table stays untimed, so the card holds its size through every
   choice) and a quiet switch to the join card for holders of a code. An invitation link opens
   straight onto the join card with the code prefilled, and that card keeps the switch, so a guest
-  can start a table of their own. The name field persists in local storage across visits.
+  can start a table of their own. A name is what both cards ask for first: the field carries a red
+  glow that breathes while it stands empty, and neither table can be started until it holds
+  something — the server asks for the same, so a nameless table cannot be minted by any client. The
+  name persists in local storage across visits. A tab remembers the seat it arrived at while that
+  game runs, so a quiet pair of switches under the name field offers the way back — the return in
+  the premove color, the forgetting beside it — until the game ends or the player lets it go.
   Credentials live in the URL fragment; a reload rejoins by token, and while no seat is held the
   page follows the address bar, so an invitation pasted over an idle page opens its join card. A
-  held seat keeps its own address.
+  held seat keeps its own address. The color mode and the language rest as quiet chips in the corner
+  of the card, which is where the language is chosen: it is a pre-game choice, and a guest arriving
+  by invitation meets it before joining.
 - **Table** — the one screen where the game lives. Until every seat is claimed it doubles as the
   room: a gathering banner with the join code, a copy-invitation control, and claimed/empty
   plaques.
-- **Game over** — the final standing as an overlay: winner, rack deductions, the board still
-  readable beneath.
+- **Game over** — the final standing as an overlay: one row per player in placing order, each
+  carrying its place, the player's tint, and the final score after rack deductions, with the board
+  still readable beneath. Tied players share a place. From four players up, the first three rows
+  carry the tint in descending strength with a filled place medal each, the winning row the fullest
+  of them; at two or three players the winner alone is raised, and a shared win raises everyone who
+  took it. A win of the reader's own is announced in the heading, ringed on the card, and swept once
+  with a light that the calm motion setting holds back. Eight players fit the smallest phone in
+  common use without scrolling. Under the standing the card names the highest-scoring word of the
+  game and its longest word, each in the tint of the player who laid it and carrying that player's
+  name and the points the word scored; one word that took both titles stands on a single row that
+  says so, and a game played out in passes alone leaves the room empty. *Close* returns to the
+  board with the final position and the move log readable, and the status line then reopens the
+  standing; *Leave the table* returns to the main view.
 
 ## Table regions
 
@@ -45,24 +64,38 @@ gesture surface owns every touch; long panels scroll internally). Landscape and 
 grid areas only: the board sits height-bound on the left; the right column stacks status, plaques,
 feedback line, rack, tray, controls, and the docket at its foot.
 
-- **Status strip** — turn banner ("Your turn" at accent strength; "Ola is thinking — 1:12" quiet),
-  clock, bag count, join-code chip (a click copies the code), connection state, and two quiet
-  toggles: the turn notice and the color mode.
+- **Status strip** — only what changes with the game: the turn banner ("Your turn" at accent
+  strength; "Ola is thinking — 1:12" quiet, and once the game is over a control that reopens the
+  final standing), the bag count while the game runs, the connection chip while the connection is
+  troubled, and the control that opens the table menu. Four items at their most, so the banner reads
+  at a glance on the smallest phone and the bag count stands at every viewport.
+- **Table menu** — a sheet holding everything about the table that is not the game itself: the
+  invitation, with the code and a control that copies the link; the turn notice, the color mode, and
+  the interface motion, each as a row of options with the one in force filled; and *Leave the table*
+  at the foot. It stands in the sheet stratum the blank picker uses, and Escape closes it. The
+  language belongs to the main view, where a table is chosen.
 - **Plaques** — one per player, one to eight: tint dot, name, score, acting ring at full tint
   strength that breathes while the seat is on turn, premove diamond, and — on a timed table — a
   clock line under the name: the thinking seat counts down live, everyone else shows the budget
   they have banked, and a seat without a clock of its own holds a dash so the row keeps its height
   through every turn.
-- **Board** — 15 × 15 (size is data), premium squares with `×3` / `2×` / `3×` glyphs, the center
-  star, fresh-play rings in the mover's tint, pending tiles raised above their neighbours with a
-  solid accent ring, premove ghosts at reduced opacity in the premove accent.
+- **Board** — 15 × 15 (size is data), premium squares whose `×3` / `2×` / `3×` glyph is printed as
+  a watermark of its own fill — legible when read, quiet at a glance — the center star at full
+  strength over whatever square it falls on, every tile keeping a margin inside its square so a word
+  reads as a row of tiles, the last play framed end to end in the mover's tint and waving until the
+  player has seen it, pending tiles raised above their neighbors with a solid accent ring, premove
+  ghosts at reduced opacity in the premove accent. The board carries a scale of its own, up to three
+  times the size it is fitted at, and while it stands magnified a quiet *Fit* control in the corner
+  of the region returns it.
 - **Feedback line** — one fixed-height slot showing, in order of precedence: the refusal or
   notice sentence, the formed-word chips (points and status dot each) while a draft stands, the
-  returned-premove explanation, the queued-premove chip with its Cancel action, or the guidance
-  hint (`role="status"`). Each word chip is a button opening the word panel; the bingo chip reads as a
-  plain label.
+  returned-premove explanation, the queued-premove chip with its Cancel action, the connection
+  trouble sentence, or the guidance hint (`role="status"`). Each word chip is a button opening the
+  word panel; the bingo chip reads as a plain label.
 - **Rack and tray** — the rack row holds the hand; the recessed tray beneath stages exchanges and
-  doubles as parking space while thinking.
+  doubles as parking space while thinking. Each row reserves exactly one tile of height, so lifting
+  a tile, staging an exchange, or laying the whole hand on the board leaves every other region
+  where it stands.
 - **Controls** — three fixed slots: quiet Pass on the left, armed while the seat is acting, the
   primary contextual button (`Play · 34`, `Premove · 21`, `Exchange 3`) centered, and a quiet
   toggle on the right that reads Recall while pending tiles stand on the board and Shuffle when
@@ -85,15 +118,38 @@ overlay — and reads at two depths.
   pronouns; case × gender titled by number and degree for adjectives; person × number for finite verb
   forms and gender × number for past forms, both titled by mood and tense, with the infinitive,
   participles and gerund as lists beside them; degree rows for adverbs; one list for invariant parts.
+  Every grid on one sheet shares a single column axis, so several grids read as one table; a grid wider
+  than the sheet scrolls sideways in its own frame; and a form the grids hold no cell for joins a titled
+  list, so the sheet carries the reading whole. A cell the paradigm leaves empty prints an em dash.
   Forms the table's dictionary accepts read as playable, the rest carry a struck-through treatment, and
-  the form standing on the board reads in the accent. A reading strip switches readings and a back
-  control returns to the card.
+  the form standing on the board reads in the accent. A back control returns to the card, and a reading
+  strip stands beside it whenever the word carries more than one reading.
 
 The panel holds the word it opened for, so a move arriving from another seat leaves it standing and
 honest. Escape steps the sheet back to the card, the card to closed, and reaches the lift and recall
 vocabulary only after that; the primary action rests while the panel stands. A long paradigm scrolls
-inside the sheet, so the board keeps its size at every depth. The chips are the way in, so the panel is
-available wherever the feedback line stands.
+inside the sheet, so the board keeps its size at every depth.
+
+Three gestures reach the panel:
+
+- **A chip in the feedback line** opens the word the arrangement in progress forms, carrying the verdict
+  the table gave it.
+- **A played word in the move log** opens as a control of its own, so every word the table has accepted
+  stays readable. The log is also the keyboard route into the panel, since it names the words the board
+  carries.
+- **A press and hold on a standing tile** opens the words running through that square. The board answers
+  for what stands on it, and tiles still being arranged answer through their chips, which keeps the hold
+  clear of the drag gesture. The square shows the press building for the length of the hold, so the
+  gesture teaches itself, and a release before the end leaves the board as it was. The hold consumes the
+  press it rides on, so the tap a touch would spawn stops at the tile instead of reaching the panel. The
+  board stands at every viewport, which makes the hold the one way in that survives the compressed
+  portrait layout folding the docket away.
+
+A square where two words cross opens the card with a **word strip** — the pill toggle the odmiana sheet
+uses for readings — so each word is reachable from every tile it owns. The strip stands on the card; the
+sheet keeps the reading strip. The panel prints a score where the score is known, which is the chip and
+the log; a standing word read from the board prints its state alone, since the bonuses under it were
+spent on the turn that played it.
 
 Grammar terms arrive as data in Polish — `rzeczownik`, `mianownik`, `pojedyncza` — and print as they
 arrive. The frame around them is interface text, and the asked word prints in the canonical uppercase the
@@ -102,11 +158,16 @@ tiles carry while base forms and paradigm cells print lowercase.
 ## Gesture vocabulary
 
 One pointer code path serves mouse and touch: press-and-release within 6 px is a tap, further
-travel is a drag. On touch, the carried tile ghosts above the finger and the computed target cell
+travel is a drag, and a press held in place on a standing tile reads the word instead of moving it. On touch, the carried tile ghosts above the finger and the computed target cell
 shows a high-contrast ring. While a tile travels, its resting place dims to a shadow, and the row it
 would join — rack or tray — carries an accent ring with a tile-shaped landing slot at the insertion
-point. The page holds one scale: pinch zoom, double-tap zoom, and the long-press callout stay off, so
-a gesture over the board is always a game gesture.
+point. The page holds one scale — the browser's own pinch zoom, double-tap zoom, and long-press
+callout stay off — so a gesture over the board is always a game gesture. Two fingers on the board
+magnify it, and the board follows the point between them, so the same gesture that zooms also moves.
+A trackpad pinch or a modifier-held wheel reaches the same scale on a pointing device, anchored where
+the cursor rests. One finger keeps every meaning it already has, over the board and everywhere else.
+The moment a second pointer arrives, the grasp it interrupts is let go and any building
+press-and-hold stops: the tile stays where it started and the pinch takes the gesture from there.
 
 Desk effects — the only mutation vocabulary, shared by tap and drag:
 
@@ -142,14 +203,23 @@ sheet with the scheme's own alphabet.
   dictionary's sentence in the guidance line) · `standing` (reserved for challenge schemes).
 - **Word insight**: `absent` (the dictionary refuses the word) · `unclassified` (the word plays, and the
   morphology sources carry no analysis for it) · `read` (readings arrived). Sample data carries a badge
-  and marks its own forms unplayable, so the single claim a sample card makes is the dictionary's verdict
-  on the asked word. Each paradigm form carries `playable`, and the form on the board carries `standing`.
+  on the card and marks its own forms unplayable, so the single claim a sample card makes is the
+  dictionary's verdict on the asked word. Each paradigm form carries `playable`, and the form on the
+  board carries `standing`.
 - **Exchange**: tiles in the tray arm `Exchange N`; the guidance line carries the remaining
   exchange budget and the bag minimum.
 - **Connection**: `joining` · `live` · `resuming` · `lost`, shown as a quiet chip in the status
   strip.
-- **Fresh play**: the latest play's tiles carry the mover's tint ring until the next play; the move
-  log keeps the longer memory.
+- **Fresh play**: one frame in the mover's tint, haloed in the same tint, drawn around the latest
+  play as a whole — a single rectangle from its first new letter to its last, taking in the standing
+  letters the play hooked through — and it stands until the next play. While the play is still
+  someone else's news, its tiles bob in place one after another along the word and a light sweeps
+  the frame with them — three hops and one sweep, a few seconds of quiet, again. The frame lies
+  under the tiles and the light over them, so a tile at the top of its hop stands clear of the ring
+  and still catches the light. They settle for good at the first sign the player has seen them: a
+  press anywhere on the board, or any tile moved at the desk. A play of your own arrives already seen. The `calm` motion setting and a device
+  asking for reduced motion keep the frame and the halo and leave the tiles still. The move log
+  keeps the longer memory.
 
 ## Feedback policy
 
@@ -162,6 +232,17 @@ dictionary is loaded; the interface asks `GET /tables/{id}/words` for the words 
 remembers every answer. The word-status vocabulary above is the seam that lets challenge schemes
 arrive without redesign.
 
+## Preferences
+
+Four choices belong to the device rather than to a table: the color mode, the interface motion, the
+language, and the turn notice. They travel together as one record that every tab on the device
+shares, and the first three follow the same three-state shape — a system setting that reads what the
+device already says, and an explicit choice that overrides it on the document root (`data-mode`,
+`data-motion`, `lang`). Motion at `calm` stills the acting plaque's breath, the fresh-play cue, and
+the tile lift; at the system setting `prefers-reduced-motion` decides. The table menu holds the
+color mode, the motion, and the turn notice while a game runs; the main view holds the color mode
+and the language. A device that made its choices under an earlier version keeps them.
+
 ## Theming and tokens
 
 A theme is a named token set with light and dark variants, sourced from `config/styles/<name>.yaml`,
@@ -171,14 +252,23 @@ tile side, the category band ≈ 1/7 of the board-tile side, hairline grid of 1 
 least 40 px wide, board cells degrade to a 20 px floor.
 
 Token vocabulary (per variant): `chrome` (surface, panel, edge, text, muted) · `board` (surface,
-grid, frame, star) · `premiums.word_2/word_3/letter_2/letter_3` (fill, label) ·
+grid, frame, star, premium_label_share) · `premiums.word_2/word_3/letter_2/letter_3` (fill, label) ·
 `category_premiums.yellow/green/blue/red` (fill, label) · `tiles` (face, edge, text, face_tint;
 band per category) · `accents` (primary, on_primary, danger, success, premove).
 
 Each category's tile face is derived, per variant, as `mix(tiles.face, tiles.band[category],
 tiles.face_tint)` — a linear per-channel sRGB blend — so tiles carry a wash of the color they hold.
-Every consumer of the tokens (the CSS custom properties, the asset generator) derives the faces
-with the same formula.
+
+The premium glyph is derived by the same blend: `mix(premium.fill, premium.label,
+board.premium_label_share)`. The authored `label` stays the ink that belongs on each fill, and one
+number per variant says how much of it to print, so the board holds its multipliers as a watermark
+readable on inspection and unobtrusive at a glance. Both games and every layout follow the one
+number. The center square is the exception the watermark makes: it keeps its premium fill and prints
+the star in `board.star` at full strength, because where the first word must cross is information the
+player needs at a glance.
+
+Every consumer of the tokens (the CSS custom properties, the asset generator) derives faces and
+glyphs with the same formulas.
 
 ### Player tints
 
@@ -187,7 +277,7 @@ says whose turn.
 
 | tint | value |
 |---|---|
-| rose | `#C95B79` |
+| carmine | `#AF4A54` |
 | coral | `#D07A4F` |
 | copper | `#A8703D` |
 | teal | `#2FA08C` |
@@ -209,6 +299,7 @@ says whose turn.
 | board.grid | `#D9CEB6` | `#453B2B` |
 | board.frame | `#7A5F44` | `#4A3A29` |
 | board.star | `#8F3A24` | `#E8967E` |
+| board.premium_label_share | `0.20` | `0.20` |
 | premiums.word_2 | `#D8CBA8` / `#6C5B39` | `#4A4030` / `#C8B98F` |
 | premiums.word_3 | `#7B6142` / `#F3EBDA` | `#6B5334` / `#EFE3C8` |
 | premiums.letter_2 | `#C4D5DE` / `#38607A` | `#24394A` / `#8FC0DE` |
@@ -231,7 +322,7 @@ says whose turn.
 | accents.success | `#3F7A4B` | `#7FBF8C` |
 | accents.premove | `#6D5E8E` | `#8E7FB5` |
 
-Premium cells carry a fill and a label glyph; tiles keep a light face in both variants — physical
+Premium cells carry a fill and a glyph washed toward it; tiles keep a light face in both variants — physical
 tiles under lamplight — with the category as an enamel band along the bottom edge and a
 `face_tint` wash of the band color across the face. A blank belongs to no category, so its band is
 derived as the midpoint of `tiles.edge` and `chrome.muted` and washes the face through the same

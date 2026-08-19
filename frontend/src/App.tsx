@@ -2,18 +2,18 @@ import type { ReactElement } from "react";
 import { useEffect, useState } from "react";
 
 import { readStyle } from "./api/client";
-import { useNotices } from "./play/useNotices";
-import type { Arrival } from "./play/useStanding";
-import { useStanding } from "./play/useStanding";
-import { useTable } from "./play/useTable";
-import { Home } from "./table/Home";
+import { useTable } from "./play/live/useTable";
+import type { Arrival } from "./play/seats/useStanding";
+import { useStanding } from "./play/seats/useStanding";
+import { useSettings } from "./play/settings/useSettings";
+import { Home } from "./table/arrive/Home";
 import { JOINING_CAPTION, STYLE_FALLBACK_NOTE } from "./table/strings";
 import { Table } from "./table/Table";
 import { applyTheme } from "./table/theme";
 
 export function App(): ReactElement {
     const [themeNote, setThemeNote] = useState<string | null>(null);
-    const { arrival, invitation, arrive } = useStanding();
+    const { arrival, invitation, arrive, leave, resume, forget } = useStanding();
 
     useEffect(() => {
         let mounted = true;
@@ -32,22 +32,41 @@ export function App(): ReactElement {
     }, []);
 
     if (arrival === null) {
-        return <Home key={invitation ?? ""} invitedCode={invitation} themeNote={themeNote} onArrive={arrive} />;
+        return (
+            <Home
+                key={invitation ?? ""}
+                invitedCode={invitation}
+                themeNote={themeNote}
+                onArrive={arrive}
+                onResume={resume}
+                onForget={forget}
+            />
+        );
     }
-    return <TableScreen arrival={arrival} />;
+    return <TableScreen arrival={arrival} onLeave={leave} onFinished={forget} />;
 }
 
 interface TableScreenProps {
     readonly arrival: Arrival;
+    readonly onLeave: () => void;
+    readonly onFinished: () => void;
 }
 
-function TableScreen({ arrival }: TableScreenProps): ReactElement {
-    const notices = useNotices();
+function TableScreen({ arrival, onLeave, onFinished }: TableScreenProps): ReactElement {
+    const { settings } = useSettings();
     const { connection, state, clock, trouble, refresh } = useTable(
         arrival.seat.table,
         arrival.seat.token,
-        notices.wanted,
+        settings.notices,
     );
+    const finished = state !== null && state.view.phase === "game_over";
+
+    useEffect(() => {
+        if (finished) {
+            onFinished();
+        }
+    }, [finished, onFinished]);
+
     if (state === null) {
         return (
             <main className="waiting">
@@ -62,8 +81,8 @@ function TableScreen({ arrival }: TableScreenProps): ReactElement {
             state={state}
             clock={clock}
             trouble={trouble}
-            notices={notices}
             onOutdated={refresh}
+            onLeave={onLeave}
         />
     );
 }

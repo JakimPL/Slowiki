@@ -6,7 +6,7 @@ from wordgames.backend.literaki import LiterakiRules
 from wordgames.backend.parameters import GameParameters
 from wordgames.backend.scrabble import ScrabbleRules
 from wordgames.names import GameName
-from wordtable.catalogue import ResolvedScheme
+from wordtable.catalog import ResolvedScheme
 
 
 def build_rules(

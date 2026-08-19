@@ -17,7 +17,9 @@ def build_parser() -> argparse.ArgumentParser:
     play.add_argument("--players", type=int, default=2)
     dictionary = subparsers.add_parser("dictionary")
     dictionary.add_argument("--name", default="sjp")
-    subparsers.add_parser("serve")
+    serve = subparsers.add_parser("serve")
+    serve.add_argument("--host")
+    serve.add_argument("--port", type=int)
     return parser
 
 
@@ -37,7 +39,7 @@ def main(argv: list[str] | None = None) -> None:
             run_compile(args.name)
 
         case "serve":
-            run_server()
+            run_server(args.host, args.port)
 
 
 if __name__ == "__main__":

@@ -13,7 +13,7 @@ from wordcore.rules.words.placement import Placement, board_with_placements
 from wordcore.tiles.tile import Tile
 
 OUTPUT: Final[Path] = (
-    Path(__file__).resolve().parents[1] / "frontend" / "tests" / "parity" / "scoring.json"
+    Path(__file__).resolve().parents[1] / "frontend" / "tests" / "fixtures" / "scoring.json"
 )
 
 _SEED: Final = 20260817
@@ -21,7 +21,7 @@ _SIZE: Final = 15
 _CASES: Final = 16
 _BONUS_CHANCE: Final = 0.16
 _ATTEMPTS: Final = 400
-_INDENT: Final = 2
+_INDENT: Final = 4
 _LETTERS: Final = "AĄBCĆDEĘKLŁNOÓRSTWZŻ"
 _CATEGORIES: Final = ("yellow", "green", "blue", "red")
 _MAX_VALUE: Final = 5

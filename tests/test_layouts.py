@@ -1,7 +1,7 @@
 from wordcore.board.board import Board
 from wordcore.board.bonus import BonusKind
 from wordcore.board.preset import board_from_preset
-from wordtable.catalogue import resolve_scheme
+from wordtable.catalog import resolve_scheme
 from wordtable.paths import CONFIG_DIR
 
 

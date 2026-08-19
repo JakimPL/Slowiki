@@ -13,7 +13,7 @@ from wordcore.moves.move import Move
 from wordcore.states.phase import Phase
 from wordcore.tiles.tile import Tile
 from wordtable.build import build_rules
-from wordtable.catalogue import resolve_scheme
+from wordtable.catalog import resolve_scheme
 from wordtable.lexicons import load_lexicon
 from wordtable.paths import CONFIG_DIR
 

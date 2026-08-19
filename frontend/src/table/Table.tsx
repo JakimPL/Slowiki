@@ -4,58 +4,68 @@ import { useEffect, useRef, useState } from "react";
 import { exchangeMove, passMove, playMove } from "../api/moves";
 import { STALE_POSITION_CODE } from "../api/refusal";
 import type { ClockView, CompanyView, Tile } from "../api/views";
-import { arrangedTiles, shuffledArrangement } from "../play/arrangement";
-import { remainingFor, urgencyOf } from "../play/clock";
-import type { Connection } from "../play/connection";
-import type { DeskEffect } from "../play/desk";
-import type { Draft } from "../play/draft";
-import { draftedIdentifiers, pendingAt, placementsOf, shownTile } from "../play/draft";
-import type { TableState } from "../play/events";
-import { seatedAs } from "../play/events";
-import { exchangeProspectOf } from "../play/exchange";
-import { invalidTextsOf, wordStatusFor } from "../play/feedback";
-import { blankLanding, dropEffects, tapEffects } from "../play/gestures";
-import { guidanceFor } from "../play/guidance";
-import type { Incoming, Landing, RowRegion } from "../play/landing";
-import { incomingOf } from "../play/landing";
-import { NO_COMMITTED_TILES, queuedPremoveOf, returnedPremoveOf } from "../play/premoves";
-import { prospectOf } from "../play/prospects";
-import { remainingTally } from "../play/remaining";
-import { rulesFrom } from "../play/rules";
-import { liftedIdentifier } from "../play/selection";
-import type { DeskSpot } from "../play/spot";
-import type { StoryKind } from "../play/story";
-import { storyFor } from "../play/story";
-import { tintFor } from "../play/tints";
-import { trayTilesOf } from "../play/tray";
-import { useAlerts } from "../play/useAlerts";
-import { useCountdown } from "../play/useCountdown";
-import { useDescription } from "../play/useDescription";
-import { useDesk } from "../play/useDesk";
-import { useJudgements } from "../play/useJudgements";
-import type { NoticeHold } from "../play/useNotices";
-import { usePlay } from "../play/usePlay";
-import type { Arrival } from "../play/useStanding";
-import type { TileBindings } from "./bindings";
-import { BlankPicker } from "./BlankPicker";
-import { Board } from "./Board";
-import { CodeChip } from "./CodeChip";
-import { Controls } from "./Controls";
-import type { Carry, Grasp, GraspSession } from "./dragging";
-import { carriedTo, isCarry } from "./dragging";
-import { GameOver } from "./GameOver";
-import type { KeyHandlers } from "./keys";
-import { boundKeys } from "./keys";
-import { ModeToggle } from "./ModeToggle";
-import { MoveLog } from "./MoveLog";
-import { NoticeToggle } from "./NoticeToggle";
-import type { SeatClock } from "./Plaques";
-import { Plaques } from "./Plaques";
-import { Rack } from "./Rack";
-import { RemainingTiles } from "./RemainingTiles";
-import { Room } from "./Room";
-import type { StatusTone } from "./StatusLine";
-import { StatusLine } from "./StatusLine";
+import type { Incoming, Landing, RowRegion } from "../play/board/landing";
+import { incomingOf } from "../play/board/landing";
+import { prospectOf } from "../play/board/prospects";
+import type { DeskSpot } from "../play/board/spot";
+import { standingWordsAt } from "../play/board/standing";
+import { remainingFor, urgencyOf } from "../play/clock/clock";
+import { useCountdown } from "../play/clock/useCountdown";
+import { useAlerts } from "../play/device/useAlerts";
+import type { Connection } from "../play/live/connection";
+import type { TableState } from "../play/live/events";
+import { seatedAs } from "../play/live/events";
+import { rulesFrom } from "../play/live/rules";
+import { useDescription } from "../play/live/useDescription";
+import { usePlay } from "../play/live/usePlay";
+import { useLore } from "../play/lore/useLore";
+import { tintFor } from "../play/seats/tints";
+import type { Arrival } from "../play/seats/useStanding";
+import { useSettings } from "../play/settings/useSettings";
+import { guidanceFor } from "../play/story/guidance";
+import { remainingTally } from "../play/story/remaining";
+import type { StoryKind } from "../play/story/story";
+import { storyFor } from "../play/story/story";
+import { useFreshPlay } from "../play/story/useFreshPlay";
+import { useHighlights } from "../play/story/useHighlights";
+import { arrangedTiles, shuffledArrangement } from "../play/tiles/arrangement";
+import type { DeskEffect } from "../play/tiles/desk";
+import type { Draft } from "../play/tiles/draft";
+import { draftedIdentifiers, pendingAt, placementsOf, shownTile } from "../play/tiles/draft";
+import { exchangeProspectOf } from "../play/tiles/exchange";
+import { blankLanding, dropEffects, tapEffects } from "../play/tiles/gestures";
+import { NO_COMMITTED_TILES, queuedPremoveOf, returnedPremoveOf } from "../play/tiles/premoves";
+import { liftedIdentifier } from "../play/tiles/selection";
+import { trayTilesOf } from "../play/tiles/tray";
+import { useDesk } from "../play/tiles/useDesk";
+import { askedPlayed, askedStanding } from "../play/words/asked";
+import { invalidTextsOf, wordStatusFor } from "../play/words/feedback";
+import { askedWord, panelStanding } from "../play/words/panel";
+import { useJudgements } from "../play/words/useJudgements";
+import { useWordPanel } from "../play/words/useWordPanel";
+import { Board } from "./board/Board";
+import { BoardStage } from "./board/BoardStage";
+import { MoveLog } from "./docket/MoveLog";
+import { RemainingTiles } from "./docket/RemainingTiles";
+import { Controls } from "./hand/Controls";
+import { Rack } from "./hand/Rack";
+import { Tray } from "./hand/Tray";
+import type { TileBindings } from "./input/bindings";
+import type { Carry, Grasp, GraspSession } from "./input/dragging";
+import { carriedTo, crowded, isCarry } from "./input/dragging";
+import type { KeyHandlers } from "./input/keys";
+import { boundKeys } from "./input/keys";
+import { targetsFrom } from "./input/targets";
+import { useHold } from "./input/useHold";
+import { MenuButton } from "./menu/MenuButton";
+import { TableMenu } from "./menu/TableMenu";
+import type { SeatClock } from "./seats/Plaques";
+import { Plaques } from "./seats/Plaques";
+import { Room } from "./seats/Room";
+import type { StatusTone } from "./seats/StatusLine";
+import { StatusLine } from "./seats/StatusLine";
+import { BlankPicker } from "./sheets/BlankPicker";
+import { GameOver } from "./sheets/GameOver";
 import {
     bagCaption,
     CANCEL_PREMOVE,
@@ -72,10 +82,9 @@ import {
     STALE_NOTICE,
     YOUR_TURN_CAPTION,
 } from "./strings";
-import { targetsFrom } from "./targets";
-import { TileFace } from "./TileFace";
-import { Tray } from "./Tray";
-import { Words } from "./Words";
+import { TileFace } from "./tiles/TileFace";
+import { WordPanel } from "./words/WordPanel";
+import { Words } from "./words/Words";
 
 export interface TableProps {
     readonly arrival: Arrival;
@@ -83,8 +92,8 @@ export interface TableProps {
     readonly state: TableState;
     readonly clock: ClockView | null;
     readonly trouble: string | null;
-    readonly notices: NoticeHold;
     readonly onOutdated: () => Promise<number | null>;
+    readonly onLeave: () => void;
 }
 
 interface BlankChoice {
@@ -92,10 +101,12 @@ interface BlankChoice {
     readonly tile: Tile;
 }
 
-export function Table({ arrival, connection, state, clock, trouble, notices, onOutdated }: TableProps): ReactElement {
+export function Table({ arrival, connection, state, clock, trouble, onOutdated, onLeave }: TableProps): ReactElement {
+    const { settings } = useSettings();
     const mySeat = arrival.seated ?? seatedAs(state.view);
     const description = useDescription(arrival.seat);
     const remaining = useCountdown(clock);
+    const highlights = useHighlights(arrival.seat, state.view.phase === "game_over");
 
     const story = storyFor(state.view, state.company, mySeat);
     const present = state.company.seats.filter((seated) => seated.claimed).length;
@@ -124,16 +135,41 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
             setReturnedSeen(returned.seq);
         }
     };
+    const lastPlay = state.view.last_play;
+    const {
+        marks: fresh,
+        frame: freshFrame,
+        waving: freshWaving,
+        acknowledge: noticeLastPlay,
+    } = useFreshPlay(lastPlay, mySeat, state.view.board.size);
     const perform = (effect: DeskEffect): void => {
         clear();
         dismissReturned();
+        noticeLastPlay();
         performDesk(effect);
     };
     const [blankChoice, setBlankChoice] = useState<BlankChoice | null>(null);
-    useAlerts(story.kind === "acting", PRODUCT_NAME, notices.wanted, YOUR_TURN_CAPTION);
+    const [standingShown, setStandingShown] = useState(true);
+    const [menuShown, setMenuShown] = useState(false);
+    const {
+        panel,
+        open: openPanel,
+        choose: choosePanel,
+        deepen: deepenPanel,
+        retreat: retreatPanel,
+        close: closePanel,
+    } = useWordPanel();
+    const asked = askedWord(panel);
+    const loreAnswer = useLore(asked);
+    const hold = useHold(
+        rules.lore
+            ? (cell: number): void => {
+                  openPanel(standingWordsAt(state.view.board, cell).map((word) => askedStanding(word.text)));
+              }
+            : null,
+    );
+    useAlerts(story.kind === "acting", PRODUCT_NAME, settings.notices, YOUR_TURN_CAPTION);
 
-    const lastPlay = state.view.last_play;
-    const freshCells = new Set(lastPlay?.indices ?? []);
     const freshTint = lastPlay === null ? null : tintFor(lastPlay.player).hex;
     const clocks = seatClocks(state.company, clock, remaining, state.view.phase === "turn");
     const tally = description === null ? null : remainingTally(description, state.view.board, rack);
@@ -150,19 +186,20 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
     const exchanging = desk.draft.length === 0 && desk.tray.length > 0;
     const exchange = mySeat === null ? null : exchangeProspectOf(desk.tray.length, state.view, mySeat, rules);
     const playArmed = mayAct && prospect.verdict === "playable";
-    const primaryArmed = exchanging ? mayAct && (exchange?.allowed ?? false) : playArmed;
+    const primaryArmed = (exchanging ? mayAct && (exchange?.allowed ?? false) : playArmed) && !panelStanding(panel);
 
     const invalidTexts = invalidTextsOf(noticeCode, notice);
     const judged = useJudgements(
         arrival.seat,
         prospect.words.map((word) => word.text),
-        rules.feedback === "live" && blankChoice === null,
+        rules.feedback === "live" && blankChoice === null && !panelStanding(panel),
     );
     const chips = prospect.words.map((word) => ({
         ...word,
         status: wordStatusFor(rules.feedback, word.text, invalidTexts, judged),
     }));
     const shownNotice = noticeCode === STALE_POSITION_CODE ? STALE_NOTICE : notice;
+    const offline = connection === "live" ? null : trouble;
     const hint =
         exchanging && exchange !== null
             ? exchangeGuidance(exchange.block, exchange.remaining, rules.exchangeMinBag)
@@ -172,7 +209,20 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
             return danger(shownNotice);
         }
         if (chips.length > 0) {
-            return <Words chips={chips} bingo={prospect.bingo ? rules.bingoBonus : 0} />;
+            return (
+                <Words
+                    chips={chips}
+                    bingo={prospect.bingo ? rules.bingoBonus : 0}
+                    openText={asked?.text ?? null}
+                    onOpen={
+                        rules.lore
+                            ? (chip): void => {
+                                  openPanel([chip]);
+                              }
+                            : null
+                    }
+                />
+            );
         }
         if (returnedNotice !== null) {
             return danger(returnedNotice);
@@ -186,6 +236,9 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
                     </button>
                 </div>
             );
+        }
+        if (offline !== null) {
+            return danger(offline);
         }
         return (
             <p className="guidance" role="status" data-tone="hint">
@@ -250,8 +303,20 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
         perform({ kind: "arrange", arrangement: shuffledArrangement(desk.arrangement, visible, Math.random) });
     };
     const retreat = (): void => {
+        if (story.kind === "over" && standingShown) {
+            setStandingShown(false);
+            return;
+        }
+        if (menuShown) {
+            setMenuShown(false);
+            return;
+        }
         if (blankChoice !== null) {
             dismissBlank();
+            return;
+        }
+        if (panelStanding(panel)) {
+            retreatPanel();
             return;
         }
         perform({ kind: desk.lift !== null ? "clear-lift" : "recall" });
@@ -319,6 +384,25 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
         sessionRef.current = null;
         setCarry(null);
     };
+    const pointersRef = useRef<Set<number>>(new Set());
+    const arrive = (event: ReactPointerEvent<HTMLDivElement>): void => {
+        pointersRef.current.add(event.pointerId);
+        if (crowded(pointersRef.current)) {
+            abandon();
+            hold?.release();
+        }
+    };
+    const depart = (event: ReactPointerEvent<HTMLDivElement>): void => {
+        pointersRef.current.delete(event.pointerId);
+    };
+    const settle = (event: ReactPointerEvent<HTMLDivElement>): void => {
+        depart(event);
+        release(event);
+    };
+    const forsake = (event: ReactPointerEvent<HTMLDivElement>): void => {
+        depart(event);
+        abandon();
+    };
 
     const incoming = (region: RowRegion): Incoming | null =>
         carry === null ? null : incomingOf(carry.target, carry.tile.identifier, region);
@@ -346,21 +430,34 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
             className="table"
             data-acting={story.kind === "acting" ? "true" : undefined}
             style={style}
+            onPointerDown={arrive}
             onPointerMove={travel}
-            onPointerUp={release}
-            onPointerCancel={abandon}
+            onPointerUp={settle}
+            onPointerCancel={forsake}
         >
             <header className="status-strip">
-                <StatusLine text={captionFor(story, state.company)} tone={toneOf(story.kind)} />
-                <span className="status-meta">{bagCaption(state.view.bag_count)}</span>
-                {description !== null && description.code !== null ? <CodeChip code={description.code} /> : null}
+                <StatusLine
+                    text={captionFor(story, state.company)}
+                    tone={toneOf(story.kind)}
+                    onOpen={
+                        story.kind === "over" && !standingShown
+                            ? (): void => {
+                                  setStandingShown(true);
+                              }
+                            : null
+                    }
+                />
+                {story.kind === "over" ? null : <span className="status-meta">{bagCaption(state.view.bag_count)}</span>}
                 {connection === "live" ? null : (
                     <span className="chip chip-connection" data-connection={connection}>
                         {CONNECTION_CAPTIONS[connection]}
                     </span>
                 )}
-                <NoticeToggle wanted={notices.wanted} onFlip={notices.flip} />
-                <ModeToggle />
+                <MenuButton
+                    onOpen={(): void => {
+                        setMenuShown(true);
+                    }}
+                />
             </header>
             <Plaques
                 view={state.view}
@@ -369,20 +466,25 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
                 clocks={clocks}
                 clocked={clock !== null}
             />
-            <div className="board-region">
-                <Board
-                    board={state.view.board}
-                    pending={pendingFacesOf(desk.draft)}
-                    ghosts={ghosts}
-                    targeting={mayAct && desk.lift !== null}
-                    dropCell={
-                        carry?.target?.kind === "cell" && !ghosts.has(carry.target.cell) ? carry.target.cell : null
-                    }
-                    fresh={freshCells}
-                    freshTint={freshTint}
-                    onLay={mayAct ? layLifted : null}
-                    bindings={atDesk ? bindings : null}
-                />
+            <div className="board-region" onPointerDown={noticeLastPlay}>
+                <BoardStage onZoom={noticeLastPlay}>
+                    <Board
+                        board={state.view.board}
+                        pending={pendingFacesOf(desk.draft)}
+                        ghosts={ghosts}
+                        targeting={mayAct && desk.lift !== null}
+                        dropCell={
+                            carry?.target?.kind === "cell" && !ghosts.has(carry.target.cell) ? carry.target.cell : null
+                        }
+                        fresh={fresh}
+                        freshFrame={freshFrame}
+                        freshTint={freshTint}
+                        freshWaving={freshWaving}
+                        onLay={mayAct ? layLifted : null}
+                        bindings={atDesk ? bindings : null}
+                        hold={hold}
+                    />
+                </BoardStage>
             </div>
             <div className="side">
                 {gathering ? (
@@ -454,11 +556,21 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
                 ) : null}
                 {gathering ? null : (
                     <div className="docket">
-                        <MoveLog log={state.log} company={state.company} />
+                        <MoveLog
+                            log={state.log}
+                            company={state.company}
+                            onOpen={
+                                rules.lore
+                                    ? (word): void => {
+                                          openPanel([askedPlayed(word)]);
+                                      }
+                                    : null
+                            }
+                        />
                         {tally === null ? null : <RemainingTiles tally={tally} />}
                     </div>
                 )}
-                {trouble !== null && connection !== "live" ? <p className="trouble">{trouble}</p> : null}
+                {atDesk || offline === null ? null : <p className="trouble">{offline}</p>}
             </div>
             {carry === null ? null : (
                 <div
@@ -469,10 +581,45 @@ export function Table({ arrival, connection, state, clock, trouble, notices, onO
                     <TileFace tile={carry.tile} />
                 </div>
             )}
+            {menuShown ? (
+                <TableMenu
+                    table={arrival.seat.table}
+                    code={arrival.code}
+                    onLeave={onLeave}
+                    onClose={(): void => {
+                        setMenuShown(false);
+                    }}
+                />
+            ) : null}
             {blankChoice !== null ? (
                 <BlankPicker alphabet={rules.alphabet} onPick={pick} onClose={dismissBlank} />
             ) : null}
-            {story.kind === "over" ? <GameOver view={state.view} company={state.company} story={story} /> : null}
+            {asked === null ? null : (
+                <WordPanel
+                    asked={asked}
+                    words={panel.words}
+                    chosen={panel.chosen}
+                    answer={loreAnswer}
+                    lexeme={panel.lexeme}
+                    onChoose={choosePanel}
+                    onDeepen={deepenPanel}
+                    onRetreat={retreatPanel}
+                    onClose={closePanel}
+                />
+            )}
+            {story.kind === "over" && standingShown ? (
+                <GameOver
+                    view={state.view}
+                    company={state.company}
+                    story={story}
+                    highlights={highlights}
+                    mySeat={mySeat}
+                    onClose={(): void => {
+                        setStandingShown(false);
+                    }}
+                    onLeave={onLeave}
+                />
+            ) : null}
         </div>
     );
 }

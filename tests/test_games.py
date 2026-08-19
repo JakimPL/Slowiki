@@ -16,7 +16,7 @@ from wordcore.views.projection import project
 from wordgames.backend.base import WordGameRules
 from wordgames.backend.parameters import GameParameters
 from wordtable.build import build_rules
-from wordtable.catalogue import resolve_scheme
+from wordtable.catalog import resolve_scheme
 from wordtable.paths import CONFIG_DIR
 
 TINY_TILES = TilePreset(
@@ -354,3 +354,36 @@ def test_pass_leaves_the_exchange_budget_alone() -> None:
     assert passed.state.exchange_counts == position.state.exchange_counts
     assert passed.state.consecutive_passes == 1
     assert passed.state.scoreless_turns == 1
+
+
+def test_game_highlights_walk_the_journal() -> None:
+    rules = make_rules(TextLexicon.from_words(["ab", "aa"]))
+    game = Game(rules, random.Random(0), premoves_allowed=True)
+    game.submit(
+        Move(
+            player=0,
+            action=Play(
+                placements=(
+                    PlayPlacement(tile_id=2, row=1, column=0),
+                    PlayPlacement(tile_id=4, row=1, column=1),
+                )
+            ),
+        ),
+        base_seq=0,
+    )
+    game.submit(
+        Move(player=1, action=Play(placements=(PlayPlacement(tile_id=1, row=0, column=0),))),
+        base_seq=1,
+    )
+    highlights = game.highlights()
+    assert highlights.best_word is not None
+    assert highlights.best_word.player == 0
+    assert highlights.best_word.word == "AB"
+    assert highlights.best_word == highlights.longest_word
+
+
+def test_a_game_yet_to_be_played_has_no_highlights() -> None:
+    rules = make_rules(TextLexicon.from_words(["ab"]))
+    game = Game(rules, random.Random(0), premoves_allowed=True)
+    assert game.highlights().best_word is None
+    assert game.highlights().longest_word is None

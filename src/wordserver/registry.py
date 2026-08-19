@@ -1,7 +1,7 @@
 from wordcore.models.base import BaseFrozen
 from wordgames.names import GameName
 from wordserver.session import TableSession
-from wordtable.catalogue import ResolvedScheme
+from wordtable.catalog import ResolvedScheme
 from wordtable.config import TimeConfig
 
 
