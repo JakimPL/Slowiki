@@ -73,8 +73,8 @@ ma zostać wewnętrznym kluczem.
 - **Faza 2 — czyste lematy:** `compile.py` i `classes.py` zapisują
   `lexeme_of(lemma)` jako lemat klasy; `class_id` zostaje wewnętrznym kluczem.
 - **Faza 3 — artefakt:** `manifest.py` włącza wersję potoku do digestów
-  (bump wymusza rekompilację po zmianach kodu); loader rozpoznaje stary płaski
-  format i podaje czytelny błąd; rekompilacja do `.v2.lexicon` i usunięcie
-  przestarzałych plików.
+  (`PIPELINE_VERSION` pozostaje 1 przez cały development); loader rozpoznaje
+  stary płaski format i podaje czytelny błąd; rekompilacja do `.v2.lexicon`
+  i usunięcie przestarzałych plików.
 - **Faza 4 — regresja:** rekompilacja + testy: formy aglutynacyjne bez `być`,
   brak kodów wzorców w lemacie.
