@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import pytest
 from pydantic import ValidationError
 
@@ -48,50 +46,6 @@ def test_resolve_scheme_builds_board() -> None:
     resolved = resolve_scheme(CONFIG_DIR, "literaki")
     board = board_from_preset(resolved.board)
     assert board.size == 15
-
-
-def test_scheme_allowed_pos_accepts_known_and_rejects_unknown(tmp_path: Path) -> None:
-    from wordtable.config import load_scheme
-
-    body = """\
-game: literaki
-board: literaki
-tiles: literaki
-dictionary: sjp
-min_players: 2
-max_players: 8
-validate_on_play: true
-premoves: true
-exchange_limit: 3
-exchange_min_bag: 7
-pass_allowed: true
-time:
-  per_turn_seconds: null
-  increment_seconds: 0
-  total_seconds: null
-pass_end_limit: 2
-scoreless_end_limit: null
-bingo_bonus: 50
-allowed_pos: [rzeczownik, czasownik]
-base_form_only: true
-"""
-    schemes_dir = tmp_path / "schemes"
-    schemes_dir.mkdir()
-    path = schemes_dir / "filtered.yaml"
-    path.write_text(body, encoding="utf-8")
-    scheme = load_scheme(tmp_path, "filtered")
-    assert scheme.allowed_pos == ("rzeczownik", "czasownik")
-    assert scheme.base_form_only is True
-
-    path.write_text(
-        body.replace(
-            "allowed_pos: [rzeczownik, czasownik]",
-            "allowed_pos: [nieistnieje]",
-        ),
-        encoding="utf-8",
-    )
-    with pytest.raises(ValidationError):
-        load_scheme(tmp_path, "filtered")
 
 
 def test_literaki_tile_counts() -> None:

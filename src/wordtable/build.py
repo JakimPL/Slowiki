@@ -23,8 +23,6 @@ def build_rules(
         pass_end_limit=resolved.scheme.pass_end_limit,
         scoreless_end_limit=resolved.scheme.scoreless_end_limit,
         bingo_bonus=resolved.scheme.bingo_bonus,
-        allowed_pos=resolved.scheme.allowed_pos,
-        base_form_only=resolved.scheme.base_form_only,
     )
 
     match resolved.scheme.game:

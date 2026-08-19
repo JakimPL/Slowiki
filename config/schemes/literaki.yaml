@@ -16,5 +16,3 @@ time:
 pass_end_limit: 2
 scoreless_end_limit: null
 bingo_bonus: 50
-allowed_pos: null
-base_form_only: false

@@ -47,8 +47,6 @@ def make_rules(lexicon: Lexicon, players: tuple[int, ...] = (0, 1)) -> WordGameR
         pass_end_limit=2,
         scoreless_end_limit=None,
         bingo_bonus=50,
-        allowed_pos=None,
-        base_form_only=False,
     )
     return WordGameRules(players, make_board(), TINY_TILES, lexicon, parameters)
 
@@ -272,8 +270,6 @@ def test_solo_unlimited_deals_all_tiles() -> None:
         pass_end_limit=None,
         scoreless_end_limit=None,
         bingo_bonus=50,
-        allowed_pos=None,
-        base_form_only=False,
     )
     rules = WordGameRules(
         (0,), make_board(), solo_tiles, TextLexicon.from_words(["ab"]), parameters

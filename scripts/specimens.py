@@ -328,7 +328,10 @@ def main(argv: list[str] | None = None) -> None:
         "dictionary": "sjp-20260803",
         "analyzer": "morfeusz2",
         "dict_id": analyzer.dict_id(),
-        "purpose": "hand-reviewable golden anchor; full corpus lives in dictionaries/specimens/ (gitignored)",
+        "purpose": (
+            "hand-reviewable golden anchor; "
+            "full corpus lives in dictionaries/specimens/ (gitignored)"
+        ),
         "specimen_count": len(stress_words),
         "unknown_specimens": sum(
             1 for word in stress_words if not real_interpretations(all_interpretations[word])

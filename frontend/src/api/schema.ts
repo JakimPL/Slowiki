@@ -507,10 +507,6 @@ export interface components {
         };
         /** RuleParameters */
         RuleParameters: {
-            /** Allowed Pos */
-            allowed_pos: string[] | null;
-            /** Base Form Only */
-            base_form_only: boolean;
             /** Bingo Bonus */
             bingo_bonus: number;
             /** Exchange Limit */
