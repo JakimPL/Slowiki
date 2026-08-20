@@ -41,7 +41,8 @@ by amending it. The palette is the *Lniany* proposition chosen from the phase-0 
   by invitation meets it before joining.
 - **Table** — the one screen where the game lives. Until every seat is claimed it doubles as the
   room: a gathering banner with the join code, a copy-invitation control, and claimed/empty
-  plaques.
+  plaques. The claim that fills the last seat turns the room into a game in one step: the plaques,
+  the letters, and the clock arrive together.
 - **Game over** — the final standing as an overlay: one row per player in placing order, each
   carrying its place, the player's tint, and the final score after rack deductions, with the board
   still readable beneath. Tied players share a place. From four players up, the first three rows

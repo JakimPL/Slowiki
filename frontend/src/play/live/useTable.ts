@@ -7,7 +7,7 @@ import type { ClockView } from "../../api/views";
 import { whileInView } from "../device/viewing";
 import type { Connection } from "./connection";
 import type { TableState } from "./events";
-import { accompanied, advanced, gathered, openedFrom, refreshed } from "./events";
+import { accompanied, advanced, openedFrom, positioned, refreshed } from "./events";
 
 export interface TableHold {
     readonly connection: Connection;
@@ -28,7 +28,6 @@ export function useTable(table: string, token: string | null, awake: boolean): T
     useEffect(() => {
         let alive = true;
         let release: (() => void) | null = null;
-        let wasGathered = false;
         const seat: Seat = { table, token };
         const refresh = (): Promise<number | null> =>
             readView(seat)
@@ -54,7 +53,6 @@ export function useTable(table: string, token: string | null, awake: boolean): T
                     return;
                 }
                 sinceRef.current = response.seq;
-                wasGathered = gathered(response.company);
                 setClock(response.clock);
                 setState(openedFrom(response));
                 let heldBefore = false;
@@ -73,12 +71,10 @@ export function useTable(table: string, token: string | null, awake: boolean): T
                             setState((current) => (current === null ? current : advanced(current, event)));
                         },
                         onPresence: (company): void => {
-                            const nowGathered = gathered(company);
-                            if (nowGathered && !wasGathered) {
-                                void refresh();
-                            }
-                            wasGathered = nowGathered;
                             setState((current) => (current === null ? current : accompanied(current, company)));
+                        },
+                        onPosition: (view): void => {
+                            setState((current) => (current === null ? current : positioned(current, view)));
                         },
                         onClock: (served): void => {
                             setClock(served);

@@ -28,7 +28,7 @@ repos:
         name: pytest
         entry: uv run pytest
         language: system
-        files: ^frontend/
+        files: ^(src|tests|scripts|config)/
         pass_filenames: false
         stages: [pre-push]
 

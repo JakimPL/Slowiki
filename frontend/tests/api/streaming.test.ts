@@ -2,12 +2,20 @@ import type { FetchEventSourceInit } from "@microsoft/fetch-event-source";
 import { describe, expect, it } from "vitest";
 
 import type { Streamed } from "../../src/api/streaming";
-import { CLOCK_EVENT, follow, LAST_EVENT_ID_HEADER, PRESENCE_EVENT } from "../../src/api/streaming";
-import type { ClockView, CompanyView, EventView } from "../../src/api/views";
+import { CLOCK_EVENT, follow, LAST_EVENT_ID_HEADER, POSITION_EVENT, PRESENCE_EVENT } from "../../src/api/streaming";
+import type { ClockView, CompanyView, EventView, PositionView } from "../../src/api/views";
 
 interface Recorded {
     url: string;
     init: FetchEventSourceInit;
+}
+
+interface Heard {
+    readonly commits: EventView[];
+    readonly companies: CompanyView[];
+    readonly positions: PositionView[];
+    readonly clocks: ClockView[];
+    readonly drops: string[];
 }
 
 function aTransport(recorded: Recorded[]): (url: string, init: FetchEventSourceInit) => Promise<void> {
@@ -19,27 +27,29 @@ function aTransport(recorded: Recorded[]): (url: string, init: FetchEventSourceI
     };
 }
 
-function aStreamed(
-    commits: EventView[],
-    companies: CompanyView[],
-    drops: string[],
-    clocks: ClockView[] = [],
-): Streamed {
+function aListener(): { heard: Heard; streamed: Streamed } {
+    const heard: Heard = { commits: [], companies: [], positions: [], clocks: [], drops: [] };
     return {
-        onOpen: () => {
-            return;
-        },
-        onCommit: (event) => {
-            commits.push(event);
-        },
-        onPresence: (company) => {
-            companies.push(company);
-        },
-        onClock: (clock) => {
-            clocks.push(clock);
-        },
-        onDropped: (reason) => {
-            drops.push(reason);
+        heard,
+        streamed: {
+            onOpen: () => {
+                return;
+            },
+            onCommit: (event) => {
+                heard.commits.push(event);
+            },
+            onPresence: (company) => {
+                heard.companies.push(company);
+            },
+            onPosition: (view) => {
+                heard.positions.push(view);
+            },
+            onClock: (clock) => {
+                heard.clocks.push(clock);
+            },
+            onDropped: (reason) => {
+                heard.drops.push(reason);
+            },
         },
     };
 }
@@ -47,28 +57,31 @@ function aStreamed(
 describe("follow", () => {
     it("resumes with a Last-Event-ID header when starting past zero", () => {
         const recorded: Recorded[] = [];
-        follow(aTransport(recorded), "/tables/t/events", { "X-Seat-Token": "tok" }, 5, aStreamed([], [], []));
+        follow(aTransport(recorded), "/tables/t/events", { "X-Seat-Token": "tok" }, 5, aListener().streamed);
         expect(recorded[0]?.init.headers).toEqual({ "X-Seat-Token": "tok", [LAST_EVENT_ID_HEADER]: "4" });
     });
 
     it("sends bare headers when starting from zero", () => {
         const recorded: Recorded[] = [];
-        follow(aTransport(recorded), "/tables/t/events", { "X-Seat-Token": "tok" }, 0, aStreamed([], [], []));
+        follow(aTransport(recorded), "/tables/t/events", { "X-Seat-Token": "tok" }, 0, aListener().streamed);
         expect(recorded[0]?.init.headers).toEqual({ "X-Seat-Token": "tok" });
     });
 
-    it("dispatches presence and clock frames apart from commits", () => {
+    it("dispatches presence, position and clock frames apart from commits", () => {
         const recorded: Recorded[] = [];
-        const commits: EventView[] = [];
-        const companies: CompanyView[] = [];
-        const clocks: ClockView[] = [];
-        follow(aTransport(recorded), "/tables/t/events", {}, 0, aStreamed(commits, companies, [], clocks));
+        const { heard, streamed } = aListener();
+        follow(aTransport(recorded), "/tables/t/events", {}, 0, streamed);
         const handle = recorded[0]?.init.onmessage;
         expect(handle).toBeDefined();
         handle?.({
             id: "",
             event: PRESENCE_EVENT,
             data: JSON.stringify({ seats: [] }),
+        });
+        handle?.({
+            id: "",
+            event: POSITION_EVENT,
+            data: JSON.stringify({ bag_count: 60, racks: { 0: [] } }),
         });
         handle?.({
             id: "",
@@ -81,16 +94,18 @@ describe("follow", () => {
             data: JSON.stringify({ seq: 0, kind: "move", actor: 0, move: null, reason: null, position: {} }),
         });
         handle?.({ id: "", event: "", data: "" });
-        expect(companies).toHaveLength(1);
-        expect(clocks).toHaveLength(1);
-        expect(clocks[0]?.deadline).toBe(1090);
-        expect(commits).toHaveLength(1);
-        expect(commits[0]?.seq).toBe(0);
+        expect(heard.companies).toHaveLength(1);
+        expect(heard.positions).toHaveLength(1);
+        expect(heard.positions[0]?.bag_count).toBe(60);
+        expect(heard.clocks).toHaveLength(1);
+        expect(heard.clocks[0]?.deadline).toBe(1090);
+        expect(heard.commits).toHaveLength(1);
+        expect(heard.commits[0]?.seq).toBe(0);
     });
 
     it("stops following when released", () => {
         const recorded: Recorded[] = [];
-        const release = follow(aTransport(recorded), "/tables/t/events", {}, 0, aStreamed([], [], []));
+        const release = follow(aTransport(recorded), "/tables/t/events", {}, 0, aListener().streamed);
         release();
         expect(recorded[0]?.init.signal?.aborted).toBe(true);
     });
