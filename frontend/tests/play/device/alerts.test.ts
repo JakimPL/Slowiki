@@ -4,8 +4,8 @@ import { buzzed, retitled, TURN_BUZZ } from "../../../src/play/device/alerts";
 
 describe("retitled", () => {
     it("marks the tab while acting and restores it after", () => {
-        expect(retitled("Literabble", true)).toBe("● Literabble — your turn");
-        expect(retitled("Literabble", false)).toBe("Literabble");
+        expect(retitled("Słowiki", true)).toBe("● Słowiki — your turn");
+        expect(retitled("Słowiki", false)).toBe("Słowiki");
     });
 });
 

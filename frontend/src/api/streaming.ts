@@ -2,7 +2,7 @@ import type { FetchEventSourceInit } from "@microsoft/fetch-event-source";
 
 import { bodyOf } from "./parsing";
 import { reasonOf, refusalOf } from "./refusal";
-import type { ClockView, CompanyView, EventView } from "./views";
+import type { ClockView, CompanyView, EventView, PositionView } from "./views";
 
 export type Transport = (url: string, init: FetchEventSourceInit) => Promise<void>;
 
@@ -10,11 +10,13 @@ export interface Streamed {
     onOpen: () => void;
     onCommit: (event: EventView) => void;
     onPresence: (company: CompanyView) => void;
+    onPosition: (view: PositionView) => void;
     onClock: (clock: ClockView) => void;
     onDropped: (reason: string) => void;
 }
 
 export const PRESENCE_EVENT = "presence";
+export const POSITION_EVENT = "position";
 export const CLOCK_EVENT = "clock";
 export const LAST_EVENT_ID_HEADER = "Last-Event-ID";
 const RETRY_AFTER_DROP_MILLISECONDS = 1000;
@@ -41,6 +43,10 @@ export function follow(
         onmessage: (message): void => {
             if (message.event === PRESENCE_EVENT) {
                 streamed.onPresence(bodyOf<CompanyView>(message.data));
+                return;
+            }
+            if (message.event === POSITION_EVENT) {
+                streamed.onPosition(bodyOf<PositionView>(message.data));
                 return;
             }
             if (message.event === CLOCK_EVENT) {

@@ -18,7 +18,7 @@ export function dropEffects(
     mayAct: boolean,
 ): readonly DeskEffect[] {
     if (landing === null) {
-        return spot.kind === "cell" ? [{ kind: "take-back", cell: spot.cell }] : [];
+        return homeEffects(spot, tile);
     }
     if (landing.kind === "cell") {
         return mayAct ? cellEffects(spot, tile, landing.cell) : [];
@@ -31,6 +31,17 @@ export function blankLanding(spot: DeskSpot, tile: Tile, landing: Landing | null
         return null;
     }
     return landing.cell;
+}
+
+function homeEffects(spot: DeskSpot, tile: Tile): readonly DeskEffect[] {
+    switch (spot.kind) {
+        case "rack":
+            return [];
+        case "tray":
+            return [{ kind: "retrieve", id: tile.identifier, before: null }];
+        case "cell":
+            return [{ kind: "take-back", cell: spot.cell }];
+    }
 }
 
 function cellEffects(spot: DeskSpot, tile: Tile, cell: number): readonly DeskEffect[] {

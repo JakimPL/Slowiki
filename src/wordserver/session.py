@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import Final
 
 from wordcore.games.game import Game
+from wordcore.models.base import BaseFrozen
 from wordcore.moves.action import Pass
 from wordcore.moves.kind import ActionKind
 from wordcore.moves.move import Move
@@ -21,12 +22,16 @@ from wordtable.config import TimeConfig
 
 _KEEPALIVE_SECONDS: Final = 15
 _KEEPALIVE_FRAME: Final = ": keepalive\n\n"
+_PRESENCE_EVENT: Final = "presence"
+_POSITION_EVENT: Final = "position"
+_CLOCK_EVENT: Final = "clock"
 
 
 @dataclass
 class _StreamCursor:
     next_seq: int
     seen_company: int
+    seen_view: int
     seen_clock: int
 
 
@@ -49,6 +54,7 @@ class TableSession:
         self._claimed: set[int] = {0}
         self._streams: dict[int, int] = {}
         self._company_version = 0
+        self._view_version = 0
         if not self.gathering():
             self._schedule_timer()
 
@@ -73,12 +79,7 @@ class TableSession:
         async with self._condition:
             for seat in sorted(self._tokens):
                 if seat not in self._claimed:
-                    self._claimed.add(seat)
-                    self._names[seat] = name
-                    self._company_version += 1
-                    if not self.gathering():
-                        self._schedule_timer()
-
+                    self._seat_taken(seat, name)
                     self._condition.notify_all()
                     return seat, self._tokens[seat]
 
@@ -146,6 +147,16 @@ class TableSession:
             self._condition.notify_all()
             return self._game.seq
 
+    def _seat_taken(self, seat: int, name: str | None) -> None:
+        self._claimed.add(seat)
+        self._names[seat] = name
+        self._company_version += 1
+        if self.gathering():
+            return
+
+        self._view_version += 1
+        self._schedule_timer()
+
     def _ensure_gathered(self) -> None:
         if self.gathering():
             raise TableGathering("the table is still gathering players")
@@ -164,56 +175,66 @@ class TableSession:
             cursor = _StreamCursor(
                 next_seq=since,
                 seen_company=-1,
+                seen_view=-1,
                 seen_clock=-1,
             )
             while True:
-                frames = await self._fresh_frames(observer, cursor)
-                for frame in frames:
+                for frame in await self._next_frames(observer, cursor):
                     yield frame
-
-                if frames:
-                    continue
-
-                if await self._timed_out_waiting():
-                    yield _KEEPALIVE_FRAME
 
         finally:
             await self._adjust_streams(observer, -1)
 
-    async def _fresh_frames(
+    async def _next_frames(
         self,
         observer: int | None,
         cursor: _StreamCursor,
     ) -> list[str]:
         async with self._condition:
-            frames: list[str] = []
-            if cursor.seen_company != self._company_version:
-                cursor.seen_company = self._company_version
-                frames.append(_format_presence(self.company()))
+            while True:
+                frames = self._pending_frames(observer, cursor)
+                if frames:
+                    return frames
 
-            if cursor.seen_clock != self._clock.version:
-                cursor.seen_clock = self._clock.version
-                clock = self.clock()
-                if clock is not None:
-                    frames.append(_format_clock(clock))
+                if await self._quiet_through_keepalive():
+                    return [_KEEPALIVE_FRAME]
 
-            for event in self._game.events(observer, since=cursor.next_seq):
-                cursor.next_seq = event.seq + 1
-                frames.append(_format_event(event))
+    def _pending_frames(
+        self,
+        observer: int | None,
+        cursor: _StreamCursor,
+    ) -> list[str]:
+        frames: list[str] = []
+        if cursor.seen_company != self._company_version:
+            cursor.seen_company = self._company_version
+            frames.append(_named_frame(_PRESENCE_EVENT, self.company()))
 
-            return frames
+        if cursor.seen_view != self._view_version:
+            cursor.seen_view = self._view_version
+            frames.append(_named_frame(_POSITION_EVENT, self.view(observer)))
 
-    async def _timed_out_waiting(self) -> bool:
-        async with self._condition:
-            try:
-                await asyncio.wait_for(
-                    self._condition.wait(),
-                    timeout=_KEEPALIVE_SECONDS,
-                )
-            except TimeoutError:
-                return True
+        if cursor.seen_clock != self._clock.version:
+            cursor.seen_clock = self._clock.version
+            clock = self.clock()
+            if clock is not None:
+                frames.append(_named_frame(_CLOCK_EVENT, clock))
 
-            return False
+        for event in self._game.events(observer, since=cursor.next_seq):
+            cursor.next_seq = event.seq + 1
+            frames.append(_numbered_frame(event))
+
+        return frames
+
+    async def _quiet_through_keepalive(self) -> bool:
+        try:
+            await asyncio.wait_for(
+                self._condition.wait(),
+                timeout=_KEEPALIVE_SECONDS,
+            )
+        except TimeoutError:
+            return True
+
+        return False
 
     async def _adjust_streams(self, observer: int | None, delta: int) -> None:
         if observer is None:
@@ -272,16 +293,13 @@ class TableSession:
             self._condition.notify_all()
 
 
-def _format_event(event: EventView) -> str:
-    payload = json.dumps(event.model_dump(mode="json"))
-    return f"id: {event.seq}\ndata: {payload}\n\n"
+def _numbered_frame(event: EventView) -> str:
+    return f"id: {event.seq}\ndata: {_payload(event)}\n\n"
 
 
-def _format_presence(company: CompanyView) -> str:
-    payload = json.dumps(company.model_dump(mode="json"))
-    return f"event: presence\ndata: {payload}\n\n"
+def _named_frame(name: str, view: BaseFrozen) -> str:
+    return f"event: {name}\ndata: {_payload(view)}\n\n"
 
 
-def _format_clock(clock: ClockView) -> str:
-    payload = json.dumps(clock.model_dump(mode="json"))
-    return f"event: clock\ndata: {payload}\n\n"
+def _payload(view: BaseFrozen) -> str:
+    return json.dumps(view.model_dump(mode="json"))

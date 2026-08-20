@@ -38,7 +38,13 @@ from wordserver.registry import TableMeta, TableRegistry
 from wordserver.session import TableSession
 from wordtable.build import build_rules
 from wordtable.catalog import ResolvedScheme, offerings, resolve_scheme
-from wordtable.config import SchemeConfig, StyleTokens, TimeConfig, load_style_tokens, read_config
+from wordtable.config import (
+    SchemeConfig,
+    StyleTokens,
+    TimeConfig,
+    load_style_tokens,
+    read_config,
+)
 from wordtable.lexicons import LexiconService, dictionary_ready
 from wordtable.paths import ASSETS_DIR, CONFIG_DIR, FRONTEND_DIST_DIR, RUN_CONFIG_FILE
 
@@ -269,7 +275,7 @@ def create_app() -> FastAPI:
         yield
         preload.cancel()
 
-    app = FastAPI(title="literabble", lifespan=lifespan)
+    app = FastAPI(title="slowiki", lifespan=lifespan)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],

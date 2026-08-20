@@ -1,5 +1,7 @@
 import asyncio
+import json
 import random
+from typing import Any
 
 import httpx
 import pytest
@@ -175,8 +177,10 @@ async def test_session_events_streams_after_submit() -> None:
     assert first.startswith("event: presence\n")
     assert "id:" not in first
     second = await anext(stream)
-    assert second.startswith("id: 0\n")
-    assert '"seq": 0' in second
+    assert second.startswith("event: position\n")
+    third = await anext(stream)
+    assert third.startswith("id: 0\n")
+    assert '"seq": 0' in third
     await stream.aclose()
 
 
@@ -192,6 +196,7 @@ async def test_presence_frames_follow_claims_and_disconnects() -> None:
     assert first.startswith("event: presence\n")
     assert '"name": "Ala"' in first
     assert '"connected": true' in first
+    assert (await anext(stream)).startswith("event: position\n")
     claimed = await session.claim("Bob")
     assert claimed == (1, "token-b")
     second = await anext(stream)
@@ -219,6 +224,10 @@ def _timed_session(seconds: int | None, clock: _FakeClock) -> TableSession:
 def _budgeted_session(total: int, increment: int, clock: _FakeClock) -> TableSession:
     budgeted = TimeConfig(per_turn_seconds=None, increment_seconds=increment, total_seconds=total)
     return _session_with(budgeted, clock)
+
+
+def _frame_body(frame: str) -> dict[str, Any]:
+    return json.loads(frame.split("data: ", 1)[1])
 
 
 def _session_with(time: TimeConfig, clock: _FakeClock) -> TableSession:
@@ -329,10 +338,44 @@ async def test_clock_frames_ride_the_stream() -> None:
     stream = session.events(observer=0, since=0)
     first = await anext(stream)
     assert first.startswith("event: presence\n")
-    second = await anext(stream)
-    assert second.startswith("event: clock\n")
-    assert '"deadline": 1090.0' in second
-    assert "id:" not in second
+    assert (await anext(stream)).startswith("event: position\n")
+    third = await anext(stream)
+    assert third.startswith("event: clock\n")
+    assert '"deadline": 1090.0' in third
+    assert "id:" not in third
+    await stream.aclose()
+    session.close()
+
+
+async def test_the_letters_ride_the_turn_that_opens_them() -> None:
+    clock = _FakeClock()
+    session = _timed_session(90, clock)
+    stream = session.events(observer=0, since=0)
+    assert (await anext(stream)).startswith("event: presence\n")
+    gathering = _frame_body(await anext(stream))
+    assert gathering["racks"] == {"0": None, "1": None}
+    await session.claim("Bob")
+    assert (await anext(stream)).startswith("event: presence\n")
+    seated = _frame_body(await anext(stream))
+    assert seated["racks"]["0"] is not None
+    assert seated["racks"]["1"] is None
+    assert (await anext(stream)).startswith("event: clock\n")
+    await stream.aclose()
+    session.close()
+
+
+async def test_a_waiting_stream_wakes_on_the_next_move() -> None:
+    clock = _FakeClock()
+    session = _timed_session(None, clock)
+    await session.claim("Bob")
+    stream = session.events(observer=0, since=0)
+    assert (await anext(stream)).startswith("event: presence\n")
+    assert (await anext(stream)).startswith("event: position\n")
+    waiting = asyncio.create_task(anext(stream))
+    await asyncio.sleep(0)
+    await session.submit(Move(player=0, action=Pass()), base_seq=0, premove=False, token="token-a")
+    frame = await asyncio.wait_for(waiting, timeout=1.0)
+    assert frame.startswith("id: 0\n")
     await stream.aclose()
     session.close()
 

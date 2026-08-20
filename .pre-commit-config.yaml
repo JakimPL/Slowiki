@@ -24,6 +24,14 @@ repos:
         language: system
         types: [python]
 
+      - id: backend-test
+        name: pytest
+        entry: uv run pytest
+        language: system
+        files: ^(src|tests|scripts|config)/
+        pass_filenames: false
+        stages: [pre-push]
+
       - id: frontend-format
         name: prettier
         entry: bash -c 'cd frontend && npx prettier --check src tests index.html public'

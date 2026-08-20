@@ -12,7 +12,12 @@ from wordassets.drawing.node import Element, document, rendered
 from wordassets.drawing.raster import rendered_rows
 from wordassets.drawing.shapes import polygon, rect
 from wordassets.geometry import star_points
-from wordassets.icons import favicon_ico_bytes, icon_painting, icon_png_bytes, icon_svg_element
+from wordassets.icons import (
+    favicon_ico_bytes,
+    icon_painting,
+    icon_png_bytes,
+    icon_svg_element,
+)
 from wordassets.slugs import letter_slug
 from wordgames.names import GameName
 from wordserver.app import create_app
@@ -80,7 +85,7 @@ def _specimen_markup() -> tuple[str, ThemeTokens]:
 
 def test_board_specimen_draws_from_tokens_only() -> None:
     markup, theme = _specimen_markup()
-    for letter in "SŁOWA":
+    for letter in "SŁOWIKI":
         assert f">{letter}</text>" in markup
     assert "×3" in markup
     assert f'fill="{theme.board.star}"' in markup
@@ -170,11 +175,11 @@ def test_brand_pages_carry_the_product_name() -> None:
     theme = _light_theme()
     tiles = resolve_scheme(CONFIG_DIR, "literaki").tiles
     og_markup = document(og_image(theme, tiles))
-    assert ">Literabble</text>" in og_markup
-    for letter in "SŁOWA":
+    assert ">Słowiki</text>" in og_markup
+    for letter in "SŁOWIKI":
         assert f">{letter}</text>" in og_markup
     splash_markup = document(splash(theme))
-    assert ">Literabble</text>" in splash_markup
+    assert ">Słowiki</text>" in splash_markup
     assert "translate(" in splash_markup
 
 

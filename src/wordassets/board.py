@@ -13,7 +13,7 @@ from wordgames.names import GameName
 from wordtable.config import PremiumTokens, ThemeTokens
 
 SPECIMEN_WORDS: Final[dict[GameName, str]] = {
-    GameName.LITERAKI: "SŁOWA",
+    GameName.LITERAKI: "SŁOWIKI",
     GameName.SCRABBLE: "WORDS",
 }
 

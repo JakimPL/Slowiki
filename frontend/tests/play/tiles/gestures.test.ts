@@ -98,8 +98,9 @@ describe("dropEffects", () => {
         ]);
     });
 
-    it("takes a pending tile back when it lands outside every region", () => {
+    it("sends a tile let go clear of every region home to the rack", () => {
         expect(dropEffects({ kind: "cell", cell: CELL }, KAY, null, true)).toEqual([{ kind: "take-back", cell: CELL }]);
+        expect(dropEffects({ kind: "tray" }, KAY, null, true)).toEqual([{ kind: "retrieve", id: 7, before: null }]);
         expect(dropEffects({ kind: "rack" }, KAY, null, true)).toEqual([]);
     });
 });

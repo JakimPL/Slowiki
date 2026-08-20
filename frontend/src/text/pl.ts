@@ -82,7 +82,7 @@ export const PL: Catalog = {
         "hand.tile": "Płytka {letter} · {value}",
         "hand.tray_hint": "Odłóż tu płytki, aby je wymienić albo odstawić.",
         "hand.tray_label": "Taca wymiany",
-        "product.name": "Literabble",
+        "product.name": "Słowiki",
         "product.style_fallback": "Styl z serwera jest niedostępny — pokazujemy wbudowaną paletę.",
         "product.tagline": "Konfigurowalny stół do literaków i scrabble.",
         "seats.fallback_name": "Gracz {seat}",

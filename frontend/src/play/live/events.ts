@@ -29,15 +29,15 @@ export function accompanied(state: TableState, company: CompanyView): TableState
     return { ...state, company };
 }
 
+export function positioned(state: TableState, view: PositionView): TableState {
+    return { ...state, view };
+}
+
 export function refreshed(state: TableState, response: TableViewResponse): TableState {
     if (response.seq < state.seq) {
         return state;
     }
     return { ...openedFrom(response), log: state.log };
-}
-
-export function gathered(company: CompanyView): boolean {
-    return company.seats.every((seated) => seated.claimed);
 }
 
 export function seatedAs(view: PositionView): number | null {

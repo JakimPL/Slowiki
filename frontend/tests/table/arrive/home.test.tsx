@@ -15,7 +15,7 @@ describe("Home", () => {
                 <Home invitedCode="KWPZTR" themeNote={null} onArrive={NOBODY} onResume={null} onForget={NOBODY} />
             </SettingsProvider>,
         );
-        expect(markup).toContain("Literabble");
+        expect(markup).toContain("Słowiki");
         expect(markup).toContain('value="KWPZTR"');
         expect(markup).toContain("Join the table");
         expect(markup).not.toContain("Start the table");

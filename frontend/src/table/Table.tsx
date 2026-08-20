@@ -51,7 +51,7 @@ import { Controls } from "./hand/Controls";
 import { Rack } from "./hand/Rack";
 import { Tray } from "./hand/Tray";
 import type { TileBindings } from "./input/bindings";
-import type { Carry, Grasp, GraspSession } from "./input/dragging";
+import type { Carry, DragPoint, Grasp, GraspSession } from "./input/dragging";
 import { carriedTo, crowded, isCarry } from "./input/dragging";
 import type { KeyHandlers } from "./input/keys";
 import { boundKeys } from "./input/keys";
@@ -350,18 +350,22 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
             };
         },
     };
-    const travel = (event: ReactPointerEvent<HTMLDivElement>): void => {
+    const carryOn = (point: DragPoint): void => {
         const session = sessionRef.current;
         if (session === null) {
             return;
         }
-        const point = { x: event.clientX, y: event.clientY };
         if (!session.carrying && isCarry(session.start, point)) {
             session.carrying = true;
         }
         if (session.carrying) {
             setCarry(carriedTo(session, point));
         }
+    };
+    const travel = (event: ReactPointerEvent<HTMLDivElement>): void => {
+        const point = { x: event.clientX, y: event.clientY };
+        hold?.travelled(point);
+        carryOn(point);
     };
     const release = (event: ReactPointerEvent<HTMLDivElement>): void => {
         const session = sessionRef.current;

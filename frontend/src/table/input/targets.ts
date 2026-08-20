@@ -15,6 +15,7 @@ export interface SlotRect {
 export interface TargetMap {
     readonly size: number;
     readonly board: Rect | null;
+    readonly viewport: Rect | null;
     readonly rack: Rect | null;
     readonly rackSlots: readonly SlotRect[];
     readonly tray: Rect | null;
@@ -25,6 +26,7 @@ export function targetsFrom(root: HTMLElement, size: number): TargetMap {
     return {
         size,
         board: regionRect(root, "board"),
+        viewport: regionRect(root, "board-view"),
         rack: regionRect(root, "rack"),
         rackSlots: slotRects(root, "rack"),
         tray: regionRect(root, "tray"),
@@ -33,8 +35,9 @@ export function targetsFrom(root: HTMLElement, size: number): TargetMap {
 }
 
 export function landingAt(targets: TargetMap, x: number, y: number): Landing | null {
-    if (targets.board !== null && within(targets.board, x, y)) {
-        return { kind: "cell", cell: cellAt(targets.board, targets.size, x, y) };
+    const board = seenBoard(targets, x, y);
+    if (board !== null) {
+        return { kind: "cell", cell: cellAt(board, targets.size, x, y) };
     }
     if (targets.rack !== null && within(targets.rack, x, y)) {
         return { kind: "rack", before: slotBefore(targets.rackSlots, x, y) };
@@ -43,6 +46,14 @@ export function landingAt(targets: TargetMap, x: number, y: number): Landing | n
         return { kind: "tray", before: slotBefore(targets.traySlots, x, y) };
     }
     return null;
+}
+
+function seenBoard(targets: TargetMap, x: number, y: number): Rect | null {
+    const inViewport = targets.viewport === null || within(targets.viewport, x, y);
+    if (targets.board === null || !inViewport || !within(targets.board, x, y)) {
+        return null;
+    }
+    return targets.board;
 }
 
 function regionRect(root: HTMLElement, region: string): Rect | null {

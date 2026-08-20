@@ -1,6 +1,6 @@
 # Architecture
 
-Literabble follows the CardWork architecture: a pure, synchronous game core
+_Słowiki_ follows the CardWork architecture: a pure, synchronous game core
 surrounded by a transport adapter, game presets, a dictionary subproject, and a
 composition root.
 
@@ -85,7 +85,11 @@ design contract.
   late a client connects.
 - `POST /tables/{table_id}/moves`, `DELETE /tables/{table_id}/premove` — play.
 - `GET /tables/{table_id}/events` — the SSE stream: numbered journal frames plus
-  unnumbered `presence` and `clock` frames.
+  unnumbered `presence`, `position` and `clock` frames. A stream opens by stating
+  the observer's whole standing — the company, the observer's own projection, and
+  the turn clock — and a `position` frame follows whenever that projection changes
+  for a reason the journal does not record, so the letters ride the wakeup that
+  carries the turn.
 - `/artwork` — the generated asset tree (icons, brand art, board specimens);
   `/favicon.ico` serves from it.
 
@@ -104,9 +108,11 @@ default and rides in the description as `parameters.time`.
 
 The server runs on a single asyncio event loop. Per-table state is guarded by an
 `asyncio.Condition` inside `TableSession`; HTTP handlers await, turn timers use
-`asyncio.sleep`, and SSE streams wait on the condition. Dictionary compilation
-and loading run through `asyncio.to_thread` inside the `LexiconService`, so the
-event loop never blocks on disk or CPU-heavy lexicon work.
+`asyncio.sleep`, and SSE streams wait on the condition. A stream looks for fresh
+frames and waits for the next notification inside one critical section, so a frame
+committed while a stream settles into its wait reaches that stream at once.
+Dictionary compilation and loading run through `asyncio.to_thread` inside the
+`LexiconService`, so the event loop never blocks on disk or CPU-heavy lexicon work.
 
 ## Import contracts
 

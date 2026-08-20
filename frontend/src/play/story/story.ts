@@ -1,4 +1,5 @@
 import type { CompanyView, PositionView } from "../../api/views";
+import { gathered } from "../seats/company";
 
 export type StoryKind = "over" | "acting" | "gathering" | "watching";
 
@@ -15,7 +16,7 @@ export function storyFor(view: PositionView, company: CompanyView, mySeat: numbe
         const winners = view.players.filter((seat) => (view.scores[String(seat)] ?? 0) === top);
         return { kind: "over", seats: winners, points: top, mine: mySeat !== null && winners.includes(mySeat) };
     }
-    if (company.seats.some((seated) => !seated.claimed)) {
+    if (!gathered(company)) {
         return { kind: "gathering", seats: [], points: null, mine: false };
     }
     if (mySeat !== null && view.to_act.includes(mySeat)) {

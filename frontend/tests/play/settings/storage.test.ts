@@ -37,22 +37,22 @@ describe("settings storage", () => {
 
     it("adopts the choices a previous version stored under its own keys", () => {
         const storage = aStorage({
-            "literabble-mode": "dark",
-            "literabble-locale": "pl",
-            "literabble-notices": "on",
+            "slowiki-mode": "dark",
+            "slowiki-locale": "pl",
+            "slowiki-notices": "on",
         });
         expect(storedSettings(storage)).toEqual({ mode: "dark", motion: "system", locale: "pl", notices: true });
         expect(storage.entries.has(SETTINGS_STORAGE_KEY)).toBe(true);
-        expect(storage.entries.has("literabble-mode")).toBe(false);
-        expect(storage.entries.has("literabble-locale")).toBe(false);
-        expect(storage.entries.has("literabble-notices")).toBe(false);
+        expect(storage.entries.has("slowiki-mode")).toBe(false);
+        expect(storage.entries.has("slowiki-locale")).toBe(false);
+        expect(storage.entries.has("slowiki-notices")).toBe(false);
     });
 
     it("adopts once and reads the record from then on", () => {
-        const storage = aStorage({ "literabble-mode": "light" });
+        const storage = aStorage({ "slowiki-mode": "light" });
         expect(storedSettings(storage).mode).toBe("light");
         rememberSettings({ ...DEFAULT_SETTINGS, mode: "dark" }, storage);
-        storage.setItem("literabble-mode", "light");
+        storage.setItem("slowiki-mode", "light");
         expect(storedSettings(storage).mode).toBe("dark");
     });
 });
