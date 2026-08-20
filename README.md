@@ -39,12 +39,12 @@ The offerings endpoint lists a scheme once its dictionary archive is present in
 
 ## Deployment
 
-`deploy/main.py` is the WSGI application a host serves the game through. It
-keeps the game server process alive on `127.0.0.1:8532`, starts it on the first
-request, and proxies every request, SSE streams included, to it. `touch
-tmp/restart.txt` retires the running server, and the next request starts it
-afresh from the files as they now stand. The port in `deploy/main.py` matches
-`service.port` in `config/config.yaml`.
+Railway builds and serves the game from the `Dockerfile`: it downloads the SJP
+dictionary archive, compiles the lexicon, generates the API client, strings,
+and artwork, and builds the frontend bundle. The container runs the game server
+on `0.0.0.0` and Railway's `$PORT`, serving the API and the frontend from one
+origin. Create a Railway service from the repository; `railway.json` pins the
+Dockerfile build and the `/offerings` health check.
 
 ## Development
 
