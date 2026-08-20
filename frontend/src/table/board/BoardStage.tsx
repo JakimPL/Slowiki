@@ -23,6 +23,8 @@ const GESTURES: ReactZoomPanPinchProps = {
     wheel: { wheelDisabled: true },
 };
 
+const BOARD_VIEW = { "data-region": "board-view" };
+
 export interface BoardStageProps {
     readonly onZoom: () => void;
     readonly children: ReactNode;
@@ -41,7 +43,7 @@ export function BoardStage({ onZoom, children }: BoardStageProps): ReactElement 
                     setMagnified(zoomed(stage.state.scale));
                 }}
             >
-                <TransformComponent wrapperClass="board-frame" contentClass="board-stage">
+                <TransformComponent wrapperClass="board-frame" contentClass="board-stage" wrapperProps={BOARD_VIEW}>
                     {children}
                 </TransformComponent>
             </TransformWrapper>
