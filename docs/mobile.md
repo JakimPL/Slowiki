@@ -18,7 +18,7 @@ Capacitor wraps the built bundle in the platform's own WebView, so the shell sta
 The steps, all inside `frontend/`:
 
 1. `npm install @capacitor/core` and `npm install --save-dev @capacitor/cli`.
-2. `npx cap init Literabble com.example.literabble --web-dir ../build/frontend`.
+2. `npx cap init Slowiki com.example.slowiki --web-dir ../build/frontend`.
 3. Point the app at the hosted table server in `capacitor.config.ts`:
    `server: { url: "https://<deployment>" }`. The frontend uses relative URLs throughout, so the
    wrapped app talks to the same API the browser does.

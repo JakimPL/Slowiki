@@ -1,7 +1,7 @@
 {
-    "name": "Literabble",
-    "short_name": "Literabble",
-    "description": "A configurable Literaki and Scrabble table.",
+    "name": "Słowiki",
+    "short_name": "Słowiki",
+    "description": "A configurable Literaki/Scrabble-like table.",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#F3EDDF",

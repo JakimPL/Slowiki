@@ -694,72 +694,6 @@ wheels = [
 ]
 
 [[package]]
-name = "literabble"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "pydantic" },
-]
-
-[package.optional-dependencies]
-morphology = [
-    { name = "morfeusz2" },
-    { name = "pyyaml" },
-]
-server = [
-    { name = "fastapi" },
-    { name = "pyyaml" },
-    { name = "uvicorn", extra = ["standard"] },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "black" },
-    { name = "httpx" },
-    { name = "hypothesis" },
-    { name = "import-linter" },
-    { name = "isort" },
-    { name = "mypy" },
-    { name = "pre-commit" },
-    { name = "pylint" },
-    { name = "pylint-pydantic" },
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "pytest-cov" },
-    { name = "pytest-xdist" },
-    { name = "types-pyyaml" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "fastapi", marker = "extra == 'server'", specifier = ">=0.115" },
-    { name = "morfeusz2", marker = "extra == 'morphology'", specifier = "==1.99.15" },
-    { name = "pydantic", specifier = ">=2.9" },
-    { name = "pyyaml", marker = "extra == 'morphology'", specifier = ">=6.0" },
-    { name = "pyyaml", marker = "extra == 'server'", specifier = ">=6.0" },
-    { name = "uvicorn", extras = ["standard"], marker = "extra == 'server'", specifier = ">=0.30" },
-]
-provides-extras = ["server", "morphology"]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "black", specifier = ">=24.10" },
-    { name = "httpx", specifier = ">=0.27" },
-    { name = "hypothesis", specifier = ">=6.100" },
-    { name = "import-linter", specifier = ">=2.1" },
-    { name = "isort", specifier = ">=5.13" },
-    { name = "mypy", specifier = ">=1.11" },
-    { name = "pre-commit", specifier = ">=3.8" },
-    { name = "pylint", specifier = ">=3.2" },
-    { name = "pylint-pydantic", specifier = ">=0.3" },
-    { name = "pytest", specifier = ">=8.2" },
-    { name = "pytest-asyncio", specifier = ">=0.24" },
-    { name = "pytest-cov", specifier = ">=5.0" },
-    { name = "pytest-xdist", specifier = ">=3.6" },
-    { name = "types-pyyaml", specifier = ">=6.0" },
-]
-
-[[package]]
 name = "markdown-it-py"
 version = "4.2.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1228,6 +1162,72 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/c0/8f/0722ca900cc807c13a6a0c696dacf35430f72e0ec571c4275d2371fca3e9/rich-15.0.0.tar.gz", hash = "sha256:edd07a4824c6b40189fb7ac9bc4c52536e9780fbbfbddf6f1e2502c31b068c36", size = 230680, upload-time = "2026-04-12T08:24:00.75Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/82/3b/64d4899d73f91ba49a8c18a8ff3f0ea8f1c1d75481760df8c68ef5235bf5/rich-15.0.0-py3-none-any.whl", hash = "sha256:33bd4ef74232fb73fe9279a257718407f169c09b78a87ad3d296f548e27de0bb", size = 310654, upload-time = "2026-04-12T08:24:02.83Z" },
+]
+
+[[package]]
+name = "slowiki"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "pydantic" },
+]
+
+[package.optional-dependencies]
+morphology = [
+    { name = "morfeusz2" },
+    { name = "pyyaml" },
+]
+server = [
+    { name = "fastapi" },
+    { name = "pyyaml" },
+    { name = "uvicorn", extra = ["standard"] },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "black" },
+    { name = "httpx" },
+    { name = "hypothesis" },
+    { name = "import-linter" },
+    { name = "isort" },
+    { name = "mypy" },
+    { name = "pre-commit" },
+    { name = "pylint" },
+    { name = "pylint-pydantic" },
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "pytest-cov" },
+    { name = "pytest-xdist" },
+    { name = "types-pyyaml" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fastapi", marker = "extra == 'server'", specifier = ">=0.115" },
+    { name = "morfeusz2", marker = "extra == 'morphology'", specifier = "==1.99.15" },
+    { name = "pydantic", specifier = ">=2.9" },
+    { name = "pyyaml", marker = "extra == 'morphology'", specifier = ">=6.0" },
+    { name = "pyyaml", marker = "extra == 'server'", specifier = ">=6.0" },
+    { name = "uvicorn", extras = ["standard"], marker = "extra == 'server'", specifier = ">=0.30" },
+]
+provides-extras = ["server", "morphology"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "black", specifier = ">=24.10" },
+    { name = "httpx", specifier = ">=0.27" },
+    { name = "hypothesis", specifier = ">=6.100" },
+    { name = "import-linter", specifier = ">=2.1" },
+    { name = "isort", specifier = ">=5.13" },
+    { name = "mypy", specifier = ">=1.11" },
+    { name = "pre-commit", specifier = ">=3.8" },
+    { name = "pylint", specifier = ">=3.2" },
+    { name = "pylint-pydantic", specifier = ">=0.3" },
+    { name = "pytest", specifier = ">=8.2" },
+    { name = "pytest-asyncio", specifier = ">=0.24" },
+    { name = "pytest-cov", specifier = ">=5.0" },
+    { name = "pytest-xdist", specifier = ">=3.6" },
+    { name = "types-pyyaml", specifier = ">=6.0" },
 ]
 
 [[package]]

@@ -1,4 +1,4 @@
-export const NAME_STORAGE_KEY = "literabble-name";
+export const NAME_STORAGE_KEY = "slowiki-name";
 
 export function storedName(storage: Pick<Storage, "getItem">): string {
     return storage.getItem(NAME_STORAGE_KEY) ?? "";

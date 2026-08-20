@@ -5,7 +5,7 @@ import { clearedLegacy, legacySettings } from "./legacy";
 import type { Settings } from "./settings";
 import { DEFAULT_SETTINGS } from "./settings";
 
-export const SETTINGS_STORAGE_KEY = "literabble-settings";
+export const SETTINGS_STORAGE_KEY = "slowiki-settings";
 
 export type SettingsStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 

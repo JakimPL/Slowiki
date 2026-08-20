@@ -7,13 +7,13 @@ from wordassets.tiles import tile_group
 from wordcore.tiles.tile import TilePreset
 from wordtable.config import ThemeTokens
 
-PRODUCT_NAME: Final = "Literabble"
+PRODUCT_NAME: Final = "Słowiki"
 
 _OG_WIDTH: Final = 1200.0
 _OG_HEIGHT: Final = 630.0
 _OG_TILE: Final = 130.0
 _OG_TILE_GAP: Final = 14.0
-_OG_WORD: Final = "SŁOWA"
+_OG_WORD: Final = "SŁOWIKI"
 _OG_NAME_SIZE: Final = 92.0
 _OG_NAME_WEIGHT: Final = 900
 _OG_NAME_DROP: Final = 0.74

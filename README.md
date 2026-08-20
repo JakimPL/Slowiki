@@ -1,6 +1,6 @@
-# Literabble
+# Słowiki
 
-A configurable Literaki and Scrabble word game for the web.
+A configurable Literaki/Scrabble-like word game for the web.
 
 ![Literaki board](docs/media/board-literaki.svg)
 

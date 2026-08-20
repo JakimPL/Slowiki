@@ -47,8 +47,10 @@ const SPECIMEN: readonly Tile[] = [
     { identifier: 1, letter: "S", value: 0, category: "yellow", blank: false },
     { identifier: 2, letter: "Ł", value: 0, category: "blue", blank: false },
     { identifier: 3, letter: "O", value: 0, category: "yellow", blank: false },
-    { identifier: 4, letter: "W", value: 0, category: "green", blank: false },
-    { identifier: 5, letter: "A", value: 0, category: "red", blank: false },
+    { identifier: 4, letter: "W", value: 0, category: "yellow", blank: false },
+    { identifier: 5, letter: "I", value: 0, category: "yellow", blank: false },
+    { identifier: 6, letter: "K", value: 0, category: "green", blank: false },
+    { identifier: 7, letter: "I", value: 0, category: "yellow", blank: false },
 ];
 
 export function Home({ invitedCode, themeNote, onArrive, onResume, onForget }: HomeProps): ReactElement {

@@ -1,4 +1,4 @@
-export const NOTICE_TAG = "literabble-turn";
+export const NOTICE_TAG = "slowiki-turn";
 
 const GRANTED = "granted";
 

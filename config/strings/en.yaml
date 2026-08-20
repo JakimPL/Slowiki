@@ -1,6 +1,6 @@
 product:
-  name: Literabble
-  tagline: A configurable Literaki and Scrabble table.
+  name: Słowiki
+  tagline: A configurable Literaki/Scrabble-like table.
   style_fallback: Server style unavailable — showing the built-in palette.
 
 connection:

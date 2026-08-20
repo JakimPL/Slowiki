@@ -3,9 +3,9 @@ import { knownMode } from "../device/mode";
 import type { Settings } from "./settings";
 import { DEFAULT_SETTINGS } from "./settings";
 
-const MODE_KEY = "literabble-mode";
-const LOCALE_KEY = "literabble-locale";
-const NOTICES_KEY = "literabble-notices";
+const MODE_KEY = "slowiki-mode";
+const LOCALE_KEY = "slowiki-locale";
+const NOTICES_KEY = "slowiki-notices";
 const NOTICES_WANTED = "on";
 
 const KEYS: readonly string[] = [MODE_KEY, LOCALE_KEY, NOTICES_KEY];
