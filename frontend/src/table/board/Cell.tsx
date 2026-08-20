@@ -41,6 +41,7 @@ export function Cell({
     bindings,
     hold,
 }: CellProps): ReactElement {
+    const ground = groundOf(bonus, star);
     if (tile !== null) {
         return (
             <div
@@ -66,23 +67,22 @@ export function Cell({
             </div>
         );
     }
-    if (pending !== null && bindings !== null) {
-        return (
-            <span className="cell" data-drop={drop ? "true" : undefined}>
-                <GraspTile tile={pending} spot={{ kind: "cell", cell }} pending={true} bindings={bindings} />
-            </span>
-        );
-    }
     if (pending !== null) {
         return (
             <div className="cell" data-drop={drop ? "true" : undefined}>
-                <TileFace tile={pending} pending={true} />
+                {ground}
+                {bindings === null ? (
+                    <TileFace tile={pending} pending={true} />
+                ) : (
+                    <GraspTile tile={pending} spot={{ kind: "cell", cell }} pending={true} bindings={bindings} />
+                )}
             </div>
         );
     }
     if (ghost !== null) {
         return (
             <div className="cell">
+                {ground}
                 <TileFace tile={ghost} ghost={true} />
             </div>
         );
@@ -98,18 +98,18 @@ export function Cell({
                     onLay(cell);
                 }}
             >
-                {ground(bonus, star)}
+                {ground}
             </button>
         );
     }
     return (
         <div className="cell" data-drop={drop ? "true" : undefined}>
-            {ground(bonus, star)}
+            {ground}
         </div>
     );
 }
 
-function ground(bonus: Bonus | null, star: boolean): ReactElement | null {
+function groundOf(bonus: Bonus | null, star: boolean): ReactElement | null {
     if (star) {
         return (
             <>

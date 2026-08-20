@@ -79,6 +79,34 @@ describe("Board", () => {
         expect(carried).toContain('data-carried="true"');
     });
 
+    it("keeps a premium lit under a tile that is still being placed", () => {
+        const board = aBoard({}, { [CENTER]: { kind: "letter_multiplier", multiplier: 3, category: null } });
+        const pending = new Map<number, Tile>([[CENTER, aTile({ identifier: 7, letter: "K" })]]);
+        const carried = renderToStaticMarkup(
+            <Board {...PASSIVE} board={board} pending={pending} bindings={stubBindings(null, 7)} />,
+        );
+        expect(carried).toContain("--premium-letter-3-fill");
+        expect(carried).toContain('data-carried="true"');
+    });
+
+    it("keeps a premium lit under a queued premove ghost", () => {
+        const board = aBoard({}, { 0: { kind: "category_multiplier", multiplier: 3, category: "yellow" } });
+        const ghosts = new Map<number, Tile>([[0, aTile({ letter: "K" })]]);
+        const markup = renderToStaticMarkup(<Board {...PASSIVE} board={board} ghosts={ghosts} />);
+        expect(markup).toContain("--category-yellow-fill");
+        expect(markup).toContain('data-ghost="true"');
+    });
+
+    it("covers a spent premium with the tile standing on it", () => {
+        const board = aBoard(
+            { 0: aTile({ letter: "W" }) },
+            { 0: { kind: "word_multiplier", multiplier: 2, category: null } },
+        );
+        const markup = renderToStaticMarkup(<Board {...PASSIVE} board={board} />);
+        expect(markup).toContain(">W<");
+        expect(markup).not.toContain("--premium-word-2-fill");
+    });
+
     it("marks empty cells as targets while a tile is lifted", () => {
         const markup = renderToStaticMarkup(
             <Board {...PASSIVE} board={aBoard()} targeting={true} onLay={() => undefined} />,

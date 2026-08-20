@@ -84,9 +84,11 @@ feedback line, rack, tray, controls, and the docket at its foot.
   strength over whatever square it falls on, every tile keeping a margin inside its square so a word
   reads as a row of tiles, the last play framed end to end in the mover's tint and waving until the
   player has seen it, pending tiles raised above their neighbors with a solid accent ring, premove
-  ghosts at reduced opacity in the premove accent. The board carries a scale of its own, up to three
-  times the size it is fitted at, and while it stands magnified a quiet *Fit* control in the corner
-  of the region returns it.
+  ghosts at reduced opacity in the premove accent. A square holds its watermark under a tile that is
+  still being placed — a pending tile or a premove ghost — so lifting or carrying that tile shows the
+  premium it would spend; a played tile covers the premium it has spent, which is what a spent square
+  looks like. The board carries a scale of its own, up to three times the size it is fitted at, and
+  while it stands magnified a quiet *Fit* control in the corner of the region returns it.
 - **Feedback line** — one fixed-height slot showing, in order of precedence: the refusal or
   notice sentence, the formed-word chips (points and status dot each) while a draft stands, the
   returned-premove explanation, the queued-premove chip with its Cancel action, the connection
