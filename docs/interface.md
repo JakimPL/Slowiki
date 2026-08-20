@@ -84,9 +84,11 @@ feedback line, rack, tray, controls, and the docket at its foot.
   strength over whatever square it falls on, every tile keeping a margin inside its square so a word
   reads as a row of tiles, the last play framed end to end in the mover's tint and waving until the
   player has seen it, pending tiles raised above their neighbors with a solid accent ring, premove
-  ghosts at reduced opacity in the premove accent. The board carries a scale of its own, up to three
-  times the size it is fitted at, and while it stands magnified a quiet *Fit* control in the corner
-  of the region returns it.
+  ghosts at reduced opacity in the premove accent. A square holds its watermark under a tile that is
+  still being placed — a pending tile or a premove ghost — so lifting or carrying that tile shows the
+  premium it would spend; a played tile covers the premium it has spent, which is what a spent square
+  looks like. The board carries a scale of its own, up to three times the size it is fitted at, and
+  while it stands magnified a quiet *Fit* control in the corner of the region returns it.
 - **Feedback line** — one fixed-height slot showing, in order of precedence: the refusal or
   notice sentence, the formed-word chips (points and status dot each) while a draft stands, the
   returned-premove explanation, the queued-premove chip with its Cancel action, the connection
@@ -157,17 +159,26 @@ tiles carry while base forms and paradigm cells print lowercase.
 
 ## Gesture vocabulary
 
-One pointer code path serves mouse and touch: press-and-release within 6 px is a tap, further
-travel is a drag, and a press held in place on a standing tile reads the word instead of moving it. On touch, the carried tile ghosts above the finger and the computed target cell
-shows a high-contrast ring. While a tile travels, its resting place dims to a shadow, and the row it
-would join — rack or tray — carries an accent ring with a tile-shaped landing slot at the insertion
-point. The page holds one scale — the browser's own pinch zoom, double-tap zoom, and long-press
-callout stay off — so a gesture over the board is always a game gesture. Two fingers on the board
-magnify it, and the board follows the point between them, so the same gesture that zooms also moves.
-A trackpad pinch or a modifier-held wheel reaches the same scale on a pointing device, anchored where
-the cursor rests. One finger keeps every meaning it already has, over the board and everywhere else.
-The moment a second pointer arrives, the grasp it interrupts is let go and any building
-press-and-hold stops: the tile stays where it started and the pinch takes the gesture from there.
+One pointer code path serves mouse and touch: press-and-release within 6 px is a tap, further travel
+is a drag, and a press held in place on a standing tile reads the word instead of moving it — in
+place meaning within that same 6 px, so travel past it hands the gesture on. On touch, the carried
+tile ghosts above the finger and the computed target cell shows a high-contrast ring. While a tile
+travels, its resting place dims to a shadow, and the row it would join — rack or tray — carries an
+accent ring with a tile-shaped landing slot at the insertion point. A release lands where the player
+is looking: the part of the board in view takes the tile, the rack and the tray take it at the
+insertion point, and a release anywhere else sends it home to the rack, whether it was carried from
+a square, from the tray, or from the rack itself. The page holds one scale — the browser's own pinch
+zoom, double-tap zoom, and long-press callout stay off — so a gesture over the board is always a
+game gesture. Two fingers on the board magnify it, and the board follows the point between them, so
+the same gesture that zooms also moves. A trackpad pinch or a modifier-held wheel reaches the same
+scale on a pointing device, anchored where the cursor rests. A magnified board also moves under one
+finger: a press where the board answers for itself — a square's ground, a tile already standing —
+drags the board into view, and the board follows the finger exactly and rests where it is let go,
+while a press on a tile still being arranged, or on a square offered as its landing, belongs to the
+tile. A pointing device reaches the same movement by dragging, by the wheel, or by a two-finger
+trackpad scroll. At the fitted size the board fills its frame and rests there. The moment a second
+pointer arrives, the grasp it interrupts is let go and any building press-and-hold stops: the tile
+stays where it started and the pinch takes the gesture from there.
 
 Desk effects — the only mutation vocabulary, shared by tap and drag:
 

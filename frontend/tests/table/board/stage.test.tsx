@@ -19,6 +19,16 @@ describe("BoardStage", () => {
         expect(markup.indexOf("board-stage")).toBeLessThan(markup.indexOf('class="board"'));
     });
 
+    it("names the clipping frame as the window the board is seen through", () => {
+        const markup = renderToStaticMarkup(
+            <BoardStage onZoom={QUIET}>
+                <div className="board" />
+            </BoardStage>,
+        );
+        expect(markup).toContain('data-region="board-view"');
+        expect(markup.indexOf('data-region="board-view"')).toBeLessThan(markup.indexOf("board-stage"));
+    });
+
     it("keeps the fit control away while the board sits at its fitted size", () => {
         const markup = renderToStaticMarkup(
             <BoardStage onZoom={QUIET}>

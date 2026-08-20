@@ -5,6 +5,7 @@ import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
 import { MAX_SCALE, MIN_SCALE, zoomed } from "../../play/board/zoom";
 import { BOARD_FIT, BOARD_FIT_LABEL } from "../strings";
+import { SQUARE_CONTROL } from "./control";
 
 const GESTURES: ReactZoomPanPinchProps = {
     minScale: MIN_SCALE,
@@ -12,16 +13,19 @@ const GESTURES: ReactZoomPanPinchProps = {
     limitToBounds: true,
     centerZoomedOut: true,
     panning: {
-        excluded: ["board"],
-        allowLeftClickPan: false,
+        excluded: [SQUARE_CONTROL],
+        allowLeftClickPan: true,
         allowMiddleClickPan: false,
         allowRightClickPan: false,
+        velocityDisabled: true,
     },
     pinch: { allowPanning: true },
-    trackPadPanning: { disabled: true },
+    trackPadPanning: { disabled: false },
     doubleClick: { disabled: true },
     wheel: { wheelDisabled: true },
 };
+
+const BOARD_VIEW = { "data-region": "board-view" };
 
 export interface BoardStageProps {
     readonly onZoom: () => void;
@@ -41,7 +45,7 @@ export function BoardStage({ onZoom, children }: BoardStageProps): ReactElement 
                     setMagnified(zoomed(stage.state.scale));
                 }}
             >
-                <TransformComponent wrapperClass="board-frame" contentClass="board-stage">
+                <TransformComponent wrapperClass="board-frame" contentClass="board-stage" wrapperProps={BOARD_VIEW}>
                     {children}
                 </TransformComponent>
             </TransformWrapper>

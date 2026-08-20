@@ -1,6 +1,6 @@
 import { standingIn } from "./session";
 
-export const SEAT_STORAGE_KEY = "literabble-seat";
+export const SEAT_STORAGE_KEY = "slowiki-seat";
 
 export function storedSeat(storage: Pick<Storage, "getItem">): string | null {
     const held = storage.getItem(SEAT_STORAGE_KEY);

@@ -1,6 +1,6 @@
 # Architecture
 
-Literabble follows the CardWork architecture: a pure, synchronous game core
+_Słowiki_ follows the CardWork architecture: a pure, synchronous game core
 surrounded by a transport adapter, game presets, a dictionary subproject, and a
 composition root.
 

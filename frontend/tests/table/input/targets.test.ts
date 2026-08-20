@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { CARRY_THRESHOLD, isCarry } from "../../../src/table/input/dragging";
 import type { TargetMap } from "../../../src/table/input/targets";
 import { landingAt } from "../../../src/table/input/targets";
 
 const MAP: TargetMap = {
     size: 15,
     board: { left: 0, top: 0, width: 300, height: 300 },
+    viewport: { left: 0, top: 0, width: 300, height: 300 },
     rack: { left: 0, top: 320, width: 300, height: 50 },
     rackSlots: [
         { id: 1, rect: { left: 10, top: 320, width: 40, height: 50 } },
@@ -36,10 +36,18 @@ describe("landingAt", () => {
     });
 });
 
-describe("isCarry", () => {
-    it("treats short travel as a press and longer travel as a carry", () => {
-        expect(isCarry({ x: 0, y: 0 }, { x: CARRY_THRESHOLD, y: 0 })).toBe(false);
-        expect(isCarry({ x: 0, y: 0 }, { x: CARRY_THRESHOLD + 1, y: 0 })).toBe(true);
-        expect(isCarry({ x: 10, y: 10 }, { x: 14, y: 17 })).toBe(true);
+describe("landingAt over a magnified board", () => {
+    const MAGNIFIED: TargetMap = { ...MAP, board: { left: -300, top: -300, width: 900, height: 900 } };
+
+    it("maps a point the player can see onto the square under it", () => {
+        expect(landingAt(MAGNIFIED, 150, 150)).toEqual({ kind: "cell", cell: 7 * 15 + 7 });
+    });
+
+    it("leaves the rack reachable under the magnified board's own rectangle", () => {
+        expect(landingAt(MAGNIFIED, 5, 340)).toEqual({ kind: "rack", before: 1 });
+    });
+
+    it("counts the clipped-away board as the void", () => {
+        expect(landingAt(MAGNIFIED, 500, 500)).toBeNull();
     });
 });
