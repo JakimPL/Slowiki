@@ -48,8 +48,9 @@ keeps a single code path:
   turn alerts from a push plugin instead.
 - One fixed page scale, with the board carrying a scale of its own: the viewport meta pins
   `maximum-scale=1` and the table surface allows panning only, so the browser's pinch and double-tap
-  zoom stay out of the way of dragging tiles, and the board answers a two-finger pinch itself, up to
-  three times its fitted size, bounded so it can never be lost off-screen. In a Capacitor shell the
-  page scale comes out the same from the platform WebView — Android sets
+  zoom stay out of the way of dragging tiles, while the board region takes every touch itself: a
+  two-finger pinch magnifies it up to three times its fitted size, and one finger on a square's own
+  ground drags the magnified board into view, bounded so it can never be lost off-screen. In a
+  Capacitor shell the page scale comes out the same from the platform WebView — Android sets
   `setBuiltInZoomControls(false)` on the `WebSettings`, iOS keeps the default `WKWebView` behavior
   with this viewport — and the board's own scale rides along inside the page.

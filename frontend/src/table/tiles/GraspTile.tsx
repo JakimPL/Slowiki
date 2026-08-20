@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 
 import type { Tile } from "../../api/views";
 import type { DeskSpot } from "../../play/board/spot";
+import { SQUARE_CONTROL } from "../board/control";
 import type { TileBindings } from "../input/bindings";
 import { tileCaption } from "../strings";
 import { TileFace } from "./TileFace";
@@ -19,7 +20,7 @@ export function GraspTile({ tile, spot, pending = false, bindings }: GraspTilePr
     return (
         <button
             type="button"
-            className={spot.kind === "cell" ? "cell cell-button" : "rack-tile"}
+            className={spot.kind === "cell" ? `cell ${SQUARE_CONTROL}` : "rack-tile"}
             data-tile={tile.identifier}
             data-lifted={lifted ? "true" : undefined}
             data-carried={tile.identifier === bindings.carried ? "true" : undefined}

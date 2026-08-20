@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 
-import { CARRY_THRESHOLD, isCarry } from "../../../src/table/input/dragging";
 import type { TargetMap } from "../../../src/table/input/targets";
 import { landingAt } from "../../../src/table/input/targets";
 
@@ -50,13 +49,5 @@ describe("landingAt over a magnified board", () => {
 
     it("counts the clipped-away board as the void", () => {
         expect(landingAt(MAGNIFIED, 500, 500)).toBeNull();
-    });
-});
-
-describe("isCarry", () => {
-    it("treats short travel as a press and longer travel as a carry", () => {
-        expect(isCarry({ x: 0, y: 0 }, { x: CARRY_THRESHOLD, y: 0 })).toBe(false);
-        expect(isCarry({ x: 0, y: 0 }, { x: CARRY_THRESHOLD + 1, y: 0 })).toBe(true);
-        expect(isCarry({ x: 10, y: 10 }, { x: 14, y: 17 })).toBe(true);
     });
 });

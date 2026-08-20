@@ -7,6 +7,7 @@ import type { HoldBinding } from "../input/useHold";
 import { slugOf } from "../theme";
 import { GraspTile } from "../tiles/GraspTile";
 import { TileFace } from "../tiles/TileFace";
+import { SQUARE_CONTROL } from "./control";
 
 export interface CellProps {
     readonly cell: number;
@@ -54,13 +55,12 @@ export function Cell({
                 onPointerDown={
                     hold === null
                         ? undefined
-                        : (): void => {
-                              hold.press(cell);
+                        : (event): void => {
+                              hold.press(cell, { x: event.clientX, y: event.clientY });
                           }
                 }
                 onPointerUp={hold?.release}
                 onPointerCancel={hold?.release}
-                onPointerLeave={hold?.release}
                 onTouchEnd={hold?.consumed}
             >
                 <TileFace tile={tile} />
@@ -91,7 +91,7 @@ export function Cell({
         return (
             <button
                 type="button"
-                className="cell cell-button cell-target"
+                className={`cell ${SQUARE_CONTROL} cell-target`}
                 data-drop={drop ? "true" : undefined}
                 aria-label={label}
                 onClick={(): void => {

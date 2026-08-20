@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import type { Tile } from "../../../src/api/views";
 import type { FreshMark } from "../../../src/play/story/fresh";
 import { Board } from "../../../src/table/board/Board";
+import { SQUARE_CONTROL } from "../../../src/table/board/control";
 import { stubBindings } from "../../fixtures/bindings";
 import { aBoard, aTile } from "../../fixtures/positions";
 
@@ -115,6 +116,28 @@ describe("Board", () => {
         expect(markup).toContain('aria-label="Square 8·8"');
     });
 
+    it("marks the squares that answer for a tile with the class the stage keeps from panning", () => {
+        const pending = new Map<number, Tile>([[CENTER, aTile({ letter: "K" })]]);
+        const arranging = renderToStaticMarkup(
+            <Board
+                {...PASSIVE}
+                board={aBoard()}
+                pending={pending}
+                bindings={stubBindings()}
+                targeting={true}
+                onLay={() => undefined}
+            />,
+        );
+        expect(arranging).toContain(`cell ${SQUARE_CONTROL}"`);
+        expect(arranging).toContain(`cell ${SQUARE_CONTROL} cell-target"`);
+    });
+
+    it("leaves a standing tile to the board, so the ground under it moves the board", () => {
+        const board = aBoard({ [CENTER]: aTile({ letter: "W" }) });
+        const markup = renderToStaticMarkup(<Board {...PASSIVE} board={board} />);
+        expect(markup).not.toContain(SQUARE_CONTROL);
+    });
+
     it("renders queued premove ghosts as untargetable translucent faces", () => {
         const ghosts = new Map<number, Tile>([[CENTER, aTile({ letter: "K" })]]);
         const markup = renderToStaticMarkup(
@@ -134,6 +157,7 @@ describe("Board", () => {
         const hold = {
             held: CENTER,
             press: () => undefined,
+            travelled: () => undefined,
             release: () => undefined,
             consumed: () => undefined,
         };
