@@ -43,7 +43,7 @@ def _rule_parameters(
         validate_on_play=scheme.validate_on_play,
         word_check=word_check_offered(scheme),
         premoves_allowed=scheme.premoves,
-        pass_end_limit=scheme.pass_end_limit,
+        pass_end_rounds=scheme.pass_end_rounds,
         scoreless_end_limit=scheme.scoreless_end_limit,
         time=time,
     )

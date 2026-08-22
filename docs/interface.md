@@ -207,9 +207,14 @@ sheet with the scheme's own alphabet.
   adds a page notification for the moment my turn opens while the tab rests.
 - **Premove**: plays and exchanges queue while off turn; a pass always plays on the turn.
   `queued` (the committed tiles leave the rack and stand as board ghosts in the premove accent,
-  beside a "Premove queued — Cancel" chip; submitting again replaces the queue) → `applied`
+  beside a "Premove queued — Cancel" chip; submitting again replaces the queue) → `due` (the turn
+  has opened and the queue holds for a beat, so the opponent's move is read on its own) → `applied`
   (tiles become real with the fresh-play flash) or `returned` (tiles back on the rack with the
-  reason in the feedback line).
+  reason in the feedback line). The beat is the table's `premove_delay_seconds`, and the premover's
+  clock pays for it.
+- **Clock**: a seat whose time is up becomes an observer — every control rests, tiles
+  reach no square, and the guidance line says the time is up. The seat keeps its tiles
+  and its score, and the game plays on to its own end.
 - **Word status**: `unknown` (hollow dot) · `valid` (success accent) · `invalid` (danger, with the
   dictionary's sentence in the guidance line) · `standing` (reserved for challenge schemes).
 - **Word insight**: `absent` (the dictionary refuses the word) · `unclassified` (the word plays, and the

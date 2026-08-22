@@ -183,6 +183,7 @@ guidance:
   detached: Połącz słowo z płytkami na planszy.
   scattered: Ułóż słowo w jednym rzędzie albo w jednej kolumnie.
   gapped: Wypełnij każdą lukę w słowie.
+  out_of_time: Twój czas minął. Możesz obserwować resztę gry.
 
 general:
   list_separator: ", "

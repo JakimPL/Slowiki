@@ -15,3 +15,7 @@ class TableGathering(TableRefused):
 
 class RackMismatch(TableRefused):
     code = ErrorCode.RACK_MISMATCH
+
+
+class OutOfTime(TableRefused):
+    code = ErrorCode.OUT_OF_TIME

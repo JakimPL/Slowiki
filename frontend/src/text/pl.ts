@@ -59,6 +59,7 @@ export const PL: Catalog = {
         "guidance.gapped": "Wypełnij każdą lukę w słowie.",
         "guidance.off_center": "Pierwsze słowo musi przechodzić przez gwiazdkę na środku.",
         "guidance.opening_short": "Pierwsze słowo musi mieć co najmniej dwie płytki.",
+        "guidance.out_of_time": "Twój czas minął. Możesz obserwować resztę gry.",
         "guidance.place": "Dotknij pustego pola, aby położyć płytkę.",
         "guidance.scattered": "Ułóż słowo w jednym rzędzie albo w jednej kolumnie.",
         "hand.bingo": "Bingo +{bonus}",

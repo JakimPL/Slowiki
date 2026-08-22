@@ -1,7 +1,10 @@
 from collections.abc import Callable, Iterable
+from typing import Final
 
 from wordserver.models.clock import ClockView
 from wordtable.config import TimeConfig
+
+_LATENCY_GRACE_SECONDS: Final = 0.5
 
 
 class TurnClock:
@@ -53,18 +56,21 @@ class TurnClock:
         if seat is None or armed_at is None or seat not in self._remaining:
             return
 
-        spent = max(0.0, self._now() - armed_at)
-        left = max(0.0, self._remaining[seat] - spent)
+        elapsed = max(0.0, self._now() - armed_at)
+        left = max(0.0, self._remaining[seat] - elapsed)
         if earns_increment:
             left += self._time.increment_seconds
         self._remaining[seat] = left
 
-    def flagged(self, seat: int) -> bool:
+    def spent(self, seat: int) -> bool:
         left = self._remaining.get(seat)
         return left is not None and left <= 0
 
-    def all_flagged(self) -> bool:
-        return bool(self._remaining) and all(left <= 0 for left in self._remaining.values())
+    def expired(self) -> bool:
+        if self._deadline is None:
+            return False
+
+        return self._now() > self._deadline + _LATENCY_GRACE_SECONDS
 
     def view(self) -> ClockView | None:
         if self._deadline is None or self._seat is None:

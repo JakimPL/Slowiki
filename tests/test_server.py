@@ -1,22 +1,27 @@
 import asyncio
 import json
 import random
-from typing import Any
+from typing import Any, Final
 
 import httpx
 import pytest
 
 from lexica.names import DictionaryName
+from wordcore.errors.rejections import RejectionCode
 from wordcore.games.game import Game
+from wordcore.games.kind import EntryKind
 from wordcore.lexicon.lexicon import TextLexicon
 from wordcore.moves.action import Exchange, Pass
 from wordcore.moves.move import Move
 from wordserver.app import create_app
+from wordserver.errors.exceptions import OutOfTime
 from wordserver.session import TableSession
 from wordtable.build import build_rules
 from wordtable.catalog import resolve_scheme
 from wordtable.config import TimeConfig
 from wordtable.paths import CONFIG_DIR
+
+_PREMOVE_DELAY: Final = 0.05
 
 
 @pytest.fixture
@@ -167,7 +172,12 @@ async def test_session_events_streams_after_submit() -> None:
     resolved = resolve_scheme(CONFIG_DIR, "literaki")
     rules = build_rules(resolved, (0, 1), TextLexicon.from_words(["aa"]))
     game = Game(rules, random.Random(0), premoves_allowed=True)
-    time = TimeConfig(per_turn_seconds=None, increment_seconds=0, total_seconds=None)
+    time = TimeConfig(
+        per_turn_seconds=None,
+        increment_seconds=0,
+        total_seconds=None,
+        premove_delay_seconds=_PREMOVE_DELAY,
+    )
     names: dict[int, str | None] = {0: "Ala", 1: None}
     session = TableSession(game, {0: "token-a", 1: "token-b"}, time, names, lambda: 0.0)
     await session.claim("Bob")
@@ -188,7 +198,12 @@ async def test_presence_frames_follow_claims_and_disconnects() -> None:
     resolved = resolve_scheme(CONFIG_DIR, "literaki")
     rules = build_rules(resolved, (0, 1), TextLexicon.from_words(["aa"]))
     game = Game(rules, random.Random(0), premoves_allowed=True)
-    time = TimeConfig(per_turn_seconds=None, increment_seconds=0, total_seconds=None)
+    time = TimeConfig(
+        per_turn_seconds=None,
+        increment_seconds=0,
+        total_seconds=None,
+        premove_delay_seconds=_PREMOVE_DELAY,
+    )
     names: dict[int, str | None] = {0: "Ala", 1: None}
     session = TableSession(game, {0: "token-a", 1: "token-b"}, time, names, lambda: 0.0)
     stream = session.events(observer=0, since=0)
@@ -217,17 +232,39 @@ class _FakeClock:
 
 
 def _timed_session(seconds: int | None, clock: _FakeClock) -> TableSession:
-    timed = TimeConfig(per_turn_seconds=seconds, increment_seconds=0, total_seconds=None)
+    timed = TimeConfig(
+        per_turn_seconds=seconds,
+        increment_seconds=0,
+        total_seconds=None,
+        premove_delay_seconds=_PREMOVE_DELAY,
+    )
     return _session_with(timed, clock)
 
 
 def _budgeted_session(total: int, increment: int, clock: _FakeClock) -> TableSession:
-    budgeted = TimeConfig(per_turn_seconds=None, increment_seconds=increment, total_seconds=total)
+    budgeted = TimeConfig(
+        per_turn_seconds=None,
+        increment_seconds=increment,
+        total_seconds=total,
+        premove_delay_seconds=_PREMOVE_DELAY,
+    )
     return _session_with(budgeted, clock)
 
 
 def _frame_body(frame: str) -> dict[str, Any]:
     return json.loads(frame.split("data: ", 1)[1])
+
+
+async def _next_event(session: TableSession, observer: int, since: int) -> dict[str, Any]:
+    stream = session.events(observer=observer, since=since)
+    try:
+        async for frame in stream:
+            if frame.startswith("id: "):
+                return _frame_body(frame)
+
+        raise AssertionError("the stream closed before an event arrived")
+    finally:
+        await stream.aclose()
 
 
 def _session_with(time: TimeConfig, clock: _FakeClock) -> TableSession:
@@ -285,14 +322,49 @@ async def test_a_pass_earns_no_increment() -> None:
     session.close()
 
 
-async def test_a_table_of_spent_budgets_rests_instead_of_passing_forever() -> None:
+async def test_a_table_of_spent_budgets_passes_out_to_the_end() -> None:
     clock = _FakeClock()
     session = _budgeted_session(0, 0, clock)
     await session.claim(None)
     await asyncio.sleep(0.2)
+    assert session.seq == 4
+    assert session.view(None).phase == "game_over"
     assert session.clock() is None
+    session.close()
+
+
+async def test_a_spent_seat_is_refused_a_premove() -> None:
+    clock = _FakeClock()
+    session = _budgeted_session(30, 0, clock)
+    await session.claim(None)
+    clock.moment = 1030.0
+    await session.submit(Move(player=0, action=Pass()), base_seq=0, premove=False, token="token-a")
+    spent = session.clock()
+    assert spent is not None
+    assert spent.remaining["0"] == 0.0
+    rack = session.view(0).racks[0]
+    assert rack is not None
+    exchange = Move(player=0, action=Exchange(tile_ids=[rack[0].identifier]))
+    with pytest.raises(OutOfTime):
+        await session.submit(exchange, base_seq=1, premove=True, token="token-a")
+
+    assert session.seq == 1
+    assert session.view(0).premove is None
+    session.close()
+
+
+async def test_a_seat_past_its_deadline_is_refused_a_move() -> None:
+    clock = _FakeClock()
+    session = _timed_session(90, clock)
+    await session.claim(None)
+    clock.moment = 1200.0
+    rack = session.view(0).racks[0]
+    assert rack is not None
+    exchange = Move(player=0, action=Exchange(tile_ids=[rack[0].identifier]))
+    with pytest.raises(OutOfTime):
+        await session.submit(exchange, base_seq=0, premove=False, token="token-a")
+
     assert session.seq == 0
-    assert session.view(None).phase == "turn"
     session.close()
 
 
@@ -320,12 +392,91 @@ async def test_opponent_premove_leaves_the_deadline_alone() -> None:
     session.close()
 
 
+async def test_a_premove_waits_out_its_delay_before_it_settles() -> None:
+    clock = _FakeClock()
+    session = _timed_session(90, clock)
+    await session.claim(None)
+    other_rack = session.view(1).racks[1]
+    assert other_rack is not None
+    queued = Move(player=1, action=Exchange(tile_ids=[other_rack[0].identifier]))
+    await session.submit(queued, base_seq=0, premove=True, token="token-b")
+    await session.submit(Move(player=0, action=Pass()), base_seq=1, premove=False, token="token-a")
+    assert session.seq == 2
+    assert session.view(1).to_act == frozenset({1})
+    assert session.view(1).premove is not None
+    await asyncio.sleep(_PREMOVE_DELAY * 3)
+    assert session.seq == 3
+    assert session.view(1).premove is None
+    assert session.view(1).to_act == frozenset({0})
+    session.close()
+
+
+async def test_the_premove_delay_is_charged_to_the_premover() -> None:
+    clock = _FakeClock()
+    session = _budgeted_session(300, 10, clock)
+    await session.claim(None)
+    other_rack = session.view(1).racks[1]
+    assert other_rack is not None
+    queued = Move(player=1, action=Exchange(tile_ids=[other_rack[0].identifier]))
+    await session.submit(queued, base_seq=0, premove=True, token="token-b")
+    clock.moment = 1020.0
+    await session.submit(Move(player=0, action=Pass()), base_seq=1, premove=False, token="token-a")
+    clock.moment = 1021.0
+    await asyncio.sleep(_PREMOVE_DELAY * 3)
+    rearmed = session.clock()
+    assert rearmed is not None
+    assert rearmed.seat == 0
+    assert rearmed.remaining == {"0": 280.0, "1": 309.0}
+    session.close()
+
+
+async def test_a_premove_that_flags_its_seat_is_returned() -> None:
+    clock = _FakeClock()
+    session = _budgeted_session(30, 0, clock)
+    await session.claim(None)
+    other_rack = session.view(1).racks[1]
+    assert other_rack is not None
+    queued = Move(player=1, action=Exchange(tile_ids=[other_rack[0].identifier]))
+    await session.submit(queued, base_seq=0, premove=True, token="token-b")
+    clock.moment = 1030.0
+    await session.submit(Move(player=0, action=Pass()), base_seq=1, premove=False, token="token-a")
+    clock.moment = 1061.0
+    returned = await _next_event(session, observer=1, since=2)
+    assert returned["kind"] == EntryKind.PREMOVE_DISCARDED
+    assert returned["reason"] == RejectionCode.OUT_OF_TIME
+    assert session.view(1).premove is None
+    assert session.view(1).to_act == frozenset({1})
+    session.close()
+
+
+async def test_a_run_of_premoves_settles_one_delay_at_a_time() -> None:
+    clock = _FakeClock()
+    session = _timed_session(90, clock)
+    await session.claim(None)
+    other_rack = session.view(1).racks[1]
+    own_rack = session.view(0).racks[0]
+    assert other_rack is not None
+    assert own_rack is not None
+    theirs = Move(player=1, action=Exchange(tile_ids=[other_rack[0].identifier]))
+    await session.submit(theirs, base_seq=0, premove=True, token="token-b")
+    await session.submit(Move(player=0, action=Pass()), base_seq=1, premove=False, token="token-a")
+    mine = Move(player=0, action=Exchange(tile_ids=[own_rack[0].identifier]))
+    await session.submit(mine, base_seq=2, premove=True, token="token-a")
+    await asyncio.sleep(_PREMOVE_DELAY / 2)
+    assert session.seq == 3
+    await asyncio.sleep(_PREMOVE_DELAY * 6)
+    assert session.seq == 5
+    assert session.view(0).premove is None
+    assert session.view(0).to_act == frozenset({1})
+    session.close()
+
+
 async def test_timeout_auto_passes_until_the_game_ends() -> None:
     clock = _FakeClock()
     session = _timed_session(0, clock)
     await session.claim(None)
     await asyncio.sleep(0.2)
-    assert session.seq == 2
+    assert session.seq == 4
     assert session.view(None).phase == "game_over"
     assert session.clock() is None
     session.close()

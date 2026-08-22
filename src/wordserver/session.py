@@ -4,6 +4,7 @@ from collections.abc import AsyncIterator, Callable
 from dataclasses import dataclass
 from typing import Final
 
+from wordcore.errors.rejections import RejectionCode
 from wordcore.games.game import Game
 from wordcore.models.base import BaseFrozen
 from wordcore.moves.action import Pass
@@ -15,7 +16,12 @@ from wordcore.views.events import EventView
 from wordcore.views.highlights import GameHighlights
 from wordcore.views.projection import PositionView
 from wordserver.clocks import TurnClock
-from wordserver.errors.exceptions import RackMismatch, SeatTokenMismatch, TableGathering
+from wordserver.errors.exceptions import (
+    OutOfTime,
+    RackMismatch,
+    SeatTokenMismatch,
+    TableGathering,
+)
 from wordserver.models.clock import ClockView
 from wordserver.models.company import CompanyView
 from wordserver.models.heartbeat import HeartbeatView
@@ -51,10 +57,12 @@ class TableSession:
         self._tokens = tokens
         self._names = names
         self._now = now
+        self._time = time
         self._clock = TurnClock(time, tokens, now)
         self._racks = RackOrder(tokens)
         self._condition = asyncio.Condition()
         self._timer_task: asyncio.Task[None] | None = None
+        self._premove_task: asyncio.Task[None] | None = None
         self._claimed: set[int] = {0}
         self._streams: dict[int, int] = {}
         self._company_version = 0
@@ -68,6 +76,7 @@ class TableSession:
 
     def close(self) -> None:
         self._cancel_timer()
+        self._cancel_premove_timer()
 
     def observer_for(self, token: str | None) -> int | None:
         if token is None:
@@ -131,11 +140,11 @@ class TableSession:
                 raise SeatTokenMismatch("seat token does not match the move")
 
             self._ensure_gathered()
+            self._ensure_in_time(move.player)
             before = self._turn_cursor()
             self._game.submit(move, base_seq=base_seq, premove=premove)
             if self._turn_cursor() != before:
-                self._clock.settle(earns_increment=self._earns_increment(move))
-                self._schedule_timer()
+                self._turn_opened(move)
 
             self._condition.notify_all()
             return self._game.seq
@@ -178,6 +187,16 @@ class TableSession:
     def _ensure_gathered(self) -> None:
         if self.gathering():
             raise TableGathering("the table is still gathering players")
+
+    def _ensure_in_time(self, seat: int) -> None:
+        if self._out_of_time(seat):
+            raise OutOfTime("the seat has run out of time")
+
+    def _out_of_time(self, seat: int) -> bool:
+        if self._clock.spent(seat):
+            return True
+
+        return seat == self._clock.armed_seat() and self._clock.expired()
 
     def _turn_cursor(self) -> tuple[frozenset[int], int]:
         state = self._game.position.state
@@ -275,11 +294,22 @@ class TableSession:
         async with self._condition:
             self._condition.notify_all()
 
-    def _earns_increment(self, move: Move) -> bool:
-        if move.player != self._clock.armed_seat():
+    def _turn_opened(self, move: Move | None) -> None:
+        self._clock.settle(earns_increment=self._earns_increment(move))
+        self._schedule_timer()
+        self._schedule_premove()
+
+    def _earns_increment(self, move: Move | None) -> bool:
+        if move is None or move.player != self._clock.armed_seat():
             return False
 
         return move.action.kind in (ActionKind.PLAY, ActionKind.EXCHANGE)
+
+    def _discard_premove(self, seat: int, reason: RejectionCode) -> None:
+        if self._game.position.state.premoves.get(seat) is None:
+            return
+
+        self._game.discard_premove(seat, self._game.seq, reason)
 
     def _cancel_timer(self) -> None:
         if self._timer_task is not None:
@@ -288,13 +318,8 @@ class TableSession:
 
     def _schedule_timer(self) -> None:
         self._cancel_timer()
-        position = self._game.position
-        if position.state.phase == Phase.GAME_OVER or len(position.state.to_act) != 1:
-            self._clock.disarm()
-            return
-
-        seat = next(iter(position.state.to_act))
-        if self._clock.flagged(seat) and self._clock.all_flagged():
+        seat = self._sole_actor()
+        if seat is None:
             self._clock.disarm()
             return
 
@@ -303,6 +328,54 @@ class TableSession:
             return
 
         self._timer_task = asyncio.create_task(self._timeout(seat, budget))
+
+    def _cancel_premove_timer(self) -> None:
+        if self._premove_task is not None:
+            self._premove_task.cancel()
+            self._premove_task = None
+
+    def _schedule_premove(self) -> None:
+        self._cancel_premove_timer()
+        seat = self._premoving_seat()
+        if seat is None:
+            return
+
+        self._premove_task = asyncio.create_task(self._settle_premove(seat))
+
+    def _sole_actor(self) -> int | None:
+        state = self._game.position.state
+        if state.phase == Phase.GAME_OVER or len(state.to_act) != 1:
+            return None
+
+        return next(iter(state.to_act))
+
+    def _premoving_seat(self) -> int | None:
+        seat = self._sole_actor()
+        if seat is None or self._game.position.state.premoves.get(seat) is None:
+            return None
+
+        return seat
+
+    async def _settle_premove(self, seat: int) -> None:
+        await asyncio.sleep(self._time.premove_delay_seconds)
+        async with self._condition:
+            if self._premoving_seat() != seat:
+                return
+
+            before = self._turn_cursor()
+            settled = self._premove_answer(seat)
+            if self._turn_cursor() != before:
+                self._turn_opened(settled)
+
+            self._condition.notify_all()
+
+    def _premove_answer(self, seat: int) -> Move | None:
+        if self._out_of_time(seat):
+            self._discard_premove(seat, RejectionCode.OUT_OF_TIME)
+            return None
+
+        settled = self._game.settle_premove()
+        return settled.move if settled is not None else None
 
     async def _timeout(self, seat: int, seconds: float) -> None:
         await asyncio.sleep(seconds)
@@ -315,11 +388,13 @@ class TableSession:
                 return
 
             self._clock.settle(earns_increment=False)
+            self._discard_premove(seat, RejectionCode.OUT_OF_TIME)
             self._game.submit(
                 Move(player=seat, action=Pass()),
                 base_seq=self._game.seq,
             )
             self._schedule_timer()
+            self._schedule_premove()
             self._condition.notify_all()
 
 

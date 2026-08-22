@@ -109,6 +109,27 @@ describe("Table", () => {
         expect(markup).toContain('name="docket"');
     });
 
+    it("leaves a seat whose time is up watching, with every control at rest", () => {
+        const response = aTableResponse({ view: aView({ to_act: [0] }) });
+        const markup = renderToStaticMarkup(
+            <SettingsProvider>
+                <Table
+                    arrival={ARRIVAL}
+                    connection="live"
+                    state={openedFrom(response)}
+                    clock={{ server_time: 1000, deadline: 1000, seat: 0, remaining: { 0: 0, 1: 120 } }}
+                    trouble={null}
+                    onOutdated={() => Promise.resolve(null)}
+                    onLeave={STAYS}
+                />
+            </SettingsProvider>,
+        );
+        expect(markup).toContain("Your time is up. You can watch the rest of the game.");
+        const controls = markup.split('<div class="controls">')[1]?.split("</div>")[0] ?? "";
+        expect(controls.match(/<button/g)).toHaveLength(3);
+        expect(controls.match(/disabled=""/g)).toHaveLength(3);
+    });
+
     it("keeps the strip to the turn line, the bag, and the menu control", () => {
         const response = aTableResponse({ view: aView({ to_act: [0] }) });
         const markup = renderToStaticMarkup(

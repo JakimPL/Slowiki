@@ -263,6 +263,8 @@ export function guidanceCaption(guidance: Guidance): string | null {
             return text("guidance.scattered");
         case "gapped":
             return text("guidance.gapped");
+        case "out-of-time":
+            return text("guidance.out_of_time");
     }
 }
 

@@ -59,6 +59,7 @@ export const EN: Catalog = {
         "guidance.gapped": "Fill every gap in the word.",
         "guidance.off_center": "The first word must cross the center star.",
         "guidance.opening_short": "The first word needs at least two tiles.",
+        "guidance.out_of_time": "Your time is up. You can watch the rest of the game.",
         "guidance.place": "Tap an empty square to place the tile.",
         "guidance.scattered": "Keep the word in a single row or column.",
         "hand.bingo": "Bingo +{bonus}",

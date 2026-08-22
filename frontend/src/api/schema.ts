@@ -328,7 +328,7 @@ export interface components {
          * ErrorCode
          * @enum {string}
          */
-        ErrorCode: "illegal_move" | "not_your_turn" | "stale_position" | "invalid_word" | "game_over" | "no_premove" | "invalid_configuration" | "rejected" | "unknown_table" | "unknown_code" | "unknown_scheme" | "table_full" | "seats_out_of_range" | "seat_token_mismatch" | "rack_mismatch" | "gathering" | "dictionary_unavailable" | "word_check_unavailable" | "too_many_words";
+        ErrorCode: "illegal_move" | "not_your_turn" | "stale_position" | "invalid_word" | "game_over" | "no_premove" | "out_of_time" | "invalid_configuration" | "rejected" | "unknown_table" | "unknown_code" | "unknown_scheme" | "table_full" | "seats_out_of_range" | "seat_token_mismatch" | "rack_mismatch" | "gathering" | "dictionary_unavailable" | "word_check_unavailable" | "too_many_words";
         /** EventView */
         EventView: {
             /** Actor */
@@ -516,7 +516,7 @@ export interface components {
          * RejectionCode
          * @enum {string}
          */
-        RejectionCode: "illegal_move" | "not_your_turn" | "stale_position" | "invalid_word" | "game_over" | "no_premove" | "invalid_configuration" | "rejected";
+        RejectionCode: "illegal_move" | "not_your_turn" | "stale_position" | "invalid_word" | "game_over" | "no_premove" | "out_of_time" | "invalid_configuration" | "rejected";
         /** RuleParameters */
         RuleParameters: {
             /** Bingo Bonus */
@@ -527,8 +527,8 @@ export interface components {
             exchange_min_bag: number;
             /** Pass Allowed */
             pass_allowed: boolean;
-            /** Pass End Limit */
-            pass_end_limit: number | null;
+            /** Pass End Rounds */
+            pass_end_rounds: number | null;
             /** Premoves Allowed */
             premoves_allowed: boolean;
             /** Rack Size */
@@ -683,6 +683,8 @@ export interface components {
             increment_seconds: number;
             /** Per Turn Seconds */
             per_turn_seconds: number | null;
+            /** Premove Delay Seconds */
+            premove_delay_seconds: number;
             /** Total Seconds */
             total_seconds: number | null;
         };

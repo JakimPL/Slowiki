@@ -182,6 +182,7 @@ def _table_time(scheme: SchemeConfig, asked: TableTimeRequest | None) -> TimeCon
         per_turn_seconds=None,
         increment_seconds=asked.increment_seconds,
         total_seconds=asked.total_seconds,
+        premove_delay_seconds=scheme.time.premove_delay_seconds,
     )
 
 

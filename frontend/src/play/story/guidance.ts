@@ -1,6 +1,7 @@
 import type { GeometryVerdict } from "../board/geometry";
 
-export type Guidance = "place" | "opening-short" | "off-center" | "detached" | "scattered" | "gapped" | null;
+export type Guidance =
+    "place" | "opening-short" | "off-center" | "detached" | "scattered" | "gapped" | "out-of-time" | null;
 
 export function guidanceFor(verdict: GeometryVerdict, lifted: boolean): Guidance {
     switch (verdict) {
