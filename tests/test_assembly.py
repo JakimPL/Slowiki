@@ -150,6 +150,24 @@ def test_select_base_adjective_prefers_masculine_nominative() -> None:
     assert select_base(drogi, variants) == "DROGI"
 
 
+def test_select_base_adjective_takes_the_positive_degree() -> None:
+    zielony = lexeme_id_from_lemma(PartOfSpeech.PRZYMIOTNIK, "ZIELONY")
+    variants = _variants(
+        {
+            "NAJZIELEŃSZY": ("adj:sg:nom.voc:m1.m2.m3:sup",),
+            "ZIELEŃSZY": ("adj:sg:nom.voc:m1.m2.m3:com",),
+            "ZIELONY": ("adj:sg:nom.voc:m1.m2.m3:pos",),
+        }
+    )
+    assert select_base(zielony, variants) == "ZIELONY"
+
+
+def test_select_base_takes_the_lemma_among_variant_infinitives() -> None:
+    przepasc = lexeme_id_from_lemma(PartOfSpeech.CZASOWNIK, "PRZEPAŚĆ")
+    variants = _variants({"PRZEPADNĄĆ": ("inf:perf",), "PRZEPAŚĆ": ("inf:perf",)})
+    assert select_base(przepasc, variants) == "PRZEPAŚĆ"
+
+
 def test_select_base_uninflected_returns_the_lemma() -> None:
     szybko = lexeme_id_from_lemma(PartOfSpeech.PRZYSŁÓWEK, "SZYBKO")
     assert select_base(szybko, {}) == "SZYBKO"

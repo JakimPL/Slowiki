@@ -45,8 +45,9 @@ CC BY 4.0 permits the redistribution, with attribution.
 
 **Follow a new release deliberately.** Read <https://sjp.pl/sl/growy/> for the
 current file name, download it, and record its stem and sha256 in `releases.py`.
-Then rebuild what moves with the list: the word list, the rescue table, the
-coverage report, and `tests/specimens/stress.yaml`.
+Then rebuild what moves with the list: the word list, the rescue table and the
+coverage report. `tests/specimens/oracle.yaml` states what Polish grammar
+requires, so it stands across releases and moves only when the language does.
 
 ## Morphology
 

@@ -2,6 +2,7 @@ from collections.abc import Callable, Mapping
 
 from lexica.build.records import ClassRecord, ClassStore, VariantRecord
 from lexica.grammar.case import Case
+from lexica.grammar.degree import Degree
 from lexica.grammar.gender import Gender
 from lexica.grammar.inflection import Inflection
 from lexica.grammar.number import Number
@@ -42,7 +43,7 @@ def select_base(lexeme: LexemeId, variants: Variants) -> str:
     predicate = _base_predicate(lexeme.part)
     if predicate is None:
         return lexeme.lemma
-    form = _matching_form(variants, predicate)
+    form = _matching_form(variants, predicate, lexeme.lemma)
     return form if form is not None else lexeme.lemma
 
 
@@ -112,15 +113,28 @@ def _is_nominative_singular(inflection: Inflection) -> bool:
 
 
 def _is_nominative_singular_masculine(inflection: Inflection) -> bool:
-    return _is_nominative_singular(inflection) and len(inflection.genders & _MASCULINE) > 0
+    return (
+        _is_nominative_singular(inflection)
+        and len(inflection.genders & _MASCULINE) > 0
+        and inflection.degree is Degree.RÓWNY
+    )
 
 
 def _is_infinitive(inflection: Inflection) -> bool:
     return inflection.verb_form is VerbForm.BEZOKOLICZNIK
 
 
-def _matching_form(variants: Variants, predicate: Callable[[Inflection], bool]) -> str | None:
-    for form in sorted(variants):
-        if any(predicate(inflection_of(tag, dialect_of(source))) for tag, source in variants[form]):
-            return form
-    return None
+def _matching_form(
+    variants: Variants,
+    predicate: Callable[[Inflection], bool],
+    lemma: str,
+) -> str | None:
+    matching = [form for form in sorted(variants) if _satisfies(variants[form], predicate)]
+    if lemma in matching:
+        return lemma
+
+    return matching[0] if matching else None
+
+
+def _satisfies(readings: frozenset[Reading], predicate: Callable[[Inflection], bool]) -> bool:
+    return any(predicate(inflection_of(tag, dialect_of(source))) for tag, source in readings)
