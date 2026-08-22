@@ -22,6 +22,7 @@ from wordcore.models.base import BaseFrozen
 from wordcore.moves.move import Move
 from wordcore.views.events import EventView
 from wordcore.views.highlights import GameHighlights
+from wordserver.codes import join_code_shape, new_join_code
 from wordserver.describe import table_description, word_check_offered
 from wordserver.errors.body import ErrorBody
 from wordserver.errors.code import ErrorCode, code_for
@@ -78,8 +79,6 @@ class RackRequest(BaseFrozen):
     tile_ids: tuple[int, ...]
 
 
-_JOIN_ALPHABET: Final = "ABCDEFGHJKLMNPQRSTUVWXYZ"
-_JOIN_CODE_LENGTH: Final = 6
 _TOKEN_BYTES: Final = 16
 _TABLE_ID_BYTES: Final = 8
 
@@ -88,10 +87,6 @@ class _TableIdentity(NamedTuple):
     table_id: str
     code: str
     tokens: dict[int, str]
-
-
-def _new_join_code() -> str:
-    return "".join(secrets.choice(_JOIN_ALPHABET) for _ in range(_JOIN_CODE_LENGTH))
 
 
 def _resolved_offering(scheme_name: str) -> ResolvedScheme:
@@ -163,7 +158,7 @@ async def _built_game(
 def _minted_identity(seats: int) -> _TableIdentity:
     return _TableIdentity(
         table_id=secrets.token_hex(_TABLE_ID_BYTES),
-        code=_new_join_code(),
+        code=new_join_code(),
         tokens={seat: secrets.token_urlsafe(_TOKEN_BYTES) for seat in range(seats)},
     )
 
@@ -324,7 +319,7 @@ def create_app() -> FastAPI:
         ready = tuple(
             offering for offering in offerings(CONFIG_DIR) if dictionary_ready(offering.dictionary)
         )
-        return OfferingsResponse(offerings=ready)
+        return OfferingsResponse(offerings=ready, code=join_code_shape())
 
     @app.get("/style")
     def read_style() -> StyleTokens:

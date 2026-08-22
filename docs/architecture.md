@@ -72,7 +72,8 @@ design contract.
 
 ## HTTP surface
 
-- `GET /offerings` — schemes whose dictionaries are present on disk.
+- `GET /offerings` — schemes whose dictionaries are present on disk, and the shape of a
+  join code, so a client filters and parses what a player types from the server's own answer.
 - `GET /style` — the design tokens for the active theme, asked once per client.
 - `POST /tables`, `POST /tables/{code}/join` — admissions with seat tokens.
 - `GET /tables/{table_id}` — the table description: rules parameters, alphabet,

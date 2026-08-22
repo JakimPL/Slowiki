@@ -495,14 +495,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
                 </BoardStage>
             </div>
             <div className="side">
-                {gathering ? (
-                    <Room
-                        table={arrival.seat.table}
-                        code={arrival.code}
-                        present={present}
-                        total={state.company.seats.length}
-                    />
-                ) : null}
+                {gathering ? <Room code={arrival.code} present={present} total={state.company.seats.length} /> : null}
                 {atDesk ? <div className="feedback">{feedback()}</div> : null}
                 {atDesk ? (
                     <>
@@ -591,7 +584,6 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
             )}
             {menuShown ? (
                 <TableMenu
-                    table={arrival.seat.table}
                     code={arrival.code}
                     onLeave={onLeave}
                     onClose={(): void => {

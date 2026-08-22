@@ -52,6 +52,17 @@ async def test_offerings_list_ready_dictionaries(
     assert all(offering["dictionary"] == "sjp" for offering in served)
 
 
+async def test_offerings_serve_the_join_code_shape(client: httpx.AsyncClient) -> None:
+    response = await client.get("/offerings")
+    shape = response.json()["code"]
+    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
+    code = created.json()["code"]
+    assert len(code) == shape["length"]
+    assert set(code) <= set(shape["alphabet"])
+    assert "I" not in shape["alphabet"]
+    assert "O" not in shape["alphabet"]
+
+
 async def test_offerings_grow_when_a_dictionary_arrives(
     client: httpx.AsyncClient, monkeypatch: pytest.MonkeyPatch
 ) -> None:

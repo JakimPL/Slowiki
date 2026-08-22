@@ -365,6 +365,13 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** JoinCodeShape */
+        JoinCodeShape: {
+            /** Alphabet */
+            alphabet: string;
+            /** Length */
+            length: number;
+        };
         /** JoinRequest */
         JoinRequest: {
             /** Name */
@@ -415,6 +422,7 @@ export interface components {
         };
         /** OfferingsResponse */
         OfferingsResponse: {
+            code: components["schemas"]["JoinCodeShape"];
             /** Offerings */
             offerings: components["schemas"]["Offering"][];
         };

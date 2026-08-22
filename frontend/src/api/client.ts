@@ -9,14 +9,7 @@ import type { Seat } from "./seat";
 import { headersFor } from "./seat";
 import type { Streamed } from "./streaming";
 import { follow } from "./streaming";
-import type {
-    JoinRequest,
-    Offering,
-    OfferingsResponse,
-    TableAdmission,
-    TableDescription,
-    TableRequest,
-} from "./tables";
+import type { JoinRequest, OfferingsResponse, TableAdmission, TableDescription, TableRequest } from "./tables";
 import type { StyleTokens, TableViewResponse } from "./views";
 import type { WordVerdicts } from "./words";
 
@@ -29,10 +22,9 @@ async function answered(response: Response): Promise<Response> {
     return response;
 }
 
-export async function readOfferings(): Promise<readonly Offering[]> {
+export async function readOfferings(): Promise<OfferingsResponse> {
     const response = await answered(await fetch("/offerings"));
-    const body = await parsed<OfferingsResponse>(response);
-    return body.offerings;
+    return parsed<OfferingsResponse>(response);
 }
 
 export async function readStyle(): Promise<StyleTokens> {

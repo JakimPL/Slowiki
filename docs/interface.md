@@ -34,11 +34,13 @@ by amending it. The palette is the *Lniany* proposition chosen from the phase-0 
   name persists in local storage across visits. A tab remembers the seat it arrived at while that
   game runs, so a quiet pair of switches under the name field offers the way back — the return in
   the premove color, the forgetting beside it — until the game ends or the player lets it go.
-  Credentials live in the URL fragment; a reload rejoins by token, and while no seat is held the
-  page follows the address bar, so an invitation pasted over an idle page opens its join card. A
-  held seat keeps its own address. The color mode and the language rest as quiet chips in the corner
-  of the card, which is where the language is chosen: it is a pre-game choice, and a guest arriving
-  by invitation meets it before joining.
+  Credentials live in the URL fragment; a reload rejoins by token, and the page follows the address
+  bar wherever the player points it, so an invitation pasted over a held seat opens its join card and
+  the seat it left waits under "Return to your table". An invitation link carries the join code
+  alone, and the join field takes it whole: pasting the link, the fragment, or the bare code all
+  leave the code itself, and the field admits only characters the code is made of. The color mode
+  and the language rest as quiet chips in the corner of the card, which is where the language is
+  chosen: it is a pre-game choice, and a guest arriving by invitation meets it before joining.
 - **Table** — the one screen where the game lives. Until every seat is claimed it doubles as the
   room: a gathering banner with the join code, a copy-invitation control, and claimed/empty
   plaques. The claim that fills the last seat turns the room into a game in one step: the plaques,

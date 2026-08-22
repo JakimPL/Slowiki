@@ -31,19 +31,13 @@ export function fragmentFor(table: string, token: string, code: string | null, s
     return `#${fields.toString()}`;
 }
 
-export function followedFragment(held: string, address: string): string {
-    const standing = standingIn(held);
-    return standing.table !== null && standing.token !== null ? held : address;
-}
-
 export function withoutFragment(address: string): string {
     const cut = address.indexOf("#");
     return cut === -1 ? address : address.slice(0, cut);
 }
 
-export function invitationTo(origin: string, pathname: string, table: string, code: string): string {
+export function invitationTo(origin: string, pathname: string, code: string): string {
     const fields = new URLSearchParams();
-    fields.set(TABLE_FIELD, table);
     fields.set(CODE_FIELD, code);
     return `${origin}${pathname}#${fields.toString()}`;
 }

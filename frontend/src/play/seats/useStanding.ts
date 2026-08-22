@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { Seat } from "../../api/seat";
 import type { TableAdmission } from "../../api/tables";
 import { forgetSeat, rememberSeat, storedSeat } from "./memory";
-import { followedFragment, fragmentFor, standingIn, withoutFragment } from "./session";
+import { fragmentFor, standingIn, withoutFragment } from "./session";
 
 export interface Arrival {
     readonly seat: Seat;
@@ -62,17 +62,13 @@ export function useStanding(): StandingHold {
 
     useEffect(() => {
         const reread = (): void => {
-            const followed = followedFragment(fragment, window.location.hash);
-            if (followed !== window.location.hash) {
-                window.history.replaceState(null, "", followed);
-            }
-            setFragment(followed);
+            setFragment(window.location.hash);
         };
         window.addEventListener("hashchange", reread);
         return (): void => {
             window.removeEventListener("hashchange", reread);
         };
-    }, [fragment]);
+    }, []);
 
     return {
         arrival,

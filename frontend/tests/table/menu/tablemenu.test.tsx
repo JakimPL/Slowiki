@@ -12,7 +12,7 @@ describe("TableMenu", () => {
     it("gathers the invitation, the device choices, and the way out", () => {
         const markup = renderToStaticMarkup(
             <SettingsProvider>
-                <TableMenu table="t1" code="KWPZTR" onLeave={STAYS} onClose={STAYS} />
+                <TableMenu code="KWPZTR" onLeave={STAYS} onClose={STAYS} />
             </SettingsProvider>,
         );
         expect(markup).toContain('class="sheet menu" role="dialog" aria-label="Table"');
@@ -29,7 +29,7 @@ describe("TableMenu", () => {
     it("rests on the settings the device holds", () => {
         const markup = renderToStaticMarkup(
             <SettingsProvider>
-                <TableMenu table="t1" code={null} onLeave={STAYS} onClose={STAYS} />
+                <TableMenu code={null} onLeave={STAYS} onClose={STAYS} />
             </SettingsProvider>,
         );
         expect(markup).toContain('aria-pressed="true">Off</button>');
