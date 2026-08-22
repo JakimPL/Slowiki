@@ -204,6 +204,7 @@ Desk effects — the only mutation vocabulary, shared by tap and drag:
 |---|---|
 | `lift` | pick a tile up from rack, tray, or a pending cell |
 | `lay` | put the lifted tile on an empty cell (a blank opens the letter picker) |
+| `relay` | move a pending tile to another square, trading places with a pending tile already there |
 | `take-back` | return a pending tile to the rack |
 | `park` / `retrieve` | move a tile into or out of the exchange tray |
 | `reorder` | insert a tile at a new rack position (remembered for the seat's next read) |
@@ -211,11 +212,12 @@ Desk effects — the only mutation vocabulary, shared by tap and drag:
 | `shuffle` | randomize the local rack order |
 
 Tap and drag reach the same places. A tap lifts the tile it lands on — rack, tray, or a pending
-board square — and the next tap sets it down: an empty square moves it, a rack tile inserts it
-before that tile, a tray tile parks it there, and the "Return here" and "Park here" slots take it at
-the end of a row. Tapping the lifted tile again puts it back. One tile is lifted at a time. Escape
-clears the lift, then recalls; Enter fires the primary action when it is armed. The blank picker is a
-sheet with the scheme's own alphabet.
+board square — and the next tap sets it down: an empty square moves it, another pending square
+trades the two tiles, a rack tile inserts it before that tile, a tray tile parks it there, and the
+"Return here" and "Park here" slots take it at the end of a row. Tapping the lifted tile again puts
+it back. Only tiles still being arranged answer to either gesture; a tile the board has taken stays
+where it was played. One tile is lifted at a time. Escape clears the lift, then recalls; Enter fires
+the primary action when it is armed. The blank picker is a sheet with the scheme's own alphabet.
 
 ## State vocabulary
 
@@ -263,7 +265,11 @@ answers word checks, so each formed word carries its verdict as it stands), `sub
 answers on submission), `challenge` (reserved: plays stand until contested). A table advertises the
 live path through `parameters.word_check`, which holds while the scheme validates on play and its
 dictionary is loaded; the interface asks `GET /tables/{id}/words` for the words it shows and
-remembers every answer. The word-status vocabulary above is the seam that lets challenge schemes
+remembers every answer. A word the dictionary turns down rests the Play button, so a turn is spent
+only on a play the table will take; a word still waiting on its answer leaves the button armed, and
+the server has the last word either way. A premove stays armed whatever the verdict reads: it is
+judged against a board the opponent has yet to change, and a player who reads the move coming keeps
+the right to answer it. The word-status vocabulary above is the seam that lets challenge schemes
 arrive without redesign.
 
 ## Preferences

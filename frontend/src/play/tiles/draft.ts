@@ -24,6 +24,20 @@ export function laidDown(draft: Draft, pending: Pending): Draft {
     return [...draft, pending];
 }
 
+export function relaidDraft(draft: Draft, from: number, to: number): Draft {
+    return draft.map((pending) => movedPending(pending, from, to));
+}
+
+function movedPending(pending: Pending, from: number, to: number): Pending {
+    if (pending.cell === from) {
+        return { ...pending, cell: to };
+    }
+    if (pending.cell === to) {
+        return { ...pending, cell: from };
+    }
+    return pending;
+}
+
 export function takenBack(draft: Draft, cell: number): Draft {
     return draft.filter((pending) => pending.cell !== cell);
 }

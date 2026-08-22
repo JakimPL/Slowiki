@@ -2,8 +2,8 @@ import type { Board, Tile } from "../../api/views";
 import type { DeskSpot } from "../board/spot";
 import type { Arrangement } from "./arrangement";
 import { EMPTY_ARRANGEMENT, movedBefore, reconciledArrangement } from "./arrangement";
-import type { Draft, Pending } from "./draft";
-import { EMPTY_DRAFT, laidDown, pendingAt, reconciledDraft, stamped, takenBack } from "./draft";
+import type { Draft } from "./draft";
+import { EMPTY_DRAFT, laidDown, pendingAt, reconciledDraft, relaidDraft, stamped, takenBack } from "./draft";
 import type { Lift } from "./selection";
 import { toggledLift } from "./selection";
 import type { Tray } from "./tray";
@@ -101,15 +101,14 @@ function laid(desk: Desk, cell: number, tile: Tile, letter: string | null): Desk
 }
 
 function relaid(desk: Desk, from: number, to: number): Desk {
-    const pending = pendingAt(desk.draft, from);
-    if (pending === null || pendingAt(desk.draft, to) !== null) {
+    const moving = pendingAt(desk.draft, from);
+    if (moving === null || from === to) {
         return desk;
     }
-    const moved: Pending = { ...pending, cell: to };
     return {
         ...desk,
-        draft: laidDown(takenBack(desk.draft, from), moved),
-        lift: liftWithout(desk.lift, pending.tile.identifier),
+        draft: relaidDraft(desk.draft, from, to),
+        lift: liftWithout(desk.lift, moving.tile.identifier),
     };
 }
 
