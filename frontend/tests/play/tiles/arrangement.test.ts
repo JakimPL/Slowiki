@@ -3,8 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
     arrangedTiles,
     movedBefore,
+    rackOrder,
     reconciledArrangement,
-    reorderPayload,
     shuffledArrangement,
 } from "../../../src/play/tiles/arrangement";
 import { insertedBefore, withoutId } from "../../../src/play/tiles/row";
@@ -46,8 +46,8 @@ describe("arrangement", () => {
         expect(tiles.map((tile) => tile.identifier)).toEqual([3, 1, 2]);
     });
 
-    it("builds the reorder payload as rack row, tray, then drafted", () => {
-        expect(reorderPayload([5, 4, 3, 2, 1], [4, 2], new Set([3]))).toEqual([5, 1, 4, 2, 3]);
-        expect(reorderPayload([1, 2, 3], [], new Set())).toEqual([1, 2, 3]);
+    it("builds the remembered order as rack row, tray, then drafted", () => {
+        expect(rackOrder([5, 4, 3, 2, 1], [4, 2], new Set([3]))).toEqual([5, 1, 4, 2, 3]);
+        expect(rackOrder([1, 2, 3], [], new Set())).toEqual([1, 2, 3]);
     });
 });

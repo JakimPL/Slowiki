@@ -3,6 +3,7 @@ import { fetchEventSource } from "@microsoft/fetch-event-source";
 import type { GameHighlights } from "./highlights";
 import type { Move, MoveAccepted, MoveRequest } from "./moves";
 import { parsed } from "./parsing";
+import type { RackRequest } from "./rack";
 import { refusalOf } from "./refusal";
 import type { Seat } from "./seat";
 import { headersFor } from "./seat";
@@ -101,6 +102,17 @@ export async function sendMove(seat: Seat, move: Move, baseSeq: number, premove:
     );
     const body = await parsed<MoveAccepted>(response);
     return body.seq;
+}
+
+export async function sendRackOrder(seat: Seat, tileIdentifiers: readonly number[]): Promise<void> {
+    const request: RackRequest = { tile_ids: [...tileIdentifiers] };
+    await answered(
+        await fetch(`/tables/${encodeURIComponent(seat.table)}/rack`, {
+            method: "PUT",
+            headers: { ...JSON_HEADERS, ...headersFor(seat) },
+            body: JSON.stringify(request),
+        }),
+    );
 }
 
 export async function cancelPremove(seat: Seat, baseSeq: number): Promise<number> {

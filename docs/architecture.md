@@ -65,7 +65,7 @@ design contract.
 
 - `wordgames.names.GameName` — literaki, scrabble.
 - `lexica.names.DictionaryName` — sjp, english, osps.
-- `wordcore.moves.kind.ActionKind` — play, exchange, pass, reorder.
+- `wordcore.moves.kind.ActionKind` — play, exchange, pass.
 - `wordcore.games.kind.EntryKind` — move, premove_set, premove_cleared,
   premove_discarded.
 
@@ -84,6 +84,7 @@ design contract.
   word of the game, walked from the journal, so the answer stays whole however
   late a client connects.
 - `POST /tables/{table_id}/moves`, `DELETE /tables/{table_id}/premove` — play.
+- `PUT /tables/{table_id}/rack` — the order the seat keeps its own letters in.
 - `GET /tables/{table_id}/events` — the SSE stream: numbered journal frames plus
   unnumbered `presence`, `position` and `clock` frames. A stream opens by stating
   the observer's whole standing — the company, the observer's own projection, and
@@ -103,6 +104,15 @@ the increment after a play or an exchange, and a spent budget flags its seat, so
 the session auto-passes for it while any opponent still has time. A table asks for
 its own control at creation (`TableRequest.time`), which replaces the scheme's
 default and rides in the description as `parameters.time`.
+
+## Rack order
+
+The order a seat keeps its letters in is session state, never position state.
+`RackOrder` (`wordserver/racks.py`) holds the identifiers each seat last asked
+for and lays that seat's own rack out in them whenever the session projects it,
+with freshly drawn tiles standing at the end. `PUT /tables/{table_id}/rack`
+records an order and stops there, so a player who reloads finds their hand as
+they left it while the journal and every other seat read exactly as before.
 
 ## Concurrency
 

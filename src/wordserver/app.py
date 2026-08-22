@@ -25,7 +25,7 @@ from wordcore.views.highlights import GameHighlights
 from wordserver.describe import table_description, word_check_offered
 from wordserver.errors.body import ErrorBody
 from wordserver.errors.code import ErrorCode, code_for
-from wordserver.errors.exceptions import SeatTokenMismatch, TableGathering
+from wordserver.errors.exceptions import TableRefused
 from wordserver.errors.refusal import Refusal, refusal_response
 from wordserver.models.move_accepted import MoveAccepted
 from wordserver.models.offerings import OfferingsResponse
@@ -72,6 +72,10 @@ class MoveRequest(BaseFrozen):
     move: Move
     base_seq: int
     premove: bool = False
+
+
+class RackRequest(BaseFrozen):
+    tile_ids: tuple[int, ...]
 
 
 _JOIN_ALPHABET: Final = "ABCDEFGHJKLMNPQRSTUVWXYZ"
@@ -294,19 +298,12 @@ def create_app() -> FastAPI:
     ) -> JSONResponse:
         return refusal_response(409, str(error), code_for(error))
 
-    @app.exception_handler(SeatTokenMismatch)
-    async def mismatched(
+    @app.exception_handler(TableRefused)
+    async def table_refused(
         _request: Request,
-        error: SeatTokenMismatch,
+        error: TableRefused,
     ) -> JSONResponse:
-        return refusal_response(409, str(error), ErrorCode.SEAT_TOKEN_MISMATCH)
-
-    @app.exception_handler(TableGathering)
-    async def still_gathering(
-        _request: Request,
-        error: TableGathering,
-    ) -> JSONResponse:
-        return refusal_response(409, str(error), ErrorCode.GATHERING)
+        return refusal_response(409, str(error), error.code)
 
     def session_for(table_id: str) -> TableSession:
         session = registry.get(table_id)
@@ -414,6 +411,22 @@ def create_app() -> FastAPI:
             token=token,
         )
         return MoveAccepted(seq=seq)
+
+    @app.put(
+        "/tables/{table_id}/rack",
+        status_code=204,
+        responses={404: {"model": ErrorBody}, 409: {"model": ErrorBody}},
+    )
+    async def arrange_rack(
+        table_id: str,
+        body: RackRequest,
+        request: Request,
+    ) -> None:
+        session = session_for(table_id)
+        await session.arrange_rack(
+            body.tile_ids,
+            token=request.headers.get("X-Seat-Token"),
+        )
 
     @app.delete(
         "/tables/{table_id}/premove",

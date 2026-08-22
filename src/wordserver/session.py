@@ -9,15 +9,17 @@ from wordcore.models.base import BaseFrozen
 from wordcore.moves.action import Pass
 from wordcore.moves.kind import ActionKind
 from wordcore.moves.move import Move
+from wordcore.rules.rack import rack_of
 from wordcore.states.phase import Phase
 from wordcore.views.events import EventView
 from wordcore.views.highlights import GameHighlights
 from wordcore.views.projection import PositionView
 from wordserver.clocks import TurnClock
-from wordserver.errors.exceptions import SeatTokenMismatch, TableGathering
+from wordserver.errors.exceptions import RackMismatch, SeatTokenMismatch, TableGathering
 from wordserver.models.clock import ClockView
 from wordserver.models.company import CompanyView
 from wordserver.models.seat import SeatView
+from wordserver.racks import RackOrder
 from wordtable.config import TimeConfig
 
 _KEEPALIVE_SECONDS: Final = 15
@@ -49,6 +51,7 @@ class TableSession:
         self._names = names
         self._now = now
         self._clock = TurnClock(time, tokens, now)
+        self._racks = RackOrder(tokens)
         self._condition = asyncio.Condition()
         self._timer_task: asyncio.Task[None] | None = None
         self._claimed: set[int] = {0}
@@ -105,7 +108,7 @@ class TableSession:
         if self.gathering():
             return self._game.view(None)
 
-        return self._game.view(observer)
+        return self._racks.arranged(self._game.view(observer), observer)
 
     def highlights(self) -> GameHighlights:
         return self._game.highlights()
@@ -136,6 +139,15 @@ class TableSession:
             self._condition.notify_all()
             return self._game.seq
 
+    async def arrange_rack(self, tile_ids: tuple[int, ...], *, token: str | None) -> None:
+        async with self._condition:
+            observer = self.observer_for(token)
+            if observer is None:
+                raise SeatTokenMismatch("seat token does not match a seat")
+
+            self._ensure_whole_rack(observer, tile_ids)
+            self._racks.remember(observer, tile_ids)
+
     async def cancel_premove(self, base_seq: int, *, token: str | None) -> int:
         async with self._condition:
             observer = self.observer_for(token)
@@ -156,6 +168,11 @@ class TableSession:
 
         self._view_version += 1
         self._schedule_timer()
+
+    def _ensure_whole_rack(self, seat: int, tile_ids: tuple[int, ...]) -> None:
+        held = sorted(tile.identifier for tile in rack_of(self._game.position, seat))
+        if sorted(tile_ids) != held:
+            raise RackMismatch("the rack order must list every rack tile exactly once")
 
     def _ensure_gathered(self) -> None:
         if self.gathering():
@@ -221,9 +238,14 @@ class TableSession:
 
         for event in self._game.events(observer, since=cursor.next_seq):
             cursor.next_seq = event.seq + 1
-            frames.append(_numbered_frame(event))
+            frames.append(_numbered_frame(self._arranged_event(event, observer)))
 
         return frames
+
+    def _arranged_event(self, event: EventView, observer: int | None) -> EventView:
+        return event.model_copy(
+            update={"position": self._racks.arranged(event.position, observer)},
+        )
 
     async def _quiet_through_keepalive(self) -> bool:
         try:

@@ -189,7 +189,7 @@ Desk effects — the only mutation vocabulary, shared by tap and drag:
 | `lay` | put the lifted tile on an empty cell (a blank opens the letter picker) |
 | `take-back` | return a pending tile to the rack |
 | `park` / `retrieve` | move a tile into or out of the exchange tray |
-| `reorder` | insert a tile at a new rack position (persisted via the `reorder` action) |
+| `reorder` | insert a tile at a new rack position (remembered for the seat's next read) |
 | `recall` | return every pending tile to the rack |
 | `shuffle` | randomize the local rack order |
 

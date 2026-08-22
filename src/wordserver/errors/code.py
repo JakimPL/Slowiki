@@ -19,6 +19,7 @@ class ErrorCode(StrEnum):
     TABLE_FULL = "table_full"
     SEATS_OUT_OF_RANGE = "seats_out_of_range"
     SEAT_TOKEN_MISMATCH = "seat_token_mismatch"
+    RACK_MISMATCH = "rack_mismatch"
     GATHERING = "gathering"
     DICTIONARY_UNAVAILABLE = "dictionary_unavailable"
     WORD_CHECK_UNAVAILABLE = "word_check_unavailable"

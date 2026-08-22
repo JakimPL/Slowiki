@@ -16,7 +16,3 @@ export function exchangeMove(player: number, tileIdentifiers: readonly number[])
 export function passMove(player: number): Move {
     return { player, action: { kind: "pass" } };
 }
-
-export function reorderMove(player: number, tileIdentifiers: readonly number[]): Move {
-    return { player, action: { kind: "reorder", tile_ids: [...tileIdentifiers] } };
-}

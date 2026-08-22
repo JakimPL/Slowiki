@@ -55,7 +55,7 @@ export function arrangedTiles(arrangement: Arrangement, rack: readonly Tile[]): 
     return arrangement.map((id) => byId.get(id)).filter((tile) => tile !== undefined);
 }
 
-export function reorderPayload(arrangement: Arrangement, tray: IdRow, drafted: ReadonlySet<number>): readonly number[] {
+export function rackOrder(arrangement: Arrangement, tray: IdRow, drafted: ReadonlySet<number>): readonly number[] {
     const parked = new Set(tray);
     const rackRow = arrangement.filter((id) => !parked.has(id) && !drafted.has(id));
     const draftedRow = arrangement.filter((id) => drafted.has(id));

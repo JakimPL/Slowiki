@@ -115,9 +115,6 @@ class Game:
             raise IllegalMove("only a play or an exchange can be queued as a premove")
 
     def _ensure_on_turn(self, position: Position, move: Move) -> None:
-        if move.action.kind == ActionKind.REORDER:
-            return
-
         if move.player not in position.state.to_act:
             raise NotYourTurn("player is not on turn")
 
@@ -141,9 +138,7 @@ class Game:
             reason=None,
             position=self._rules.apply(position, move, self._rng),
         )
-        if move.action.kind != ActionKind.REORDER:
-            self._settle_premoves()
-
+        self._settle_premoves()
         return entry
 
     def _settle_premoves(self) -> None:

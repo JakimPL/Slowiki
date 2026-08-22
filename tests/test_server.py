@@ -416,3 +416,115 @@ async def test_gathering_hides_racks_and_blocks_moves(client: httpx.AsyncClient)
         headers={"X-Seat-Token": token},
     )
     assert accepted.status_code == 200
+
+
+async def _gathered_table(client: httpx.AsyncClient) -> tuple[str, str, str]:
+    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
+    data = created.json()
+    joined = await client.post(f"/tables/{data['code']}/join", json={"name": "Ola"})
+    return data["table_id"], data["token"], joined.json()["token"]
+
+
+async def _rack_identifiers(
+    client: httpx.AsyncClient,
+    table_id: str,
+    token: str,
+    seat: int,
+) -> list[int]:
+    view = await client.get(f"/tables/{table_id}/view", headers={"X-Seat-Token": token})
+    return [tile["identifier"] for tile in view.json()["view"]["racks"][str(seat)]]
+
+
+async def test_a_rack_order_is_remembered_without_advancing_the_table(
+    client: httpx.AsyncClient,
+) -> None:
+    table_id, token, _ = await _gathered_table(client)
+    served = await _rack_identifiers(client, table_id, token, seat=0)
+    asked = list(reversed(served))
+    stored = await client.put(
+        f"/tables/{table_id}/rack",
+        json={"tile_ids": asked},
+        headers={"X-Seat-Token": token},
+    )
+    assert stored.status_code == 204
+    view = await client.get(f"/tables/{table_id}/view", headers={"X-Seat-Token": token})
+    assert view.json()["seq"] == 0
+    assert [tile["identifier"] for tile in view.json()["view"]["racks"]["0"]] == asked
+
+
+async def test_a_rack_order_leaves_the_other_seats_alone(client: httpx.AsyncClient) -> None:
+    table_id, token, other = await _gathered_table(client)
+    served = await _rack_identifiers(client, table_id, token, seat=0)
+    before = await client.get(f"/tables/{table_id}/view", headers={"X-Seat-Token": other})
+    await client.put(
+        f"/tables/{table_id}/rack",
+        json={"tile_ids": list(reversed(served))},
+        headers={"X-Seat-Token": token},
+    )
+    after = await client.get(f"/tables/{table_id}/view", headers={"X-Seat-Token": other})
+    assert after.json()["view"]["racks"]["1"] == before.json()["view"]["racks"]["1"]
+    assert after.json()["view"]["racks"]["0"] is None
+
+
+async def test_a_rack_order_naming_other_tiles_is_refused(client: httpx.AsyncClient) -> None:
+    table_id, token, _ = await _gathered_table(client)
+    served = await _rack_identifiers(client, table_id, token, seat=0)
+    foreign = await client.put(
+        f"/tables/{table_id}/rack",
+        json={"tile_ids": [*served[1:], max(served) + 1]},
+        headers={"X-Seat-Token": token},
+    )
+    assert foreign.status_code == 409
+    assert foreign.json()["code"] == "rack_mismatch"
+    partial = await client.put(
+        f"/tables/{table_id}/rack",
+        json={"tile_ids": served[1:]},
+        headers={"X-Seat-Token": token},
+    )
+    assert partial.status_code == 409
+    assert partial.json()["code"] == "rack_mismatch"
+
+
+async def test_a_rack_order_requires_a_seat_token(client: httpx.AsyncClient) -> None:
+    table_id, token, _ = await _gathered_table(client)
+    served = await _rack_identifiers(client, table_id, token, seat=0)
+    response = await client.put(f"/tables/{table_id}/rack", json={"tile_ids": served})
+    assert response.status_code == 409
+    assert response.json()["code"] == "seat_token_mismatch"
+
+
+async def test_a_rack_order_wakes_no_stream() -> None:
+    clock = _FakeClock()
+    session = _timed_session(None, clock)
+    await session.claim("Bob")
+    stream = session.events(observer=1, since=0)
+    assert (await anext(stream)).startswith("event: presence\n")
+    assert (await anext(stream)).startswith("event: position\n")
+    waiting = asyncio.create_task(anext(stream))
+    await asyncio.sleep(0)
+    served = [tile.identifier for tile in session.view(0).racks[0] or ()]
+    await session.arrange_rack(tuple(reversed(served)), token="token-a")
+    await asyncio.sleep(0)
+    assert not waiting.done()
+    await session.submit(Move(player=0, action=Pass()), base_seq=0, premove=False, token="token-a")
+    assert (await asyncio.wait_for(waiting, timeout=1.0)).startswith("id: 0\n")
+    await stream.aclose()
+    session.close()
+
+
+async def test_a_remembered_order_rides_the_event_frames() -> None:
+    clock = _FakeClock()
+    session = _timed_session(None, clock)
+    await session.claim("Bob")
+    served = [tile.identifier for tile in session.view(0).racks[0] or ()]
+    asked = tuple(reversed(served))
+    await session.arrange_rack(asked, token="token-a")
+    await session.submit(Move(player=0, action=Pass()), base_seq=0, premove=False, token="token-a")
+    stream = session.events(observer=0, since=0)
+    assert (await anext(stream)).startswith("event: presence\n")
+    opening = _frame_body(await anext(stream))
+    assert [tile["identifier"] for tile in opening["racks"]["0"]] == list(asked)
+    passed = _frame_body(await anext(stream))
+    assert [tile["identifier"] for tile in passed["position"]["racks"]["0"]] == list(asked)
+    await stream.aclose()
+    session.close()

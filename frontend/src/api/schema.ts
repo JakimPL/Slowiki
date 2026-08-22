@@ -174,6 +174,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/tables/{table_id}/rack": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Arrange Rack */
+        put: operations["arrange_rack_tables__table_id__rack_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/tables/{table_id}/view": {
         parameters: {
             query?: never;
@@ -311,7 +328,7 @@ export interface components {
          * ErrorCode
          * @enum {string}
          */
-        ErrorCode: "illegal_move" | "not_your_turn" | "stale_position" | "invalid_word" | "game_over" | "no_premove" | "invalid_configuration" | "rejected" | "unknown_table" | "unknown_code" | "unknown_scheme" | "table_full" | "seats_out_of_range" | "seat_token_mismatch" | "gathering" | "dictionary_unavailable" | "word_check_unavailable" | "too_many_words";
+        ErrorCode: "illegal_move" | "not_your_turn" | "stale_position" | "invalid_word" | "game_over" | "no_premove" | "invalid_configuration" | "rejected" | "unknown_table" | "unknown_code" | "unknown_scheme" | "table_full" | "seats_out_of_range" | "seat_token_mismatch" | "rack_mismatch" | "gathering" | "dictionary_unavailable" | "word_check_unavailable" | "too_many_words";
         /** EventView */
         EventView: {
             /** Actor */
@@ -365,7 +382,7 @@ export interface components {
         /** Move */
         Move: {
             /** Action */
-            action: components["schemas"]["Play"] | components["schemas"]["Exchange"] | components["schemas"]["Pass"] | components["schemas"]["Reorder"];
+            action: components["schemas"]["Play"] | components["schemas"]["Exchange"] | components["schemas"]["Pass"];
             /** Player */
             player: number;
         };
@@ -490,21 +507,16 @@ export interface components {
             /** Label */
             label: string;
         };
+        /** RackRequest */
+        RackRequest: {
+            /** Tile Ids */
+            tile_ids: number[];
+        };
         /**
          * RejectionCode
          * @enum {string}
          */
         RejectionCode: "illegal_move" | "not_your_turn" | "stale_position" | "invalid_word" | "game_over" | "no_premove" | "invalid_configuration" | "rejected";
-        /** Reorder */
-        Reorder: {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            kind: "reorder";
-            /** Tile Ids */
-            tile_ids: number[];
-        };
         /** RuleParameters */
         RuleParameters: {
             /** Bingo Bonus */
@@ -1072,6 +1084,57 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["MoveAccepted"];
                 };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    arrange_rack_tables__table_id__rack_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                table_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RackRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Not Found */
             404: {

@@ -15,7 +15,7 @@ from wordcore.errors.rejections import RejectionCode
 from wordcore.games.game import Game
 from wordcore.games.journal import EntryKind, JournalEntry
 from wordcore.lexicon.lexicon import TextLexicon
-from wordcore.moves.action import Exchange, Pass, Play, PlayPlacement, Reorder
+from wordcore.moves.action import Exchange, Pass, Play, PlayPlacement
 from wordcore.moves.move import Move
 from wordcore.tiles.bag import build_tiles, deal_racks, shuffled_bag
 from wordcore.tiles.tile import LetterSpec, Tile, TilePreset
@@ -177,13 +177,6 @@ def test_engine_refuses_a_queued_pass() -> None:
     assert game.position.state.premoves == {}
 
 
-def test_engine_refuses_a_queued_reorder() -> None:
-    game = Game(TrivialRules(), random.Random(0), premoves_allowed=True)
-    with pytest.raises(IllegalMove):
-        game.submit(Move(player=1, action=Reorder(tile_ids=())), base_seq=0, premove=True)
-    assert game.seq == 0
-
-
 def test_cancel_premove_records_a_transaction() -> None:
     game = Game(TrivialRules(), random.Random(0), premoves_allowed=True)
     game.submit(queued_exchange(), base_seq=0, premove=True)
@@ -265,21 +258,6 @@ def test_settled_premove_becomes_public_move() -> None:
     assert settled.kind == EntryKind.MOVE
     assert settled.actor == 1
     assert settled.move == queued_exchange()
-
-
-def test_reorder_content_stays_with_its_owner() -> None:
-    rules = TrivialRules()
-    position = rules.initial_position(random.Random(0))
-    entry = JournalEntry(
-        kind=EntryKind.MOVE,
-        move=Move(player=0, action=Reorder(tile_ids=(2, 1))),
-        actor=0,
-        reason=None,
-        position=position,
-    )
-    assert event_view(entry, 0, observer=0).move is not None
-    assert event_view(entry, 0, observer=1).move is None
-    assert event_view(entry, 0, observer=None).move is None
 
 
 def test_late_subscriber_reads_the_same_masked_history() -> None:

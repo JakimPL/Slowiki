@@ -39,9 +39,8 @@ describe("logEntryOf", () => {
         expect(logEntryOf(passed, before)?.kind).toBe("pass");
     });
 
-    it("keeps reorders and premove bookkeeping out of the log", () => {
+    it("keeps premove bookkeeping out of the log", () => {
         const before = aView();
-        expect(logEntryOf(anEvent({ position: aView() }), before)).toBeNull();
         expect(logEntryOf(anEvent({ kind: "premove_set" }), before)).toBeNull();
         expect(logEntryOf(anEvent({ kind: "premove_cleared" }), before)).toBeNull();
     });
