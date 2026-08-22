@@ -8,8 +8,9 @@ from lexica.grammar.gender import Gender
 from lexica.grammar.part_of_speech import PartOfSpeech
 from lexica.grammar.qualifier import Qualifier, QualifierKind
 from lexica.lore.analysis_source import AnalysisSource
+from lexica.lore.rescue import RescueRow
 from lexica.sources import sgjp
-from lexica.sources.polimorf import rescue_analyses
+from lexica.sources.polimorf import rescue_analyses, rescue_rows
 from lexica.sources.sgjp import Interpretation, analyse_word, generate_paradigm
 from wordcore.errors.exceptions import InvalidConfiguration
 
@@ -28,7 +29,7 @@ class ScriptedAnalyzer:
         return "scripted"
 
 
-def test_analyse_word_filters_ign_and_uppercases() -> None:
+def test_analyse_word_filters_the_ign_reading() -> None:
     analyzer = ScriptedAnalyzer(
         {
             "bronią": [
@@ -38,7 +39,7 @@ def test_analyse_word_filters_ign_and_uppercases() -> None:
             ]
         }
     )
-    analyses = analyse_word(analyzer, "bronią")
+    analyses = analyse_word(analyzer, "BRONIĄ")
     assert len(analyses) == 2
     noun = analyses[0]
     assert noun.surface == "BRONIĄ"
@@ -56,7 +57,7 @@ def test_analyse_word_types_names_apart_from_labels() -> None:
             ]
         }
     )
-    analyses = analyse_word(analyzer, "marsz")
+    analyses = analyse_word(analyzer, "MARSZ")
     assert analyses[0].qualifiers == (
         Qualifier(kind=QualifierKind.NAZWA, code="nazwa_pospolita"),
         Qualifier(kind=QualifierKind.KWALIFIKATOR, code="muz."),
@@ -66,11 +67,27 @@ def test_analyse_word_types_names_apart_from_labels() -> None:
 
 def test_analyse_word_splits_a_joined_label() -> None:
     analyzer = ScriptedAnalyzer({"czyżby": [("czyżby", "czyżby:T", "part", [], ["daw.,char."])]})
-    analyses = analyse_word(analyzer, "czyżby")
+    analyses = analyse_word(analyzer, "CZYŻBY")
     assert analyses[0].qualifiers == (
         Qualifier(kind=QualifierKind.KWALIFIKATOR, code="daw."),
         Qualifier(kind=QualifierKind.KWALIFIKATOR, code="char."),
     )
+
+
+class RecordingAnalyzer(ScriptedAnalyzer):
+    def __init__(self) -> None:
+        super().__init__({})
+        self.asked: list[str] = []
+
+    def analyse(self, text: str) -> list[tuple[int, int, Interpretation]]:
+        self.asked.append(text)
+        return super().analyse(text)
+
+
+def test_analyse_word_asks_the_engine_in_lower_case() -> None:
+    analyzer = RecordingAnalyzer()
+    analyse_word(analyzer, "ŻÓŁWIA")
+    assert analyzer.asked == ["żółwia"]
 
 
 class SegmentedAnalyzer:
@@ -82,7 +99,7 @@ class SegmentedAnalyzer:
 
 
 def test_analyse_word_skips_movable_ending_segments() -> None:
-    analyses = analyse_word(SegmentedAnalyzer(), "biegłem")
+    analyses = analyse_word(SegmentedAnalyzer(), "BIEGŁEM")
     assert [analysis.lexeme.lemma for analysis in analyses] == ["BIEC"]
     assert [analysis.surface for analysis in analyses] == ["BIEGŁEM"]
 
@@ -98,7 +115,7 @@ class MixedAnalyzer:
 
 
 def test_analyse_word_prefers_full_word_over_segments() -> None:
-    analyses = analyse_word(MixedAnalyzer(), "czyżby")
+    analyses = analyse_word(MixedAnalyzer(), "CZYŻBY")
     assert [(analysis.lexeme.lemma, analysis.lexeme.pattern) for analysis in analyses] == [
         ("CZYŻBY", "I"),
         ("CZYŻBY", "T"),
@@ -211,3 +228,21 @@ def test_rescue_analyses_passes_over_the_copyright_preamble(tmp_path: Path) -> N
     path = tmp_path / "polimorf.tab.gz"
     _write_polimorf(path, [])
     assert rescue_analyses(path, frozenset({"AALBORSCY"})) == {}
+
+
+def test_rescue_rows_hold_the_source_fields_a_reading_needs(tmp_path: Path) -> None:
+    path = tmp_path / "polimorf.tab.gz"
+    _write_polimorf(
+        path,
+        [("Abchazja", "Abchazja", "subst:sg:nom:f", "nazwa_geograficzna", "zwykle_lp")],
+    )
+    assert rescue_rows(path, frozenset({"ABCHAZJA"})) == {
+        "ABCHAZJA": (
+            RescueRow(
+                lemma="Abchazja",
+                tag="subst:sg:nom:f",
+                name="nazwa_geograficzna",
+                label="zwykle_lp",
+            ),
+        )
+    }

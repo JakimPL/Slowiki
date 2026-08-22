@@ -1,13 +1,13 @@
+import itertools
 from collections.abc import Mapping
 from pathlib import Path
 
 from lexica.build.assemble import assemble_classes
 from lexica.build.records import ClassStore
 from lexica.lore.analysis import Analysis
-from lexica.lore.analysis_source import AnalysisSource
-from lexica.lore.lexeme_id import LexemeId
+from lexica.sources.paradigms import paradigms_of
 from lexica.sources.polimorf import rescue_analyses
-from lexica.sources.sgjp import MorfeuszEngine, analyse_word, generate_paradigm
+from lexica.sources.sgjp import MorfeuszEngine, analyse_word
 from wordcore.models.base import BaseFrozen
 
 
@@ -26,9 +26,9 @@ def analyse_dictionary(
     analyses_by_form, sgjp_classified = _analyse_sgjp(words, engine)
     rescued_by_form = _rescue_unknown(analyses_by_form, polimorf_path)
     analyses_by_form.update(rescued_by_form)
-    generated = _generate_paradigms(engine, analyses_by_form)
+    generated = paradigms_of(engine, itertools.chain.from_iterable(analyses_by_form.values()))
     return AnalysisResult(
-        store=assemble_classes(analyses_by_form, frozenset(words), generated),
+        store=assemble_classes(analyses_by_form, frozenset(words).__contains__, generated),
         sgjp_classified=sgjp_classified,
         rescued=len(rescued_by_form),
         dict_id=engine.dict_id(),
@@ -42,7 +42,7 @@ def _analyse_sgjp(
     analyses_by_form: dict[str, tuple[Analysis, ...]] = {}
     classified = 0
     for form in words:
-        analyses = analyse_word(engine, form.lower())
+        analyses = analyse_word(engine, form)
         analyses_by_form[form] = analyses
         if analyses:
             classified += 1
@@ -57,29 +57,3 @@ def _rescue_unknown(
     if polimorf_path is None or not unknown_forms:
         return {}
     return rescue_analyses(polimorf_path, unknown_forms)
-
-
-def _generate_paradigms(
-    engine: MorfeuszEngine,
-    analyses_by_form: Mapping[str, tuple[Analysis, ...]],
-) -> dict[LexemeId, tuple[tuple[str, str], ...]]:
-    paradigms: dict[LexemeId, tuple[tuple[str, str], ...]] = {}
-    for lexeme, source_lemmas in _sgjp_lemmas(analyses_by_form).items():
-        forms: set[tuple[str, str]] = set()
-        for source_lemma in sorted(source_lemmas):
-            forms.update(generate_paradigm(engine, source_lemma))
-        if forms:
-            paradigms[lexeme] = tuple(sorted(forms))
-    return paradigms
-
-
-def _sgjp_lemmas(
-    analyses_by_form: Mapping[str, tuple[Analysis, ...]],
-) -> dict[LexemeId, set[str]]:
-    source_lemmas: dict[LexemeId, set[str]] = {}
-    for analyses in analyses_by_form.values():
-        for analysis in analyses:
-            if analysis.source is not AnalysisSource.SGJP:
-                continue
-            source_lemmas.setdefault(analysis.lexeme, set()).add(analysis.source_lemma)
-    return source_lemmas

@@ -7,6 +7,8 @@ from lexica.names import DictionaryName
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 CONFIG_DIR = PROJECT_ROOT / "config"
 DICTIONARIES_DIR = PROJECT_ROOT / "dictionaries"
+DICTIONARY_SOURCES_DIR = DICTIONARIES_DIR / "sources"
+POLIMORF_TABLE = DICTIONARY_SOURCES_DIR / "polimorf-20260726.tab.gz"
 RUN_CONFIG_FILE = CONFIG_DIR / "config.yaml"
 FRONTEND_DIST_DIR = PROJECT_ROOT / "build" / "frontend"
 ASSETS_DIR = PROJECT_ROOT / "assets"

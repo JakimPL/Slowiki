@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 import type { LoreAnswer } from "../../../src/play/lore/readings";
 import {
     askedFormsOf,
-    assumedPlayable,
     chosenReading,
     firstLexeme,
     loreStateOf,
@@ -82,17 +81,5 @@ describe("firstLexeme", () => {
 
     it("names nothing when no reading arrived", () => {
         expect(firstLexeme(aLore({ readings: [] }))).toBeNull();
-    });
-});
-
-describe("assumedPlayable", () => {
-    it("takes the chip's refusal as the dictionary's answer", () => {
-        expect(assumedPlayable("invalid")).toBe(false);
-    });
-
-    it("takes every other chip state as accepted", () => {
-        expect(assumedPlayable("valid")).toBe(true);
-        expect(assumedPlayable("unknown")).toBe(true);
-        expect(assumedPlayable("standing")).toBe(true);
     });
 });

@@ -1,7 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import { loreFor } from "../../../src/play/lore/lore";
 import type { LoreAnswer } from "../../../src/play/lore/readings";
 import { NO_LORE_ANSWER } from "../../../src/play/lore/readings";
 import type { AskedWord } from "../../../src/play/words/asked";
@@ -78,7 +77,8 @@ describe("WordPanel", () => {
     });
 
     it("reads a refused word as a note, with no reading to show", () => {
-        const markup = cardOf({ ...CHIP, status: "invalid" }, readyWith(loreFor("PIŁA", false)));
+        const refused = aLore({ playable: false, readings: [] });
+        const markup = cardOf({ ...CHIP, status: "invalid" }, readyWith(refused));
         expect(markup).toContain("not in the dictionary");
         expect(markup).toContain("there is no reading");
         expect(markup).not.toContain("word-reading");

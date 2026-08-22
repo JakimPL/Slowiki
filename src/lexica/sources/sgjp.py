@@ -25,8 +25,12 @@ class MorfeuszEngine(Protocol):
     def dict_id(self) -> str: ...
 
 
+def morphology_available() -> bool:
+    return morfeusz2 is not None
+
+
 def build_morfeusz_engine() -> MorfeuszEngine:
-    _ensure_morfeusz_installed()
+    _ensure_morfeusz_available()
     engine: MorfeuszEngine = morfeusz2.Morfeusz(praet=_COMPOSITE_PAST)
     _ensure_pinned_dictionary(engine.dict_id())
     return engine
@@ -44,12 +48,13 @@ def head_interpretations(
     return [(start, end, analysis) for start, end, analysis in analyses if start == 0]
 
 
-def analyse_word(engine: MorfeuszEngine, word: str) -> tuple[Analysis, ...]:
+def analyse_word(engine: MorfeuszEngine, surface: str) -> tuple[Analysis, ...]:
+    interpretations = head_interpretations(engine.analyse(surface.lower()))
     analyses: list[Analysis] = []
-    for _, _, (_, lemma, tag, names, labels) in head_interpretations(engine.analyse(word)):
+    for _, _, (_, lemma, tag, names, labels) in interpretations:
         if _is_ignored(tag):
             continue
-        analyses.append(analysis_of(word.upper(), lemma, tag, AnalysisSource.SGJP, names, labels))
+        analyses.append(analysis_of(surface, lemma, tag, AnalysisSource.SGJP, names, labels))
     return tuple(analyses)
 
 
@@ -65,8 +70,8 @@ def _is_ignored(tag: str) -> bool:
     return tag.split(":", 1)[0] in _IGNORED_PREFIXES
 
 
-def _ensure_morfeusz_installed() -> None:
-    if morfeusz2 is None:
+def _ensure_morfeusz_available() -> None:
+    if not morphology_available():
         raise InvalidConfiguration(
             "morfeusz2 is required for the SJP morphology compile; "
             "install it with: uv sync --extra morphology"

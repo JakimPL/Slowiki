@@ -13,7 +13,7 @@ CONTRACT = """# The lexicon contract
 | --- | --- | --- | --- | --- | --- |
 | `words` | 1 | `{stem}.words.v1.lexicon` | `lexica.artifact.words.write_word_list` \
 | `lexica.artifact.words.read_word_list` | `wordtable.lexicons.load_lexicon` |
-| `lore` | 1 | `{stem}.lore.v1.lexicon` | — | — | — |
+| `rescue` | 1 | `{stem}.rescue.v1.lexicon` | — | — | — |
 
 ## Envelope
 
@@ -50,34 +50,34 @@ def test_the_import_contracts_are_declared() -> None:
 
 def test_a_reserved_kind_needs_no_code(tmp_path: Path) -> None:
     rows = kind_rows(written(tmp_path, CONTRACT))
-    assert rows[1].kind == "lore"
+    assert rows[1].kind == "rescue"
     assert rows[1].producer == "—"
     main(written(tmp_path, CONTRACT), MANIFEST)
 
 
 def test_a_stale_format_is_refused(tmp_path: Path) -> None:
-    document = refused(tmp_path, "| `lore` | 1 |", "| `lore` | 2 |")
+    document = refused(tmp_path, "| `rescue` | 1 |", "| `rescue` | 2 |")
     with pytest.raises(InvalidConfiguration, match="declares format 2"):
         main(document, MANIFEST)
 
 
 def test_an_unnumbered_format_is_refused(tmp_path: Path) -> None:
-    document = refused(tmp_path, "| `lore` | 1 |", "| `lore` | first |")
+    document = refused(tmp_path, "| `rescue` | 1 |", "| `rescue` | first |")
     with pytest.raises(InvalidConfiguration, match="names no format"):
         main(document, MANIFEST)
 
 
 def test_a_kind_without_a_row_is_refused(tmp_path: Path) -> None:
-    document = refused(tmp_path, "| `lore` | 1 | `{stem}.lore.v1.lexicon` | — | — | — |\n", "")
-    with pytest.raises(InvalidConfiguration, match="the artifact kind lore carries no row"):
+    document = refused(tmp_path, "| `rescue` | 1 | `{stem}.rescue.v1.lexicon` | — | — | — |\n", "")
+    with pytest.raises(InvalidConfiguration, match="the artifact kind rescue carries no row"):
         main(document, MANIFEST)
 
 
 def test_a_row_naming_no_kind_is_refused(tmp_path: Path) -> None:
     document = refused(
         tmp_path,
-        "| `lore` | 1 | `{stem}.lore.v1.lexicon` | — | — | — |",
-        "| `lore` | 1 | `{stem}.lore.v1.lexicon` | — | — | — |\n"
+        "| `rescue` | 1 | `{stem}.rescue.v1.lexicon` | — | — | — |",
+        "| `rescue` | 1 | `{stem}.rescue.v1.lexicon` | — | — | — |\n"
         "| `runes` | 1 | `{stem}.runes.v1.lexicon` | — | — | — |",
     )
     with pytest.raises(InvalidConfiguration, match="the row runes names no artifact kind"):
@@ -87,16 +87,16 @@ def test_a_row_naming_no_kind_is_refused(tmp_path: Path) -> None:
 def test_a_repeated_kind_is_refused(tmp_path: Path) -> None:
     document = refused(
         tmp_path,
-        "| `lore` | 1 | `{stem}.lore.v1.lexicon` | — | — | — |",
-        "| `lore` | 1 | `{stem}.lore.v1.lexicon` | — | — | — |\n"
-        "| `lore` | 1 | `{stem}.lore.v1.lexicon` | — | — | — |",
+        "| `rescue` | 1 | `{stem}.rescue.v1.lexicon` | — | — | — |",
+        "| `rescue` | 1 | `{stem}.rescue.v1.lexicon` | — | — | — |\n"
+        "| `rescue` | 1 | `{stem}.rescue.v1.lexicon` | — | — | — |",
     )
-    with pytest.raises(InvalidConfiguration, match="the kind lore carries more than one row"):
+    with pytest.raises(InvalidConfiguration, match="the kind rescue carries more than one row"):
         main(document, MANIFEST)
 
 
 def test_a_drifted_file_name_is_refused(tmp_path: Path) -> None:
-    document = refused(tmp_path, "`{stem}.lore.v1.lexicon`", "`{stem}.v1.lexicon`")
+    document = refused(tmp_path, "`{stem}.rescue.v1.lexicon`", "`{stem}.v1.lexicon`")
     with pytest.raises(InvalidConfiguration, match="where the contract declares"):
         main(document, MANIFEST)
 
@@ -144,8 +144,8 @@ def test_a_section_without_a_table_is_refused(tmp_path: Path) -> None:
 def test_a_row_of_the_wrong_width_is_refused(tmp_path: Path) -> None:
     document = refused(
         tmp_path,
-        "| `lore` | 1 | `{stem}.lore.v1.lexicon` | — | — | — |",
-        "| `lore` | 1 | `{stem}.lore.v1.lexicon` | — | — |",
+        "| `rescue` | 1 | `{stem}.rescue.v1.lexicon` | — | — | — |",
+        "| `rescue` | 1 | `{stem}.rescue.v1.lexicon` | — | — |",
     )
     with pytest.raises(InvalidConfiguration, match="carries 5 columns where 6 belong"):
         main(document, MANIFEST)

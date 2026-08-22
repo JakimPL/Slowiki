@@ -1,5 +1,4 @@
 import type { InflectedForm, LoreReading, WordLore } from "../../api/lore";
-import type { WordStatus } from "../words/feedback";
 
 export type LoreState = "absent" | "unclassified" | "read";
 
@@ -42,8 +41,4 @@ export function chosenReading(answer: LoreAnswer, lexeme: string | null): Chosen
 
 export function firstLexeme(lore: WordLore): string | null {
     return lore.readings[0]?.lexeme ?? null;
-}
-
-export function assumedPlayable(status: WordStatus): boolean {
-    return status !== "invalid";
 }

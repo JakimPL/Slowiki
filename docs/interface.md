@@ -115,7 +115,8 @@ feedback line, rack, tray, controls, and the docket at its foot.
 
 ## Word panel
 
-A word chip answers whether the table accepts the word; the panel it opens answers what the word is. It
+A word chip answers whether the table accepts the word; the panel it opens answers what the word is. The
+table states whether it serves readings at all, and the gestures below reach the panel where it does. It
 stands in the sheet stratum the blank picker uses — scrim beneath the sheet, both beneath the game-over
 overlay — and reads at two depths.
 
@@ -245,6 +246,12 @@ the primary action when it is armed. The blank picker is a sheet with the scheme
   prints comes from the morphology sources, so a card states what the sources hold and `unclassified`
   states that they hold nothing. Each paradigm form carries `playable`, and the form on the board
   carries `standing`.
+- **Reading progress**: the table answers a reading on request, so the panel opens at `asking` and
+  settles at `ready` or `failed`. A card holds the word and its state throughout, and the reading blocks
+  arrive under it.
+- **Reading fidelity**: a reading the primary source composes carries the whole paradigm. A reading the
+  fallback source supplies carries the part of speech, the base form and the forms that source states,
+  which is one form where it states one — the sheet then holds what is known rather than a filled grid.
 - **Exchange**: tiles in the tray arm `Exchange N`; the guidance line carries the remaining
   exchange budget and the bag minimum.
 - **Connection**: `joining` · `live` · `resuming` · `lost`, shown as a quiet chip in the status

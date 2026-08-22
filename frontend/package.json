@@ -7,7 +7,7 @@
         "dev": "vite",
         "build": "tsc --noEmit && vite build",
         "preview": "vite preview",
-        "types": "openapi-typescript openapi.json --output src/api/schema.ts",
+        "types": "openapi-typescript openapi.json --output src/api/schema.ts --immutable",
         "test": "vitest run",
         "typecheck": "tsc --noEmit",
         "lint": "eslint . && stylelint \"src/**/*.css\"",

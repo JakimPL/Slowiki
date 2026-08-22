@@ -2,8 +2,8 @@ import gzip
 from pathlib import Path
 from typing import Final, NamedTuple
 
-from lexica.lore.analysis import Analysis, analysis_of
-from lexica.lore.analysis_source import AnalysisSource
+from lexica.lore.analysis import Analysis
+from lexica.lore.rescue import RescueRow, rescued_analyses
 
 FIELD_SEPARATOR: Final = "\t"
 
@@ -18,28 +18,29 @@ class PolimorfRow(NamedTuple):
     labels: str
 
 
-Reading = tuple[str, str, str, str]
+def rescue_rows(
+    polimorf_path: Path,
+    target_forms: frozenset[str],
+) -> dict[str, tuple[RescueRow, ...]]:
+    readings = _matching_readings(polimorf_path, target_forms)
+    return {surface: tuple(sorted(rows)) for surface, rows in readings.items()}
 
 
 def rescue_analyses(
     polimorf_path: Path,
     target_forms: frozenset[str],
 ) -> dict[str, tuple[Analysis, ...]]:
-    readings = _matching_readings(polimorf_path, target_forms)
     return {
-        surface: tuple(
-            analysis_of(surface, lemma, tag, AnalysisSource.POLIMORF, (name,), (labels,))
-            for (lemma, tag, name, labels) in sorted(interpretations)
-        )
-        for surface, interpretations in readings.items()
+        surface: rescued_analyses(surface, rows)
+        for surface, rows in rescue_rows(polimorf_path, target_forms).items()
     }
 
 
 def _matching_readings(
     polimorf_path: Path,
     target_forms: frozenset[str],
-) -> dict[str, set[Reading]]:
-    readings: dict[str, set[Reading]] = {}
+) -> dict[str, set[RescueRow]]:
+    readings: dict[str, set[RescueRow]] = {}
     with gzip.open(polimorf_path, "rt", encoding="utf-8", errors="replace") as handle:
         for line in handle:
             row = _row_of(line)
@@ -48,7 +49,9 @@ def _matching_readings(
             surface = row.form.upper()
             if surface not in target_forms:
                 continue
-            readings.setdefault(surface, set()).add((row.lemma, row.tag, row.name, row.labels))
+            readings.setdefault(surface, set()).add(
+                RescueRow(lemma=row.lemma, tag=row.tag, name=row.name, label=row.labels)
+            )
     return readings
 
 

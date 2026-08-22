@@ -13,12 +13,22 @@ RUN apt-get update \
 
 COPY . .
 
-RUN mkdir -p dictionaries \
-    && curl -fsSL -o dictionaries/sjp-20260803.zip https://sjp.pl/sl/growy/sjp-20260803.zip
+ARG SJP_URL=https://sjp.pl/sl/growy/sjp-20260803.zip
+ARG SJP_SHA256=b63105572873a043767380da3bdfe641231107834736eed0617dae39c523ff10
+ARG POLIMORF_URL=https://download.sgjp.pl/morfeusz/20260726/polimorf-20260726.tab.gz
+ARG POLIMORF_SHA256=d0315301beb4820577c8e04c885044feb852a72c865ce62e5e0a1836344e078e
 
-RUN uv sync --extra server --no-group dev
+RUN mkdir -p dictionaries/sources \
+    && curl -fsSL -o dictionaries/sjp-20260803.zip "${SJP_URL}" \
+    && echo "${SJP_SHA256}  dictionaries/sjp-20260803.zip" | sha256sum -c - \
+    && curl -fsSL -o dictionaries/sources/polimorf-20260726.tab.gz "${POLIMORF_URL}" \
+    && echo "${POLIMORF_SHA256}  dictionaries/sources/polimorf-20260726.tab.gz" | sha256sum -c -
+
+RUN uv sync --extra server --extra morphology --no-group dev
 
 RUN uv run python -m wordtable.cli dictionary --name sjp \
+    && uv run python -m wordtable.cli rescue --name sjp \
+    && rm -rf dictionaries/sources \
     && uv run python scripts/openapi.py \
     && uv run python scripts/strings.py \
     && uv run python -m wordassets.cli build --output assets

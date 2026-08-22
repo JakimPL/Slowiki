@@ -4,734 +4,877 @@
  */
 
 export interface paths {
-    "/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    readonly "/": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
         };
         /** Serve Index */
-        get: operations["serve_index__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+        readonly get: operations["serve_index__get"];
+        readonly put?: never;
+        readonly post?: never;
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    "/offerings": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    readonly "/offerings": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
         };
         /** List Offerings */
-        get: operations["list_offerings_offerings_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+        readonly get: operations["list_offerings_offerings_get"];
+        readonly put?: never;
+        readonly post?: never;
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    "/style": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    readonly "/style": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
         };
         /** Read Style */
-        get: operations["read_style_style_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+        readonly get: operations["read_style_style_get"];
+        readonly put?: never;
+        readonly post?: never;
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    "/tables": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    readonly "/tables": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
         };
-        get?: never;
-        put?: never;
+        readonly get?: never;
+        readonly put?: never;
         /** Create Table */
-        post: operations["create_table_tables_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+        readonly post: operations["create_table_tables_post"];
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    "/tables/{code}/join": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    readonly "/tables/{code}/join": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
         };
-        get?: never;
-        put?: never;
+        readonly get?: never;
+        readonly put?: never;
         /** Join Table */
-        post: operations["join_table_tables__code__join_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+        readonly post: operations["join_table_tables__code__join_post"];
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    "/tables/{table_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    readonly "/tables/{table_id}": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
         };
         /** Describe Table */
-        get: operations["describe_table_tables__table_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+        readonly get: operations["describe_table_tables__table_id__get"];
+        readonly put?: never;
+        readonly post?: never;
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    "/tables/{table_id}/events": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    readonly "/tables/{table_id}/events": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
         };
         /** Stream Events */
-        get: operations["stream_events_tables__table_id__events_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+        readonly get: operations["stream_events_tables__table_id__events_get"];
+        readonly put?: never;
+        readonly post?: never;
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    "/tables/{table_id}/highlights": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    readonly "/tables/{table_id}/highlights": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
         };
         /** Table Highlights */
-        get: operations["table_highlights_tables__table_id__highlights_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+        readonly get: operations["table_highlights_tables__table_id__highlights_get"];
+        readonly put?: never;
+        readonly post?: never;
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    "/tables/{table_id}/moves": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    readonly "/tables/{table_id}/lore": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
         };
-        get?: never;
-        put?: never;
+        /** Read Lore */
+        readonly get: operations["read_lore_tables__table_id__lore_get"];
+        readonly put?: never;
+        readonly post?: never;
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
+    };
+    readonly "/tables/{table_id}/moves": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly get?: never;
+        readonly put?: never;
         /** Submit Move */
-        post: operations["submit_move_tables__table_id__moves_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+        readonly post: operations["submit_move_tables__table_id__moves_post"];
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    "/tables/{table_id}/premove": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    readonly "/tables/{table_id}/premove": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
         };
-        get?: never;
-        put?: never;
-        post?: never;
+        readonly get?: never;
+        readonly put?: never;
+        readonly post?: never;
         /** Cancel Premove */
-        delete: operations["cancel_premove_tables__table_id__premove_delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+        readonly delete: operations["cancel_premove_tables__table_id__premove_delete"];
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    "/tables/{table_id}/rack": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    readonly "/tables/{table_id}/rack": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
         };
-        get?: never;
+        readonly get?: never;
         /** Arrange Rack */
-        put: operations["arrange_rack_tables__table_id__rack_put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+        readonly put: operations["arrange_rack_tables__table_id__rack_put"];
+        readonly post?: never;
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    "/tables/{table_id}/view": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    readonly "/tables/{table_id}/view": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
         };
         /** Table View */
-        get: operations["table_view_tables__table_id__view_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+        readonly get: operations["table_view_tables__table_id__view_get"];
+        readonly put?: never;
+        readonly post?: never;
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    "/tables/{table_id}/words": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    readonly "/tables/{table_id}/words": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
         };
         /** Judge Words */
-        get: operations["judge_words_tables__table_id__words_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+        readonly get: operations["judge_words_tables__table_id__words_get"];
+        readonly put?: never;
+        readonly post?: never;
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         /** AccentTokens */
-        AccentTokens: {
+        readonly AccentTokens: {
             /** Danger */
-            danger: string;
+            readonly danger: string;
             /** On Primary */
-            on_primary: string;
+            readonly on_primary: string;
             /** Premove */
-            premove: string;
+            readonly premove: string;
             /** Primary */
-            primary: string;
+            readonly primary: string;
             /** Success */
-            success: string;
+            readonly success: string;
         };
+        /**
+         * Aspect
+         * @enum {string}
+         */
+        readonly Aspect: "dokonany" | "niedokonany";
         /** Board */
-        Board: {
+        readonly Board: {
             /** Bonuses */
-            bonuses: (components["schemas"]["Bonus"] | null)[];
+            readonly bonuses: readonly (components["schemas"]["Bonus"] | null)[];
             /** Size */
-            size: number;
+            readonly size: number;
             /** Tiles */
-            tiles: (components["schemas"]["Tile"] | null)[];
+            readonly tiles: readonly (components["schemas"]["Tile"] | null)[];
         };
         /** BoardTokens */
-        BoardTokens: {
+        readonly BoardTokens: {
             /** Frame */
-            frame: string;
+            readonly frame: string;
             /** Grid */
-            grid: string;
+            readonly grid: string;
             /** Premium Label Share */
-            premium_label_share: number;
+            readonly premium_label_share: number;
             /** Star */
-            star: string;
+            readonly star: string;
             /** Surface */
-            surface: string;
+            readonly surface: string;
         };
         /** Bonus */
-        Bonus: {
+        readonly Bonus: {
             /** Category */
-            category?: string | null;
-            kind: components["schemas"]["BonusKind"];
+            readonly category?: string | null;
+            readonly kind: components["schemas"]["BonusKind"];
             /** Multiplier */
-            multiplier: number;
+            readonly multiplier: number;
         };
         /**
          * BonusKind
          * @enum {string}
          */
-        BonusKind: "word_multiplier" | "letter_multiplier" | "category_multiplier";
+        readonly BonusKind: "word_multiplier" | "letter_multiplier" | "category_multiplier";
+        /**
+         * Case
+         * @enum {string}
+         */
+        readonly Case: "mianownik" | "dopełniacz" | "celownik" | "biernik" | "narzędnik" | "miejscownik" | "wołacz";
         /** ChromeTokens */
-        ChromeTokens: {
+        readonly ChromeTokens: {
             /** Edge */
-            edge: string;
+            readonly edge: string;
             /** Muted */
-            muted: string;
+            readonly muted: string;
             /** Panel */
-            panel: string;
+            readonly panel: string;
             /** Surface */
-            surface: string;
+            readonly surface: string;
             /** Text */
-            text: string;
+            readonly text: string;
         };
         /** ClockView */
-        ClockView: {
+        readonly ClockView: {
             /** Deadline */
-            deadline: number;
+            readonly deadline: number;
             /** Remaining */
-            remaining: {
-                [key: string]: number;
+            readonly remaining: {
+                readonly [key: string]: number;
             };
             /** Seat */
-            seat: number;
+            readonly seat: number;
             /** Server Time */
-            server_time: number;
+            readonly server_time: number;
         };
         /** CompanyView */
-        CompanyView: {
+        readonly CompanyView: {
             /** Seats */
-            seats: components["schemas"]["SeatView"][];
+            readonly seats: readonly components["schemas"]["SeatView"][];
         };
+        /**
+         * Degree
+         * @enum {string}
+         */
+        readonly Degree: "równy" | "wyższy" | "najwyższy";
         /**
          * DictionaryName
          * @enum {string}
          */
-        DictionaryName: "sjp" | "osps" | "english";
+        readonly DictionaryName: "sjp" | "osps" | "english";
         /**
          * EntryKind
          * @enum {string}
          */
-        EntryKind: "move" | "premove_set" | "premove_cleared" | "premove_discarded" | "abandoned";
+        readonly EntryKind: "move" | "premove_set" | "premove_cleared" | "premove_discarded" | "abandoned";
         /** ErrorBody */
-        ErrorBody: {
-            code: components["schemas"]["ErrorCode"];
+        readonly ErrorBody: {
+            readonly code: components["schemas"]["ErrorCode"];
             /** Detail */
-            detail: string;
+            readonly detail: string;
         };
         /**
          * ErrorCode
          * @enum {string}
          */
-        ErrorCode: "illegal_move" | "not_your_turn" | "stale_position" | "invalid_word" | "game_over" | "no_premove" | "out_of_time" | "invalid_configuration" | "rejected" | "unknown_table" | "table_closed" | "unknown_code" | "unknown_scheme" | "table_full" | "seats_out_of_range" | "seat_token_mismatch" | "rack_mismatch" | "gathering" | "dictionary_unavailable" | "word_check_unavailable" | "too_many_words";
+        readonly ErrorCode: "illegal_move" | "not_your_turn" | "stale_position" | "invalid_word" | "game_over" | "no_premove" | "out_of_time" | "invalid_configuration" | "rejected" | "unknown_table" | "table_closed" | "unknown_code" | "unknown_scheme" | "table_full" | "seats_out_of_range" | "seat_token_mismatch" | "rack_mismatch" | "gathering" | "dictionary_unavailable" | "word_check_unavailable" | "lore_unavailable" | "too_many_words";
         /** EventView */
-        EventView: {
+        readonly EventView: {
             /** Actor */
-            actor: number | null;
-            kind: components["schemas"]["EntryKind"];
-            move: components["schemas"]["Move"] | null;
-            position: components["schemas"]["PositionView"];
-            reason: components["schemas"]["RejectionCode"] | null;
+            readonly actor: number | null;
+            readonly kind: components["schemas"]["EntryKind"];
+            readonly move: components["schemas"]["Move"] | null;
+            readonly position: components["schemas"]["PositionView"];
+            readonly reason: components["schemas"]["RejectionCode"] | null;
             /** Seq */
-            seq: number;
+            readonly seq: number;
         };
         /** Exchange */
-        Exchange: {
+        readonly Exchange: {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
-            kind: "exchange";
+            readonly kind: "exchange";
             /** Tile Ids */
-            tile_ids: number[];
+            readonly tile_ids: readonly number[];
         };
         /** GameHighlights */
-        GameHighlights: {
-            best_word: components["schemas"]["WordHighlight"] | null;
-            longest_word: components["schemas"]["WordHighlight"] | null;
+        readonly GameHighlights: {
+            readonly best_word: components["schemas"]["WordHighlight"] | null;
+            readonly longest_word: components["schemas"]["WordHighlight"] | null;
         };
         /**
          * GameName
          * @enum {string}
          */
-        GameName: "literaki" | "scrabble";
+        readonly GameName: "literaki" | "scrabble";
+        /**
+         * Gender
+         * @enum {string}
+         */
+        readonly Gender: "męskoosobowy" | "męskozwierzęcy" | "męskorzeczowy" | "żeński" | "nijaki";
         /** HTTPValidationError */
-        HTTPValidationError: {
+        readonly HTTPValidationError: {
             /** Detail */
-            detail?: components["schemas"]["ValidationError"][];
+            readonly detail?: readonly components["schemas"]["ValidationError"][];
+        };
+        /** InflectedForm */
+        readonly InflectedForm: {
+            /** Playable */
+            readonly playable: boolean;
+            readonly tags: components["schemas"]["Inflection"];
+            /** Text */
+            readonly text: string;
+        };
+        /** Inflection */
+        readonly Inflection: {
+            /** Aspects */
+            readonly aspects: readonly components["schemas"]["Aspect"][];
+            /** Cases */
+            readonly cases: readonly components["schemas"]["Case"][];
+            readonly degree: components["schemas"]["Degree"] | null;
+            /** Deprecative */
+            readonly deprecative: boolean;
+            /** Genders */
+            readonly genders: readonly components["schemas"]["Gender"][];
+            readonly governed_case: components["schemas"]["Case"] | null;
+            readonly mood: components["schemas"]["Mood"] | null;
+            /** Negation */
+            readonly negation: boolean | null;
+            /** Numbers */
+            readonly numbers: readonly components["schemas"]["Number"][];
+            readonly numeral_type: components["schemas"]["NumeralType"] | null;
+            readonly person: components["schemas"]["Person"] | null;
+            readonly pronoun_type: components["schemas"]["PronounType"] | null;
+            /** Qualities */
+            readonly qualities: readonly components["schemas"]["Quality"][];
+            readonly tense: components["schemas"]["Tense"] | null;
+            readonly verb_form: components["schemas"]["VerbForm"] | null;
         };
         /** JoinCodeShape */
-        JoinCodeShape: {
+        readonly JoinCodeShape: {
             /** Alphabet */
-            alphabet: string;
+            readonly alphabet: string;
             /** Length */
-            length: number;
+            readonly length: number;
         };
         /** JoinRequest */
-        JoinRequest: {
+        readonly JoinRequest: {
             /** Name */
-            name: string;
+            readonly name: string;
         };
         /** Letter */
-        Letter: {
+        readonly Letter: {
             /** Category */
-            category: string;
+            readonly category: string;
             /** Symbol */
-            symbol: string;
+            readonly symbol: string;
             /** Value */
-            value: number;
+            readonly value: number;
         };
+        /** LoreReading */
+        readonly LoreReading: {
+            /** Base */
+            readonly base: string;
+            /** Forms */
+            readonly forms: readonly components["schemas"]["InflectedForm"][];
+            /** Lexeme */
+            readonly lexeme: string;
+            readonly part: components["schemas"]["PartOfSpeech"];
+        };
+        /**
+         * Mood
+         * @enum {string}
+         */
+        readonly Mood: "oznajmujący" | "rozkazujący" | "przypuszczający";
         /** Move */
-        Move: {
+        readonly Move: {
             /** Action */
-            action: components["schemas"]["Play"] | components["schemas"]["Exchange"] | components["schemas"]["Pass"];
+            readonly action: components["schemas"]["Play"] | components["schemas"]["Exchange"] | components["schemas"]["Pass"];
             /** Player */
-            player: number;
+            readonly player: number;
         };
         /** MoveAccepted */
-        MoveAccepted: {
+        readonly MoveAccepted: {
             /** Seq */
-            seq: number;
+            readonly seq: number;
         };
         /** MoveRequest */
-        MoveRequest: {
+        readonly MoveRequest: {
             /** Base Seq */
-            base_seq: number;
-            move: components["schemas"]["Move"];
+            readonly base_seq: number;
+            readonly move: components["schemas"]["Move"];
             /**
              * Premove
              * @default false
              */
-            premove: boolean;
+            readonly premove: boolean;
         };
+        /**
+         * Number
+         * @enum {string}
+         */
+        readonly Number: "pojedyncza" | "mnoga";
+        /**
+         * NumeralType
+         * @enum {string}
+         */
+        readonly NumeralType: "główny" | "zbiorowy";
         /** Offering */
-        Offering: {
-            dictionary: components["schemas"]["DictionaryName"];
-            game: components["schemas"]["GameName"];
+        readonly Offering: {
+            readonly dictionary: components["schemas"]["DictionaryName"];
+            readonly game: components["schemas"]["GameName"];
             /** Max Players */
-            max_players: number;
+            readonly max_players: number;
             /** Min Players */
-            min_players: number;
+            readonly min_players: number;
             /** Name */
-            name: string;
+            readonly name: string;
         };
         /** OfferingsResponse */
-        OfferingsResponse: {
-            code: components["schemas"]["JoinCodeShape"];
+        readonly OfferingsResponse: {
+            readonly code: components["schemas"]["JoinCodeShape"];
             /** Offerings */
-            offerings: components["schemas"]["Offering"][];
+            readonly offerings: readonly components["schemas"]["Offering"][];
         };
+        /**
+         * PartOfSpeech
+         * @enum {string}
+         */
+        readonly PartOfSpeech: "rzeczownik" | "przymiotnik" | "czasownik" | "przysłówek" | "liczebnik" | "zaimek" | "przyimek" | "spójnik" | "partykuła" | "wykrzyknik" | "inny";
         /** Pass */
-        Pass: {
+        readonly Pass: {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
-            kind: "pass";
+            readonly kind: "pass";
         };
+        /**
+         * Person
+         * @enum {string}
+         */
+        readonly Person: "pierwsza" | "druga" | "trzecia";
         /**
          * Phase
          * @enum {string}
          */
-        Phase: "turn" | "game_over" | "unresolved";
+        readonly Phase: "turn" | "game_over" | "unresolved";
         /** Play */
-        Play: {
+        readonly Play: {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
-            kind: "play";
+            readonly kind: "play";
             /** Placements */
-            placements: components["schemas"]["PlayPlacement"][];
+            readonly placements: readonly components["schemas"]["PlayPlacement"][];
         };
         /** PlayPlacement */
-        PlayPlacement: {
+        readonly PlayPlacement: {
             /** Column */
-            column: number;
+            readonly column: number;
             /** Letter */
-            letter?: string | null;
+            readonly letter?: string | null;
             /** Row */
-            row: number;
+            readonly row: number;
             /** Tile Id */
-            tile_id: number;
+            readonly tile_id: number;
         };
         /** PlayRecord */
-        PlayRecord: {
+        readonly PlayRecord: {
             /** Bingo */
-            bingo: number;
+            readonly bingo: number;
             /** Indices */
-            indices: number[];
+            readonly indices: readonly number[];
             /** Player */
-            player: number;
+            readonly player: number;
             /** Points */
-            points: number;
+            readonly points: number;
             /** Turn Number */
-            turn_number: number;
+            readonly turn_number: number;
             /** Words */
-            words: components["schemas"]["ScoredWord"][];
+            readonly words: readonly components["schemas"]["ScoredWord"][];
         };
         /** PositionView */
-        PositionView: {
+        readonly PositionView: {
             /** Bag Count */
-            bag_count: number;
-            board: components["schemas"]["Board"];
+            readonly bag_count: number;
+            readonly board: components["schemas"]["Board"];
             /** Consecutive Passes */
-            consecutive_passes: number;
+            readonly consecutive_passes: number;
             /** Exchange Counts */
-            exchange_counts: {
-                [key: string]: number;
+            readonly exchange_counts: {
+                readonly [key: string]: number;
             };
-            last_play: components["schemas"]["PlayRecord"] | null;
+            readonly last_play: components["schemas"]["PlayRecord"] | null;
             /** Pending Premoves */
-            pending_premoves: number[];
-            phase: components["schemas"]["Phase"];
+            readonly pending_premoves: readonly number[];
+            readonly phase: components["schemas"]["Phase"];
             /** Players */
-            players: number[];
-            premove: components["schemas"]["Move"] | null;
+            readonly players: readonly number[];
+            readonly premove: components["schemas"]["Move"] | null;
             /** Racks */
-            racks: {
-                [key: string]: components["schemas"]["Tile"][] | null;
+            readonly racks: {
+                readonly [key: string]: readonly components["schemas"]["Tile"][] | null;
             };
             /** Scoreless Turns */
-            scoreless_turns: number;
+            readonly scoreless_turns: number;
             /** Scores */
-            scores: {
-                [key: string]: number;
+            readonly scores: {
+                readonly [key: string]: number;
             };
             /** To Act */
-            to_act: number[];
+            readonly to_act: readonly number[];
             /** Turn Number */
-            turn_number: number;
+            readonly turn_number: number;
         };
         /** PremiumTokens */
-        PremiumTokens: {
+        readonly PremiumTokens: {
             /** Fill */
-            fill: string;
+            readonly fill: string;
             /** Label */
-            label: string;
+            readonly label: string;
         };
+        /**
+         * PronounType
+         * @enum {string}
+         */
+        readonly PronounType: "osobowy" | "zwrotny";
+        /**
+         * Quality
+         * @enum {string}
+         */
+        readonly Quality: "akcentowany" | "nieakcentowany" | "poprzyimkowy" | "niepoprzyimkowy" | "aglutynacyjny" | "nieaglutynacyjny" | "wokaliczny" | "niewokaliczny" | "uzgadniający" | "rządzący" | "zbiorowy" | "niezbiorowy" | "plurale tantum" | "kropkowany" | "niekropkowany" | "złożony";
         /** RackRequest */
-        RackRequest: {
+        readonly RackRequest: {
             /** Tile Ids */
-            tile_ids: number[];
+            readonly tile_ids: readonly number[];
         };
         /**
          * RejectionCode
          * @enum {string}
          */
-        RejectionCode: "illegal_move" | "not_your_turn" | "stale_position" | "invalid_word" | "game_over" | "no_premove" | "out_of_time" | "invalid_configuration" | "rejected";
+        readonly RejectionCode: "illegal_move" | "not_your_turn" | "stale_position" | "invalid_word" | "game_over" | "no_premove" | "out_of_time" | "invalid_configuration" | "rejected";
         /** RuleParameters */
-        RuleParameters: {
+        readonly RuleParameters: {
             /** Bingo Bonus */
-            bingo_bonus: number;
+            readonly bingo_bonus: number;
             /** Exchange Limit */
-            exchange_limit: number | null;
+            readonly exchange_limit: number | null;
             /** Exchange Min Bag */
-            exchange_min_bag: number;
+            readonly exchange_min_bag: number;
+            /** Lore */
+            readonly lore: boolean;
             /** Pass Allowed */
-            pass_allowed: boolean;
+            readonly pass_allowed: boolean;
             /** Pass End Rounds */
-            pass_end_rounds: number | null;
+            readonly pass_end_rounds: number | null;
             /** Premoves Allowed */
-            premoves_allowed: boolean;
+            readonly premoves_allowed: boolean;
             /** Rack Size */
-            rack_size: number | null;
+            readonly rack_size: number | null;
             /** Scoreless End Limit */
-            scoreless_end_limit: number | null;
-            time: components["schemas"]["TimeConfig"];
+            readonly scoreless_end_limit: number | null;
+            readonly time: components["schemas"]["TimeConfig"];
             /** Validate On Play */
-            validate_on_play: boolean;
+            readonly validate_on_play: boolean;
             /** Word Check */
-            word_check: boolean;
+            readonly word_check: boolean;
         };
         /** ScoredWord */
-        ScoredWord: {
+        readonly ScoredWord: {
             /** Points */
-            points: number;
+            readonly points: number;
             /** Text */
-            text: string;
+            readonly text: string;
         };
         /** SeatView */
-        SeatView: {
+        readonly SeatView: {
             /** Claimed */
-            claimed: boolean;
+            readonly claimed: boolean;
             /** Connected */
-            connected: boolean;
+            readonly connected: boolean;
             /** Name */
-            name: string | null;
+            readonly name: string | null;
             /** Seat */
-            seat: number;
+            readonly seat: number;
         };
         /** StyleTokens */
-        StyleTokens: {
-            dark: components["schemas"]["ThemeTokens"];
+        readonly StyleTokens: {
+            readonly dark: components["schemas"]["ThemeTokens"];
             /** Font Family */
-            font_family: string;
-            light: components["schemas"]["ThemeTokens"];
+            readonly font_family: string;
+            readonly light: components["schemas"]["ThemeTokens"];
             /** Name */
-            name: string;
+            readonly name: string;
         };
         /** TableAdmission */
-        TableAdmission: {
+        readonly TableAdmission: {
             /** Code */
-            code: string;
-            game: components["schemas"]["GameName"];
+            readonly code: string;
+            readonly game: components["schemas"]["GameName"];
             /** Max Players */
-            max_players: number;
+            readonly max_players: number;
             /** Name */
-            name: string | null;
+            readonly name: string | null;
             /** Scheme */
-            scheme: string;
+            readonly scheme: string;
             /** Seat */
-            seat: number;
+            readonly seat: number;
             /** Table Id */
-            table_id: string;
+            readonly table_id: string;
             /** Token */
-            token: string;
+            readonly token: string;
         };
         /** TableDescription */
-        TableDescription: {
+        readonly TableDescription: {
             /** Alphabet */
-            alphabet: components["schemas"]["Letter"][];
+            readonly alphabet: readonly components["schemas"]["Letter"][];
             /** Blanks */
-            blanks: number;
+            readonly blanks: number;
             /** Code */
-            code: string | null;
-            dictionary: components["schemas"]["DictionaryName"];
+            readonly code: string | null;
+            readonly dictionary: components["schemas"]["DictionaryName"];
             /** Distribution */
-            distribution: {
-                [key: string]: number;
+            readonly distribution: {
+                readonly [key: string]: number;
             };
-            game: components["schemas"]["GameName"];
-            parameters: components["schemas"]["RuleParameters"];
+            readonly game: components["schemas"]["GameName"];
+            readonly parameters: components["schemas"]["RuleParameters"];
             /** Scheme */
-            scheme: string;
+            readonly scheme: string;
             /** Seats */
-            seats: number;
+            readonly seats: number;
         };
         /** TableRequest */
-        TableRequest: {
+        readonly TableRequest: {
             /** Name */
-            name: string;
+            readonly name: string;
             /** Scheme */
-            scheme: string;
+            readonly scheme: string;
             /** Seats */
-            seats: number;
-            time?: components["schemas"]["TableTimeRequest"] | null;
+            readonly seats: number;
+            readonly time?: components["schemas"]["TableTimeRequest"] | null;
         };
         /** TableTimeRequest */
-        TableTimeRequest: {
+        readonly TableTimeRequest: {
             /**
              * Increment Seconds
              * @default 0
              */
-            increment_seconds: number;
+            readonly increment_seconds: number;
             /** Total Seconds */
-            total_seconds?: number | null;
+            readonly total_seconds?: number | null;
         };
         /** TableViewResponse */
-        TableViewResponse: {
-            clock: components["schemas"]["ClockView"] | null;
-            company: components["schemas"]["CompanyView"];
+        readonly TableViewResponse: {
+            readonly clock: components["schemas"]["ClockView"] | null;
+            readonly company: components["schemas"]["CompanyView"];
             /** Seq */
-            seq: number;
-            view: components["schemas"]["PositionView"];
+            readonly seq: number;
+            readonly view: components["schemas"]["PositionView"];
         };
+        /**
+         * Tense
+         * @enum {string}
+         */
+        readonly Tense: "teraźniejszy" | "przeszły" | "przyszły";
         /** ThemeTokens */
-        ThemeTokens: {
-            accents: components["schemas"]["AccentTokens"];
-            board: components["schemas"]["BoardTokens"];
+        readonly ThemeTokens: {
+            readonly accents: components["schemas"]["AccentTokens"];
+            readonly board: components["schemas"]["BoardTokens"];
             /** Category Premiums */
-            category_premiums: {
-                [key: string]: components["schemas"]["PremiumTokens"];
+            readonly category_premiums: {
+                readonly [key: string]: components["schemas"]["PremiumTokens"];
             };
-            chrome: components["schemas"]["ChromeTokens"];
+            readonly chrome: components["schemas"]["ChromeTokens"];
             /** Premiums */
-            premiums: {
-                [key: string]: components["schemas"]["PremiumTokens"];
+            readonly premiums: {
+                readonly [key: string]: components["schemas"]["PremiumTokens"];
             };
-            tiles: components["schemas"]["TileTokens"];
+            readonly tiles: components["schemas"]["TileTokens"];
         };
         /** Tile */
-        Tile: {
+        readonly Tile: {
             /** Blank */
-            blank: boolean;
+            readonly blank: boolean;
             /** Category */
-            category: string;
+            readonly category: string;
             /** Identifier */
-            identifier: number;
+            readonly identifier: number;
             /** Letter */
-            letter: string;
+            readonly letter: string;
             /** Value */
-            value: number;
+            readonly value: number;
         };
         /** TileTokens */
-        TileTokens: {
+        readonly TileTokens: {
             /** Bands */
-            bands: {
-                [key: string]: string;
+            readonly bands: {
+                readonly [key: string]: string;
             };
             /** Edge */
-            edge: string;
+            readonly edge: string;
             /** Face */
-            face: string;
+            readonly face: string;
             /** Face Tint */
-            face_tint: number;
+            readonly face_tint: number;
             /** Text */
-            text: string;
+            readonly text: string;
         };
         /** TimeConfig */
-        TimeConfig: {
+        readonly TimeConfig: {
             /** Increment Seconds */
-            increment_seconds: number;
+            readonly increment_seconds: number;
             /** Per Turn Seconds */
-            per_turn_seconds: number | null;
+            readonly per_turn_seconds: number | null;
             /** Premove Delay Seconds */
-            premove_delay_seconds: number;
+            readonly premove_delay_seconds: number;
             /** Total Seconds */
-            total_seconds: number | null;
+            readonly total_seconds: number | null;
         };
         /** ValidationError */
-        ValidationError: {
+        readonly ValidationError: {
             /** Context */
-            ctx?: Record<string, never>;
+            readonly ctx?: Record<string, never>;
             /** Input */
-            input?: unknown;
+            readonly input?: unknown;
             /** Location */
-            loc: (string | number)[];
+            readonly loc: readonly (string | number)[];
             /** Message */
-            msg: string;
+            readonly msg: string;
             /** Error Type */
-            type: string;
+            readonly type: string;
         };
+        /**
+         * VerbForm
+         * @enum {string}
+         */
+        readonly VerbForm: "bezokolicznik" | "forma osobowa" | "forma przeszła" | "forma przypuszczająca" | "rozkaźnik" | "bezosobnik" | "imiesłów czynny" | "imiesłów bierny" | "imiesłów współczesny" | "imiesłów uprzedni" | "odsłownik" | "końcówka ruchoma" | "predykatyw" | "winien";
         /** WordHighlight */
-        WordHighlight: {
+        readonly WordHighlight: {
             /** Player */
-            player: number;
+            readonly player: number;
             /** Points */
-            points: number;
+            readonly points: number;
             /** Turn Number */
-            turn_number: number;
+            readonly turn_number: number;
             /** Word */
-            word: string;
+            readonly word: string;
+        };
+        /** WordLore */
+        readonly WordLore: {
+            /** Playable */
+            readonly playable: boolean;
+            /** Readings */
+            readonly readings: readonly components["schemas"]["LoreReading"][];
+            /** Word */
+            readonly word: string;
+        };
+        /** WordLoreResponse */
+        readonly WordLoreResponse: {
+            /** Lore */
+            readonly lore: {
+                readonly [key: string]: components["schemas"]["WordLore"];
+            };
         };
         /** WordVerdict */
-        WordVerdict: {
+        readonly WordVerdict: {
             /** Allowed */
-            allowed: boolean;
+            readonly allowed: boolean;
             /** Reason */
-            reason?: string | null;
+            readonly reason?: string | null;
         };
         /** WordVerdicts */
-        WordVerdicts: {
+        readonly WordVerdicts: {
             /** Verdicts */
-            verdicts: {
-                [key: string]: components["schemas"]["WordVerdict"];
+            readonly verdicts: {
+                readonly [key: string]: components["schemas"]["WordVerdict"];
             };
         };
     };
@@ -743,597 +886,648 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    serve_index__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    readonly serve_index__get: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
         };
-        requestBody?: never;
-        responses: {
+        readonly requestBody?: never;
+        readonly responses: {
             /** @description Successful Response */
-            200: {
+            readonly 200: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    readonly "application/json": unknown;
                 };
             };
         };
     };
-    list_offerings_offerings_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    readonly list_offerings_offerings_get: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
         };
-        requestBody?: never;
-        responses: {
+        readonly requestBody?: never;
+        readonly responses: {
             /** @description Successful Response */
-            200: {
+            readonly 200: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["OfferingsResponse"];
+                    readonly "application/json": components["schemas"]["OfferingsResponse"];
                 };
             };
         };
     };
-    read_style_style_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    readonly read_style_style_get: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
         };
-        requestBody?: never;
-        responses: {
+        readonly requestBody?: never;
+        readonly responses: {
             /** @description Successful Response */
-            200: {
+            readonly 200: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["StyleTokens"];
+                    readonly "application/json": components["schemas"]["StyleTokens"];
                 };
             };
         };
     };
-    create_table_tables_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    readonly create_table_tables_post: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["TableRequest"];
+        readonly requestBody: {
+            readonly content: {
+                readonly "application/json": components["schemas"]["TableRequest"];
             };
         };
-        responses: {
+        readonly responses: {
             /** @description Successful Response */
-            200: {
+            readonly 200: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["TableAdmission"];
+                    readonly "application/json": components["schemas"]["TableAdmission"];
                 };
             };
             /** @description Not Found */
-            404: {
+            readonly 404: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorBody"];
+                    readonly "application/json": components["schemas"]["ErrorBody"];
                 };
             };
             /** @description Unprocessable Content */
-            422: {
+            readonly 422: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorBody"];
+                    readonly "application/json": components["schemas"]["ErrorBody"];
                 };
             };
         };
     };
-    join_table_tables__code__join_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                code: string;
+    readonly join_table_tables__code__join_post: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path: {
+                readonly code: string;
             };
-            cookie?: never;
+            readonly cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["JoinRequest"];
+        readonly requestBody: {
+            readonly content: {
+                readonly "application/json": components["schemas"]["JoinRequest"];
             };
         };
-        responses: {
+        readonly responses: {
             /** @description Successful Response */
-            200: {
+            readonly 200: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["TableAdmission"];
+                    readonly "application/json": components["schemas"]["TableAdmission"];
                 };
             };
             /** @description Not Found */
-            404: {
+            readonly 404: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorBody"];
+                    readonly "application/json": components["schemas"]["ErrorBody"];
                 };
             };
             /** @description Conflict */
-            409: {
+            readonly 409: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorBody"];
+                    readonly "application/json": components["schemas"]["ErrorBody"];
                 };
             };
             /** @description Gone */
-            410: {
+            readonly 410: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorBody"];
+                    readonly "application/json": components["schemas"]["ErrorBody"];
                 };
             };
             /** @description Validation Error */
-            422: {
+            readonly 422: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
     };
-    describe_table_tables__table_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                table_id: string;
+    readonly describe_table_tables__table_id__get: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path: {
+                readonly table_id: string;
             };
-            cookie?: never;
+            readonly cookie?: never;
         };
-        requestBody?: never;
-        responses: {
+        readonly requestBody?: never;
+        readonly responses: {
             /** @description Successful Response */
-            200: {
+            readonly 200: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["TableDescription"];
+                    readonly "application/json": components["schemas"]["TableDescription"];
                 };
             };
             /** @description Not Found */
-            404: {
+            readonly 404: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorBody"];
+                    readonly "application/json": components["schemas"]["ErrorBody"];
                 };
             };
             /** @description Gone */
-            410: {
+            readonly 410: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorBody"];
+                    readonly "application/json": components["schemas"]["ErrorBody"];
                 };
             };
             /** @description Validation Error */
-            422: {
+            readonly 422: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
     };
-    stream_events_tables__table_id__events_get: {
-        parameters: {
-            query?: never;
-            header?: {
-                "Last-Event-ID"?: string | null;
+    readonly stream_events_tables__table_id__events_get: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: {
+                readonly "Last-Event-ID"?: string | null;
             };
-            path: {
-                table_id: string;
+            readonly path: {
+                readonly table_id: string;
             };
-            cookie?: never;
+            readonly cookie?: never;
         };
-        requestBody?: never;
-        responses: {
+        readonly requestBody?: never;
+        readonly responses: {
             /** @description Successful Response */
-            200: {
+            readonly 200: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["EventView"];
+                    readonly "application/json": components["schemas"]["EventView"];
                 };
             };
             /** @description Not Found */
-            404: {
+            readonly 404: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorBody"];
+                    readonly "application/json": components["schemas"]["ErrorBody"];
                 };
             };
             /** @description Gone */
-            410: {
+            readonly 410: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorBody"];
+                    readonly "application/json": components["schemas"]["ErrorBody"];
                 };
             };
             /** @description Validation Error */
-            422: {
+            readonly 422: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
     };
-    table_highlights_tables__table_id__highlights_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                table_id: string;
+    readonly table_highlights_tables__table_id__highlights_get: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path: {
+                readonly table_id: string;
             };
-            cookie?: never;
+            readonly cookie?: never;
         };
-        requestBody?: never;
-        responses: {
+        readonly requestBody?: never;
+        readonly responses: {
             /** @description Successful Response */
-            200: {
+            readonly 200: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["GameHighlights"];
+                    readonly "application/json": components["schemas"]["GameHighlights"];
                 };
             };
             /** @description Not Found */
-            404: {
+            readonly 404: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorBody"];
+                    readonly "application/json": components["schemas"]["ErrorBody"];
                 };
             };
             /** @description Gone */
-            410: {
+            readonly 410: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorBody"];
+                    readonly "application/json": components["schemas"]["ErrorBody"];
                 };
             };
             /** @description Validation Error */
-            422: {
+            readonly 422: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
     };
-    submit_move_tables__table_id__moves_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                table_id: string;
+    readonly read_lore_tables__table_id__lore_get: {
+        readonly parameters: {
+            readonly query: {
+                readonly words: readonly string[];
             };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MoveRequest"];
+            readonly header?: never;
+            readonly path: {
+                readonly table_id: string;
             };
+            readonly cookie?: never;
         };
-        responses: {
+        readonly requestBody?: never;
+        readonly responses: {
             /** @description Successful Response */
-            200: {
+            readonly 200: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["MoveAccepted"];
+                    readonly "application/json": components["schemas"]["WordLoreResponse"];
                 };
             };
             /** @description Not Found */
-            404: {
+            readonly 404: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorBody"];
+                    readonly "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+            /** @description Gone */
+            readonly 410: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+            /** @description Unprocessable Content */
+            readonly 422: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+        };
+    };
+    readonly submit_move_tables__table_id__moves_post: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path: {
+                readonly table_id: string;
+            };
+            readonly cookie?: never;
+        };
+        readonly requestBody: {
+            readonly content: {
+                readonly "application/json": components["schemas"]["MoveRequest"];
+            };
+        };
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["MoveAccepted"];
+                };
+            };
+            /** @description Not Found */
+            readonly 404: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["ErrorBody"];
                 };
             };
             /** @description Conflict */
-            409: {
+            readonly 409: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorBody"];
+                    readonly "application/json": components["schemas"]["ErrorBody"];
                 };
             };
             /** @description Gone */
-            410: {
+            readonly 410: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorBody"];
+                    readonly "application/json": components["schemas"]["ErrorBody"];
                 };
             };
             /** @description Validation Error */
-            422: {
+            readonly 422: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
     };
-    cancel_premove_tables__table_id__premove_delete: {
-        parameters: {
-            query: {
-                base_seq: number;
+    readonly cancel_premove_tables__table_id__premove_delete: {
+        readonly parameters: {
+            readonly query: {
+                readonly base_seq: number;
             };
-            header?: never;
-            path: {
-                table_id: string;
+            readonly header?: never;
+            readonly path: {
+                readonly table_id: string;
             };
-            cookie?: never;
+            readonly cookie?: never;
         };
-        requestBody?: never;
-        responses: {
+        readonly requestBody?: never;
+        readonly responses: {
             /** @description Successful Response */
-            200: {
+            readonly 200: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["MoveAccepted"];
+                    readonly "application/json": components["schemas"]["MoveAccepted"];
                 };
             };
             /** @description Not Found */
-            404: {
+            readonly 404: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorBody"];
+                    readonly "application/json": components["schemas"]["ErrorBody"];
                 };
             };
             /** @description Conflict */
-            409: {
+            readonly 409: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorBody"];
+                    readonly "application/json": components["schemas"]["ErrorBody"];
                 };
             };
             /** @description Gone */
-            410: {
+            readonly 410: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorBody"];
+                    readonly "application/json": components["schemas"]["ErrorBody"];
                 };
             };
             /** @description Validation Error */
-            422: {
+            readonly 422: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
     };
-    arrange_rack_tables__table_id__rack_put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                table_id: string;
+    readonly arrange_rack_tables__table_id__rack_put: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path: {
+                readonly table_id: string;
             };
-            cookie?: never;
+            readonly cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RackRequest"];
+        readonly requestBody: {
+            readonly content: {
+                readonly "application/json": components["schemas"]["RackRequest"];
             };
         };
-        responses: {
+        readonly responses: {
             /** @description Successful Response */
-            204: {
+            readonly 204: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content?: never;
             };
             /** @description Not Found */
-            404: {
+            readonly 404: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorBody"];
+                    readonly "application/json": components["schemas"]["ErrorBody"];
                 };
             };
             /** @description Conflict */
-            409: {
+            readonly 409: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorBody"];
+                    readonly "application/json": components["schemas"]["ErrorBody"];
                 };
             };
             /** @description Gone */
-            410: {
+            readonly 410: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorBody"];
+                    readonly "application/json": components["schemas"]["ErrorBody"];
                 };
             };
             /** @description Validation Error */
-            422: {
+            readonly 422: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
     };
-    table_view_tables__table_id__view_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                table_id: string;
+    readonly table_view_tables__table_id__view_get: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path: {
+                readonly table_id: string;
             };
-            cookie?: never;
+            readonly cookie?: never;
         };
-        requestBody?: never;
-        responses: {
+        readonly requestBody?: never;
+        readonly responses: {
             /** @description Successful Response */
-            200: {
+            readonly 200: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["TableViewResponse"];
+                    readonly "application/json": components["schemas"]["TableViewResponse"];
                 };
             };
             /** @description Not Found */
-            404: {
+            readonly 404: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorBody"];
+                    readonly "application/json": components["schemas"]["ErrorBody"];
                 };
             };
             /** @description Gone */
-            410: {
+            readonly 410: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorBody"];
+                    readonly "application/json": components["schemas"]["ErrorBody"];
                 };
             };
             /** @description Validation Error */
-            422: {
+            readonly 422: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
     };
-    judge_words_tables__table_id__words_get: {
-        parameters: {
-            query: {
-                words: string[];
+    readonly judge_words_tables__table_id__words_get: {
+        readonly parameters: {
+            readonly query: {
+                readonly words: readonly string[];
             };
-            header?: never;
-            path: {
-                table_id: string;
+            readonly header?: never;
+            readonly path: {
+                readonly table_id: string;
             };
-            cookie?: never;
+            readonly cookie?: never;
         };
-        requestBody?: never;
-        responses: {
+        readonly requestBody?: never;
+        readonly responses: {
             /** @description Successful Response */
-            200: {
+            readonly 200: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["WordVerdicts"];
+                    readonly "application/json": components["schemas"]["WordVerdicts"];
                 };
             };
             /** @description Not Found */
-            404: {
+            readonly 404: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorBody"];
+                    readonly "application/json": components["schemas"]["ErrorBody"];
                 };
             };
             /** @description Gone */
-            410: {
+            readonly 410: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorBody"];
+                    readonly "application/json": components["schemas"]["ErrorBody"];
                 };
             };
             /** @description Unprocessable Content */
-            422: {
+            readonly 422: {
                 headers: {
-                    [name: string]: unknown;
+                    readonly [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorBody"];
+                    readonly "application/json": components["schemas"]["ErrorBody"];
                 };
             };
         };

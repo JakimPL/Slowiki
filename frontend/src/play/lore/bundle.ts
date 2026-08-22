@@ -2,6 +2,7 @@ import type { Inflection } from "../../api/lore";
 
 export const NO_INFLECTION: Inflection = {
     cases: [],
+    governed_case: null,
     numbers: [],
     genders: [],
     person: null,
@@ -14,6 +15,7 @@ export const NO_INFLECTION: Inflection = {
     pronoun_type: null,
     negation: null,
     deprecative: false,
+    qualities: [],
 };
 
 export function inflectedBy(stated: Partial<Inflection>): Inflection {

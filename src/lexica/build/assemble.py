@@ -14,6 +14,7 @@ from lexica.lore.lexeme_id import LexemeId, token_of
 
 Reading = tuple[str, AnalysisSource]
 Variants = Mapping[str, frozenset[Reading]]
+Playable = Callable[[str], bool]
 
 _MASCULINE: frozenset[Gender] = frozenset(
     {
@@ -26,12 +27,12 @@ _MASCULINE: frozenset[Gender] = frozenset(
 
 def assemble_classes(
     analyses_by_form: Mapping[str, tuple[Analysis, ...]],
-    dictionary: frozenset[str],
+    playable: Playable,
     generated_by_lexeme: Mapping[LexemeId, tuple[tuple[str, str], ...]],
 ) -> ClassStore:
     variants = _variants(analyses_by_form, generated_by_lexeme)
     classes = {
-        lexeme: _class_record(lexeme, forms, dictionary)
+        lexeme: _class_record(lexeme, forms, playable)
         for lexeme, forms in sorted(variants.items(), key=lambda entry: token_of(entry[0]))
     }
     return ClassStore(
@@ -83,11 +84,11 @@ def _entries(
 def _class_record(
     lexeme: LexemeId,
     forms: Mapping[str, set[Reading]],
-    dictionary: frozenset[str],
+    playable: Playable,
 ) -> ClassRecord:
     variants = {form: frozenset(readings) for form, readings in forms.items()}
     records = tuple(
-        VariantRecord(form=form, tag=tag, source=source, in_dictionary=form in dictionary)
+        VariantRecord(form=form, tag=tag, source=source, in_dictionary=playable(form))
         for form in sorted(variants)
         for tag, source in sorted(variants[form])
     )

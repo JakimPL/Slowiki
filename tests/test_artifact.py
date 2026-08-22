@@ -7,8 +7,10 @@ from lexica.artifact.envelope import MAGIC, read_header, write_envelope
 from lexica.artifact.formats import ARTIFACT_FORMATS
 from lexica.artifact.header import ArtifactHeader
 from lexica.artifact.kind import ArtifactKind
+from lexica.artifact.rescue import read_rescue_table, write_rescue_table
 from lexica.artifact.words import read_word_list, write_word_list
 from lexica.cli import main
+from lexica.lore.rescue import RescueRow
 from lexica.names import DictionaryName
 from wordcore.errors.exceptions import InvalidConfiguration
 from wordtable.paths import dictionary_compiled
@@ -28,9 +30,60 @@ def test_every_kind_declares_a_current_format() -> None:
 
 def test_compiled_names_carry_the_kind() -> None:
     words = dictionary_compiled(DictionaryName.SJP, ArtifactKind.WORDS)
-    lore = dictionary_compiled(DictionaryName.SJP, ArtifactKind.LORE)
+    rescue = dictionary_compiled(DictionaryName.SJP, ArtifactKind.RESCUE)
     assert words.name == "sjp-20260803.words.v1.lexicon"
-    assert lore.name == "sjp-20260803.lore.v1.lexicon"
+    assert rescue.name == "sjp-20260803.rescue.v1.lexicon"
+
+
+RESCUE = {
+    "ABBOZZO": (
+        RescueRow(
+            lemma="abbozzo",
+            tag="subst:sg:nom.acc.voc:n:ncol",
+            name="nazwa_pospolita",
+            label="",
+        ),
+    ),
+    "ABCHAZJA": (
+        RescueRow(
+            lemma="Abchazja",
+            tag="subst:sg:nom:f",
+            name="nazwa_geograficzna",
+            label="zwykle_lp",
+        ),
+    ),
+}
+
+
+def _rescue(tmp_path: Path) -> Path:
+    destination = tmp_path / "tiny.rescue.v1.lexicon"
+    write_rescue_table(RESCUE, destination)
+    return destination
+
+
+def test_rescue_table_round_trip(tmp_path: Path) -> None:
+    assert read_rescue_table(_rescue(tmp_path)) == RESCUE
+
+
+def test_the_rescue_header_counts_the_surfaces(tmp_path: Path) -> None:
+    header = read_header(_rescue(tmp_path))
+    assert header == ArtifactHeader(kind=ArtifactKind.RESCUE, format=1, entries=2)
+
+
+def test_a_rescue_body_of_another_shape_is_refused(tmp_path: Path) -> None:
+    destination = tmp_path / "tiny.rescue.v1.lexicon"
+    header = ArtifactHeader(kind=ArtifactKind.RESCUE, format=1, entries=1)
+    write_envelope(destination, header, marshal.dumps({"ABBOZZO": ("abbozzo",)}))
+    with pytest.raises(InvalidConfiguration, match="rescue table of an unreadable shape"):
+        read_rescue_table(destination)
+
+
+def test_a_rescue_count_that_disagrees_is_refused(tmp_path: Path) -> None:
+    destination = tmp_path / "tiny.rescue.v1.lexicon"
+    header = ArtifactHeader(kind=ArtifactKind.RESCUE, format=1, entries=7)
+    write_envelope(destination, header, marshal.dumps({}))
+    with pytest.raises(InvalidConfiguration, match="declares 7 surfaces and holds 0"):
+        read_rescue_table(destination)
 
 
 def test_word_list_round_trip(tmp_path: Path) -> None:
@@ -51,11 +104,13 @@ def test_writing_leaves_no_partial_file(tmp_path: Path) -> None:
     assert [path.name for path in tmp_path.iterdir()] == ["tiny.words.v1.lexicon"]
 
 
-def test_a_lore_artifact_is_refused_where_a_word_list_belongs(tmp_path: Path) -> None:
+def test_a_rescue_artifact_is_refused_where_a_word_list_belongs(tmp_path: Path) -> None:
     destination = tmp_path / "tiny.words.v1.lexicon"
-    header = ArtifactHeader(kind=ArtifactKind.LORE, format=1, entries=0)
+    header = ArtifactHeader(kind=ArtifactKind.RESCUE, format=1, entries=0)
     write_envelope(destination, header, b"")
-    with pytest.raises(InvalidConfiguration, match="holds a lore artifact where a words artifact"):
+    with pytest.raises(
+        InvalidConfiguration, match="holds a rescue artifact where a words artifact"
+    ):
         read_word_list(destination)
 
 

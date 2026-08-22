@@ -23,7 +23,7 @@ from wordcore.moves.move import Move
 from wordcore.views.events import EventView
 from wordcore.views.highlights import GameHighlights
 from wordserver.codes import join_code_shape, new_join_code
-from wordserver.describe import table_description, word_check_offered
+from wordserver.describe import lore_offered, table_description, word_check_offered
 from wordserver.errors.body import ErrorBody
 from wordserver.errors.code import ErrorCode, code_for
 from wordserver.errors.exceptions import TableRefused
@@ -36,6 +36,7 @@ from wordserver.models.table_admission import TableAdmission
 from wordserver.models.table_description import TableDescription
 from wordserver.models.table_meta import TableMeta
 from wordserver.models.table_time import TableTimeRequest
+from wordserver.models.word_lore import WordLoreResponse
 from wordserver.models.word_verdicts import WordVerdicts
 from wordserver.records import KEPT_GAMES, GameBook
 from wordserver.registry import TableRegistry
@@ -51,6 +52,7 @@ from wordtable.config import (
     read_config,
 )
 from wordtable.lexicons import LexiconService, dictionary_ready
+from wordtable.lore import LoreService, lore_ready
 from wordtable.paths import ASSETS_DIR, CONFIG_DIR, FRONTEND_DIST_DIR, RUN_CONFIG_FILE
 
 MAX_PLAYER_NAME_LENGTH: Final = 32
@@ -136,6 +138,15 @@ def _ensure_word_check_offered(scheme: SchemeConfig) -> None:
         )
 
 
+def _ensure_lore_offered(scheme: SchemeConfig) -> None:
+    if not lore_offered(scheme):
+        raise Refusal(
+            422,
+            "this table serves no dictionary readings",
+            ErrorCode.LORE_UNAVAILABLE,
+        )
+
+
 def _ensure_words_within_limit(words: tuple[str, ...]) -> None:
     if len(words) > MAX_JUDGED_WORDS:
         raise Refusal(
@@ -166,6 +177,16 @@ async def _built_game(
         random.Random(),
         premoves_allowed=resolved.scheme.premoves,
     )
+
+
+async def _warmed(
+    service: LexiconService,
+    lore: LoreService,
+    dictionary: DictionaryName,
+) -> None:
+    await service.get(dictionary)
+    if lore_ready(dictionary):
+        await lore.prepare(dictionary)
 
 
 def _minted_identity(seats: int) -> _TableIdentity:
@@ -279,13 +300,14 @@ def create_app() -> FastAPI:
     configuration = read_config(RUN_CONFIG_FILE)
     style_tokens = load_style_tokens(CONFIG_DIR, configuration.style)
     service = LexiconService()
+    lore = LoreService(service)
     registry = TableRegistry(GameBook(KEPT_GAMES))
     sweep = TableSweep(registry, configuration.tables, time.time)
 
     @asynccontextmanager
     async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
         default = resolve_scheme(CONFIG_DIR, configuration.scheme)
-        preload = asyncio.create_task(service.get(default.scheme.dictionary))
+        preload = asyncio.create_task(_warmed(service, lore, default.scheme.dictionary))
         sweeping = asyncio.create_task(sweep.run())
         yield
         preload.cancel()
@@ -386,6 +408,21 @@ def create_app() -> FastAPI:
         _ensure_words_within_limit(asked)
         lexicon = await service.get(scheme.dictionary)
         return WordVerdicts(verdicts={word: lexicon.judge(word) for word in asked})
+
+    @app.get(
+        "/tables/{table_id}/lore",
+        responses={**_TABLE_RESPONSES, 422: {"model": ErrorBody}},
+    )
+    async def read_lore(
+        table_id: str,
+        words: Annotated[list[str], Query()],
+    ) -> WordLoreResponse:
+        _, meta = table_with_meta(table_id)
+        scheme = meta.resolved.scheme
+        _ensure_lore_offered(scheme)
+        asked = _canonical_words(words)
+        _ensure_words_within_limit(asked)
+        return WordLoreResponse(lore=await lore.read(scheme.dictionary, asked))
 
     @app.get("/tables/{table_id}/highlights", responses=_TABLE_RESPONSES)
     def table_highlights(table_id: str) -> GameHighlights:

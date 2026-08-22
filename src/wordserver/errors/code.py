@@ -25,6 +25,7 @@ class ErrorCode(StrEnum):
     GATHERING = "gathering"
     DICTIONARY_UNAVAILABLE = "dictionary_unavailable"
     WORD_CHECK_UNAVAILABLE = "word_check_unavailable"
+    LORE_UNAVAILABLE = "lore_unavailable"
     TOO_MANY_WORDS = "too_many_words"
 
 

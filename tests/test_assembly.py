@@ -1,7 +1,7 @@
 import gzip
 from pathlib import Path
 
-from lexica.build.assemble import assemble_classes, select_base
+from lexica.build.assemble import Playable, assemble_classes, select_base
 from lexica.build.orchestrate import analyse_dictionary
 from lexica.grammar.part_of_speech import PartOfSpeech
 from lexica.lore.analysis import Analysis, analysis_of
@@ -16,6 +16,10 @@ def _analysis(form: str, lemma: str, tag: str) -> Analysis:
     return analysis_of(form, lemma, tag, AnalysisSource.SGJP, (), ())
 
 
+def _playable(*forms: str) -> Playable:
+    return frozenset(forms).__contains__
+
+
 def test_assemble_classes_groups_variants_and_flags_dictionary_membership() -> None:
     analyses_by_form = {
         "KOT": (_analysis("KOT", "KOT:Sm1", "subst:sg:nom:m1"),),
@@ -24,7 +28,7 @@ def test_assemble_classes_groups_variants_and_flags_dictionary_membership() -> N
         "KOCIE": (_analysis("KOCIE", "KOT:Sm1", "subst:sg:loc:m1"),),
         "KOTY": (_analysis("KOTY", "KOT:Sm1", "subst:pl:nom.acc.voc:m1"),),
     }
-    dictionary = frozenset({"KOT", "KOTA", "KOTEM", "KOCIE", "KOTY"})
+    dictionary = _playable("KOT", "KOTA", "KOTEM", "KOCIE", "KOTY")
     generated = {
         KOT: (
             ("KOT", "subst:sg:nom:m1"),
@@ -55,7 +59,7 @@ def test_generated_forms_reach_no_lexeme_of_their_own() -> None:
     unseen = lexeme_id_from_lemma(PartOfSpeech.RZECZOWNIK, "PIES:Sm2")
     store = assemble_classes(
         {"KOT": (_analysis("KOT", "KOT:Sm1", "subst:sg:nom:m1"),)},
-        frozenset({"KOT"}),
+        _playable("KOT"),
         {unseen: (("PSA", "subst:sg:gen:m2"),)},
     )
     assert set(store.classes) == {KOT}
@@ -64,7 +68,7 @@ def test_generated_forms_reach_no_lexeme_of_their_own() -> None:
 def test_every_variant_carries_the_source_that_read_it() -> None:
     store = assemble_classes(
         {"KOT": (_analysis("KOT", "KOT:Sm1", "subst:sg:nom:m1"),)},
-        frozenset({"KOT"}),
+        _playable("KOT"),
         {KOT: (("KOTOWI", "subst:sg:dat:m1"),)},
     )
     sources = {variant.source for variant in store.classes[KOT].variants}
@@ -78,7 +82,7 @@ def test_homonym_forms_belong_to_several_classes() -> None:
             _analysis("BRONIĄ", "BRONIĆ", "fin:pl:ter:imperf"),
         ),
     }
-    store = assemble_classes(analyses_by_form, frozenset({"BRONIĄ"}), {})
+    store = assemble_classes(analyses_by_form, _playable("BRONIĄ"), {})
     tokens = tuple(token_of(lexeme) for lexeme in store.entries["BRONIĄ"])
     assert tokens == ("czasownik:BRONIĆ:", "rzeczownik:BROŃ:")
     for lexeme in store.entries["BRONIĄ"]:
@@ -94,7 +98,7 @@ def test_zamek_homonyms_keep_separate_classes() -> None:
         "ZAMKA": (_analysis("ZAMKA", "ZAMEK:Sm3~a", "subst:sg:gen:m3"),),
         "ZAMKU": (_analysis("ZAMKU", "ZAMEK:Sm3~u", "subst:sg:gen:m3"),),
     }
-    store = assemble_classes(analyses_by_form, frozenset(analyses_by_form), {})
+    store = assemble_classes(analyses_by_form, _playable(*analyses_by_form), {})
     assert {token_of(lexeme) for lexeme in store.entries["ZAMEK"]} == {
         "rzeczownik:ZAMEK:Sm3~a",
         "rzeczownik:ZAMEK:Sm3~u",
@@ -107,13 +111,13 @@ def test_an_sgjp_lexeme_never_merges_with_a_rescued_one() -> None:
         "KOT": (_analysis("KOT", "KOT:Sm1", "subst:sg:nom:m1"),),
         "KOTA": (analysis_of("KOTA", "kot", "subst:sg:gen:m1", AnalysisSource.POLIMORF, (), ()),),
     }
-    store = assemble_classes(analyses_by_form, frozenset(analyses_by_form), {})
+    store = assemble_classes(analyses_by_form, _playable(*analyses_by_form), {})
     assert len(store.classes) == 2
     assert {lexeme.pattern for lexeme in store.classes} == {"Sm1", ""}
 
 
 def test_unknown_forms_pass_through() -> None:
-    store = assemble_classes({"AALBORSCY": ()}, frozenset({"AALBORSCY"}), {})
+    store = assemble_classes({"AALBORSCY": ()}, _playable("AALBORSCY"), {})
     assert store.unknown == ("AALBORSCY",)
     assert store.entries == {}
 
@@ -250,7 +254,7 @@ def test_a_rescued_lexeme_carries_the_forms_the_source_holds(tmp_path: Path) -> 
 def test_a_lexeme_identifier_keys_the_store() -> None:
     store = assemble_classes(
         {"KOT": (_analysis("KOT", "KOT:Sm1", "subst:sg:nom:m1"),)},
-        frozenset({"KOT"}),
+        _playable("KOT"),
         {},
     )
     assert isinstance(next(iter(store.classes)), LexemeId)
