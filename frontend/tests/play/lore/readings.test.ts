@@ -55,7 +55,7 @@ describe("readingByLexeme", () => {
 describe("chosenReading", () => {
     const drinking = aReading({ lexeme: "czasownik:PIĆ:V", part: "czasownik", base: "PIĆ" });
     const readings = [aReading(), drinking];
-    const ready: LoreAnswer = { state: "ready", lore: aLore({ readings }), sample: true };
+    const ready: LoreAnswer = { state: "ready", lore: aLore({ readings }) };
 
     it("carries the chosen reading beside the siblings it can switch to", () => {
         expect(chosenReading(ready, "czasownik:PIĆ:V")).toEqual({ readings, reading: drinking });
@@ -70,7 +70,7 @@ describe("chosenReading", () => {
     });
 
     it("chooses nothing while the answer is still on its way or lost", () => {
-        expect(chosenReading({ state: "asking", lore: null, sample: false }, "czasownik:PIĆ:V")).toBeNull();
+        expect(chosenReading({ state: "asking", lore: null }, "czasownik:PIĆ:V")).toBeNull();
         expect(chosenReading({ ...ready, state: "failed" }, "czasownik:PIĆ:V")).toBeNull();
     });
 });

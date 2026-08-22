@@ -12,7 +12,6 @@ import {
     WORD_ASKING_NOTE,
     WORD_DEEPEN,
     WORD_FAILED_NOTE,
-    WORD_SAMPLE_NOTE,
     WORD_UNCLASSIFIED_NOTE,
     WORD_UNCLASSIFIED_PART,
 } from "../strings";
@@ -45,7 +44,6 @@ export function WordReadings({ answer, word, onDeepen }: WordReadingsProps): Rea
                     <Reading key={reading.lexeme} reading={reading} word={word} onDeepen={onDeepen} />
                 ))
             )}
-            {answer.sample ? <p className="word-sample">{WORD_SAMPLE_NOTE}</p> : null}
         </div>
     );
 }

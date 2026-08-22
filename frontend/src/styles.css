@@ -1525,15 +1525,6 @@ button.word-chip[data-open] {
     font-size: 13px;
 }
 
-.word-sample {
-    margin: 0;
-    color: var(--chrome-muted);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-}
-
 .word-deepen {
     align-self: start;
     margin-top: 2px;

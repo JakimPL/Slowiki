@@ -13,10 +13,9 @@ export interface ChosenReading {
 export interface LoreAnswer {
     readonly state: LoreProgress;
     readonly lore: WordLore | null;
-    readonly sample: boolean;
 }
 
-export const NO_LORE_ANSWER: LoreAnswer = { state: "asking", lore: null, sample: false };
+export const NO_LORE_ANSWER: LoreAnswer = { state: "asking", lore: null };
 
 export function loreStateOf(lore: WordLore): LoreState {
     if (!lore.playable) {

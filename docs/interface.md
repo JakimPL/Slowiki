@@ -241,10 +241,10 @@ the primary action when it is armed. The blank picker is a sheet with the scheme
 - **Word status**: `unknown` (hollow dot) · `valid` (success accent) · `invalid` (danger, with the
   dictionary's sentence in the guidance line) · `standing` (reserved for challenge schemes).
 - **Word insight**: `absent` (the dictionary refuses the word) · `unclassified` (the word plays, and the
-  morphology sources carry no analysis for it) · `read` (readings arrived). Sample data carries a badge
-  on the card and marks its own forms unplayable, so the single claim a sample card makes is the
-  dictionary's verdict on the asked word. Each paradigm form carries `playable`, and the form on the
-  board carries `standing`.
+  morphology sources carry no analysis for it) · `read` (readings arrived). Every reading the panel
+  prints comes from the morphology sources, so a card states what the sources hold and `unclassified`
+  states that they hold nothing. Each paradigm form carries `playable`, and the form on the board
+  carries `standing`.
 - **Exchange**: tiles in the tray arm `Exchange N`; the guidance line carries the remaining
   exchange budget and the bag minimum.
 - **Connection**: `joining` · `live` · `resuming` · `lost`, shown as a quiet chip in the status

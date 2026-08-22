@@ -9,8 +9,8 @@ import type {
     Person,
     Tense,
     WordLore,
-} from "../../api/lore";
-import { inflectedBy } from "./bundle";
+} from "../../src/api/lore";
+import { inflectedBy } from "../../src/play/lore/bundle";
 
 const CASES: readonly Case[] = ["mianownik", "dopełniacz", "celownik", "biernik", "narzędnik", "miejscownik", "wołacz"];
 
@@ -408,4 +408,12 @@ export const SPECIMEN_WORDS: readonly string[] = SPECIMENS.map((lore) => lore.wo
 
 export function specimenFor(word: string): WordLore | null {
     return BY_WORD.get(word) ?? null;
+}
+
+export function specimenLore(word: string): WordLore {
+    const lore = specimenFor(word);
+    if (lore === null) {
+        throw new Error(`no specimen for ${word}`);
+    }
+    return lore;
 }

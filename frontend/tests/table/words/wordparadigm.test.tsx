@@ -2,9 +2,9 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
 import type { LoreReading } from "../../../src/api/lore";
-import { specimenFor } from "../../../src/play/lore/specimens";
 import { WordParadigm } from "../../../src/table/words/WordParadigm";
 import { aForm, aReading, someInflection } from "../../fixtures/lore";
+import { specimenFor } from "../../fixtures/specimens";
 
 const CHOOSE = (): void => undefined;
 const RETREAT = (): void => undefined;

@@ -147,7 +147,6 @@ export interface PlainValues {
     readonly "words.paradigm_gap": EmptyValues;
     readonly "words.paradigm_other_forms": EmptyValues;
     readonly "words.paradigm_plain_forms": EmptyValues;
-    readonly "words.sample": EmptyValues;
     readonly "words.term_separator": EmptyValues;
     readonly "words.unclassified": EmptyValues;
     readonly "words.unclassified_part": EmptyValues;

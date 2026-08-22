@@ -140,7 +140,6 @@ export const PL: Catalog = {
         "words.paradigm_gap": "—",
         "words.paradigm_other_forms": "pozostałe formy",
         "words.paradigm_plain_forms": "formy",
-        "words.sample": "dane przykładowe",
         "words.term_separator": " · ",
         "words.unclassified": "Słowo jest dozwolone. Źródła morfologiczne nie opisują go.",
         "words.unclassified_part": "brak analizy",
