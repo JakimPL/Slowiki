@@ -199,6 +199,24 @@ def test_cancel_premove_records_a_transaction() -> None:
     assert cleared.move is None
 
 
+def test_discard_premove_records_the_reason() -> None:
+    game = Game(TrivialRules(), random.Random(0), premoves_allowed=True)
+    game.submit(queued_exchange(), base_seq=0, premove=True)
+    entry = game.discard_premove(1, base_seq=1, reason=RejectionCode.OUT_OF_TIME)
+    assert game.seq == 2
+    assert entry.kind == EntryKind.PREMOVE_DISCARDED
+    assert entry.move is None
+    assert entry.actor == 1
+    assert entry.reason == RejectionCode.OUT_OF_TIME
+    assert game.position.state.premoves == {1: None}
+
+
+def test_discard_premove_requires_a_queued_premove() -> None:
+    game = Game(TrivialRules(), random.Random(0), premoves_allowed=True)
+    with pytest.raises(NoPremove):
+        game.discard_premove(1, base_seq=0, reason=RejectionCode.OUT_OF_TIME)
+
+
 def test_cancel_premove_requires_a_queued_premove() -> None:
     game = Game(TrivialRules(), random.Random(0), premoves_allowed=True)
     with pytest.raises(NoPremove):

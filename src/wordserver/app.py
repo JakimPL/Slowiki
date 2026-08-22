@@ -25,7 +25,7 @@ from wordcore.views.highlights import GameHighlights
 from wordserver.describe import table_description, word_check_offered
 from wordserver.errors.body import ErrorBody
 from wordserver.errors.code import ErrorCode, code_for
-from wordserver.errors.exceptions import SeatTokenMismatch, TableGathering
+from wordserver.errors.exceptions import OutOfTime, SeatTokenMismatch, TableGathering
 from wordserver.errors.refusal import Refusal, refusal_response
 from wordserver.models.move_accepted import MoveAccepted
 from wordserver.models.offerings import OfferingsResponse
@@ -307,6 +307,13 @@ def create_app() -> FastAPI:
         error: TableGathering,
     ) -> JSONResponse:
         return refusal_response(409, str(error), ErrorCode.GATHERING)
+
+    @app.exception_handler(OutOfTime)
+    async def out_of_time(
+        _request: Request,
+        error: OutOfTime,
+    ) -> JSONResponse:
+        return refusal_response(409, str(error), ErrorCode.OUT_OF_TIME)
 
     def session_for(table_id: str) -> TableSession:
         session = registry.get(table_id)

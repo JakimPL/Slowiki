@@ -9,6 +9,7 @@ import { incomingOf } from "../play/board/landing";
 import { prospectOf } from "../play/board/prospects";
 import type { DeskSpot } from "../play/board/spot";
 import { standingWordsAt } from "../play/board/standing";
+import { outOfTime } from "../play/clock/budget";
 import { remainingFor, urgencyOf } from "../play/clock/clock";
 import { useCountdown } from "../play/clock/useCountdown";
 import { useAlerts } from "../play/device/useAlerts";
@@ -118,9 +119,11 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
     const acting = mySeat !== null && state.view.to_act.includes(mySeat);
     const asPremove = !acting && rules.premovesAllowed;
     const atDesk = mySeat !== null && rack !== null && !gathering && state.view.phase === "turn";
-    const mayAct = atDesk && (acting || rules.premovesAllowed);
+    const ranOut = outOfTime(clock, mySeat, remaining);
+    const inPlay = atDesk && !ranOut;
+    const mayAct = inPlay && (acting || rules.premovesAllowed);
 
-    const { desk, perform: performDesk } = useDesk(state, mySeat, arrival.seat, atDesk);
+    const { desk, perform: performDesk } = useDesk(state, mySeat, arrival.seat, inPlay);
     const { busy, notice, noticeCode, send, revoke, clear } = usePlay(arrival.seat, state.seq, onOutdated);
     const queued = queuedPremoveOf(state.view, mySeat);
     const ghosts: ReadonlyMap<number, Tile> = new Map((queued?.ghosts ?? []).map((ghost) => [ghost.cell, ghost.tile]));
@@ -200,10 +203,11 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
     }));
     const shownNotice = noticeCode === STALE_POSITION_CODE ? STALE_NOTICE : notice;
     const offline = connection === "live" ? null : trouble;
-    const hint =
-        exchanging && exchange !== null
-            ? exchangeGuidance(exchange.block, exchange.remaining, rules.exchangeMinBag)
-            : guidanceCaption(guidanceFor(prospect.verdict, desk.lift !== null));
+    const hint = ranOut
+        ? guidanceCaption("out-of-time")
+        : exchanging && exchange !== null
+          ? exchangeGuidance(exchange.block, exchange.remaining, rules.exchangeMinBag)
+          : guidanceCaption(guidanceFor(prospect.verdict, desk.lift !== null));
     const feedback = (): ReactElement => {
         if (shownNotice !== null) {
             return danger(shownNotice);
@@ -538,7 +542,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
                             busy={busy}
                             canRecall={desk.draft.length > 0 || desk.lift !== null}
                             canShuffle={rackRow.length > 1}
-                            canPass={acting && rules.passAllowed}
+                            canPass={acting && rules.passAllowed && !ranOut}
                             onPrimary={primary}
                             onRecall={(): void => {
                                 perform({ kind: "recall" });

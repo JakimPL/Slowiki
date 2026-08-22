@@ -311,7 +311,7 @@ export interface components {
          * ErrorCode
          * @enum {string}
          */
-        ErrorCode: "illegal_move" | "not_your_turn" | "stale_position" | "invalid_word" | "game_over" | "no_premove" | "invalid_configuration" | "rejected" | "unknown_table" | "unknown_code" | "unknown_scheme" | "table_full" | "seats_out_of_range" | "seat_token_mismatch" | "gathering" | "dictionary_unavailable" | "word_check_unavailable" | "too_many_words";
+        ErrorCode: "illegal_move" | "not_your_turn" | "stale_position" | "invalid_word" | "game_over" | "no_premove" | "out_of_time" | "invalid_configuration" | "rejected" | "unknown_table" | "unknown_code" | "unknown_scheme" | "table_full" | "seats_out_of_range" | "seat_token_mismatch" | "gathering" | "dictionary_unavailable" | "word_check_unavailable" | "too_many_words";
         /** EventView */
         EventView: {
             /** Actor */
@@ -494,7 +494,7 @@ export interface components {
          * RejectionCode
          * @enum {string}
          */
-        RejectionCode: "illegal_move" | "not_your_turn" | "stale_position" | "invalid_word" | "game_over" | "no_premove" | "invalid_configuration" | "rejected";
+        RejectionCode: "illegal_move" | "not_your_turn" | "stale_position" | "invalid_word" | "game_over" | "no_premove" | "out_of_time" | "invalid_configuration" | "rejected";
         /** Reorder */
         Reorder: {
             /**

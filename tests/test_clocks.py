@@ -54,19 +54,33 @@ def test_the_shorter_of_the_two_budgets_bounds_a_turn() -> None:
     assert clock.arm(0) == 50.0
 
 
-def test_a_spent_budget_flags_its_seat() -> None:
+def test_a_spent_budget_marks_its_seat() -> None:
     moment = _FakeClock()
     clock = _clock(TimeConfig(per_turn_seconds=None, increment_seconds=0, total_seconds=30), moment)
     clock.arm(0)
     moment.moment = 200.0
     clock.settle(earns_increment=False)
-    assert clock.flagged(0) is True
-    assert clock.flagged(1) is False
-    assert clock.all_flagged() is False
+    assert clock.spent(0) is True
+    assert clock.spent(1) is False
     clock.arm(1)
     moment.moment = 400.0
     clock.settle(earns_increment=False)
-    assert clock.all_flagged() is True
+    assert clock.spent(1) is True
+
+
+def test_a_deadline_expires_once_the_grace_runs_out() -> None:
+    moment = _FakeClock()
+    clock = _clock(TimeConfig(per_turn_seconds=90, increment_seconds=0, total_seconds=None), moment)
+    assert clock.expired() is False
+    clock.arm(0)
+    moment.moment = 189.0
+    assert clock.expired() is False
+    moment.moment = 190.4
+    assert clock.expired() is False
+    moment.moment = 191.0
+    assert clock.expired() is True
+    clock.disarm()
+    assert clock.expired() is False
 
 
 def test_disarming_hides_the_clock_and_moves_the_version() -> None:
@@ -89,5 +103,5 @@ def test_an_untimed_table_never_arms() -> None:
     )
     assert clock.arm(0) is None
     assert clock.view() is None
-    assert clock.flagged(0) is False
-    assert clock.all_flagged() is False
+    assert clock.spent(0) is False
+    assert clock.expired() is False

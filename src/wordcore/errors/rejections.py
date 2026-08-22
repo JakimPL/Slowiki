@@ -19,6 +19,7 @@ class RejectionCode(StrEnum):
     INVALID_WORD = "invalid_word"
     GAME_OVER = "game_over"
     NO_PREMOVE = "no_premove"
+    OUT_OF_TIME = "out_of_time"
     INVALID_CONFIGURATION = "invalid_configuration"
     REJECTED = "rejected"
 

@@ -4,3 +4,7 @@ class SeatTokenMismatch(Exception):
 
 class TableGathering(Exception):
     pass
+
+
+class OutOfTime(Exception):
+    pass

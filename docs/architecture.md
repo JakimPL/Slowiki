@@ -99,10 +99,12 @@ Wall-clock time is session state, never position state. `TurnClock`
 (`wordserver/clocks.py`) holds what each seat has left and the deadline of the
 seat on turn: arming a turn takes the shorter of the scheme's per-turn budget and
 the seat's own remaining time, settling a turn charges the thinking time and adds
-the increment after a play or an exchange, and a spent budget flags its seat, so
-the session auto-passes for it while any opponent still has time. A table asks for
-its own control at creation (`TableRequest.time`), which replaces the scheme's
-default and rides in the description as `parameters.time`.
+the increment after a play or an exchange. A seat whose budget is spent leaves the
+game as an observer: the session refuses every move it submits, discards any premove
+it left standing, and auto-passes on its turn, so the opponents play on and the
+scheme's end limit closes the game. A table asks for its own control at creation
+(`TableRequest.time`), which replaces the scheme's default and rides in the
+description as `parameters.time`.
 
 ## Concurrency
 

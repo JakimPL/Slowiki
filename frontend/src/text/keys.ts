@@ -66,6 +66,7 @@ export interface PlainValues {
     readonly "guidance.gapped": EmptyValues;
     readonly "guidance.off_center": EmptyValues;
     readonly "guidance.opening_short": EmptyValues;
+    readonly "guidance.out_of_time": EmptyValues;
     readonly "guidance.place": EmptyValues;
     readonly "guidance.scattered": EmptyValues;
     readonly "hand.bingo": { readonly bonus: number };

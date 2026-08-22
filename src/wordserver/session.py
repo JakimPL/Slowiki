@@ -4,6 +4,7 @@ from collections.abc import AsyncIterator, Callable
 from dataclasses import dataclass
 from typing import Final
 
+from wordcore.errors.rejections import RejectionCode
 from wordcore.games.game import Game
 from wordcore.models.base import BaseFrozen
 from wordcore.moves.action import Pass
@@ -14,7 +15,7 @@ from wordcore.views.events import EventView
 from wordcore.views.highlights import GameHighlights
 from wordcore.views.projection import PositionView
 from wordserver.clocks import TurnClock
-from wordserver.errors.exceptions import SeatTokenMismatch, TableGathering
+from wordserver.errors.exceptions import OutOfTime, SeatTokenMismatch, TableGathering
 from wordserver.models.clock import ClockView
 from wordserver.models.company import CompanyView
 from wordserver.models.seat import SeatView
@@ -127,6 +128,7 @@ class TableSession:
                 raise SeatTokenMismatch("seat token does not match the move")
 
             self._ensure_gathered()
+            self._ensure_in_time(move.player)
             before = self._turn_cursor()
             self._game.submit(move, base_seq=base_seq, premove=premove)
             if self._turn_cursor() != before:
@@ -160,6 +162,16 @@ class TableSession:
     def _ensure_gathered(self) -> None:
         if self.gathering():
             raise TableGathering("the table is still gathering players")
+
+    def _ensure_in_time(self, seat: int) -> None:
+        if self._out_of_time(seat):
+            raise OutOfTime("the seat has run out of time")
+
+    def _out_of_time(self, seat: int) -> bool:
+        if self._clock.spent(seat):
+            return True
+
+        return seat == self._clock.armed_seat() and self._clock.expired()
 
     def _turn_cursor(self) -> tuple[frozenset[int], int]:
         state = self._game.position.state
@@ -251,6 +263,12 @@ class TableSession:
 
         return move.action.kind in (ActionKind.PLAY, ActionKind.EXCHANGE)
 
+    def _discard_premove(self, seat: int, reason: RejectionCode) -> None:
+        if self._game.position.state.premoves.get(seat) is None:
+            return
+
+        self._game.discard_premove(seat, self._game.seq, reason)
+
     def _cancel_timer(self) -> None:
         if self._timer_task is not None:
             self._timer_task.cancel()
@@ -264,10 +282,6 @@ class TableSession:
             return
 
         seat = next(iter(position.state.to_act))
-        if self._clock.flagged(seat) and self._clock.all_flagged():
-            self._clock.disarm()
-            return
-
         budget = self._clock.arm(seat)
         if budget is None:
             return
@@ -285,6 +299,7 @@ class TableSession:
                 return
 
             self._clock.settle(earns_increment=False)
+            self._discard_premove(seat, RejectionCode.OUT_OF_TIME)
             self._game.submit(
                 Move(player=seat, action=Pass()),
                 base_seq=self._game.seq,

@@ -178,6 +178,7 @@ guidance:
   detached: Connect the word to the tiles on the board.
   scattered: Keep the word in a single row or column.
   gapped: Fill every gap in the word.
+  out_of_time: Your time is up. You can watch the rest of the game.
 
 general:
   list_separator: ", "

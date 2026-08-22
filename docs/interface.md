@@ -211,6 +211,9 @@ sheet with the scheme's own alphabet.
   beside a "Premove queued — Cancel" chip; submitting again replaces the queue) → `applied`
   (tiles become real with the fresh-play flash) or `returned` (tiles back on the rack with the
   reason in the feedback line).
+- **Clock**: a seat whose time is up becomes an observer — every control rests, tiles
+  reach no square, and the guidance line says the time is up. The seat keeps its tiles
+  and its score, and the game plays on to its own end.
 - **Word status**: `unknown` (hollow dot) · `valid` (success accent) · `invalid` (danger, with the
   dictionary's sentence in the guidance line) · `standing` (reserved for challenge schemes).
 - **Word insight**: `absent` (the dictionary refuses the word) · `unclassified` (the word plays, and the

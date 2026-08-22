@@ -12,6 +12,7 @@ from wordcore.lexicon.lexicon import TextLexicon
 from wordcore.moves.action import Exchange, Pass
 from wordcore.moves.move import Move
 from wordserver.app import create_app
+from wordserver.errors.exceptions import OutOfTime
 from wordserver.session import TableSession
 from wordtable.build import build_rules
 from wordtable.catalog import resolve_scheme
@@ -285,14 +286,49 @@ async def test_a_pass_earns_no_increment() -> None:
     session.close()
 
 
-async def test_a_table_of_spent_budgets_rests_instead_of_passing_forever() -> None:
+async def test_a_table_of_spent_budgets_passes_out_to_the_end() -> None:
     clock = _FakeClock()
     session = _budgeted_session(0, 0, clock)
     await session.claim(None)
     await asyncio.sleep(0.2)
+    assert session.seq == 4
+    assert session.view(None).phase == "game_over"
     assert session.clock() is None
+    session.close()
+
+
+async def test_a_spent_seat_is_refused_a_premove() -> None:
+    clock = _FakeClock()
+    session = _budgeted_session(30, 0, clock)
+    await session.claim(None)
+    clock.moment = 1030.0
+    await session.submit(Move(player=0, action=Pass()), base_seq=0, premove=False, token="token-a")
+    spent = session.clock()
+    assert spent is not None
+    assert spent.remaining["0"] == 0.0
+    rack = session.view(0).racks[0]
+    assert rack is not None
+    exchange = Move(player=0, action=Exchange(tile_ids=[rack[0].identifier]))
+    with pytest.raises(OutOfTime):
+        await session.submit(exchange, base_seq=1, premove=True, token="token-a")
+
+    assert session.seq == 1
+    assert session.view(0).premove is None
+    session.close()
+
+
+async def test_a_seat_past_its_deadline_is_refused_a_move() -> None:
+    clock = _FakeClock()
+    session = _timed_session(90, clock)
+    await session.claim(None)
+    clock.moment = 1200.0
+    rack = session.view(0).racks[0]
+    assert rack is not None
+    exchange = Move(player=0, action=Exchange(tile_ids=[rack[0].identifier]))
+    with pytest.raises(OutOfTime):
+        await session.submit(exchange, base_seq=0, premove=False, token="token-a")
+
     assert session.seq == 0
-    assert session.view(None).phase == "turn"
     session.close()
 
 
