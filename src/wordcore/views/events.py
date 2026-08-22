@@ -42,7 +42,7 @@ def _masked_move(entry: JournalEntry, observer: int | None) -> Move | None:
             owned = observer is not None and observer == entry.actor
             return entry.move if owned else None
 
-        case EntryKind.PREMOVE_CLEARED | EntryKind.PREMOVE_DISCARDED:
+        case EntryKind.PREMOVE_CLEARED | EntryKind.PREMOVE_DISCARDED | EntryKind.ABANDONED:
             return None
 
 

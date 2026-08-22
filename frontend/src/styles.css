@@ -161,8 +161,12 @@ select {
 
 .waiting {
     display: grid;
-    place-items: center;
+    align-content: center;
+    justify-items: center;
+    gap: 16px;
     min-height: 100dvh;
+    padding: 24px;
+    text-align: center;
     color: var(--chrome-muted);
 }
 

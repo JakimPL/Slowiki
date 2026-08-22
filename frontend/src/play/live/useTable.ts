@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { followEvents, readView } from "../../api/client";
-import { reasonOf } from "../../api/refusal";
+import { gone, reasonOf } from "../../api/refusal";
 import type { Seat } from "../../api/seat";
 import type { ClockView } from "../../api/views";
 import { whenInView } from "../device/viewing";
@@ -28,6 +28,7 @@ export function useTable(table: string, token: string | null): TableHold {
 
     useEffect(() => {
         let alive = true;
+        let departed = false;
         let release: (() => void) | null = null;
         let lastBeat = Date.now();
         const seat: Seat = { table, token };
@@ -43,7 +44,9 @@ export function useTable(table: string, token: string | null): TableHold {
                     return response.seq;
                 })
                 .catch((error: unknown) => {
-                    if (alive) {
+                    if (gone(error)) {
+                        depart(reasonOf(error));
+                    } else if (alive) {
                         setTrouble(reasonOf(error));
                     }
                     return null;
@@ -77,11 +80,29 @@ export function useTable(table: string, token: string | null): TableHold {
                     setConnection("resuming");
                     setTrouble(reason);
                 },
+                onEnded: (): void => {
+                    resume();
+                },
+                onGone: (reason): void => {
+                    depart(reason);
+                },
             });
         };
 
+        const depart = (reason: string): void => {
+            departed = true;
+            if (release !== null) {
+                release();
+                release = null;
+            }
+            if (alive) {
+                setConnection("lost");
+                setTrouble(reason);
+            }
+        };
+
         const resume = (): void => {
-            if (!alive) {
+            if (!alive || departed) {
                 return;
             }
             setConnection("resuming");
@@ -103,14 +124,16 @@ export function useTable(table: string, token: string | null): TableHold {
                 release = hold();
             })
             .catch((error: unknown) => {
-                if (alive) {
+                if (gone(error)) {
+                    depart(reasonOf(error));
+                } else if (alive) {
                     setConnection("lost");
                     setTrouble(reasonOf(error));
                 }
             });
 
         const resumedIfSilent = (): boolean => {
-            if (!silent(lastBeat, Date.now())) {
+            if (departed || !silent(lastBeat, Date.now())) {
                 return false;
             }
             resume();
@@ -121,7 +144,7 @@ export function useTable(table: string, token: string | null): TableHold {
             resumedIfSilent();
         }, WATCH_INTERVAL_MILLISECONDS);
         const stopWatchingView = whenInView(document, (): void => {
-            if (!resumedIfSilent()) {
+            if (!departed && !resumedIfSilent()) {
                 void refresh();
             }
         });

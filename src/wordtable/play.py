@@ -10,7 +10,7 @@ from wordcore.errors.exceptions import IllegalMove, WordcoreError
 from wordcore.games.game import Game
 from wordcore.moves.action import Exchange, Pass, Play, PlayPlacement
 from wordcore.moves.move import Move
-from wordcore.states.phase import Phase
+from wordcore.states.phase import finished
 from wordcore.tiles.tile import Tile
 from wordtable.build import build_rules
 from wordtable.catalog import resolve_scheme
@@ -49,7 +49,7 @@ def _build_game(scheme_name: str, players: int) -> Game:
 
 
 def _play(game: Game) -> None:
-    while game.position.state.phase != Phase.GAME_OVER:
+    while not finished(game.position.state.phase):
         _render(game)
         if not _handle_command(game):
             return

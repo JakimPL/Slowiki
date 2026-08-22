@@ -317,7 +317,7 @@ export interface components {
          * EntryKind
          * @enum {string}
          */
-        EntryKind: "move" | "premove_set" | "premove_cleared" | "premove_discarded";
+        EntryKind: "move" | "premove_set" | "premove_cleared" | "premove_discarded" | "abandoned";
         /** ErrorBody */
         ErrorBody: {
             code: components["schemas"]["ErrorCode"];
@@ -328,7 +328,7 @@ export interface components {
          * ErrorCode
          * @enum {string}
          */
-        ErrorCode: "illegal_move" | "not_your_turn" | "stale_position" | "invalid_word" | "game_over" | "no_premove" | "out_of_time" | "invalid_configuration" | "rejected" | "unknown_table" | "unknown_code" | "unknown_scheme" | "table_full" | "seats_out_of_range" | "seat_token_mismatch" | "rack_mismatch" | "gathering" | "dictionary_unavailable" | "word_check_unavailable" | "too_many_words";
+        ErrorCode: "illegal_move" | "not_your_turn" | "stale_position" | "invalid_word" | "game_over" | "no_premove" | "out_of_time" | "invalid_configuration" | "rejected" | "unknown_table" | "table_closed" | "unknown_code" | "unknown_scheme" | "table_full" | "seats_out_of_range" | "seat_token_mismatch" | "rack_mismatch" | "gathering" | "dictionary_unavailable" | "word_check_unavailable" | "too_many_words";
         /** EventView */
         EventView: {
             /** Actor */
@@ -438,7 +438,7 @@ export interface components {
          * Phase
          * @enum {string}
          */
-        Phase: "turn" | "game_over";
+        Phase: "turn" | "game_over" | "unresolved";
         /** Play */
         Play: {
             /**
@@ -887,6 +887,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorBody"];
                 };
             };
+            /** @description Gone */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -920,6 +929,15 @@ export interface operations {
             };
             /** @description Not Found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+            /** @description Gone */
+            410: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -969,6 +987,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorBody"];
                 };
             };
+            /** @description Gone */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -1002,6 +1029,15 @@ export interface operations {
             };
             /** @description Not Found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+            /** @description Gone */
+            410: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1062,6 +1098,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorBody"];
                 };
             };
+            /** @description Gone */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -1106,6 +1151,15 @@ export interface operations {
             };
             /** @description Conflict */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+            /** @description Gone */
+            410: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1164,6 +1218,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorBody"];
                 };
             };
+            /** @description Gone */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -1197,6 +1260,15 @@ export interface operations {
             };
             /** @description Not Found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+            /** @description Gone */
+            410: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1239,6 +1311,15 @@ export interface operations {
             };
             /** @description Not Found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+            /** @description Gone */
+            410: {
                 headers: {
                     [name: string]: unknown;
                 };

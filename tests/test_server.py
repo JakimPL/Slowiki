@@ -13,12 +13,19 @@ from wordcore.games.kind import EntryKind
 from wordcore.lexicon.lexicon import TextLexicon
 from wordcore.moves.action import Exchange, Pass
 from wordcore.moves.move import Move
+from wordcore.states.phase import Phase
 from wordserver.app import create_app
+from wordserver.errors.code import ErrorCode
 from wordserver.errors.exceptions import OutOfTime
+from wordserver.errors.gone import table_gone
+from wordserver.models.table_meta import TableMeta
+from wordserver.records import KEPT_GAMES, GameBook
+from wordserver.registry import TableRegistry
 from wordserver.session import TableSession
+from wordserver.sweep import TableSweep
 from wordtable.build import build_rules
 from wordtable.catalog import resolve_scheme
-from wordtable.config import TimeConfig
+from wordtable.config import TablesConfig, TimeConfig
 from wordtable.paths import CONFIG_DIR
 
 _PREMOVE_DELAY: Final = 0.05
@@ -297,7 +304,7 @@ async def test_clock_arms_when_the_table_gathers() -> None:
     assert armed.deadline == 1090.0
     assert armed.server_time == 1000.0
     assert armed.remaining == {}
-    session.close()
+    await session.close()
 
 
 async def test_budget_charges_the_thinking_seat_and_pays_the_increment() -> None:
@@ -318,7 +325,7 @@ async def test_budget_charges_the_thinking_seat_and_pays_the_increment() -> None
     assert rearmed.seat == 1
     assert rearmed.remaining == {"0": 270.0, "1": 300.0}
     assert rearmed.deadline == 1340.0
-    session.close()
+    await session.close()
 
 
 async def test_a_pass_earns_no_increment() -> None:
@@ -330,7 +337,7 @@ async def test_a_pass_earns_no_increment() -> None:
     spent = session.clock()
     assert spent is not None
     assert spent.remaining == {"0": 270.0, "1": 300.0}
-    session.close()
+    await session.close()
 
 
 async def test_a_table_of_spent_budgets_passes_out_to_the_end() -> None:
@@ -341,7 +348,7 @@ async def test_a_table_of_spent_budgets_passes_out_to_the_end() -> None:
     assert session.seq == 4
     assert session.view(None).phase == "game_over"
     assert session.clock() is None
-    session.close()
+    await session.close()
 
 
 async def test_a_spent_seat_is_refused_a_premove() -> None:
@@ -361,7 +368,7 @@ async def test_a_spent_seat_is_refused_a_premove() -> None:
 
     assert session.seq == 1
     assert session.view(0).premove is None
-    session.close()
+    await session.close()
 
 
 async def test_a_seat_past_its_deadline_is_refused_a_move() -> None:
@@ -376,7 +383,7 @@ async def test_a_seat_past_its_deadline_is_refused_a_move() -> None:
         await session.submit(exchange, base_seq=0, premove=False, token="token-a")
 
     assert session.seq == 0
-    session.close()
+    await session.close()
 
 
 async def test_opponent_premove_leaves_the_deadline_alone() -> None:
@@ -400,7 +407,7 @@ async def test_opponent_premove_leaves_the_deadline_alone() -> None:
     rearmed = session.clock()
     assert rearmed is not None
     assert rearmed.deadline == 1140.0
-    session.close()
+    await session.close()
 
 
 async def test_a_premove_waits_out_its_delay_before_it_settles() -> None:
@@ -419,7 +426,7 @@ async def test_a_premove_waits_out_its_delay_before_it_settles() -> None:
     assert session.seq == 3
     assert session.view(1).premove is None
     assert session.view(1).to_act == frozenset({0})
-    session.close()
+    await session.close()
 
 
 async def test_the_premove_delay_is_charged_to_the_premover() -> None:
@@ -438,7 +445,7 @@ async def test_the_premove_delay_is_charged_to_the_premover() -> None:
     assert rearmed is not None
     assert rearmed.seat == 0
     assert rearmed.remaining == {"0": 280.0, "1": 309.0}
-    session.close()
+    await session.close()
 
 
 async def test_a_premove_that_flags_its_seat_is_returned() -> None:
@@ -457,7 +464,7 @@ async def test_a_premove_that_flags_its_seat_is_returned() -> None:
     assert returned["reason"] == RejectionCode.OUT_OF_TIME
     assert session.view(1).premove is None
     assert session.view(1).to_act == frozenset({1})
-    session.close()
+    await session.close()
 
 
 async def test_a_run_of_premoves_settles_one_delay_at_a_time() -> None:
@@ -479,7 +486,7 @@ async def test_a_run_of_premoves_settles_one_delay_at_a_time() -> None:
     assert session.seq == 5
     assert session.view(0).premove is None
     assert session.view(0).to_act == frozenset({1})
-    session.close()
+    await session.close()
 
 
 async def test_timeout_auto_passes_until_the_game_ends() -> None:
@@ -490,7 +497,7 @@ async def test_timeout_auto_passes_until_the_game_ends() -> None:
     assert session.seq == 4
     assert session.view(None).phase == "game_over"
     assert session.clock() is None
-    session.close()
+    await session.close()
 
 
 async def test_clock_frames_ride_the_stream() -> None:
@@ -506,7 +513,7 @@ async def test_clock_frames_ride_the_stream() -> None:
     assert '"deadline": 1090.0' in third
     assert "id:" not in third
     await stream.aclose()
-    session.close()
+    await session.close()
 
 
 async def test_the_letters_ride_the_turn_that_opens_them() -> None:
@@ -523,7 +530,7 @@ async def test_the_letters_ride_the_turn_that_opens_them() -> None:
     assert seated["racks"]["1"] is None
     assert (await anext(stream)).startswith("event: clock\n")
     await stream.aclose()
-    session.close()
+    await session.close()
 
 
 async def test_a_waiting_stream_wakes_on_the_next_move() -> None:
@@ -539,7 +546,7 @@ async def test_a_waiting_stream_wakes_on_the_next_move() -> None:
     frame = await asyncio.wait_for(waiting, timeout=1.0)
     assert frame.startswith("id: 0\n")
     await stream.aclose()
-    session.close()
+    await session.close()
 
 
 async def test_claims_hand_out_distinct_seats_concurrently(client: httpx.AsyncClient) -> None:
@@ -671,7 +678,7 @@ async def test_a_rack_order_wakes_no_stream() -> None:
     await session.submit(Move(player=0, action=Pass()), base_seq=0, premove=False, token="token-a")
     assert (await asyncio.wait_for(waiting, timeout=1.0)).startswith("id: 0\n")
     await stream.aclose()
-    session.close()
+    await session.close()
 
 
 async def test_a_remembered_order_rides_the_event_frames() -> None:
@@ -689,7 +696,7 @@ async def test_a_remembered_order_rides_the_event_frames() -> None:
     passed = _frame_body(await anext(stream))
     assert [tile["identifier"] for tile in passed["position"]["racks"]["0"]] == list(asked)
     await stream.aclose()
-    session.close()
+    await session.close()
 
 
 async def test_an_idle_stream_beats_where_the_journal_is_quiet(
@@ -706,7 +713,7 @@ async def test_an_idle_stream_beats_where_the_journal_is_quiet(
     assert beat.startswith("event: heartbeat\n")
     assert _frame_body(beat)["server_time"] == clock.moment
     await stream.aclose()
-    session.close()
+    await session.close()
 
 
 async def test_a_cancelled_stream_releases_its_seat() -> None:
@@ -728,4 +735,123 @@ async def test_a_cancelled_stream_releases_its_seat() -> None:
     assert session.company().seats[0].connected is False
     for _ in range(4):
         await asyncio.sleep(0)
-    session.close()
+    await session.close()
+
+
+def _registry_with(session: TableSession) -> tuple[TableRegistry, str]:
+    resolved = resolve_scheme(CONFIG_DIR, "literaki")
+    meta = TableMeta(
+        scheme="literaki",
+        game=resolved.scheme.game,
+        max_players=2,
+        code="ABCDEF",
+        resolved=resolved,
+        time=resolved.scheme.time,
+    )
+    registry = TableRegistry(GameBook(KEPT_GAMES))
+    registry.add("table-1", session, meta)
+    registry.add_code(meta.code, "table-1")
+    return registry, "table-1"
+
+
+def _swept(registry: TableRegistry, clock: _FakeClock) -> TableSweep:
+    bounds = TablesConfig(life_seconds=86400.0, linger_seconds=3600.0, sweep_seconds=60.0)
+    return TableSweep(registry, bounds, clock)
+
+
+async def _passed_out(session: TableSession) -> None:
+    for turn, seat in enumerate((0, 1, 0, 1)):
+        await session.submit(
+            Move(player=seat, action=Pass()),
+            base_seq=turn,
+            premove=False,
+            token=f"token-{'ab'[seat]}",
+        )
+
+
+async def test_a_table_left_standing_for_a_day_closes_unresolved() -> None:
+    clock = _FakeClock()
+    session = _timed_session(None, clock)
+    await session.claim("Bob")
+    registry, table_id = _registry_with(session)
+    sweep = _swept(registry, clock)
+    assert await sweep.once() == ()
+
+    clock.moment += 86400.0
+    assert await sweep.once() == ()
+    assert session.view(None).phase == Phase.UNRESOLVED
+    assert registry.get(table_id) is session
+
+    clock.moment += 3600.0
+    assert await sweep.once() == (table_id,)
+    assert registry.get(table_id) is None
+    assert registry.meta_for(table_id) is None
+    assert registry.table_id_for_code("ABCDEF") is None
+
+
+async def test_a_finished_table_is_recorded_when_it_is_let_go() -> None:
+    clock = _FakeClock()
+    session = _timed_session(None, clock)
+    await session.claim("Bob")
+    await _passed_out(session)
+    scores = session.view(None).scores
+    registry, table_id = _registry_with(session)
+    sweep = _swept(registry, clock)
+    assert await sweep.once() == ()
+
+    clock.moment += 3600.0
+    assert await sweep.once() == (table_id,)
+    record = registry.record_for(table_id)
+    assert record is not None
+    assert record.phase == Phase.GAME_OVER
+    assert record.scheme == "literaki"
+    assert [seated.name for seated in record.seats] == [None, "Bob"]
+    assert [seated.score for seated in record.seats] == [scores[0], scores[1]]
+    assert record.opened == 1000.0
+    assert record.closed == clock.moment
+
+
+async def test_closing_a_table_lets_its_streams_go() -> None:
+    clock = _FakeClock()
+    session = _timed_session(None, clock)
+    await session.claim("Bob")
+    stream = session.events(observer=0, since=0)
+    assert (await anext(stream)).startswith("event: presence\n")
+
+    async def drain() -> list[str]:
+        return [frame async for frame in stream]
+
+    await session.close()
+    remaining = await asyncio.wait_for(drain(), timeout=1.0)
+    assert all(not frame.startswith("event: heartbeat\n") for frame in remaining)
+    assert session.company().seats[0].connected is False
+
+
+async def test_an_abandoned_seat_keeps_the_points_it_earned() -> None:
+    clock = _FakeClock()
+    session = _timed_session(None, clock)
+    await session.claim("Bob")
+    await session.abandon()
+    view = session.view(None)
+    assert view.phase == Phase.UNRESOLVED
+    assert view.to_act == frozenset()
+    assert view.scores == {0: 0, 1: 0}
+    assert session.clock() is None
+    await session.close()
+
+
+async def test_a_table_the_server_never_held_reads_as_unknown() -> None:
+    refusal = table_gone(None)
+    assert refusal.status_code == 404
+    assert refusal.code is ErrorCode.UNKNOWN_TABLE
+
+
+async def test_a_recorded_table_reads_as_closed() -> None:
+    clock = _FakeClock()
+    session = _timed_session(None, clock)
+    await session.claim("Bob")
+    registry, table_id = _registry_with(session)
+    await registry.close(table_id, at=clock.moment)
+    refusal = table_gone(registry.record_for(table_id))
+    assert refusal.status_code == 410
+    assert refusal.code is ErrorCode.TABLE_CLOSED

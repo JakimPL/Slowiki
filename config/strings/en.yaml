@@ -59,6 +59,7 @@ seats:
     plural:
       one: "You win with {points:number}"
       other: "You share the win with {points:number}"
+  unresolved: The game was left unfinished
   standing_reopen: Show the final standing
   mode_label: Color mode
   mode_system: ◐ Auto
@@ -154,6 +155,7 @@ sheets:
   blank_confirm: Assign the letter
   game_over_heading: Game over
   game_over_victory: You win!
+  game_over_unresolved: Left unfinished
   game_over_close: Close
   table_leave: Leave the table
   game_over_dismiss: Close the final standing

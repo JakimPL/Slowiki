@@ -24,6 +24,9 @@ P5. The journal is append-only. Each move appends a transaction of the form
 P6. The engine owns the cursor. Turn order, phase, and premove settlement are
     engine concerns; game rules supply validation and application. The session
     decides when a queued premove settles, the way it already owns the wall clock.
+    Ending a game that stands unplayed belongs there too: `Game.abandon` leaves the
+    position `unresolved` with the scores the seats have earned, so an award that
+    game rules compute stays with the game rules.
 
 P7. Letters are canonical. Every letter inside the system is uppercase; dictionary
     loaders, tile presets, and move payloads normalize on ingestion, so rules,
@@ -68,7 +71,9 @@ design contract.
 - `lexica.names.DictionaryName` — sjp, english, osps.
 - `wordcore.moves.kind.ActionKind` — play, exchange, pass.
 - `wordcore.games.kind.EntryKind` — move, premove_set, premove_cleared,
-  premove_discarded.
+  premove_discarded, abandoned.
+- `wordcore.states.phase.Phase` — turn, game_over, unresolved; `finished` answers
+  for the two a game rests in.
 
 ## HTTP surface
 
@@ -77,7 +82,9 @@ design contract.
 - `GET /style` — the design tokens for the active theme, asked once per client.
 - `POST /tables`, `POST /tables/{code}/join` — admissions with seat tokens.
 - `GET /tables/{table_id}` — the table description: rules parameters, alphabet,
-  distribution, and the join code for seat holders.
+  distribution, and the join code for seat holders. Every route under a table
+  answers 404 `unknown_table` for an identifier the server never held and 410
+  `table_closed` for one it has let go, so a client tells a stale link from a typo.
 - `GET /tables/{table_id}/view` — the per-observer projection with the company
   and the turn clock.
 - `GET /tables/{table_id}/words` — dictionary verdicts for up to sixteen words,
@@ -122,6 +129,24 @@ for and lays that seat's own rack out in them whenever the session projects it,
 with freshly drawn tiles standing at the end. `PUT /tables/{table_id}/rack`
 records an order and stops there, so a player who reloads finds their hand as
 they left it while the journal and every other seat read exactly as before.
+
+## Table life
+
+A table lives as long as its game does. `TableSweep` (`wordserver/sweep.py`) wakes
+every `tables.sweep_seconds` and reads each table's `TableStanding` — its age, and
+how long its game has been finished — through `fate_of` (`wordserver/lifetime.py`),
+which answers keep, abandon, or close. A game still running past
+`tables.life_seconds` is abandoned: the session calls `Game.abandon`, which appends
+an `abandoned` entry leaving the position `unresolved` with the scores as they
+stand. A finished table closes once its standing has been readable for
+`tables.linger_seconds`.
+
+Closing is one path, `TableRegistry.close`: it writes a `GameRecord` into the
+`GameBook`, drops the table and its join code from the registry, and closes the
+session, which cancels the turn and premove timers and ends every open stream. The
+book keeps the last `KEPT_GAMES` records, which is how a request for a table the
+server has let go answers 410 rather than 404, and each record reaches the log as
+it is filed.
 
 ## Concurrency
 

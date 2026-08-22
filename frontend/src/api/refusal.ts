@@ -4,6 +4,8 @@ export const UNKNOWN_CODE = "unknown";
 export const STALE_POSITION_CODE = "stale_position";
 export const NO_PREMOVE_CODE = "no_premove";
 export const CONFLICT_STATUS = 409;
+export const MISSING_STATUS = 404;
+export const GONE_STATUS = 410;
 
 export class Refused extends Error {
     readonly status: number;
@@ -37,6 +39,13 @@ export async function refusalOf(response: Response): Promise<Refused> {
 
 export function movedOn(trouble: Refused): boolean {
     return trouble.status === CONFLICT_STATUS;
+}
+
+export function gone(trouble: unknown): boolean {
+    if (!(trouble instanceof Refused)) {
+        return false;
+    }
+    return trouble.status === MISSING_STATUS || trouble.status === GONE_STATUS;
 }
 
 export function reasonOf(trouble: unknown): string {

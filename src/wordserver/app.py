@@ -7,7 +7,7 @@ import secrets
 import time
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import Annotated, Final, NamedTuple
+from typing import Annotated, Any, Final, NamedTuple
 
 from fastapi import FastAPI, Header, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -27,16 +27,20 @@ from wordserver.describe import table_description, word_check_offered
 from wordserver.errors.body import ErrorBody
 from wordserver.errors.code import ErrorCode, code_for
 from wordserver.errors.exceptions import TableRefused
+from wordserver.errors.gone import table_gone
 from wordserver.errors.refusal import Refusal, refusal_response
 from wordserver.models.move_accepted import MoveAccepted
 from wordserver.models.offerings import OfferingsResponse
 from wordserver.models.table import TableViewResponse
 from wordserver.models.table_admission import TableAdmission
 from wordserver.models.table_description import TableDescription
+from wordserver.models.table_meta import TableMeta
 from wordserver.models.table_time import TableTimeRequest
 from wordserver.models.word_verdicts import WordVerdicts
-from wordserver.registry import TableMeta, TableRegistry
+from wordserver.records import KEPT_GAMES, GameBook
+from wordserver.registry import TableRegistry
 from wordserver.session import TableSession
+from wordserver.sweep import TableSweep
 from wordtable.build import build_rules
 from wordtable.catalog import ResolvedScheme, offerings, resolve_scheme
 from wordtable.config import (
@@ -51,6 +55,15 @@ from wordtable.paths import ASSETS_DIR, CONFIG_DIR, FRONTEND_DIST_DIR, RUN_CONFI
 
 MAX_PLAYER_NAME_LENGTH: Final = 32
 MAX_JUDGED_WORDS: Final = 16
+
+_TABLE_RESPONSES: Final[dict[int | str, dict[str, Any]]] = {
+    404: {"model": ErrorBody},
+    410: {"model": ErrorBody},
+}
+_PLAY_RESPONSES: Final[dict[int | str, dict[str, Any]]] = {
+    **_TABLE_RESPONSES,
+    409: {"model": ErrorBody},
+}
 
 PlayerName = Annotated[
     str,
@@ -228,7 +241,7 @@ def _table_for_code(
     session = registry.get(table_id)
     meta = registry.meta_for(table_id)
     if session is None or meta is None:
-        raise Refusal(404, "unknown table", ErrorCode.UNKNOWN_TABLE)
+        raise table_gone(registry.record_for(table_id))
 
     return table_id, session, meta
 
@@ -266,14 +279,17 @@ def create_app() -> FastAPI:
     configuration = read_config(RUN_CONFIG_FILE)
     style_tokens = load_style_tokens(CONFIG_DIR, configuration.style)
     service = LexiconService()
-    registry = TableRegistry()
+    registry = TableRegistry(GameBook(KEPT_GAMES))
+    sweep = TableSweep(registry, configuration.tables, time.time)
 
     @asynccontextmanager
     async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
         default = resolve_scheme(CONFIG_DIR, configuration.scheme)
         preload = asyncio.create_task(service.get(default.scheme.dictionary))
+        sweeping = asyncio.create_task(sweep.run())
         yield
         preload.cancel()
+        sweeping.cancel()
 
     app = FastAPI(title="slowiki", lifespan=lifespan)
     app.add_middleware(
@@ -304,14 +320,14 @@ def create_app() -> FastAPI:
     def session_for(table_id: str) -> TableSession:
         session = registry.get(table_id)
         if session is None:
-            raise Refusal(404, "unknown table", ErrorCode.UNKNOWN_TABLE)
+            raise table_gone(registry.record_for(table_id))
         return session
 
     def table_with_meta(table_id: str) -> tuple[TableSession, TableMeta]:
         session = registry.get(table_id)
         meta = registry.meta_for(table_id)
         if session is None or meta is None:
-            raise Refusal(404, "unknown table", ErrorCode.UNKNOWN_TABLE)
+            raise table_gone(registry.record_for(table_id))
         return session, meta
 
     @app.get("/offerings")
@@ -336,10 +352,7 @@ def create_app() -> FastAPI:
         game = await _built_game(service, resolved, tuple(range(body.seats)))
         return _open_table(registry, game, resolved, body)
 
-    @app.post(
-        "/tables/{code}/join",
-        responses={404: {"model": ErrorBody}, 409: {"model": ErrorBody}},
-    )
+    @app.post("/tables/{code}/join", responses=_PLAY_RESPONSES)
     async def join_table(code: str, body: JoinRequest) -> TableAdmission:
         table_id, session, meta = _table_for_code(registry, code)
         seat, token = await _claimed_seat(session, body.name)
@@ -352,7 +365,7 @@ def create_app() -> FastAPI:
             name=body.name,
         )
 
-    @app.get("/tables/{table_id}", responses={404: {"model": ErrorBody}})
+    @app.get("/tables/{table_id}", responses=_TABLE_RESPONSES)
     def describe_table(table_id: str, request: Request) -> TableDescription:
         session, meta = table_with_meta(table_id)
         observer = session.observer_for(request.headers.get("X-Seat-Token"))
@@ -360,7 +373,7 @@ def create_app() -> FastAPI:
 
     @app.get(
         "/tables/{table_id}/words",
-        responses={404: {"model": ErrorBody}, 422: {"model": ErrorBody}},
+        responses={**_TABLE_RESPONSES, 422: {"model": ErrorBody}},
     )
     async def judge_words(
         table_id: str,
@@ -374,11 +387,11 @@ def create_app() -> FastAPI:
         lexicon = await service.get(scheme.dictionary)
         return WordVerdicts(verdicts={word: lexicon.judge(word) for word in asked})
 
-    @app.get("/tables/{table_id}/highlights", responses={404: {"model": ErrorBody}})
+    @app.get("/tables/{table_id}/highlights", responses=_TABLE_RESPONSES)
     def table_highlights(table_id: str) -> GameHighlights:
         return session_for(table_id).highlights()
 
-    @app.get("/tables/{table_id}/view", responses={404: {"model": ErrorBody}})
+    @app.get("/tables/{table_id}/view", responses=_TABLE_RESPONSES)
     def table_view(table_id: str, request: Request) -> TableViewResponse:
         session = session_for(table_id)
         observer = session.observer_for(request.headers.get("X-Seat-Token"))
@@ -389,10 +402,7 @@ def create_app() -> FastAPI:
             clock=session.clock(),
         )
 
-    @app.post(
-        "/tables/{table_id}/moves",
-        responses={404: {"model": ErrorBody}, 409: {"model": ErrorBody}},
-    )
+    @app.post("/tables/{table_id}/moves", responses=_PLAY_RESPONSES)
     async def submit_move(
         table_id: str,
         body: MoveRequest,
@@ -408,11 +418,7 @@ def create_app() -> FastAPI:
         )
         return MoveAccepted(seq=seq)
 
-    @app.put(
-        "/tables/{table_id}/rack",
-        status_code=204,
-        responses={404: {"model": ErrorBody}, 409: {"model": ErrorBody}},
-    )
+    @app.put("/tables/{table_id}/rack", status_code=204, responses=_PLAY_RESPONSES)
     async def arrange_rack(
         table_id: str,
         body: RackRequest,
@@ -424,10 +430,7 @@ def create_app() -> FastAPI:
             token=request.headers.get("X-Seat-Token"),
         )
 
-    @app.delete(
-        "/tables/{table_id}/premove",
-        responses={404: {"model": ErrorBody}, 409: {"model": ErrorBody}},
-    )
+    @app.delete("/tables/{table_id}/premove", responses=_PLAY_RESPONSES)
     async def cancel_premove(
         table_id: str,
         base_seq: int,
@@ -442,7 +445,7 @@ def create_app() -> FastAPI:
 
     @app.get(
         "/tables/{table_id}/events",
-        responses={200: {"model": EventView}, 404: {"model": ErrorBody}},
+        responses={200: {"model": EventView}, **_TABLE_RESPONSES},
     )
     def stream_events(
         table_id: str,

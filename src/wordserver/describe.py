@@ -1,7 +1,7 @@
 from wordcore.tiles.tile import Letter, TilePreset
 from wordserver.models.rule_parameters import RuleParameters
 from wordserver.models.table_description import TableDescription
-from wordserver.registry import TableMeta
+from wordserver.models.table_meta import TableMeta
 from wordtable.config import SchemeConfig, TimeConfig
 from wordtable.lexicons import dictionary_ready
 

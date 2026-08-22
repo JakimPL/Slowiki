@@ -114,6 +114,7 @@ export interface PlainValues {
     readonly "seats.open_seat": EmptyValues;
     readonly "seats.players_label": EmptyValues;
     readonly "seats.standing_reopen": EmptyValues;
+    readonly "seats.unresolved": EmptyValues;
     readonly "seats.waiting": EmptyValues;
     readonly "seats.you_marker": EmptyValues;
     readonly "seats.your_turn": EmptyValues;
@@ -124,6 +125,7 @@ export interface PlainValues {
     readonly "sheets.game_over_close": EmptyValues;
     readonly "sheets.game_over_dismiss": EmptyValues;
     readonly "sheets.game_over_heading": EmptyValues;
+    readonly "sheets.game_over_unresolved": EmptyValues;
     readonly "sheets.game_over_victory": EmptyValues;
     readonly "sheets.highlight_best": EmptyValues;
     readonly "sheets.highlight_both": EmptyValues;

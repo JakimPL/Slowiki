@@ -6,17 +6,21 @@ from tests.games.trivial import TrivialRules
 from wordcore.board.board import Board
 from wordcore.board.bonus import Bonus, BonusKind
 from wordcore.errors.exceptions import (
+    GameOver,
     IllegalMove,
     NoPremove,
     NotYourTurn,
     StalePosition,
 )
 from wordcore.errors.rejections import RejectionCode
+from wordcore.games.abandonment import abandoned
 from wordcore.games.game import Game
-from wordcore.games.journal import EntryKind, JournalEntry
+from wordcore.games.journal import JournalEntry
+from wordcore.games.kind import EntryKind
 from wordcore.lexicon.lexicon import TextLexicon
 from wordcore.moves.action import Exchange, Pass, Play, PlayPlacement
 from wordcore.moves.move import Move
+from wordcore.states.phase import Phase
 from wordcore.tiles.bag import build_tiles, deal_racks, shuffled_bag
 from wordcore.tiles.tile import LetterSpec, Tile, TilePreset
 from wordcore.views.events import event_view
@@ -315,3 +319,44 @@ def test_engine_projection_hides_other_racks() -> None:
     spectator = game.view(observer=None)
     assert spectator.racks[0] is None
     assert spectator.racks[1] is None
+
+
+def test_abandoning_a_game_leaves_it_unresolved() -> None:
+    game = Game(TrivialRules(), random.Random(0), premoves_allowed=True)
+    game.submit(queued_exchange(), base_seq=0, premove=True)
+    entry = game.abandon()
+    assert entry.kind == EntryKind.ABANDONED
+    assert entry.actor is None
+    assert entry.move is None
+    assert game.position.state.phase == Phase.UNRESOLVED
+    assert game.position.state.to_act == frozenset()
+    assert game.position.state.premoves == {0: None, 1: None}
+
+
+def test_an_abandoned_game_takes_nothing_further() -> None:
+    game = Game(TrivialRules(), random.Random(0), premoves_allowed=True)
+    game.abandon()
+    with pytest.raises(GameOver):
+        game.submit(Move(player=0, action=Pass()), base_seq=1)
+
+    with pytest.raises(GameOver):
+        game.abandon()
+
+    assert game.settle_premove() is None
+    assert game.seq == 1
+
+
+def test_abandonment_awards_no_points() -> None:
+    position = TrivialRules().initial_position(random.Random(0))
+    held = Tile(identifier=1, letter="a", value=5, category="yellow", blank=False)
+    played = position.model_copy(
+        update={
+            "state": position.state.model_copy(
+                update={"scores": {0: 12, 1: 20}, "racks": {0: (held,), 1: ()}},
+            )
+        }
+    )
+    left = abandoned(played)
+    assert left.state.phase == Phase.UNRESOLVED
+    assert left.state.scores == {0: 12, 1: 20}
+    assert left.state.racks == {0: (held,), 1: ()}

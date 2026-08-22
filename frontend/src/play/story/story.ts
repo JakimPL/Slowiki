@@ -1,7 +1,8 @@
 import type { CompanyView, PositionView } from "../../api/views";
 import { gathered } from "../seats/company";
+import { unresolved } from "./ending";
 
-export type StoryKind = "over" | "acting" | "gathering" | "watching";
+export type StoryKind = "over" | "unresolved" | "acting" | "gathering" | "watching";
 
 export interface Story {
     readonly kind: StoryKind;
@@ -11,6 +12,9 @@ export interface Story {
 }
 
 export function storyFor(view: PositionView, company: CompanyView, mySeat: number | null): Story {
+    if (unresolved(view.phase)) {
+        return { kind: "unresolved", seats: [], points: null, mine: false };
+    }
     if (view.phase === "game_over") {
         const top = Math.max(...view.players.map((seat) => view.scores[String(seat)] ?? 0));
         const winners = view.players.filter((seat) => (view.scores[String(seat)] ?? 0) === top);

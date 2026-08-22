@@ -44,7 +44,9 @@ by amending it. The palette is the *Lniany* proposition chosen from the phase-0 
 - **Table** — the one screen where the game lives. Until every seat is claimed it doubles as the
   room: a gathering banner with the join code, a copy-invitation control, and claimed/empty
   plaques. The claim that fills the last seat turns the room into a game in one step: the plaques,
-  the letters, and the clock arrive together.
+  the letters, and the clock arrive together. A table the server answers for opens straight onto the
+  board; one it no longer holds prints the sentence it gave and offers the way back to the main view,
+  so a stale link ends at a control rather than at a caption.
 - **Game over** — the final standing as an overlay: one row per player in placing order, each
   carrying its place, the player's tint, and the final score after rack deductions, with the board
   still readable beneath. Tied players share a place. From four players up, the first three rows
@@ -55,9 +57,11 @@ by amending it. The palette is the *Lniany* proposition chosen from the phase-0 
   common use without scrolling. Under the standing the card names the highest-scoring word of the
   game and its longest word, each in the tint of the player who laid it and carrying that player's
   name and the points the word scored; one word that took both titles stands on a single row that
-  says so, and a game played out in passes alone leaves the room empty. *Close* returns to the
-  board with the final position and the move log readable, and the status line then reopens the
-  standing; *Leave the table* returns to the main view.
+  says so, and a game played out in passes alone leaves the room empty. A game the table closes
+  itself — one left unplayed for a whole day — reaches the same screen with every score exactly as it
+  stood: the heading says the game was left unfinished, the rows keep their places, and the win
+  treatment rests. *Close* returns to the board with the final position and the move log readable,
+  and the status line then reopens the standing; *Leave the table* returns to the main view.
 
 ## Table regions
 
@@ -229,6 +233,10 @@ sheet with the scheme's own alphabet.
 - **Connection**: `joining` · `live` · `resuming` · `lost`, shown as a quiet chip in the status
   strip. The table beats every fifteen seconds whether or not anyone moves; silence past two beats
   reads as a dropped connection, and the client re-reads the position and follows again.
+- **Table life**: a table lives as long as its game does. A game standing unplayed for a whole day
+  ends unresolved, with the scores the seats have earned and no award on top; a table whose game has
+  ended is let go once its players have had their time with the standing, and a link to a table that
+  has been let go says the table has closed.
 - **Fresh play**: one frame in the mover's tint, haloed in the same tint, drawn around the latest
   play as a whole — a single rectangle from its first new letter to its last, taking in the standing
   letters the play hooked through — and it stands until the next play. While the play is still

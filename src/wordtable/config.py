@@ -18,10 +18,18 @@ from wordtable.paths import (
     configuration_file,
 )
 
+PositiveSeconds = Annotated[float, Field(gt=0)]
+
 
 class ServiceConfig(BaseFrozen):
     host: str
     port: int
+
+
+class TablesConfig(BaseFrozen):
+    life_seconds: PositiveSeconds
+    linger_seconds: PositiveSeconds
+    sweep_seconds: PositiveSeconds
 
 
 class TimeConfig(BaseFrozen):
@@ -121,6 +129,7 @@ class StyleTokens(BaseFrozen):
 
 class Configuration(BaseFrozen):
     service: ServiceConfig
+    tables: TablesConfig
     scheme: str
     style: str
 

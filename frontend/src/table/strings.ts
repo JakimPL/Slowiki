@@ -45,6 +45,8 @@ export const YOU_MARKER = text("seats.you_marker");
 export const YOUR_TURN_CAPTION = text("seats.your_turn");
 export const GAME_OVER_HEADING = text("sheets.game_over_heading");
 export const GAME_OVER_VICTORY = text("sheets.game_over_victory");
+export const GAME_OVER_UNRESOLVED = text("sheets.game_over_unresolved");
+export const UNRESOLVED_CAPTION = text("seats.unresolved");
 export const GAME_OVER_CLOSE = text("sheets.game_over_close");
 export const TABLE_LEAVE = text("sheets.table_leave");
 export const GAME_OVER_DISMISS = text("sheets.game_over_dismiss");
@@ -316,6 +318,8 @@ export function captionFor(story: Story, company: CompanyView): string {
             const present = company.seats.filter((seated) => seated.claimed).length;
             return gatheringCaption(present, company.seats.length);
         }
+        case "unresolved":
+            return UNRESOLVED_CAPTION;
         case "over":
             return story.mine
                 ? yourWinCaption(story.seats.length, story.points ?? 0)

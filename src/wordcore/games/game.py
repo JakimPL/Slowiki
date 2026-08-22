@@ -9,13 +9,14 @@ from wordcore.errors.exceptions import (
     WordcoreError,
 )
 from wordcore.errors.rejections import RejectionCode, rejection_code
+from wordcore.games.abandonment import abandoned
 from wordcore.games.journal import JournalEntry
 from wordcore.games.kind import EntryKind
 from wordcore.games.rules import Rules
 from wordcore.moves.kind import ActionKind
 from wordcore.moves.move import Move
 from wordcore.positions.position import Position
-from wordcore.states.phase import Phase
+from wordcore.states.phase import finished
 from wordcore.views.events import EventView, event_view
 from wordcore.views.highlights import GameHighlights, highlights_of
 from wordcore.views.projection import PositionView, project
@@ -78,6 +79,17 @@ class Game:
 
         return self._play_move(position, move)
 
+    def abandon(self) -> JournalEntry:
+        position = self.position
+        self._ensure_running(position)
+        return self._record(
+            kind=EntryKind.ABANDONED,
+            move=None,
+            actor=None,
+            reason=None,
+            position=abandoned(position),
+        )
+
     def cancel_premove(self, player: int, base_seq: int) -> JournalEntry:
         position = self._require_current(base_seq)
         self._ensure_member(position, player)
@@ -118,10 +130,12 @@ class Game:
             raise StalePosition("position advanced past the submitted sequence")
 
         position = self.position
-        if position.state.phase == Phase.GAME_OVER:
-            raise GameOver("the game has finished")
-
+        self._ensure_running(position)
         return position
+
+    def _ensure_running(self, position: Position) -> None:
+        if finished(position.state.phase):
+            raise GameOver("the game has finished")
 
     def _ensure_member(self, position: Position, player: int) -> None:
         if player not in position.players:
@@ -219,7 +233,7 @@ class Game:
 
     @staticmethod
     def _sole_actor(position: Position) -> int | None:
-        if position.state.phase == Phase.GAME_OVER:
+        if finished(position.state.phase):
             return None
 
         if len(position.state.to_act) != 1:

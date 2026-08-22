@@ -1,6 +1,7 @@
 import type { FetchEventSourceInit } from "@microsoft/fetch-event-source";
 import { describe, expect, it } from "vitest";
 
+import { GONE_STATUS, Refused } from "../../src/api/refusal";
 import type { Streamed } from "../../src/api/streaming";
 import {
     CLOCK_EVENT,
@@ -9,6 +10,7 @@ import {
     LAST_EVENT_ID_HEADER,
     POSITION_EVENT,
     PRESENCE_EVENT,
+    RETRY_AFTER_DROP_MILLISECONDS,
 } from "../../src/api/streaming";
 import type { ClockView, CompanyView, EventView, PositionView } from "../../src/api/views";
 
@@ -24,6 +26,8 @@ interface Heard {
     readonly positions: PositionView[];
     readonly clocks: ClockView[];
     readonly drops: string[];
+    readonly departures: string[];
+    ends: number;
 }
 
 function aTransport(recorded: Recorded[]): (url: string, init: FetchEventSourceInit) => Promise<void> {
@@ -35,8 +39,27 @@ function aTransport(recorded: Recorded[]): (url: string, init: FetchEventSourceI
     };
 }
 
+function aFailingTransport(
+    recorded: Recorded[],
+    trouble: Refused,
+): (url: string, init: FetchEventSourceInit) => Promise<void> {
+    return (url, init) => {
+        recorded.push({ url, init });
+        return Promise.reject(trouble);
+    };
+}
+
 function aListener(): { heard: Heard; streamed: Streamed } {
-    const heard: Heard = { beats: 0, commits: [], companies: [], positions: [], clocks: [], drops: [] };
+    const heard: Heard = {
+        beats: 0,
+        commits: [],
+        companies: [],
+        positions: [],
+        clocks: [],
+        drops: [],
+        departures: [],
+        ends: 0,
+    };
     return {
         heard,
         streamed: {
@@ -60,6 +83,12 @@ function aListener(): { heard: Heard; streamed: Streamed } {
             },
             onDropped: (reason) => {
                 heard.drops.push(reason);
+            },
+            onEnded: () => {
+                heard.ends += 1;
+            },
+            onGone: (reason) => {
+                heard.departures.push(reason);
             },
         },
     };
@@ -135,6 +164,36 @@ describe("follow", () => {
         handle?.({ id: "", event: PRESENCE_EVENT, data: JSON.stringify({ seats: [] }) });
         handle?.({ id: "", event: HEARTBEAT_EVENT, data: JSON.stringify({ server_time: 1 }) });
         expect(heard.beats).toBe(2);
+    });
+
+    it("keeps retrying a connection that merely dropped", () => {
+        const recorded: Recorded[] = [];
+        const { heard, streamed } = aListener();
+        follow(aTransport(recorded), "/tables/t/events", {}, 0, streamed);
+        const trouble = recorded[0]?.init.onerror;
+        expect(trouble?.(new Error("network down"))).toBe(RETRY_AFTER_DROP_MILLISECONDS);
+        expect(heard.drops).toEqual(["network down"]);
+        expect(heard.departures).toEqual([]);
+    });
+
+    it("gives up on a table the server no longer holds", async () => {
+        const recorded: Recorded[] = [];
+        const { heard, streamed } = aListener();
+        const closed = new Refused(GONE_STATUS, "the table has closed", "table_closed");
+        follow(aFailingTransport(recorded, closed), "/tables/t/events", {}, 0, streamed);
+        const trouble = recorded[0]?.init.onerror;
+        expect(() => trouble?.(closed)).toThrow(closed);
+        await Promise.resolve();
+        expect(heard.departures).toEqual(["the table has closed"]);
+        expect(heard.drops).toEqual([]);
+    });
+
+    it("follows again when the table ends the stream", () => {
+        const recorded: Recorded[] = [];
+        const { heard, streamed } = aListener();
+        follow(aTransport(recorded), "/tables/t/events", {}, 0, streamed);
+        recorded[0]?.init.onclose?.();
+        expect(heard.ends).toBe(1);
     });
 
     it("stops following when released", () => {

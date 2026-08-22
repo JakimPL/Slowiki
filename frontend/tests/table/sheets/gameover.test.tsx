@@ -18,9 +18,10 @@ function anEnding(
     mySeat: number | null,
     scores: Record<number, number>,
     highlights: GameHighlights | null = null,
+    phase: "game_over" | "unresolved" = "game_over",
 ): string {
     const players = Object.keys(scores).map(Number);
-    const view = aView({ phase: "game_over", scores, players });
+    const view = aView({ phase, scores, players });
     const company = aCompany(players.map((seat) => aSeatView(seat, { name: NAMES[seat] ?? null })));
     return renderToStaticMarkup(
         <GameOver
@@ -43,6 +44,16 @@ describe("GameOver", () => {
         const standing = markup.slice(markup.indexOf("<ol"));
         expect(standing.indexOf("Ola")).toBeLessThan(standing.indexOf("Ala"));
         expect(standing).toContain('data-podium="1"');
+        expect(markup).toContain("30");
+    });
+
+    it("names an unfinished game and keeps the scores it reached", () => {
+        const markup = anEnding(0, { 0: 30, 1: 42 }, null, "unresolved");
+        expect(markup).toContain("Left unfinished");
+        expect(markup).toContain("The game was left unfinished");
+        expect(markup).not.toContain("wins with");
+        expect(markup).not.toContain("You win!");
+        expect(markup).toContain("42");
         expect(markup).toContain("30");
     });
 

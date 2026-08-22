@@ -11,7 +11,7 @@ from wordcore.moves.action import Pass
 from wordcore.moves.kind import ActionKind
 from wordcore.moves.move import Move
 from wordcore.rules.rack import rack_of
-from wordcore.states.phase import Phase
+from wordcore.states.phase import finished
 from wordcore.views.events import EventView
 from wordcore.views.highlights import GameHighlights
 from wordcore.views.projection import PositionView
@@ -22,6 +22,7 @@ from wordserver.errors.exceptions import (
     SeatTokenMismatch,
     TableGathering,
 )
+from wordserver.lifetime import TableStanding
 from wordserver.models.clock import ClockView
 from wordserver.models.company import CompanyView
 from wordserver.models.heartbeat import HeartbeatView
@@ -67,6 +68,9 @@ class TableSession:
         self._streams: dict[int, int] = {}
         self._company_version = 0
         self._view_version = 0
+        self._opened = now()
+        self._finished_at: float | None = None
+        self._closed = False
         if not self.gathering():
             self._schedule_timer()
 
@@ -74,9 +78,33 @@ class TableSession:
     def seq(self) -> int:
         return self._game.seq
 
-    def close(self) -> None:
+    @property
+    def opened(self) -> float:
+        return self._opened
+
+    def standing(self) -> TableStanding:
+        moment = self._now()
+        return TableStanding(
+            age=moment - self._opened,
+            finished_for=None if self._finished_at is None else moment - self._finished_at,
+        )
+
+    async def close(self) -> None:
         self._cancel_timer()
         self._cancel_premove_timer()
+        async with self._condition:
+            self._closed = True
+            self._condition.notify_all()
+
+    async def abandon(self) -> None:
+        async with self._condition:
+            if not self._running():
+                return
+
+            self._game.abandon()
+            self._schedule_timer()
+            self._cancel_premove_timer()
+            self._stirred()
 
     def observer_for(self, token: str | None) -> int | None:
         if token is None:
@@ -93,7 +121,7 @@ class TableSession:
             for seat in sorted(self._tokens):
                 if seat not in self._claimed:
                     self._seat_taken(seat, name)
-                    self._condition.notify_all()
+                    self._stirred()
                     return seat, self._tokens[seat]
 
             return None
@@ -146,7 +174,7 @@ class TableSession:
             if self._turn_cursor() != before:
                 self._turn_opened(move)
 
-            self._condition.notify_all()
+            self._stirred()
             return self._game.seq
 
     async def arrange_rack(self, tile_ids: tuple[int, ...], *, token: str | None) -> None:
@@ -166,7 +194,7 @@ class TableSession:
 
             self._ensure_gathered()
             self._game.cancel_premove(observer, base_seq)
-            self._condition.notify_all()
+            self._stirred()
             return self._game.seq
 
     def _seat_taken(self, seat: int, name: str | None) -> None:
@@ -216,7 +244,7 @@ class TableSession:
                 seen_view=-1,
                 seen_clock=-1,
             )
-            while True:
+            while not self._closed:
                 for frame in await self._next_frames(observer, cursor):
                     yield frame
 
@@ -230,13 +258,15 @@ class TableSession:
         cursor: _StreamCursor,
     ) -> list[str]:
         async with self._condition:
-            while True:
+            while not self._closed:
                 frames = self._pending_frames(observer, cursor)
                 if frames:
                     return frames
 
                 if await self._quiet_through_heartbeat():
                     return [_named_frame(_HEARTBEAT_EVENT, self._heartbeat())]
+
+            return []
 
     def _pending_frames(
         self,
@@ -294,6 +324,15 @@ class TableSession:
         async with self._condition:
             self._condition.notify_all()
 
+    def _stirred(self) -> None:
+        if self._finished_at is None and not self._running():
+            self._finished_at = self._now()
+
+        self._condition.notify_all()
+
+    def _running(self) -> bool:
+        return not finished(self._game.position.state.phase)
+
     def _turn_opened(self, move: Move | None) -> None:
         self._clock.settle(earns_increment=self._earns_increment(move))
         self._schedule_timer()
@@ -344,7 +383,7 @@ class TableSession:
 
     def _sole_actor(self) -> int | None:
         state = self._game.position.state
-        if state.phase == Phase.GAME_OVER or len(state.to_act) != 1:
+        if finished(state.phase) or len(state.to_act) != 1:
             return None
 
         return next(iter(state.to_act))
@@ -367,7 +406,7 @@ class TableSession:
             if self._turn_cursor() != before:
                 self._turn_opened(settled)
 
-            self._condition.notify_all()
+            self._stirred()
 
     def _premove_answer(self, seat: int) -> Move | None:
         if self._out_of_time(seat):
@@ -381,7 +420,7 @@ class TableSession:
         await asyncio.sleep(seconds)
         async with self._condition:
             position = self._game.position
-            if position.state.phase == Phase.GAME_OVER:
+            if finished(position.state.phase):
                 return
 
             if position.state.to_act != frozenset({seat}):
@@ -395,7 +434,7 @@ class TableSession:
             )
             self._schedule_timer()
             self._schedule_premove()
-            self._condition.notify_all()
+            self._stirred()
 
 
 def _numbered_frame(event: EventView) -> str:

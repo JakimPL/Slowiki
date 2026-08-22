@@ -15,6 +15,7 @@ class ErrorCode(StrEnum):
     INVALID_CONFIGURATION = "invalid_configuration"
     REJECTED = "rejected"
     UNKNOWN_TABLE = "unknown_table"
+    TABLE_CLOSED = "table_closed"
     UNKNOWN_CODE = "unknown_code"
     UNKNOWN_SCHEME = "unknown_scheme"
     TABLE_FULL = "table_full"

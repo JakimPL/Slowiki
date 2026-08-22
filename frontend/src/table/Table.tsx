@@ -23,6 +23,7 @@ import { useLore } from "../play/lore/useLore";
 import { tintFor } from "../play/seats/tints";
 import type { Arrival } from "../play/seats/useStanding";
 import { useSettings } from "../play/settings/useSettings";
+import { finished } from "../play/story/ending";
 import { guidanceFor } from "../play/story/guidance";
 import { remainingTally } from "../play/story/remaining";
 import type { StoryKind } from "../play/story/story";
@@ -107,7 +108,8 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
     const mySeat = arrival.seated ?? seatedAs(state.view);
     const description = useDescription(arrival.seat);
     const remaining = useCountdown(clock);
-    const highlights = useHighlights(arrival.seat, state.view.phase === "game_over");
+    const over = finished(state.view.phase);
+    const highlights = useHighlights(arrival.seat, over);
 
     const story = storyFor(state.view, state.company, mySeat);
     const present = state.company.seats.filter((seated) => seated.claimed).length;
@@ -307,7 +309,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
         perform({ kind: "arrange", arrangement: shuffledArrangement(desk.arrangement, visible, Math.random) });
     };
     const retreat = (): void => {
-        if (story.kind === "over" && standingShown) {
+        if (over && standingShown) {
             setStandingShown(false);
             return;
         }
@@ -448,14 +450,14 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
                     text={captionFor(story, state.company)}
                     tone={toneOf(story.kind)}
                     onOpen={
-                        story.kind === "over" && !standingShown
+                        over && !standingShown
                             ? (): void => {
                                   setStandingShown(true);
                               }
                             : null
                     }
                 />
-                {story.kind === "over" ? null : <span className="status-meta">{bagCaption(state.view.bag_count)}</span>}
+                {over ? null : <span className="status-meta">{bagCaption(state.view.bag_count)}</span>}
                 {connection === "live" ? null : (
                     <span className="chip chip-connection" data-connection={connection}>
                         {CONNECTION_CAPTIONS[connection]}
@@ -607,7 +609,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
                     onClose={closePanel}
                 />
             )}
-            {story.kind === "over" && standingShown ? (
+            {over && standingShown ? (
                 <GameOver
                     view={state.view}
                     company={state.company}
@@ -659,5 +661,5 @@ function toneOf(kind: StoryKind): StatusTone {
     if (kind === "acting") {
         return "acting";
     }
-    return kind === "over" ? "over" : "quiet";
+    return kind === "over" || kind === "unresolved" ? "over" : "quiet";
 }
