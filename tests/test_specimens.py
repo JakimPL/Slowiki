@@ -6,7 +6,7 @@ import yaml
 from lexica.build.orchestrate import analyse_dictionary
 from lexica.grammar.dialect import TagsetDialect
 from lexica.grammar.parse import inflection_of
-from lexica.sources.sgjp import analyse_word
+from lexica.sources.sgjp import analyse_word, build_morfeusz_engine
 
 try:
     import morfeusz2  # type: ignore[import-untyped]
@@ -45,7 +45,7 @@ def test_every_specimen_tag_reads_in_the_sgjp_tagset() -> None:
 @requires_stress
 def test_stress_specimens_match_reference_analyses() -> None:
     dict_id, specimens = _read_stress()
-    analyzer = morfeusz2.Morfeusz()
+    analyzer = build_morfeusz_engine()
     assert analyzer.dict_id() == dict_id
     for word, reference in specimens:
         expected = {
@@ -65,7 +65,7 @@ def test_stress_specimens_match_reference_analyses() -> None:
 def test_stress_pipeline_builds_classes() -> None:
     _, specimens = _read_stress()
     words = tuple(word.upper() for (word, _) in specimens)
-    analyzer = morfeusz2.Morfeusz()
+    analyzer = build_morfeusz_engine()
     result = analyse_dictionary(words, analyzer, None)
     store = result.store
 

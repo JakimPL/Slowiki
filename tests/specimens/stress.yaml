@@ -167,7 +167,7 @@ specimens:
   analyses:
   - - był
     - być
-    - praet:sg:m1.m2.m3:imperf
+    - praet:sg:m1.m2.m3:ter:imperf
     - []
     - []
 - word: była
@@ -189,7 +189,7 @@ specimens:
     - []
   - - była
     - być
-    - praet:sg:f:imperf
+    - praet:sg:f:ter:imperf
     - []
     - []
 - word: byś
@@ -1589,7 +1589,7 @@ specimens:
   analyses:
   - - robił
     - robić
-    - praet:sg:m1.m2.m3:imperf
+    - praet:sg:m1.m2.m3:ter:imperf
     - []
     - []
 - word: rok

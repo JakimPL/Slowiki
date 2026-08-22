@@ -2,17 +2,17 @@ import argparse
 import random
 from collections import Counter
 from pathlib import Path
-from typing import Final, Protocol
+from typing import Final
 
 import yaml
 
 from lexica.dictionaries.sjp import iter_sjp_words
-from lexica.sources.sgjp import Interpretation, head_interpretations
-
-try:
-    import morfeusz2  # type: ignore[import-untyped]
-except ImportError as error:
-    raise SystemExit("install the morphology extra: uv sync --extra morphology") from error
+from lexica.sources.sgjp import (
+    Interpretation,
+    MorfeuszEngine,
+    build_morfeusz_engine,
+    head_interpretations,
+)
 
 PROJECT_ROOT: Final = Path(__file__).resolve().parents[1]
 _DEFAULT_ARCHIVE: Final = PROJECT_ROOT / "dictionaries" / "sjp-20260803.zip"
@@ -187,17 +187,11 @@ _STRESS: Final[tuple[str, ...]] = (
 )
 
 
-class _Analyzer(Protocol):
-    def analyse(self, text: str) -> list[tuple[int, int, Interpretation]]: ...
-
-    def dict_id(self) -> str: ...
-
-
 def load_dictionary_words(archive: Path) -> tuple[str, ...]:
     return tuple(word.lower() for word in iter_sjp_words(archive))
 
 
-def analyse_word(analyzer: _Analyzer, word: str) -> list[Interpretation]:
+def analyse_word(analyzer: MorfeuszEngine, word: str) -> list[Interpretation]:
     return [interpretation for _, _, interpretation in head_interpretations(analyzer.analyse(word))]
 
 
@@ -213,7 +207,7 @@ def tag_prefix(interpretation: Interpretation) -> str:
     return interpretation[2].split(":", 1)[0]
 
 
-def bucket_words(pool: tuple[str, ...], analyzer: _Analyzer) -> dict[str, list[str]]:
+def bucket_words(pool: tuple[str, ...], analyzer: MorfeuszEngine) -> dict[str, list[str]]:
     buckets: dict[str, list[str]] = {}
     for word in pool:
         real = real_interpretations(analyse_word(analyzer, word))
@@ -238,7 +232,7 @@ def build_quotas(buckets: dict[str, list[str]]) -> dict[str, int]:
 
 def select_specimens(
     words: tuple[str, ...],
-    analyzer: _Analyzer,
+    analyzer: MorfeuszEngine,
     stress: tuple[str, ...],
     rng: random.Random,
 ) -> tuple[str, ...]:
@@ -253,7 +247,7 @@ def select_specimens(
 
 def collect_interpretations(
     words: tuple[str, ...],
-    analyzer: _Analyzer,
+    analyzer: MorfeuszEngine,
 ) -> dict[str, list[Interpretation]]:
     return {word: analyse_word(analyzer, word) for word in words}
 
@@ -295,7 +289,7 @@ def main(argv: list[str] | None = None) -> None:
     if missing:
         raise SystemExit(f"stress words absent from the dictionary: {missing}")
 
-    analyzer: _Analyzer = morfeusz2.Morfeusz()
+    analyzer = build_morfeusz_engine()
     rng = random.Random(_SEED)
     selected = select_specimens(words, analyzer, _STRESS, rng)
     all_interpretations = collect_interpretations(selected, analyzer)

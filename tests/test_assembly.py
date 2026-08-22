@@ -157,40 +157,45 @@ def test_select_base_uninflected_returns_the_lemma() -> None:
     assert select_base(szybko, {}) == "SZYBKO"
 
 
-def test_select_base_reads_a_rescued_form_in_its_own_dialect() -> None:
+def test_select_base_reads_a_rescued_form() -> None:
     abadanski = lexeme_id_from_lemma(PartOfSpeech.PRZYMIOTNIK, "ABADAŃSKI")
     variants = {
-        "ABADAŃSCY": frozenset({("adj:pl:nom.voc:m1.p1:pos", AnalysisSource.POLIMORF)}),
+        "ABADAŃSCY": frozenset({("adj:pl:nom.voc:m1:pos", AnalysisSource.POLIMORF)}),
         "ABADAŃSKI": frozenset({("adj:sg:nom:m1:pos", AnalysisSource.POLIMORF)}),
     }
     assert select_base(abadanski, variants) == "ABADAŃSKI"
 
 
 class ScriptedAnalyzer:
-    def __init__(self, answers: dict[str, list[Interpretation]]) -> None:
+    def __init__(
+        self,
+        answers: dict[str, list[Interpretation]],
+        paradigms: dict[str, list[Interpretation]],
+    ) -> None:
         self._answers = answers
+        self._paradigms = paradigms
 
     def analyse(self, text: str) -> list[tuple[int, int, Interpretation]]:
         return [(0, 1, interpretation) for interpretation in self._answers.get(text, [])]
 
     def generate(self, lemma: str) -> list[Interpretation]:
-        return []
+        return self._paradigms.get(lemma, [(lemma, lemma, "ign", [], [])])
 
     def dict_id(self) -> str:
         return "scripted"
 
 
-def _write_polimorf(path: Path, rows: list[tuple[str, str, str, str]]) -> None:
+def _write_polimorf(path: Path, rows: list[tuple[str, str, str, str, str]]) -> None:
     with gzip.open(path, "wt", encoding="utf-8") as handle:
-        for form, lemma, tag, category in rows:
-            handle.write(f"{form}\t{lemma}\t{tag}\t{category}\n")
+        for form, lemma, tag, name, labels in rows:
+            handle.write(f"{form}\t{lemma}\t{tag}\t{name}\t{labels}\n")
 
 
 def test_analyse_dictionary_runs_sgjp_rescue_and_unknown(tmp_path: Path) -> None:
     polimorf_path = tmp_path / "polimorf.tab.gz"
     _write_polimorf(
         polimorf_path,
-        [("aalborscy", "aalborski", "adj:pl:nom.voc:m1.p1:pos", "pospolita")],
+        [("aalborscy", "aalborski", "adj:pl:nom.voc:m1:pos", "nazwa_pospolita", "")],
     )
     analyzer = ScriptedAnalyzer(
         answers={
@@ -198,6 +203,7 @@ def test_analyse_dictionary_runs_sgjp_rescue_and_unknown(tmp_path: Path) -> None
             "kota": [("kota", "kot:Sm1", "subst:sg:gen.acc:m1", ["nazwa_pospolita"], [])],
             "nic": [("nic", "nic", "ign", [], [])],
         },
+        paradigms={},
     )
     words = ("KOT", "KOTA", "AALBORSCY", "NIC")
     result = analyse_dictionary(words, analyzer, polimorf_path)
@@ -207,6 +213,38 @@ def test_analyse_dictionary_runs_sgjp_rescue_and_unknown(tmp_path: Path) -> None
     assert result.store.unknown == ("NIC",)
     assert "AALBORSCY" in result.store.entries
     assert "KOT" in {variant.form for variant in result.store.classes[KOT].variants}
+
+
+def test_analyse_dictionary_carries_the_generated_paradigm() -> None:
+    analyzer = ScriptedAnalyzer(
+        answers={"kot": [("kot", "kot:Sm1", "subst:sg:nom:m1", ["nazwa_pospolita"], [])]},
+        paradigms={
+            "kot:Sm1": [
+                ("kot", "kot:Sm1", "subst:sg:nom:m1", ["nazwa_pospolita"], []),
+                ("kotowi", "kot:Sm1", "subst:sg:dat:m1", ["nazwa_pospolita"], []),
+            ]
+        },
+    )
+    result = analyse_dictionary(("KOT",), analyzer, None)
+    variants = {
+        variant.form: variant.in_dictionary for variant in result.store.classes[KOT].variants
+    }
+    assert variants == {"KOT": True, "KOTOWI": False}
+
+
+def test_a_rescued_lexeme_carries_the_forms_the_source_holds(tmp_path: Path) -> None:
+    polimorf_path = tmp_path / "polimorf.tab.gz"
+    _write_polimorf(
+        polimorf_path,
+        [("aalborscy", "aalborski", "adj:pl:nom.voc:m1:pos", "nazwa_pospolita", "")],
+    )
+    analyzer = ScriptedAnalyzer(
+        answers={},
+        paradigms={"aalborski": [("aalborski", "aalborski", "adj:sg:nom:m1:pos", [], [])]},
+    )
+    result = analyse_dictionary(("AALBORSCY",), analyzer, polimorf_path)
+    lexeme = result.store.entries["AALBORSCY"][0]
+    assert {variant.form for variant in result.store.classes[lexeme].variants} == {"AALBORSCY"}
 
 
 def test_a_lexeme_identifier_keys_the_store() -> None:

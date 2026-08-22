@@ -188,26 +188,30 @@ Role: primary analysis source.
 ### PoliMorf
 
 A merged inflectional dictionary from ZIL IPI PAN
-(https://zil.ipipan.waw.pl/PoliMorf), combining SGJP with further sources and
-a Morfeusz-compatible tagset. Verified in Phase 0 (2026-08-17):
+(https://zil.ipipan.waw.pl/PoliMorf), combining SGJP with further sources.
+It ships beside every Morfeusz release. Verified 2026-08-22:
 
 - License: the source data and the resulting resource ship under the
   2-clause BSD license.
-- Download: `PoliMorf-0.6.7.tab.gz` via the wiki attachment action
-  (`action=AttachFile&do=get&target=PoliMorf-0.6.7.tab.gz`); 37.4 MB
-  compressed, 391 MB uncompressed, 6,578,142 rows dated 2013.
-- Format: `form<TAB>lemma<TAB>tag<TAB>proper_qualifier`, e.g.
-  `bronią<TAB>broń<TAB>subst:sg:inst:f<TAB>pospolita`.
-- Tagset: the classic Morfeusz tagset (e.g. `qub` where the 2026 SGJP uses
-  `part`).
+- Download: `https://download.sgjp.pl/morfeusz/20260726/polimorf-20260726.tab.gz`;
+  45.2 MB compressed, 8,505,529 rows, dictionary id
+  `pl.waw.ipipan.polimorf-2026.07.27`, sha256
+  `d0315301beb4820577c8e04c885044feb852a72c865ce62e5e0a1836344e078e`.
+- Format: a copyright preamble, then five tab-separated columns
+  `form<TAB>lemma<TAB>tag<TAB>name<TAB>qualifiers`, e.g.
+  `Aalborg<TAB>Aalborg<TAB>subst:sg:nom.acc:m3<TAB>nazwa_geograficzna<TAB>zwykle_lp`.
+  A row carries exactly five columns; the preamble carries other arities.
+- Tagset: the 2026 SGJP tagset, the same one Morfeusz answers in. All 714
+  distinct tags read in `lexica.grammar` under `TagsetDialect.SGJP` with zero
+  unmapped segments.
 - Homonyms: lemma-level rows merge paradigm-level homonyms (`zamek` has one
-  row set, while the 2026 SGJP separates `zamek:Sm3~a` and `zamek:Sm3~u`);
-  merged sources produce duplicate rows.
-- Coverage: covers 2,237,306 SJP forms (69.04%) and rescues 200,451 of the
-  543,898 SGJP-unknown forms (36.85%).
+  row set, while the 2026 SGJP separates `zamek:Sm3~a` and `zamek:Sm3~u`),
+  so a rescued form carries a reading and holds no generated paradigm.
+- Coverage: rescues 205,151 of the 543,898 SGJP-unknown forms (37.72%),
+  carrying 309,816 (lemma, tag) rows.
 
 Role: supplementary rescue source for SGJP-unknown forms, flagged by source
-in the compiled artifact; combined coverage reaches 89.40%.
+in the compiled artifact; combined coverage reaches 89.55%.
 
 ### Morfologik polish.dict
 
@@ -246,7 +250,7 @@ classifications. Licenses: to confirm when a cross-check tool is built.
 |---|---|---|---|---|---|---|
 | SJP słowa.txt | n/a | n/a | plain text | existing loader | GPL 2 + CC BY 4.0 | ground truth |
 | Morfeusz 2 / SGJP 2026.06.01 | yes | pattern-qualified lemmas | FSA binary | `morfeusz2` pip | BSD-2-Clause | primary |
-| PoliMorf 0.6.7 | yes | lemma-level (merges paradigms) | tabular text | stdlib | BSD-2-Clause | rescue source |
+| PoliMorf 2026.07.27 | yes | lemma-level (merges paradigms) | tabular text | stdlib | BSD-2-Clause | rescue source |
 | Morfologik polish.dict | yes | via source | binary FSA | custom reader | BSD-3-Clause | reference |
 | WSJP | yes | senses | API | HTTP | to confirm | future cross-check |
 | Wiktionary / kaikki | most | senses | JSONL | stdlib | CC BY-SA | cross-check |

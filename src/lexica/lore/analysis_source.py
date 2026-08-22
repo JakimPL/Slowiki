@@ -11,7 +11,5 @@ class AnalysisSource(StrEnum):
 
 def dialect_of(source: AnalysisSource) -> TagsetDialect:
     match source:
-        case AnalysisSource.SGJP | AnalysisSource.OVERRIDE:
+        case AnalysisSource.SGJP | AnalysisSource.POLIMORF | AnalysisSource.OVERRIDE:
             return TagsetDialect.SGJP
-        case AnalysisSource.POLIMORF:
-            return TagsetDialect.POLIMORF

@@ -1,31 +1,60 @@
 import gzip
 from pathlib import Path
+from typing import Final, NamedTuple
 
 from lexica.lore.analysis import Analysis, analysis_of
 from lexica.lore.analysis_source import AnalysisSource
 
-_FIELDS = 4
+FIELD_SEPARATOR: Final = "\t"
+
+_FIELDS: Final = 5
+
+
+class PolimorfRow(NamedTuple):
+    form: str
+    lemma: str
+    tag: str
+    name: str
+    labels: str
+
+
+Reading = tuple[str, str, str, str]
 
 
 def rescue_analyses(
     polimorf_path: Path,
     target_forms: frozenset[str],
 ) -> dict[str, tuple[Analysis, ...]]:
-    rows: dict[str, set[tuple[str, str, str]]] = {}
+    readings = _matching_readings(polimorf_path, target_forms)
+    return {
+        surface: tuple(
+            analysis_of(surface, lemma, tag, AnalysisSource.POLIMORF, (name,), (labels,))
+            for (lemma, tag, name, labels) in sorted(interpretations)
+        )
+        for surface, interpretations in readings.items()
+    }
+
+
+def _matching_readings(
+    polimorf_path: Path,
+    target_forms: frozenset[str],
+) -> dict[str, set[Reading]]:
+    readings: dict[str, set[Reading]] = {}
     with gzip.open(polimorf_path, "rt", encoding="utf-8", errors="replace") as handle:
         for line in handle:
-            fields = line.rstrip("\n").split("\t")
-            if len(fields) < _FIELDS:
+            row = _row_of(line)
+            if row is None:
                 continue
-            form, lemma, tag, label = fields[0], fields[1], fields[2], fields[3]
-            if form not in target_forms:
+            surface = row.form.upper()
+            if surface not in target_forms:
                 continue
-            rows.setdefault(form, set()).add((lemma, tag, label))
+            readings.setdefault(surface, set()).add((row.lemma, row.tag, row.name, row.labels))
+    return readings
 
-    rescued: dict[str, tuple[Analysis, ...]] = {}
-    for form, interpretations in rows.items():
-        rescued[form] = tuple(
-            analysis_of(form.upper(), lemma, tag, AnalysisSource.POLIMORF, (label,), ())
-            for (lemma, tag, label) in sorted(interpretations)
-        )
-    return rescued
+
+def _row_of(line: str) -> PolimorfRow | None:
+    fields = line.rstrip("\r\n").split(FIELD_SEPARATOR)
+    if len(fields) != _FIELDS:
+        return None
+    form, lemma, tag, name, labels = fields
+    return PolimorfRow(form=form, lemma=lemma, tag=tag, name=name, labels=labels)
