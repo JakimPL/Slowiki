@@ -325,7 +325,7 @@ async def test_timeout_auto_passes_until_the_game_ends() -> None:
     session = _timed_session(0, clock)
     await session.claim(None)
     await asyncio.sleep(0.2)
-    assert session.seq == 2
+    assert session.seq == 4
     assert session.view(None).phase == "game_over"
     assert session.clock() is None
     session.close()

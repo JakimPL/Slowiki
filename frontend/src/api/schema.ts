@@ -515,8 +515,8 @@ export interface components {
             exchange_min_bag: number;
             /** Pass Allowed */
             pass_allowed: boolean;
-            /** Pass End Limit */
-            pass_end_limit: number | null;
+            /** Pass End Rounds */
+            pass_end_rounds: number | null;
             /** Premoves Allowed */
             premoves_allowed: boolean;
             /** Rack Size */

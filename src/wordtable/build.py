@@ -20,7 +20,7 @@ def build_rules(
         exchange_limit=resolved.scheme.exchange_limit,
         exchange_min_bag=resolved.scheme.exchange_min_bag,
         pass_allowed=resolved.scheme.pass_allowed,
-        pass_end_limit=resolved.scheme.pass_end_limit,
+        pass_end_rounds=resolved.scheme.pass_end_rounds,
         scoreless_end_limit=resolved.scheme.scoreless_end_limit,
         bingo_bonus=resolved.scheme.bingo_bonus,
     )

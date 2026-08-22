@@ -79,7 +79,7 @@ export function someParameters(overrides: Partial<RuleParameters> = {}): RulePar
         validate_on_play: true,
         word_check: false,
         premoves_allowed: true,
-        pass_end_limit: 2,
+        pass_end_rounds: 2,
         scoreless_end_limit: null,
         time: { per_turn_seconds: null, increment_seconds: 0, total_seconds: null },
         ...overrides,

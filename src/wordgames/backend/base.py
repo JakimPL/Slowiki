@@ -250,12 +250,21 @@ class WordGameRules(Rules):
         return self._advance_turn(position, mover)
 
     def _end_limit_reached(self, state: WordState) -> bool:
-        pass_limit = self._parameters.pass_end_limit
-        if pass_limit is not None and state.consecutive_passes >= pass_limit:
-            return True
+        return self._passes_exhausted(state) or self._scoreless_exhausted(state)
 
-        scoreless_limit = self._parameters.scoreless_end_limit
-        return scoreless_limit is not None and state.scoreless_turns >= scoreless_limit
+    def _passes_exhausted(self, state: WordState) -> bool:
+        rounds = self._parameters.pass_end_rounds
+        if rounds is None:
+            return False
+
+        return state.consecutive_passes >= rounds * len(self._players)
+
+    def _scoreless_exhausted(self, state: WordState) -> bool:
+        limit = self._parameters.scoreless_end_limit
+        if limit is None:
+            return False
+
+        return state.scoreless_turns >= limit
 
     def _solo_ended(self, position: Position, mover: int) -> bool:
         if len(self._players) != 1:
@@ -383,7 +392,7 @@ class WordGameRules(Rules):
                     player: state.scores[player] + scored.points,
                 },
                 "consecutive_passes": 0,
-                "scoreless_turns": 0,
+                "scoreless_turns": 0 if scored.points else state.scoreless_turns + 1,
                 "last_play": record,
             }
         )

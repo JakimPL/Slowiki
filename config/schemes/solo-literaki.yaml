@@ -13,6 +13,6 @@ time:
   per_turn_seconds: 120
   increment_seconds: 0
   total_seconds: null
-pass_end_limit: null
+pass_end_rounds: null
 scoreless_end_limit: null
 bingo_bonus: 50
