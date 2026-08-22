@@ -11,8 +11,11 @@ agreement, both as a pre-commit hook and as a step of `make check`.
   writes the envelope, and offers one reader per kind. A damaged or foreign artifact
   earns its refusal here, from a message that names the path and states the remedy.
 - **`wordtable` owns the placement.** It composes each file name from the kind and the
-  format `lexica` declares, builds a missing artifact, caches a loaded one per
-  dictionary, and offers the game exactly the capability it asks for.
+  format `lexica` declares over the stem of the pinned source release in
+  `wordtable.releases`, builds a missing artifact, caches a loaded one per dictionary,
+  and offers the game exactly the capability it asks for. A release bump therefore moves
+  the archive, every artifact and every diagnostic to a new set of paths at once, and
+  the next build writes them.
 - **`wordcore` sees a port.** The rules kernel asks a lexicon for a verdict and for a
   prefix; that pair is the whole of what the engine knows about dictionaries.
 - **`wordserver` and `wordgames` reach a lexicon through `wordtable`**, by dictionary

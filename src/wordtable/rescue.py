@@ -11,8 +11,7 @@ from lexica.sources.sgjp import build_morfeusz_engine
 from wordcore.errors.exceptions import InvalidConfiguration
 from wordtable.lexicons import compile_dictionary
 from wordtable.paths import dictionary_compiled
-
-POLIMORF_RELEASE: Final = "https://download.sgjp.pl/morfeusz/20260726/polimorf-20260726.tab.gz"
+from wordtable.releases import POLIMORF_RELEASE
 
 _NO_RESCUE: Final[RescueTable] = {}
 
@@ -45,5 +44,5 @@ def _ensure_polimorf_present(polimorf_path: Path) -> None:
     if not polimorf_path.is_file():
         raise InvalidConfiguration(
             f"the rescue build reads the PoliMorf table at {polimorf_path}; "
-            f"download it from {POLIMORF_RELEASE}"
+            f"run 'wordtable fetch' to download {POLIMORF_RELEASE.url}"
         )

@@ -1,5 +1,5 @@
 seed: 20260817
-dictionary: sjp-20260803
+dictionary: sjp-20260820
 analyzer: morfeusz2
 dict_id: pl.sgjp.sgjp-2026.06.01
 purpose: hand-reviewable golden anchor; full corpus lives in dictionaries/specimens/

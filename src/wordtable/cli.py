@@ -4,6 +4,7 @@ from pathlib import Path
 
 from lexica.names import DictionaryName
 from wordtable.coverage import report_coverage, summary_of
+from wordtable.fetch import fetch_sources
 from wordtable.lexicons import compile_dictionary
 from wordtable.paths import POLIMORF_TABLE, dictionary_coverage, dictionary_unread
 from wordtable.play import run
@@ -19,6 +20,7 @@ def build_parser() -> argparse.ArgumentParser:
     play = subparsers.add_parser("play")
     play.add_argument("--scheme", default="literaki")
     play.add_argument("--players", type=int, default=2)
+    subparsers.add_parser("fetch")
     dictionary = subparsers.add_parser("dictionary")
     dictionary.add_argument("--name", default="sjp")
     rescue = subparsers.add_parser("rescue")
@@ -30,6 +32,12 @@ def build_parser() -> argparse.ArgumentParser:
     serve.add_argument("--host")
     serve.add_argument("--port", type=int)
     return parser
+
+
+def run_fetch() -> None:
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+    for source in fetch_sources():
+        logger.info("source ready at %s", source)
 
 
 def run_compile(name: str) -> None:
@@ -57,6 +65,9 @@ def main(argv: list[str] | None = None) -> None:
     match args.command:
         case "play":
             run(args.scheme, args.players)
+
+        case "fetch":
+            run_fetch()
 
         case "dictionary":
             run_compile(args.name)

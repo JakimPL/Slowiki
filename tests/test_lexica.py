@@ -14,9 +14,9 @@ from wordbots.registry import BotRegistry
 from wordcore.errors.exceptions import InvalidConfiguration
 from wordcore.moves.move import Move
 from wordcore.positions.position import Position
-from wordtable.paths import PROJECT_ROOT
+from wordtable.paths import dictionary_archive
 
-SJP_ARCHIVE = PROJECT_ROOT / "dictionaries" / "sjp-20260803.zip"
+SJP_ARCHIVE = dictionary_archive(DictionaryName.SJP)
 
 
 def test_word_entry_model() -> None:

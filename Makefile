@@ -1,9 +1,12 @@
-.PHONY: install check test play serve types strings contract parity assets frontend build dictionary rescue coverage
+.PHONY: install check test play serve types strings contract parity assets frontend build sources dictionary rescue coverage
 
 install:
 	uv sync --all-extras --all-groups
 	uv run pre-commit install --hook-type pre-commit --hook-type pre-push
 	npm install
+
+sources:
+	uv run python -m wordtable.cli fetch
 
 dictionary:
 	uv run python -m wordtable.cli dictionary --name sjp
@@ -50,4 +53,4 @@ frontend:
 	npm install
 	npm run build --workspace frontend
 
-build: install dictionary types strings assets frontend
+build: install sources dictionary types strings assets frontend

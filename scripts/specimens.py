@@ -7,15 +7,18 @@ from typing import Final
 import yaml
 
 from lexica.dictionaries.sjp import iter_sjp_words
+from lexica.names import DictionaryName
 from lexica.sources.sgjp import (
     Interpretation,
     MorfeuszEngine,
     build_morfeusz_engine,
     head_interpretations,
 )
+from wordtable.paths import dictionary_archive
+from wordtable.releases import SJP_RELEASE
 
 PROJECT_ROOT: Final = Path(__file__).resolve().parents[1]
-_DEFAULT_ARCHIVE: Final = PROJECT_ROOT / "dictionaries" / "sjp-20260803.zip"
+_DEFAULT_ARCHIVE: Final = dictionary_archive(DictionaryName.SJP)
 _DEFAULT_CORPUS: Final = PROJECT_ROOT / "dictionaries" / "specimens" / "specimens.yaml"
 _DEFAULT_STRESS: Final = PROJECT_ROOT / "tests" / "specimens" / "stress.yaml"
 
@@ -298,7 +301,7 @@ def main(argv: list[str] | None = None) -> None:
 
     corpus_document: dict[str, object] = {
         "seed": _SEED,
-        "dictionary": "sjp-20260803",
+        "dictionary": SJP_RELEASE.stem,
         "dictionary_file": "slowa.txt",
         "analyzer": "morfeusz2",
         "dict_id": analyzer.dict_id(),
@@ -319,7 +322,7 @@ def main(argv: list[str] | None = None) -> None:
     stress_words = [word for word in selected if word in set(_STRESS)]
     stress_document: dict[str, object] = {
         "seed": _SEED,
-        "dictionary": "sjp-20260803",
+        "dictionary": SJP_RELEASE.stem,
         "analyzer": "morfeusz2",
         "dict_id": analyzer.dict_id(),
         "purpose": (

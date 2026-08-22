@@ -149,7 +149,7 @@ Wiktionary) remain out of scope.
 
 ### Ground truth: the SJP game list
 
-`dictionaries/sjp-20260803.zip` contains `slowa.txt`: 3,240,429 lines, one
+`dictionaries/sjp-20260820.zip` contains `slowa.txt`: 3,240,471 lines, one
 lowercase Polish word per line, sorted, UTF-8 with CRLF terminators; inflected
 forms included. License: GPL 2 and CC BY 4.0. Source: https://sjp.pl/sl/growy/
 (verified in this repository, see `docs/dictionaries.md`). The list defines
@@ -207,7 +207,7 @@ It ships beside every Morfeusz release. Verified 2026-08-22:
 - Homonyms: lemma-level rows merge paradigm-level homonyms (`zamek` has one
   row set, while the 2026 SGJP separates `zamek:Sm3~a` and `zamek:Sm3~u`),
   so a rescued form carries a reading and holds no generated paradigm.
-- Coverage: rescues 205,151 of the 543,898 SGJP-unknown forms (37.72%),
+- Coverage: rescues 205,151 of the 543,909 SGJP-unknown forms (37.72%),
   carrying 309,816 (lemma, tag) rows.
 
 Role: supplementary rescue source for SGJP-unknown forms, flagged by source
