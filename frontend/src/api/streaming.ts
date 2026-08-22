@@ -8,6 +8,7 @@ export type Transport = (url: string, init: FetchEventSourceInit) => Promise<voi
 
 export interface Streamed {
     onOpen: () => void;
+    onBeat: () => void;
     onCommit: (event: EventView) => void;
     onPresence: (company: CompanyView) => void;
     onPosition: (view: PositionView) => void;
@@ -18,6 +19,7 @@ export interface Streamed {
 export const PRESENCE_EVENT = "presence";
 export const POSITION_EVENT = "position";
 export const CLOCK_EVENT = "clock";
+export const HEARTBEAT_EVENT = "heartbeat";
 export const LAST_EVENT_ID_HEADER = "Last-Event-ID";
 const RETRY_AFTER_DROP_MILLISECONDS = 1000;
 
@@ -41,6 +43,10 @@ export function follow(
             streamed.onOpen();
         },
         onmessage: (message): void => {
+            streamed.onBeat();
+            if (message.event === HEARTBEAT_EVENT) {
+                return;
+            }
             if (message.event === PRESENCE_EVENT) {
                 streamed.onPresence(bodyOf<CompanyView>(message.data));
                 return;

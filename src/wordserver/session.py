@@ -18,13 +18,14 @@ from wordserver.clocks import TurnClock
 from wordserver.errors.exceptions import RackMismatch, SeatTokenMismatch, TableGathering
 from wordserver.models.clock import ClockView
 from wordserver.models.company import CompanyView
+from wordserver.models.heartbeat import HeartbeatView
 from wordserver.models.seat import SeatView
 from wordserver.racks import RackOrder
 from wordtable.config import TimeConfig
 
-_KEEPALIVE_SECONDS: Final = 15
-_KEEPALIVE_FRAME: Final = ": keepalive\n\n"
+_HEARTBEAT_SECONDS: Final = 15
 _PRESENCE_EVENT: Final = "presence"
+_HEARTBEAT_EVENT: Final = "heartbeat"
 _POSITION_EVENT: Final = "position"
 _CLOCK_EVENT: Final = "clock"
 
@@ -187,7 +188,8 @@ class TableSession:
         observer: int | None,
         since: int,
     ) -> AsyncIterator[str]:
-        await self._adjust_streams(observer, 1)
+        self._count_stream(observer, 1)
+        await asyncio.shield(self._announce())
         try:
             cursor = _StreamCursor(
                 next_seq=since,
@@ -200,7 +202,8 @@ class TableSession:
                     yield frame
 
         finally:
-            await self._adjust_streams(observer, -1)
+            self._count_stream(observer, -1)
+            await asyncio.shield(self._announce())
 
     async def _next_frames(
         self,
@@ -213,8 +216,8 @@ class TableSession:
                 if frames:
                     return frames
 
-                if await self._quiet_through_keepalive():
-                    return [_KEEPALIVE_FRAME]
+                if await self._quiet_through_heartbeat():
+                    return [_named_frame(_HEARTBEAT_EVENT, self._heartbeat())]
 
     def _pending_frames(
         self,
@@ -247,24 +250,29 @@ class TableSession:
             update={"position": self._racks.arranged(event.position, observer)},
         )
 
-    async def _quiet_through_keepalive(self) -> bool:
+    async def _quiet_through_heartbeat(self) -> bool:
         try:
             await asyncio.wait_for(
                 self._condition.wait(),
-                timeout=_KEEPALIVE_SECONDS,
+                timeout=_HEARTBEAT_SECONDS,
             )
         except TimeoutError:
             return True
 
         return False
 
-    async def _adjust_streams(self, observer: int | None, delta: int) -> None:
+    def _heartbeat(self) -> HeartbeatView:
+        return HeartbeatView(server_time=self._now())
+
+    def _count_stream(self, observer: int | None, delta: int) -> None:
         if observer is None:
             return
 
+        self._streams[observer] = self._streams.get(observer, 0) + delta
+        self._company_version += 1
+
+    async def _announce(self) -> None:
         async with self._condition:
-            self._streams[observer] = self._streams.get(observer, 0) + delta
-            self._company_version += 1
             self._condition.notify_all()
 
     def _earns_increment(self, move: Move) -> bool:

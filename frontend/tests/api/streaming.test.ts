@@ -2,7 +2,14 @@ import type { FetchEventSourceInit } from "@microsoft/fetch-event-source";
 import { describe, expect, it } from "vitest";
 
 import type { Streamed } from "../../src/api/streaming";
-import { CLOCK_EVENT, follow, LAST_EVENT_ID_HEADER, POSITION_EVENT, PRESENCE_EVENT } from "../../src/api/streaming";
+import {
+    CLOCK_EVENT,
+    follow,
+    HEARTBEAT_EVENT,
+    LAST_EVENT_ID_HEADER,
+    POSITION_EVENT,
+    PRESENCE_EVENT,
+} from "../../src/api/streaming";
 import type { ClockView, CompanyView, EventView, PositionView } from "../../src/api/views";
 
 interface Recorded {
@@ -11,6 +18,7 @@ interface Recorded {
 }
 
 interface Heard {
+    beats: number;
     readonly commits: EventView[];
     readonly companies: CompanyView[];
     readonly positions: PositionView[];
@@ -28,12 +36,15 @@ function aTransport(recorded: Recorded[]): (url: string, init: FetchEventSourceI
 }
 
 function aListener(): { heard: Heard; streamed: Streamed } {
-    const heard: Heard = { commits: [], companies: [], positions: [], clocks: [], drops: [] };
+    const heard: Heard = { beats: 0, commits: [], companies: [], positions: [], clocks: [], drops: [] };
     return {
         heard,
         streamed: {
             onOpen: () => {
                 return;
+            },
+            onBeat: () => {
+                heard.beats += 1;
             },
             onCommit: (event) => {
                 heard.commits.push(event);
@@ -101,6 +112,29 @@ describe("follow", () => {
         expect(heard.clocks[0]?.deadline).toBe(1090);
         expect(heard.commits).toHaveLength(1);
         expect(heard.commits[0]?.seq).toBe(0);
+    });
+
+    it("counts a heartbeat as liveness and nothing else", () => {
+        const recorded: Recorded[] = [];
+        const { heard, streamed } = aListener();
+        follow(aTransport(recorded), "/tables/t/events", {}, 0, streamed);
+        const handle = recorded[0]?.init.onmessage;
+        handle?.({ id: "", event: HEARTBEAT_EVENT, data: JSON.stringify({ server_time: 1000 }) });
+        expect(heard.beats).toBe(1);
+        expect(heard.commits).toHaveLength(0);
+        expect(heard.companies).toHaveLength(0);
+        expect(heard.positions).toHaveLength(0);
+        expect(heard.clocks).toHaveLength(0);
+    });
+
+    it("counts every frame as liveness", () => {
+        const recorded: Recorded[] = [];
+        const { heard, streamed } = aListener();
+        follow(aTransport(recorded), "/tables/t/events", {}, 0, streamed);
+        const handle = recorded[0]?.init.onmessage;
+        handle?.({ id: "", event: PRESENCE_EVENT, data: JSON.stringify({ seats: [] }) });
+        handle?.({ id: "", event: HEARTBEAT_EVENT, data: JSON.stringify({ server_time: 1 }) });
+        expect(heard.beats).toBe(2);
     });
 
     it("stops following when released", () => {

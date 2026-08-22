@@ -86,11 +86,13 @@ design contract.
 - `POST /tables/{table_id}/moves`, `DELETE /tables/{table_id}/premove` — play.
 - `PUT /tables/{table_id}/rack` — the order the seat keeps its own letters in.
 - `GET /tables/{table_id}/events` — the SSE stream: numbered journal frames plus
-  unnumbered `presence`, `position` and `clock` frames. A stream opens by stating
-  the observer's whole standing — the company, the observer's own projection, and
-  the turn clock — and a `position` frame follows whenever that projection changes
-  for a reason the journal does not record, so the letters ride the wakeup that
-  carries the turn.
+  unnumbered `presence`, `position`, `clock` and `heartbeat` frames. A stream opens
+  by stating the observer's whole standing — the company, the observer's own
+  projection, and the turn clock — and a `position` frame follows whenever that
+  projection changes for a reason the journal does not record, so the letters ride
+  the wakeup that carries the turn. A quiet table sends a `heartbeat` carrying the
+  server's clock every fifteen seconds, so a client reads liveness from the stream
+  itself and treats silence past two beats as a dropped connection.
 - `/artwork` — the generated asset tree (icons, brand art, board specimens);
   `/favicon.ico` serves from it.
 
@@ -120,7 +122,9 @@ The server runs on a single asyncio event loop. Per-table state is guarded by an
 `asyncio.Condition` inside `TableSession`; HTTP handlers await, turn timers use
 `asyncio.sleep`, and SSE streams wait on the condition. A stream looks for fresh
 frames and waits for the next notification inside one critical section, so a frame
-committed while a stream settles into its wait reaches that stream at once.
+committed while a stream settles into its wait reaches that stream at once. A
+stream counts itself in and out of the company synchronously and announces the
+change under a shield, so a cancelled stream leaves no seat reading as connected.
 Dictionary compilation and loading run through `asyncio.to_thread` inside the
 `LexiconService`, so the event loop never blocks on disk or CPU-heavy lexicon work.
 

@@ -5,7 +5,6 @@ import { readStyle } from "./api/client";
 import { useTable } from "./play/live/useTable";
 import type { Arrival } from "./play/seats/useStanding";
 import { useStanding } from "./play/seats/useStanding";
-import { useSettings } from "./play/settings/useSettings";
 import { Home } from "./table/arrive/Home";
 import { JOINING_CAPTION, STYLE_FALLBACK_NOTE } from "./table/strings";
 import { Table } from "./table/Table";
@@ -53,12 +52,7 @@ interface TableScreenProps {
 }
 
 function TableScreen({ arrival, onLeave, onFinished }: TableScreenProps): ReactElement {
-    const { settings } = useSettings();
-    const { connection, state, clock, trouble, refresh } = useTable(
-        arrival.seat.table,
-        arrival.seat.token,
-        settings.notices,
-    );
+    const { connection, state, clock, trouble, refresh } = useTable(arrival.seat.table, arrival.seat.token);
     const finished = state !== null && state.view.phase === "game_over";
 
     useEffect(() => {

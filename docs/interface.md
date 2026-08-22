@@ -204,8 +204,7 @@ sheet with the scheme's own alphabet.
 
 - **Turn**: `acting` (me ∈ to_act) versus `watching`; acting flips the banner to accent strength,
   rings the board frame and my plaque, retitles the tab, and may vibrate. The turn-notice toggle
-  adds a page notification for the moment my turn opens while the tab rests, and keeps the event
-  stream connected while the page is hidden so that moment arrives.
+  adds a page notification for the moment my turn opens while the tab rests.
 - **Premove**: plays and exchanges queue while off turn; a pass always plays on the turn.
   `queued` (the committed tiles leave the rack and stand as board ghosts in the premove accent,
   beside a "Premove queued — Cancel" chip; submitting again replaces the queue) → `applied`
@@ -221,7 +220,8 @@ sheet with the scheme's own alphabet.
 - **Exchange**: tiles in the tray arm `Exchange N`; the guidance line carries the remaining
   exchange budget and the bag minimum.
 - **Connection**: `joining` · `live` · `resuming` · `lost`, shown as a quiet chip in the status
-  strip.
+  strip. The table beats every fifteen seconds whether or not anyone moves; silence past two beats
+  reads as a dropped connection, and the client re-reads the position and follows again.
 - **Fresh play**: one frame in the mover's tint, haloed in the same tint, drawn around the latest
   play as a whole — a single rectangle from its first new letter to its last, taking in the standing
   letters the play hooked through — and it stands until the next play. While the play is still

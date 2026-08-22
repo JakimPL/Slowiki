@@ -528,3 +528,42 @@ async def test_a_remembered_order_rides_the_event_frames() -> None:
     assert [tile["identifier"] for tile in passed["position"]["racks"]["0"]] == list(asked)
     await stream.aclose()
     session.close()
+
+
+async def test_an_idle_stream_beats_where_the_journal_is_quiet(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr("wordserver.session._HEARTBEAT_SECONDS", 0.05)
+    clock = _FakeClock()
+    session = _timed_session(None, clock)
+    await session.claim("Bob")
+    stream = session.events(observer=0, since=0)
+    assert (await anext(stream)).startswith("event: presence\n")
+    assert (await anext(stream)).startswith("event: position\n")
+    beat = await asyncio.wait_for(anext(stream), timeout=1.0)
+    assert beat.startswith("event: heartbeat\n")
+    assert _frame_body(beat)["server_time"] == clock.moment
+    await stream.aclose()
+    session.close()
+
+
+async def test_a_cancelled_stream_releases_its_seat() -> None:
+    clock = _FakeClock()
+    session = _timed_session(None, clock)
+    await session.claim("Bob")
+    stream = session.events(observer=0, since=0)
+
+    async def drain() -> None:
+        async for _ in stream:
+            pass
+
+    watching = asyncio.create_task(drain())
+    for _ in range(4):
+        await asyncio.sleep(0)
+    assert session.company().seats[0].connected is True
+    watching.cancel()
+    await asyncio.gather(watching, return_exceptions=True)
+    assert session.company().seats[0].connected is False
+    for _ in range(4):
+        await asyncio.sleep(0)
+    session.close()
