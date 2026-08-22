@@ -22,7 +22,11 @@ P5. The journal is append-only. Each move appends a transaction of the form
     `(sequence, move, resulting_position)`.
 
 P6. The engine owns the cursor. Turn order, phase, and premove settlement are
-    engine concerns; game rules supply validation and application.
+    engine concerns; game rules supply validation and application. The session
+    decides when a queued premove settles, the way it already owns the wall clock.
+    Ending a game that stands unplayed belongs there too: `Game.abandon` leaves the
+    position `unresolved` with the scores the seats have earned, so an award that
+    game rules compute stays with the game rules.
 
 P7. Letters are canonical. Every letter inside the system is uppercase; dictionary
     loaders, tile presets, and move payloads normalize on ingestion, so rules,
@@ -70,17 +74,22 @@ design contract.
 
 - `wordgames.names.GameName` — literaki, scrabble.
 - `lexica.names.DictionaryName` — sjp, english, osps.
-- `wordcore.moves.kind.ActionKind` — play, exchange, pass, reorder.
+- `wordcore.moves.kind.ActionKind` — play, exchange, pass.
 - `wordcore.games.kind.EntryKind` — move, premove_set, premove_cleared,
-  premove_discarded.
+  premove_discarded, abandoned.
+- `wordcore.states.phase.Phase` — turn, game_over, unresolved; `finished` answers
+  for the two a game rests in.
 
 ## HTTP surface
 
-- `GET /offerings` — schemes whose dictionaries are present on disk.
+- `GET /offerings` — schemes whose dictionaries are present on disk, and the shape of a
+  join code, so a client filters and parses what a player types from the server's own answer.
 - `GET /style` — the design tokens for the active theme, asked once per client.
 - `POST /tables`, `POST /tables/{code}/join` — admissions with seat tokens.
 - `GET /tables/{table_id}` — the table description: rules parameters, alphabet,
-  distribution, and the join code for seat holders.
+  distribution, and the join code for seat holders. Every route under a table
+  answers 404 `unknown_table` for an identifier the server never held and 410
+  `table_closed` for one it has let go, so a client tells a stale link from a typo.
 - `GET /tables/{table_id}/view` — the per-observer projection with the company
   and the turn clock.
 - `GET /tables/{table_id}/words` — dictionary verdicts for up to sixteen words,
@@ -89,8 +98,15 @@ design contract.
   word of the game, walked from the journal, so the answer stays whole however
   late a client connects.
 - `POST /tables/{table_id}/moves`, `DELETE /tables/{table_id}/premove` — play.
+- `PUT /tables/{table_id}/rack` — the order the seat keeps its own letters in.
 - `GET /tables/{table_id}/events` — the SSE stream: numbered journal frames plus
-  unnumbered `presence` and `clock` frames.
+  unnumbered `presence`, `position`, `clock` and `heartbeat` frames. A stream opens
+  by stating the observer's whole standing — the company, the observer's own
+  projection, and the turn clock — and a `position` frame follows whenever that
+  projection changes for a reason the journal does not record, so the letters ride
+  the wakeup that carries the turn. A quiet table sends a `heartbeat` carrying the
+  server's clock every fifteen seconds, so a client reads liveness from the stream
+  itself and treats silence past two beats as a dropped connection.
 - `/artwork` — the generated asset tree (icons, brand art, board specimens);
   `/favicon.ico` serves from it.
 
@@ -100,18 +116,54 @@ Wall-clock time is session state, never position state. `TurnClock`
 (`wordserver/clocks.py`) holds what each seat has left and the deadline of the
 seat on turn: arming a turn takes the shorter of the scheme's per-turn budget and
 the seat's own remaining time, settling a turn charges the thinking time and adds
-the increment after a play or an exchange, and a spent budget flags its seat, so
-the session auto-passes for it while any opponent still has time. A table asks for
-its own control at creation (`TableRequest.time`), which replaces the scheme's
-default and rides in the description as `parameters.time`.
+the increment after a play or an exchange. A seat whose budget is spent leaves the
+game as an observer: the session refuses every move it submits, discards any premove
+it left standing, and auto-passes on its turn, so the opponents play on and the
+scheme's end limit closes the game. A queued premove settles
+`premove_delay_seconds` after the turn opens, so the move that answered it stands
+alone on its own frame first; the seat on turn is already armed, so its clock pays
+for the pause. A table asks for its own control at creation (`TableRequest.time`),
+which replaces the scheme's default and rides in the description as
+`parameters.time`.
+
+## Rack order
+
+The order a seat keeps its letters in is session state, never position state.
+`RackOrder` (`wordserver/racks.py`) holds the identifiers each seat last asked
+for and lays that seat's own rack out in them whenever the session projects it,
+with freshly drawn tiles standing at the end. `PUT /tables/{table_id}/rack`
+records an order and stops there, so a player who reloads finds their hand as
+they left it while the journal and every other seat read exactly as before.
+
+## Table life
+
+A table lives as long as its game does. `TableSweep` (`wordserver/sweep.py`) wakes
+every `tables.sweep_seconds` and reads each table's `TableStanding` — its age, and
+how long its game has been finished — through `fate_of` (`wordserver/lifetime.py`),
+which answers keep, abandon, or close. A game still running past
+`tables.life_seconds` is abandoned: the session calls `Game.abandon`, which appends
+an `abandoned` entry leaving the position `unresolved` with the scores as they
+stand. A finished table closes once its standing has been readable for
+`tables.linger_seconds`.
+
+Closing is one path, `TableRegistry.close`: it writes a `GameRecord` into the
+`GameBook`, drops the table and its join code from the registry, and closes the
+session, which cancels the turn and premove timers and ends every open stream. The
+book keeps the last `KEPT_GAMES` records, which is how a request for a table the
+server has let go answers 410 rather than 404, and each record reaches the log as
+it is filed.
 
 ## Concurrency
 
 The server runs on a single asyncio event loop. Per-table state is guarded by an
 `asyncio.Condition` inside `TableSession`; HTTP handlers await, turn timers use
-`asyncio.sleep`, and SSE streams wait on the condition. Dictionary compilation
-and loading run through `asyncio.to_thread` inside the `LexiconService`, so the
-event loop never blocks on disk or CPU-heavy lexicon work.
+`asyncio.sleep`, and SSE streams wait on the condition. A stream looks for fresh
+frames and waits for the next notification inside one critical section, so a frame
+committed while a stream settles into its wait reaches that stream at once. A
+stream counts itself in and out of the company synchronously and announces the
+change under a shield, so a cancelled stream leaves no seat reading as connected.
+Dictionary compilation and loading run through `asyncio.to_thread` inside the
+`LexiconService`, so the event loop never blocks on disk or CPU-heavy lexicon work.
 
 ## Import contracts
 

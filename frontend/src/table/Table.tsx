@@ -9,6 +9,7 @@ import { incomingOf } from "../play/board/landing";
 import { prospectOf } from "../play/board/prospects";
 import type { DeskSpot } from "../play/board/spot";
 import { standingWordsAt } from "../play/board/standing";
+import { outOfTime } from "../play/clock/budget";
 import { remainingFor, urgencyOf } from "../play/clock/clock";
 import { useCountdown } from "../play/clock/useCountdown";
 import { useAlerts } from "../play/device/useAlerts";
@@ -22,6 +23,7 @@ import { useLore } from "../play/lore/useLore";
 import { tintFor } from "../play/seats/tints";
 import type { Arrival } from "../play/seats/useStanding";
 import { useSettings } from "../play/settings/useSettings";
+import { finished } from "../play/story/ending";
 import { guidanceFor } from "../play/story/guidance";
 import { remainingTally } from "../play/story/remaining";
 import type { StoryKind } from "../play/story/story";
@@ -39,6 +41,7 @@ import { liftedIdentifier } from "../play/tiles/selection";
 import { trayTilesOf } from "../play/tiles/tray";
 import { useDesk } from "../play/tiles/useDesk";
 import { askedPlayed, askedStanding } from "../play/words/asked";
+import { wordRefused } from "../play/words/chips";
 import { invalidTextsOf, wordStatusFor } from "../play/words/feedback";
 import { askedWord, panelStanding } from "../play/words/panel";
 import { useJudgements } from "../play/words/useJudgements";
@@ -52,10 +55,10 @@ import { Rack } from "./hand/Rack";
 import { Tray } from "./hand/Tray";
 import type { TileBindings } from "./input/bindings";
 import type { Carry, DragPoint, Grasp, GraspSession } from "./input/dragging";
-import { carriedTo, crowded, isCarry } from "./input/dragging";
+import { aimedOverBoard, carriedTo, CARRY_LIFT, crowded, isCarry } from "./input/dragging";
 import type { KeyHandlers } from "./input/keys";
 import { boundKeys } from "./input/keys";
-import { targetsFrom } from "./input/targets";
+import { rowsFrom, targetsFrom, withRows } from "./input/targets";
 import { useHold } from "./input/useHold";
 import { MenuButton } from "./menu/MenuButton";
 import { TableMenu } from "./menu/TableMenu";
@@ -106,7 +109,8 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
     const mySeat = arrival.seated ?? seatedAs(state.view);
     const description = useDescription(arrival.seat);
     const remaining = useCountdown(clock);
-    const highlights = useHighlights(arrival.seat, state.view.phase === "game_over");
+    const over = finished(state.view.phase);
+    const highlights = useHighlights(arrival.seat, over);
 
     const story = storyFor(state.view, state.company, mySeat);
     const present = state.company.seats.filter((seated) => seated.claimed).length;
@@ -118,9 +122,11 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
     const acting = mySeat !== null && state.view.to_act.includes(mySeat);
     const asPremove = !acting && rules.premovesAllowed;
     const atDesk = mySeat !== null && rack !== null && !gathering && state.view.phase === "turn";
-    const mayAct = atDesk && (acting || rules.premovesAllowed);
+    const ranOut = outOfTime(clock, mySeat, remaining);
+    const inPlay = atDesk && !ranOut;
+    const mayAct = inPlay && (acting || rules.premovesAllowed);
 
-    const { desk, perform: performDesk } = useDesk(state, mySeat, arrival.seat, atDesk);
+    const { desk, perform: performDesk } = useDesk(state, mySeat, arrival.seat, inPlay);
     const { busy, notice, noticeCode, send, revoke, clear } = usePlay(arrival.seat, state.seq, onOutdated);
     const queued = queuedPremoveOf(state.view, mySeat);
     const ghosts: ReadonlyMap<number, Tile> = new Map((queued?.ghosts ?? []).map((ghost) => [ghost.cell, ghost.tile]));
@@ -185,9 +191,6 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
 
     const exchanging = desk.draft.length === 0 && desk.tray.length > 0;
     const exchange = mySeat === null ? null : exchangeProspectOf(desk.tray.length, state.view, mySeat, rules);
-    const playArmed = mayAct && prospect.verdict === "playable";
-    const primaryArmed = (exchanging ? mayAct && (exchange?.allowed ?? false) : playArmed) && !panelStanding(panel);
-
     const invalidTexts = invalidTextsOf(noticeCode, notice);
     const judged = useJudgements(
         arrival.seat,
@@ -198,12 +201,16 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
         ...word,
         status: wordStatusFor(rules.feedback, word.text, invalidTexts, judged),
     }));
+    const refused = !asPremove && wordRefused(chips);
+    const playArmed = mayAct && prospect.verdict === "playable" && !refused;
+    const primaryArmed = (exchanging ? mayAct && (exchange?.allowed ?? false) : playArmed) && !panelStanding(panel);
     const shownNotice = noticeCode === STALE_POSITION_CODE ? STALE_NOTICE : notice;
     const offline = connection === "live" ? null : trouble;
-    const hint =
-        exchanging && exchange !== null
-            ? exchangeGuidance(exchange.block, exchange.remaining, rules.exchangeMinBag)
-            : guidanceCaption(guidanceFor(prospect.verdict, desk.lift !== null));
+    const hint = ranOut
+        ? guidanceCaption("out-of-time")
+        : exchanging && exchange !== null
+          ? exchangeGuidance(exchange.block, exchange.remaining, rules.exchangeMinBag)
+          : guidanceCaption(guidanceFor(prospect.verdict, desk.lift !== null));
     const feedback = (): ReactElement => {
         if (shownNotice !== null) {
             return danger(shownNotice);
@@ -303,7 +310,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
         perform({ kind: "arrange", arrangement: shuffledArrangement(desk.arrangement, visible, Math.random) });
     };
     const retreat = (): void => {
-        if (story.kind === "over" && standingShown) {
+        if (over && standingShown) {
             setStandingShown(false);
             return;
         }
@@ -350,6 +357,13 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
             };
         },
     };
+    const relayRows = (session: GraspSession, point: DragPoint): void => {
+        const root = rootRef.current;
+        if (root === null || aimedOverBoard(session, point)) {
+            return;
+        }
+        session.targets = withRows(session.targets, rowsFrom(root));
+    };
     const carryOn = (point: DragPoint): void => {
         const session = sessionRef.current;
         if (session === null) {
@@ -359,6 +373,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
             session.carrying = true;
         }
         if (session.carrying) {
+            relayRows(session, point);
             setCarry(carriedTo(session, point));
         }
     };
@@ -444,14 +459,14 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
                     text={captionFor(story, state.company)}
                     tone={toneOf(story.kind)}
                     onOpen={
-                        story.kind === "over" && !standingShown
+                        over && !standingShown
                             ? (): void => {
                                   setStandingShown(true);
                               }
                             : null
                     }
                 />
-                {story.kind === "over" ? null : <span className="status-meta">{bagCaption(state.view.bag_count)}</span>}
+                {over ? null : <span className="status-meta">{bagCaption(state.view.bag_count)}</span>}
                 {connection === "live" ? null : (
                     <span className="chip chip-connection" data-connection={connection}>
                         {CONNECTION_CAPTIONS[connection]}
@@ -491,14 +506,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
                 </BoardStage>
             </div>
             <div className="side">
-                {gathering ? (
-                    <Room
-                        table={arrival.seat.table}
-                        code={arrival.code}
-                        present={present}
-                        total={state.company.seats.length}
-                    />
-                ) : null}
+                {gathering ? <Room code={arrival.code} present={present} total={state.company.seats.length} /> : null}
                 {atDesk ? <div className="feedback">{feedback()}</div> : null}
                 {atDesk ? (
                     <>
@@ -538,7 +546,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
                             busy={busy}
                             canRecall={desk.draft.length > 0 || desk.lift !== null}
                             canShuffle={rackRow.length > 1}
-                            canPass={acting && rules.passAllowed}
+                            canPass={acting && rules.passAllowed && !ranOut}
                             onPrimary={primary}
                             onRecall={(): void => {
                                 perform({ kind: "recall" });
@@ -580,14 +588,17 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
                 <div
                     className="carry-ghost"
                     data-touch={carry.touch ? "true" : undefined}
-                    style={{ "--carry-x": `${String(carry.point.x)}px`, "--carry-y": `${String(carry.point.y)}px` }}
+                    style={{
+                        "--carry-x": `${String(carry.point.x)}px`,
+                        "--carry-y": `${String(carry.point.y)}px`,
+                        "--carry-lift": `${String(CARRY_LIFT)}px`,
+                    }}
                 >
                     <TileFace tile={carry.tile} />
                 </div>
             )}
             {menuShown ? (
                 <TableMenu
-                    table={arrival.seat.table}
                     code={arrival.code}
                     onLeave={onLeave}
                     onClose={(): void => {
@@ -611,7 +622,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
                     onClose={closePanel}
                 />
             )}
-            {story.kind === "over" && standingShown ? (
+            {over && standingShown ? (
                 <GameOver
                     view={state.view}
                     company={state.company}
@@ -663,5 +674,5 @@ function toneOf(kind: StoryKind): StatusTone {
     if (kind === "acting") {
         return "acting";
     }
-    return kind === "over" ? "over" : "quiet";
+    return kind === "over" || kind === "unresolved" ? "over" : "quiet";
 }

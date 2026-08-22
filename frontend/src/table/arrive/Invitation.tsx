@@ -6,11 +6,10 @@ import { INVITE_BUTTON, INVITE_COPIED } from "../strings";
 import { CodeChip } from "./CodeChip";
 
 export interface InvitationProps {
-    readonly table: string;
     readonly code: string;
 }
 
-export function Invitation({ table, code }: InvitationProps): ReactElement {
+export function Invitation({ code }: InvitationProps): ReactElement {
     const { copied, copy } = useCopy();
     return (
         <span className="invitation">
@@ -19,7 +18,7 @@ export function Invitation({ table, code }: InvitationProps): ReactElement {
                 type="button"
                 className="invitation-copy"
                 onClick={(): void => {
-                    copy(invitationTo(window.location.origin, window.location.pathname, table, code));
+                    copy(invitationTo(window.location.origin, window.location.pathname, code));
                 }}
             >
                 {copied ? INVITE_COPIED : INVITE_BUTTON}

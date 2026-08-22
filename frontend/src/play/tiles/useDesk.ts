@@ -1,10 +1,9 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { sendMove } from "../../api/client";
-import { reorderMove } from "../../api/moves";
+import { sendRackOrder } from "../../api/client";
 import type { Seat } from "../../api/seat";
 import type { TableState } from "../live/events";
-import { reorderPayload } from "./arrangement";
+import { rackOrder } from "./arrangement";
 import type { Desk, DeskEffect } from "./desk";
 import { affected, EMPTY_DESK, reconciledDesk } from "./desk";
 import { draftedIdentifiers } from "./draft";
@@ -15,7 +14,7 @@ export interface DeskHold {
     readonly perform: (effect: DeskEffect) => void;
 }
 
-const REORDER_DELAY_MS = 800;
+const RACK_ORDER_DELAY_MS = 800;
 
 export function useDesk(state: TableState, mySeat: number | null, seat: Seat, active: boolean): DeskHold {
     const [desk, setDesk] = useState<Desk>(EMPTY_DESK);
@@ -25,33 +24,28 @@ export function useDesk(state: TableState, mySeat: number | null, seat: Seat, ac
         () => queuedPremoveOf(state.view, mySeat)?.committed ?? NO_COMMITTED_TILES,
         [state.view, mySeat],
     );
-    const seqRef = useRef(state.seq);
-
-    useEffect(() => {
-        seqRef.current = state.seq;
-    }, [state.seq]);
 
     useEffect(() => {
         setDesk((current) => reconciledDesk(current, rack, board, committed));
     }, [rack, board, committed]);
 
     useEffect(() => {
-        if (!active || mySeat === null || rack === null) {
+        if (!active || rack === null) {
             return;
         }
-        const payload = reorderPayload(desk.arrangement, desk.tray, draftedIdentifiers(desk.draft));
+        const asked = rackOrder(desk.arrangement, desk.tray, draftedIdentifiers(desk.draft));
         const served = rack.map((tile) => tile.identifier);
-        const settled = payload.length === served.length && payload.every((id, at) => id === served[at]);
+        const settled = asked.length === served.length && asked.every((id, at) => id === served[at]);
         if (settled) {
             return;
         }
         const timer = window.setTimeout(() => {
-            void sendMove(seat, reorderMove(mySeat, payload), seqRef.current, false).catch(() => undefined);
-        }, REORDER_DELAY_MS);
+            void sendRackOrder(seat, asked).catch(() => undefined);
+        }, RACK_ORDER_DELAY_MS);
         return (): void => {
             window.clearTimeout(timer);
         };
-    }, [desk.arrangement, desk.tray, desk.draft, rack, mySeat, seat, active]);
+    }, [desk.arrangement, desk.tray, desk.draft, rack, seat, active]);
 
     const perform = useCallback((effect: DeskEffect): void => {
         setDesk((current) => affected(current, effect));

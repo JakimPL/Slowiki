@@ -1,12 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-    followedFragment,
-    fragmentFor,
-    invitationTo,
-    standingIn,
-    withoutFragment,
-} from "../../../src/play/seats/session";
+import { fragmentFor, invitationTo, standingIn, withoutFragment } from "../../../src/play/seats/session";
 
 describe("standingIn", () => {
     it("reads table, token, code, and seat from a fragment", () => {
@@ -48,18 +42,6 @@ describe("fragmentFor", () => {
     });
 });
 
-describe("followedFragment", () => {
-    it("follows the address while no seat is held", () => {
-        expect(followedFragment("", "#table=abc123&code=KWPZTR")).toBe("#table=abc123&code=KWPZTR");
-        expect(followedFragment("#code=OLDONE", "#table=abc123&code=KWPZTR")).toBe("#table=abc123&code=KWPZTR");
-    });
-
-    it("keeps a held seat when the address changes", () => {
-        const held = "#table=abc123&token=tok-1&code=KWPZTR&seat=1";
-        expect(followedFragment(held, "#table=other&code=ZZZZZZ")).toBe(held);
-    });
-});
-
 describe("withoutFragment", () => {
     it("drops the seat from an address, keeping path and query", () => {
         expect(withoutFragment("http://host/?pass=3#table=abc123&token=tok-1&seat=1")).toBe("http://host/?pass=3");
@@ -71,8 +53,8 @@ describe("withoutFragment", () => {
 });
 
 describe("invitationTo", () => {
-    it("builds a link carrying the table and the code in the fragment", () => {
-        const line = invitationTo("http://192.168.1.5:8000", "/", "abc123", "KWPZTR");
-        expect(line).toBe("http://192.168.1.5:8000/#table=abc123&code=KWPZTR");
+    it("builds a link carrying the join code alone", () => {
+        const line = invitationTo("http://192.168.1.5:8000", "/", "KWPZTR");
+        expect(line).toBe("http://192.168.1.5:8000/#code=KWPZTR");
     });
 });

@@ -28,12 +28,7 @@ class Pass(BaseFrozen):
     kind: Literal[ActionKind.PASS] = ActionKind.PASS
 
 
-class Reorder(BaseFrozen):
-    kind: Literal[ActionKind.REORDER] = ActionKind.REORDER
-    tile_ids: tuple[int, ...]
-
-
 AnyAction = Annotated[
-    Play | Exchange | Pass | Reorder,
+    Play | Exchange | Pass,
     Field(discriminator="kind"),
 ]

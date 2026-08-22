@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Annotated, Any
 
 import yaml
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from lexica.names import DictionaryName
 from wordcore.board.preset import BoardPreset
@@ -18,16 +18,25 @@ from wordtable.paths import (
     configuration_file,
 )
 
+PositiveSeconds = Annotated[float, Field(gt=0)]
+
 
 class ServiceConfig(BaseFrozen):
     host: str
     port: int
 
 
+class TablesConfig(BaseFrozen):
+    life_seconds: PositiveSeconds
+    linger_seconds: PositiveSeconds
+    sweep_seconds: PositiveSeconds
+
+
 class TimeConfig(BaseFrozen):
     per_turn_seconds: int | None
     increment_seconds: int
     total_seconds: int | None
+    premove_delay_seconds: float
 
 
 class SchemeConfig(BaseFrozen):
@@ -43,9 +52,22 @@ class SchemeConfig(BaseFrozen):
     exchange_min_bag: int
     pass_allowed: bool
     time: TimeConfig
-    pass_end_limit: int | None
+    pass_end_rounds: int | None
     scoreless_end_limit: int | None
     bingo_bonus: int
+
+    @model_validator(mode="after")
+    def _ensure_end_limit(self) -> "SchemeConfig":
+        if (
+            self.max_players > 1
+            and self.pass_end_rounds is None
+            and self.scoreless_end_limit is None
+        ):
+            raise InvalidConfiguration(
+                "a scheme seating several players needs pass_end_rounds or scoreless_end_limit"
+            )
+
+        return self
 
 
 HexColor = Annotated[str, Field(pattern=r"^#[0-9A-Fa-f]{6}$")]
@@ -107,6 +129,7 @@ class StyleTokens(BaseFrozen):
 
 class Configuration(BaseFrozen):
     service: ServiceConfig
+    tables: TablesConfig
     scheme: str
     style: str
 

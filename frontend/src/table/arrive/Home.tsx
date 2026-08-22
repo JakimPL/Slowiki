@@ -3,9 +3,10 @@ import { useEffect, useState } from "react";
 
 import { createTable, joinTable, readOfferings } from "../../api/client";
 import { reasonOf } from "../../api/refusal";
-import type { Offering, TableAdmission } from "../../api/tables";
+import type { Offering, OfferingsResponse, TableAdmission } from "../../api/tables";
 import type { Tile } from "../../api/views";
 import { MOVE_INCREMENTS, timeRequestOf, TURN_BUDGETS } from "../../play/clock/timing";
+import { enteredCode } from "../../play/seats/codes";
 import { rememberName, storedName } from "../../play/seats/identity";
 import { LocaleToggle } from "../seats/LocaleToggle";
 import { ModeToggle } from "../seats/ModeToggle";
@@ -54,7 +55,7 @@ const SPECIMEN: readonly Tile[] = [
 ];
 
 export function Home({ invitedCode, themeNote, onArrive, onResume, onForget }: HomeProps): ReactElement {
-    const [offerings, setOfferings] = useState<readonly Offering[] | null>(null);
+    const [arrivals, setArrivals] = useState<OfferingsResponse | null>(null);
     const [name, setName] = useState(() => (typeof window === "undefined" ? "" : storedName(window.localStorage)));
     const [code, setCode] = useState(invitedCode ?? "");
     const [schemeName, setSchemeName] = useState<string | null>(null);
@@ -66,14 +67,11 @@ export function Home({ invitedCode, themeNote, onArrive, onResume, onForget }: H
     const [trouble, setTrouble] = useState<string | null>(null);
 
     useEffect(() => {
-        if (joining) {
-            return;
-        }
         let alive = true;
         readOfferings()
             .then((served) => {
                 if (alive) {
-                    setOfferings(served);
+                    setArrivals(served);
                 }
             })
             .catch((error: unknown) => {
@@ -84,8 +82,11 @@ export function Home({ invitedCode, themeNote, onArrive, onResume, onForget }: H
         return (): void => {
             alive = false;
         };
-    }, [joining]);
+    }, []);
 
+    const offerings = arrivals?.offerings ?? null;
+    const shape = arrivals?.code ?? null;
+    const complete = shape === null ? code.trim() !== "" : code.length === shape.length;
     const chosen = offerings?.find((offering) => offering.name === schemeName) ?? offerings?.[0] ?? null;
     const chosenSeats = boundedSeats(seats, chosen);
     const cleanedName = name.trim() === "" ? null : name.trim();
@@ -118,11 +119,10 @@ export function Home({ invitedCode, themeNote, onArrive, onResume, onForget }: H
 
     const join: SubmitEventHandler<HTMLFormElement> = (submission) => {
         submission.preventDefault();
-        const cleanedCode = code.trim().toUpperCase();
-        if (cleanedCode === "" || cleanedName === null) {
+        if (!complete || cleanedName === null) {
             return;
         }
-        void settle(() => joinTable(cleanedCode, { name: cleanedName }));
+        void settle(() => joinTable(code, { name: cleanedName }));
     };
 
     return (
@@ -172,16 +172,17 @@ export function Home({ invitedCode, themeNote, onArrive, onResume, onForget }: H
                                 className="code-input"
                                 value={code}
                                 autoCapitalize="characters"
+                                inputMode="text"
                                 onChange={(change): void => {
-                                    setCode(change.target.value.toUpperCase());
+                                    setCode(
+                                        shape === null
+                                            ? change.target.value.toUpperCase()
+                                            : enteredCode(change.target.value, shape),
+                                    );
                                 }}
                             />
                         </label>
-                        <button
-                            type="submit"
-                            className="action"
-                            disabled={busy || cleanedName === null || code.trim() === ""}
-                        >
+                        <button type="submit" className="action" disabled={busy || cleanedName === null || !complete}>
                             {JOIN_BUTTON}
                         </button>
                     </form>

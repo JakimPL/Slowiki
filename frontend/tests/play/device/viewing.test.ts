@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { Watched } from "../../../src/play/device/viewing";
-import { whileInView } from "../../../src/play/device/viewing";
+import { whenInView } from "../../../src/play/device/viewing";
 
 class FakeDocument implements Watched {
     visibilityState: DocumentVisibilityState = "visible";
@@ -23,49 +23,32 @@ class FakeDocument implements Watched {
     }
 }
 
-describe("whileInView", () => {
-    it("holds while visible and releases when hidden", () => {
+describe("whenInView", () => {
+    it("calls back each time the page comes back into view", () => {
         const watched = new FakeDocument();
-        let holds = 0;
-        let releases = 0;
-        whileInView(watched, () => {
-            holds += 1;
-            return () => {
-                releases += 1;
-            };
+        let returns = 0;
+        whenInView(watched, () => {
+            returns += 1;
         });
-        expect(holds).toBe(1);
+        expect(returns).toBe(0);
         watched.turns("hidden");
-        expect(releases).toBe(1);
+        expect(returns).toBe(0);
         watched.turns("visible");
-        expect(holds).toBe(2);
+        expect(returns).toBe(1);
+        watched.turns("hidden");
+        watched.turns("visible");
+        expect(returns).toBe(2);
     });
 
-    it("releases and unsubscribes when stopped", () => {
+    it("unsubscribes when stopped", () => {
         const watched = new FakeDocument();
-        let releases = 0;
-        const stop = whileInView(watched, () => () => {
-            releases += 1;
+        let returns = 0;
+        const stop = whenInView(watched, () => {
+            returns += 1;
         });
         stop();
-        expect(releases).toBe(1);
         watched.turns("hidden");
         watched.turns("visible");
-        expect(releases).toBe(1);
-    });
-
-    it("waits for visibility before holding", () => {
-        const watched = new FakeDocument();
-        watched.visibilityState = "hidden";
-        let holds = 0;
-        whileInView(watched, () => {
-            holds += 1;
-            return () => {
-                return;
-            };
-        });
-        expect(holds).toBe(0);
-        watched.turns("visible");
-        expect(holds).toBe(1);
+        expect(returns).toBe(0);
     });
 });

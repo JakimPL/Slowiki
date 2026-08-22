@@ -1,20 +1,34 @@
 import asyncio
+import json
 import random
+from typing import Any, Final
 
 import httpx
 import pytest
 
 from lexica.names import DictionaryName
+from wordcore.errors.rejections import RejectionCode
 from wordcore.games.game import Game
+from wordcore.games.kind import EntryKind
 from wordcore.lexicon.lexicon import TextLexicon
 from wordcore.moves.action import Exchange, Pass
 from wordcore.moves.move import Move
+from wordcore.states.phase import Phase
 from wordserver.app import create_app
+from wordserver.errors.code import ErrorCode
+from wordserver.errors.exceptions import OutOfTime
+from wordserver.errors.gone import table_gone
+from wordserver.models.table_meta import TableMeta
+from wordserver.records import KEPT_GAMES, GameBook
+from wordserver.registry import TableRegistry
 from wordserver.session import TableSession
+from wordserver.sweep import TableSweep
 from wordtable.build import build_rules
 from wordtable.catalog import resolve_scheme
-from wordtable.config import TimeConfig
+from wordtable.config import TablesConfig, TimeConfig
 from wordtable.paths import CONFIG_DIR
+
+_PREMOVE_DELAY: Final = 0.05
 
 
 @pytest.fixture
@@ -43,6 +57,17 @@ async def test_offerings_list_ready_dictionaries(
     assert {"literaki", "solo-literaki"} <= names
     assert "scrabble" not in names
     assert all(offering["dictionary"] == "sjp" for offering in served)
+
+
+async def test_offerings_serve_the_join_code_shape(client: httpx.AsyncClient) -> None:
+    response = await client.get("/offerings")
+    shape = response.json()["code"]
+    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
+    code = created.json()["code"]
+    assert len(code) == shape["length"]
+    assert set(code) <= set(shape["alphabet"])
+    assert "I" not in shape["alphabet"]
+    assert "O" not in shape["alphabet"]
 
 
 async def test_offerings_grow_when_a_dictionary_arrives(
@@ -165,7 +190,12 @@ async def test_session_events_streams_after_submit() -> None:
     resolved = resolve_scheme(CONFIG_DIR, "literaki")
     rules = build_rules(resolved, (0, 1), TextLexicon.from_words(["aa"]))
     game = Game(rules, random.Random(0), premoves_allowed=True)
-    time = TimeConfig(per_turn_seconds=None, increment_seconds=0, total_seconds=None)
+    time = TimeConfig(
+        per_turn_seconds=None,
+        increment_seconds=0,
+        total_seconds=None,
+        premove_delay_seconds=_PREMOVE_DELAY,
+    )
     names: dict[int, str | None] = {0: "Ala", 1: None}
     session = TableSession(game, {0: "token-a", 1: "token-b"}, time, names, lambda: 0.0)
     await session.claim("Bob")
@@ -175,8 +205,10 @@ async def test_session_events_streams_after_submit() -> None:
     assert first.startswith("event: presence\n")
     assert "id:" not in first
     second = await anext(stream)
-    assert second.startswith("id: 0\n")
-    assert '"seq": 0' in second
+    assert second.startswith("event: position\n")
+    third = await anext(stream)
+    assert third.startswith("id: 0\n")
+    assert '"seq": 0' in third
     await stream.aclose()
 
 
@@ -184,7 +216,12 @@ async def test_presence_frames_follow_claims_and_disconnects() -> None:
     resolved = resolve_scheme(CONFIG_DIR, "literaki")
     rules = build_rules(resolved, (0, 1), TextLexicon.from_words(["aa"]))
     game = Game(rules, random.Random(0), premoves_allowed=True)
-    time = TimeConfig(per_turn_seconds=None, increment_seconds=0, total_seconds=None)
+    time = TimeConfig(
+        per_turn_seconds=None,
+        increment_seconds=0,
+        total_seconds=None,
+        premove_delay_seconds=_PREMOVE_DELAY,
+    )
     names: dict[int, str | None] = {0: "Ala", 1: None}
     session = TableSession(game, {0: "token-a", 1: "token-b"}, time, names, lambda: 0.0)
     stream = session.events(observer=0, since=0)
@@ -192,6 +229,7 @@ async def test_presence_frames_follow_claims_and_disconnects() -> None:
     assert first.startswith("event: presence\n")
     assert '"name": "Ala"' in first
     assert '"connected": true' in first
+    assert (await anext(stream)).startswith("event: position\n")
     claimed = await session.claim("Bob")
     assert claimed == (1, "token-b")
     second = await anext(stream)
@@ -212,13 +250,39 @@ class _FakeClock:
 
 
 def _timed_session(seconds: int | None, clock: _FakeClock) -> TableSession:
-    timed = TimeConfig(per_turn_seconds=seconds, increment_seconds=0, total_seconds=None)
+    timed = TimeConfig(
+        per_turn_seconds=seconds,
+        increment_seconds=0,
+        total_seconds=None,
+        premove_delay_seconds=_PREMOVE_DELAY,
+    )
     return _session_with(timed, clock)
 
 
 def _budgeted_session(total: int, increment: int, clock: _FakeClock) -> TableSession:
-    budgeted = TimeConfig(per_turn_seconds=None, increment_seconds=increment, total_seconds=total)
+    budgeted = TimeConfig(
+        per_turn_seconds=None,
+        increment_seconds=increment,
+        total_seconds=total,
+        premove_delay_seconds=_PREMOVE_DELAY,
+    )
     return _session_with(budgeted, clock)
+
+
+def _frame_body(frame: str) -> dict[str, Any]:
+    return json.loads(frame.split("data: ", 1)[1])
+
+
+async def _next_event(session: TableSession, observer: int, since: int) -> dict[str, Any]:
+    stream = session.events(observer=observer, since=since)
+    try:
+        async for frame in stream:
+            if frame.startswith("id: "):
+                return _frame_body(frame)
+
+        raise AssertionError("the stream closed before an event arrived")
+    finally:
+        await stream.aclose()
 
 
 def _session_with(time: TimeConfig, clock: _FakeClock) -> TableSession:
@@ -240,7 +304,7 @@ async def test_clock_arms_when_the_table_gathers() -> None:
     assert armed.deadline == 1090.0
     assert armed.server_time == 1000.0
     assert armed.remaining == {}
-    session.close()
+    await session.close()
 
 
 async def test_budget_charges_the_thinking_seat_and_pays_the_increment() -> None:
@@ -261,7 +325,7 @@ async def test_budget_charges_the_thinking_seat_and_pays_the_increment() -> None
     assert rearmed.seat == 1
     assert rearmed.remaining == {"0": 270.0, "1": 300.0}
     assert rearmed.deadline == 1340.0
-    session.close()
+    await session.close()
 
 
 async def test_a_pass_earns_no_increment() -> None:
@@ -273,18 +337,53 @@ async def test_a_pass_earns_no_increment() -> None:
     spent = session.clock()
     assert spent is not None
     assert spent.remaining == {"0": 270.0, "1": 300.0}
-    session.close()
+    await session.close()
 
 
-async def test_a_table_of_spent_budgets_rests_instead_of_passing_forever() -> None:
+async def test_a_table_of_spent_budgets_passes_out_to_the_end() -> None:
     clock = _FakeClock()
     session = _budgeted_session(0, 0, clock)
     await session.claim(None)
     await asyncio.sleep(0.2)
+    assert session.seq == 4
+    assert session.view(None).phase == "game_over"
     assert session.clock() is None
+    await session.close()
+
+
+async def test_a_spent_seat_is_refused_a_premove() -> None:
+    clock = _FakeClock()
+    session = _budgeted_session(30, 0, clock)
+    await session.claim(None)
+    clock.moment = 1030.0
+    await session.submit(Move(player=0, action=Pass()), base_seq=0, premove=False, token="token-a")
+    spent = session.clock()
+    assert spent is not None
+    assert spent.remaining["0"] == 0.0
+    rack = session.view(0).racks[0]
+    assert rack is not None
+    exchange = Move(player=0, action=Exchange(tile_ids=[rack[0].identifier]))
+    with pytest.raises(OutOfTime):
+        await session.submit(exchange, base_seq=1, premove=True, token="token-a")
+
+    assert session.seq == 1
+    assert session.view(0).premove is None
+    await session.close()
+
+
+async def test_a_seat_past_its_deadline_is_refused_a_move() -> None:
+    clock = _FakeClock()
+    session = _timed_session(90, clock)
+    await session.claim(None)
+    clock.moment = 1200.0
+    rack = session.view(0).racks[0]
+    assert rack is not None
+    exchange = Move(player=0, action=Exchange(tile_ids=[rack[0].identifier]))
+    with pytest.raises(OutOfTime):
+        await session.submit(exchange, base_seq=0, premove=False, token="token-a")
+
     assert session.seq == 0
-    assert session.view(None).phase == "turn"
-    session.close()
+    await session.close()
 
 
 async def test_opponent_premove_leaves_the_deadline_alone() -> None:
@@ -308,7 +407,86 @@ async def test_opponent_premove_leaves_the_deadline_alone() -> None:
     rearmed = session.clock()
     assert rearmed is not None
     assert rearmed.deadline == 1140.0
-    session.close()
+    await session.close()
+
+
+async def test_a_premove_waits_out_its_delay_before_it_settles() -> None:
+    clock = _FakeClock()
+    session = _timed_session(90, clock)
+    await session.claim(None)
+    other_rack = session.view(1).racks[1]
+    assert other_rack is not None
+    queued = Move(player=1, action=Exchange(tile_ids=[other_rack[0].identifier]))
+    await session.submit(queued, base_seq=0, premove=True, token="token-b")
+    await session.submit(Move(player=0, action=Pass()), base_seq=1, premove=False, token="token-a")
+    assert session.seq == 2
+    assert session.view(1).to_act == frozenset({1})
+    assert session.view(1).premove is not None
+    await asyncio.sleep(_PREMOVE_DELAY * 3)
+    assert session.seq == 3
+    assert session.view(1).premove is None
+    assert session.view(1).to_act == frozenset({0})
+    await session.close()
+
+
+async def test_the_premove_delay_is_charged_to_the_premover() -> None:
+    clock = _FakeClock()
+    session = _budgeted_session(300, 10, clock)
+    await session.claim(None)
+    other_rack = session.view(1).racks[1]
+    assert other_rack is not None
+    queued = Move(player=1, action=Exchange(tile_ids=[other_rack[0].identifier]))
+    await session.submit(queued, base_seq=0, premove=True, token="token-b")
+    clock.moment = 1020.0
+    await session.submit(Move(player=0, action=Pass()), base_seq=1, premove=False, token="token-a")
+    clock.moment = 1021.0
+    await asyncio.sleep(_PREMOVE_DELAY * 3)
+    rearmed = session.clock()
+    assert rearmed is not None
+    assert rearmed.seat == 0
+    assert rearmed.remaining == {"0": 280.0, "1": 309.0}
+    await session.close()
+
+
+async def test_a_premove_that_flags_its_seat_is_returned() -> None:
+    clock = _FakeClock()
+    session = _budgeted_session(30, 0, clock)
+    await session.claim(None)
+    other_rack = session.view(1).racks[1]
+    assert other_rack is not None
+    queued = Move(player=1, action=Exchange(tile_ids=[other_rack[0].identifier]))
+    await session.submit(queued, base_seq=0, premove=True, token="token-b")
+    clock.moment = 1030.0
+    await session.submit(Move(player=0, action=Pass()), base_seq=1, premove=False, token="token-a")
+    clock.moment = 1061.0
+    returned = await _next_event(session, observer=1, since=2)
+    assert returned["kind"] == EntryKind.PREMOVE_DISCARDED
+    assert returned["reason"] == RejectionCode.OUT_OF_TIME
+    assert session.view(1).premove is None
+    assert session.view(1).to_act == frozenset({1})
+    await session.close()
+
+
+async def test_a_run_of_premoves_settles_one_delay_at_a_time() -> None:
+    clock = _FakeClock()
+    session = _timed_session(90, clock)
+    await session.claim(None)
+    other_rack = session.view(1).racks[1]
+    own_rack = session.view(0).racks[0]
+    assert other_rack is not None
+    assert own_rack is not None
+    theirs = Move(player=1, action=Exchange(tile_ids=[other_rack[0].identifier]))
+    await session.submit(theirs, base_seq=0, premove=True, token="token-b")
+    await session.submit(Move(player=0, action=Pass()), base_seq=1, premove=False, token="token-a")
+    mine = Move(player=0, action=Exchange(tile_ids=[own_rack[0].identifier]))
+    await session.submit(mine, base_seq=2, premove=True, token="token-a")
+    await asyncio.sleep(_PREMOVE_DELAY / 2)
+    assert session.seq == 3
+    await asyncio.sleep(_PREMOVE_DELAY * 6)
+    assert session.seq == 5
+    assert session.view(0).premove is None
+    assert session.view(0).to_act == frozenset({1})
+    await session.close()
 
 
 async def test_timeout_auto_passes_until_the_game_ends() -> None:
@@ -316,10 +494,10 @@ async def test_timeout_auto_passes_until_the_game_ends() -> None:
     session = _timed_session(0, clock)
     await session.claim(None)
     await asyncio.sleep(0.2)
-    assert session.seq == 2
+    assert session.seq == 4
     assert session.view(None).phase == "game_over"
     assert session.clock() is None
-    session.close()
+    await session.close()
 
 
 async def test_clock_frames_ride_the_stream() -> None:
@@ -329,12 +507,46 @@ async def test_clock_frames_ride_the_stream() -> None:
     stream = session.events(observer=0, since=0)
     first = await anext(stream)
     assert first.startswith("event: presence\n")
-    second = await anext(stream)
-    assert second.startswith("event: clock\n")
-    assert '"deadline": 1090.0' in second
-    assert "id:" not in second
+    assert (await anext(stream)).startswith("event: position\n")
+    third = await anext(stream)
+    assert third.startswith("event: clock\n")
+    assert '"deadline": 1090.0' in third
+    assert "id:" not in third
     await stream.aclose()
-    session.close()
+    await session.close()
+
+
+async def test_the_letters_ride_the_turn_that_opens_them() -> None:
+    clock = _FakeClock()
+    session = _timed_session(90, clock)
+    stream = session.events(observer=0, since=0)
+    assert (await anext(stream)).startswith("event: presence\n")
+    gathering = _frame_body(await anext(stream))
+    assert gathering["racks"] == {"0": None, "1": None}
+    await session.claim("Bob")
+    assert (await anext(stream)).startswith("event: presence\n")
+    seated = _frame_body(await anext(stream))
+    assert seated["racks"]["0"] is not None
+    assert seated["racks"]["1"] is None
+    assert (await anext(stream)).startswith("event: clock\n")
+    await stream.aclose()
+    await session.close()
+
+
+async def test_a_waiting_stream_wakes_on_the_next_move() -> None:
+    clock = _FakeClock()
+    session = _timed_session(None, clock)
+    await session.claim("Bob")
+    stream = session.events(observer=0, since=0)
+    assert (await anext(stream)).startswith("event: presence\n")
+    assert (await anext(stream)).startswith("event: position\n")
+    waiting = asyncio.create_task(anext(stream))
+    await asyncio.sleep(0)
+    await session.submit(Move(player=0, action=Pass()), base_seq=0, premove=False, token="token-a")
+    frame = await asyncio.wait_for(waiting, timeout=1.0)
+    assert frame.startswith("id: 0\n")
+    await stream.aclose()
+    await session.close()
 
 
 async def test_claims_hand_out_distinct_seats_concurrently(client: httpx.AsyncClient) -> None:
@@ -373,3 +585,273 @@ async def test_gathering_hides_racks_and_blocks_moves(client: httpx.AsyncClient)
         headers={"X-Seat-Token": token},
     )
     assert accepted.status_code == 200
+
+
+async def _gathered_table(client: httpx.AsyncClient) -> tuple[str, str, str]:
+    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
+    data = created.json()
+    joined = await client.post(f"/tables/{data['code']}/join", json={"name": "Ola"})
+    return data["table_id"], data["token"], joined.json()["token"]
+
+
+async def _rack_identifiers(
+    client: httpx.AsyncClient,
+    table_id: str,
+    token: str,
+    seat: int,
+) -> list[int]:
+    view = await client.get(f"/tables/{table_id}/view", headers={"X-Seat-Token": token})
+    return [tile["identifier"] for tile in view.json()["view"]["racks"][str(seat)]]
+
+
+async def test_a_rack_order_is_remembered_without_advancing_the_table(
+    client: httpx.AsyncClient,
+) -> None:
+    table_id, token, _ = await _gathered_table(client)
+    served = await _rack_identifiers(client, table_id, token, seat=0)
+    asked = list(reversed(served))
+    stored = await client.put(
+        f"/tables/{table_id}/rack",
+        json={"tile_ids": asked},
+        headers={"X-Seat-Token": token},
+    )
+    assert stored.status_code == 204
+    view = await client.get(f"/tables/{table_id}/view", headers={"X-Seat-Token": token})
+    assert view.json()["seq"] == 0
+    assert [tile["identifier"] for tile in view.json()["view"]["racks"]["0"]] == asked
+
+
+async def test_a_rack_order_leaves_the_other_seats_alone(client: httpx.AsyncClient) -> None:
+    table_id, token, other = await _gathered_table(client)
+    served = await _rack_identifiers(client, table_id, token, seat=0)
+    before = await client.get(f"/tables/{table_id}/view", headers={"X-Seat-Token": other})
+    await client.put(
+        f"/tables/{table_id}/rack",
+        json={"tile_ids": list(reversed(served))},
+        headers={"X-Seat-Token": token},
+    )
+    after = await client.get(f"/tables/{table_id}/view", headers={"X-Seat-Token": other})
+    assert after.json()["view"]["racks"]["1"] == before.json()["view"]["racks"]["1"]
+    assert after.json()["view"]["racks"]["0"] is None
+
+
+async def test_a_rack_order_naming_other_tiles_is_refused(client: httpx.AsyncClient) -> None:
+    table_id, token, _ = await _gathered_table(client)
+    served = await _rack_identifiers(client, table_id, token, seat=0)
+    foreign = await client.put(
+        f"/tables/{table_id}/rack",
+        json={"tile_ids": [*served[1:], max(served) + 1]},
+        headers={"X-Seat-Token": token},
+    )
+    assert foreign.status_code == 409
+    assert foreign.json()["code"] == "rack_mismatch"
+    partial = await client.put(
+        f"/tables/{table_id}/rack",
+        json={"tile_ids": served[1:]},
+        headers={"X-Seat-Token": token},
+    )
+    assert partial.status_code == 409
+    assert partial.json()["code"] == "rack_mismatch"
+
+
+async def test_a_rack_order_requires_a_seat_token(client: httpx.AsyncClient) -> None:
+    table_id, token, _ = await _gathered_table(client)
+    served = await _rack_identifiers(client, table_id, token, seat=0)
+    response = await client.put(f"/tables/{table_id}/rack", json={"tile_ids": served})
+    assert response.status_code == 409
+    assert response.json()["code"] == "seat_token_mismatch"
+
+
+async def test_a_rack_order_wakes_no_stream() -> None:
+    clock = _FakeClock()
+    session = _timed_session(None, clock)
+    await session.claim("Bob")
+    stream = session.events(observer=1, since=0)
+    assert (await anext(stream)).startswith("event: presence\n")
+    assert (await anext(stream)).startswith("event: position\n")
+    waiting = asyncio.create_task(anext(stream))
+    await asyncio.sleep(0)
+    served = [tile.identifier for tile in session.view(0).racks[0] or ()]
+    await session.arrange_rack(tuple(reversed(served)), token="token-a")
+    await asyncio.sleep(0)
+    assert not waiting.done()
+    await session.submit(Move(player=0, action=Pass()), base_seq=0, premove=False, token="token-a")
+    assert (await asyncio.wait_for(waiting, timeout=1.0)).startswith("id: 0\n")
+    await stream.aclose()
+    await session.close()
+
+
+async def test_a_remembered_order_rides_the_event_frames() -> None:
+    clock = _FakeClock()
+    session = _timed_session(None, clock)
+    await session.claim("Bob")
+    served = [tile.identifier for tile in session.view(0).racks[0] or ()]
+    asked = tuple(reversed(served))
+    await session.arrange_rack(asked, token="token-a")
+    await session.submit(Move(player=0, action=Pass()), base_seq=0, premove=False, token="token-a")
+    stream = session.events(observer=0, since=0)
+    assert (await anext(stream)).startswith("event: presence\n")
+    opening = _frame_body(await anext(stream))
+    assert [tile["identifier"] for tile in opening["racks"]["0"]] == list(asked)
+    passed = _frame_body(await anext(stream))
+    assert [tile["identifier"] for tile in passed["position"]["racks"]["0"]] == list(asked)
+    await stream.aclose()
+    await session.close()
+
+
+async def test_an_idle_stream_beats_where_the_journal_is_quiet(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr("wordserver.session._HEARTBEAT_SECONDS", 0.05)
+    clock = _FakeClock()
+    session = _timed_session(None, clock)
+    await session.claim("Bob")
+    stream = session.events(observer=0, since=0)
+    assert (await anext(stream)).startswith("event: presence\n")
+    assert (await anext(stream)).startswith("event: position\n")
+    beat = await asyncio.wait_for(anext(stream), timeout=1.0)
+    assert beat.startswith("event: heartbeat\n")
+    assert _frame_body(beat)["server_time"] == clock.moment
+    await stream.aclose()
+    await session.close()
+
+
+async def test_a_cancelled_stream_releases_its_seat() -> None:
+    clock = _FakeClock()
+    session = _timed_session(None, clock)
+    await session.claim("Bob")
+    stream = session.events(observer=0, since=0)
+
+    async def drain() -> None:
+        async for _ in stream:
+            pass
+
+    watching = asyncio.create_task(drain())
+    for _ in range(4):
+        await asyncio.sleep(0)
+    assert session.company().seats[0].connected is True
+    watching.cancel()
+    await asyncio.gather(watching, return_exceptions=True)
+    assert session.company().seats[0].connected is False
+    for _ in range(4):
+        await asyncio.sleep(0)
+    await session.close()
+
+
+def _registry_with(session: TableSession) -> tuple[TableRegistry, str]:
+    resolved = resolve_scheme(CONFIG_DIR, "literaki")
+    meta = TableMeta(
+        scheme="literaki",
+        game=resolved.scheme.game,
+        max_players=2,
+        code="ABCDEF",
+        resolved=resolved,
+        time=resolved.scheme.time,
+    )
+    registry = TableRegistry(GameBook(KEPT_GAMES))
+    registry.add("table-1", session, meta)
+    registry.add_code(meta.code, "table-1")
+    return registry, "table-1"
+
+
+def _swept(registry: TableRegistry, clock: _FakeClock) -> TableSweep:
+    bounds = TablesConfig(life_seconds=86400.0, linger_seconds=3600.0, sweep_seconds=60.0)
+    return TableSweep(registry, bounds, clock)
+
+
+async def _passed_out(session: TableSession) -> None:
+    for turn, seat in enumerate((0, 1, 0, 1)):
+        await session.submit(
+            Move(player=seat, action=Pass()),
+            base_seq=turn,
+            premove=False,
+            token=f"token-{'ab'[seat]}",
+        )
+
+
+async def test_a_table_left_standing_for_a_day_closes_unresolved() -> None:
+    clock = _FakeClock()
+    session = _timed_session(None, clock)
+    await session.claim("Bob")
+    registry, table_id = _registry_with(session)
+    sweep = _swept(registry, clock)
+    assert await sweep.once() == ()
+
+    clock.moment += 86400.0
+    assert await sweep.once() == ()
+    assert session.view(None).phase == Phase.UNRESOLVED
+    assert registry.get(table_id) is session
+
+    clock.moment += 3600.0
+    assert await sweep.once() == (table_id,)
+    assert registry.get(table_id) is None
+    assert registry.meta_for(table_id) is None
+    assert registry.table_id_for_code("ABCDEF") is None
+
+
+async def test_a_finished_table_is_recorded_when_it_is_let_go() -> None:
+    clock = _FakeClock()
+    session = _timed_session(None, clock)
+    await session.claim("Bob")
+    await _passed_out(session)
+    scores = session.view(None).scores
+    registry, table_id = _registry_with(session)
+    sweep = _swept(registry, clock)
+    assert await sweep.once() == ()
+
+    clock.moment += 3600.0
+    assert await sweep.once() == (table_id,)
+    record = registry.record_for(table_id)
+    assert record is not None
+    assert record.phase == Phase.GAME_OVER
+    assert record.scheme == "literaki"
+    assert [seated.name for seated in record.seats] == [None, "Bob"]
+    assert [seated.score for seated in record.seats] == [scores[0], scores[1]]
+    assert record.opened == 1000.0
+    assert record.closed == clock.moment
+
+
+async def test_closing_a_table_lets_its_streams_go() -> None:
+    clock = _FakeClock()
+    session = _timed_session(None, clock)
+    await session.claim("Bob")
+    stream = session.events(observer=0, since=0)
+    assert (await anext(stream)).startswith("event: presence\n")
+
+    async def drain() -> list[str]:
+        return [frame async for frame in stream]
+
+    await session.close()
+    remaining = await asyncio.wait_for(drain(), timeout=1.0)
+    assert all(not frame.startswith("event: heartbeat\n") for frame in remaining)
+    assert session.company().seats[0].connected is False
+
+
+async def test_an_abandoned_seat_keeps_the_points_it_earned() -> None:
+    clock = _FakeClock()
+    session = _timed_session(None, clock)
+    await session.claim("Bob")
+    await session.abandon()
+    view = session.view(None)
+    assert view.phase == Phase.UNRESOLVED
+    assert view.to_act == frozenset()
+    assert view.scores == {0: 0, 1: 0}
+    assert session.clock() is None
+    await session.close()
+
+
+async def test_a_table_the_server_never_held_reads_as_unknown() -> None:
+    refusal = table_gone(None)
+    assert refusal.status_code == 404
+    assert refusal.code is ErrorCode.UNKNOWN_TABLE
+
+
+async def test_a_recorded_table_reads_as_closed() -> None:
+    clock = _FakeClock()
+    session = _timed_session(None, clock)
+    await session.claim("Bob")
+    registry, table_id = _registry_with(session)
+    await registry.close(table_id, at=clock.moment)
+    refusal = table_gone(registry.record_for(table_id))
+    assert refusal.status_code == 410
+    assert refusal.code is ErrorCode.TABLE_CLOSED

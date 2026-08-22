@@ -42,10 +42,9 @@ keeps a single code path:
 - Relative API URLs, so one bundle serves the browser, the PWA, and the wrapped app.
 - Credentials in the URL hash fragment, so reloads and deep links rejoin a table.
 - Safe-area insets and `prefers-reduced-motion` in the stylesheet.
-- The stream pauses while the page is hidden (`play/viewing.ts`), which matches mobile lifecycle
-  expectations. Switching the turn notice on keeps it connected while hidden, which serves a
-  desktop tab well; a backgrounded phone suspends the page either way, so store builds get their
-  turn alerts from a push plugin instead.
+- The stream stays open while the page is hidden, so a screen that dims between turns keeps
+  receiving the table; returning to view re-reads the position on top of it. A backgrounded phone
+  suspends the page outright, so store builds get their turn alerts from a push plugin instead.
 - One fixed page scale, with the board carrying a scale of its own: the viewport meta pins
   `maximum-scale=1` and the table surface allows panning only, so the browser's pinch and double-tap
   zoom stay out of the way of dragging tiles, while the board region takes every touch itself: a

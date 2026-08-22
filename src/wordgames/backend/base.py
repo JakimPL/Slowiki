@@ -4,7 +4,7 @@ from wordcore.board.board import Board
 from wordcore.errors.exceptions import IllegalMove
 from wordcore.games.rules import Rules
 from wordcore.lexicon.protocol import Lexicon
-from wordcore.moves.action import Exchange, Pass, Play, PlayPlacement, Reorder
+from wordcore.moves.action import Exchange, Pass, Play, PlayPlacement
 from wordcore.moves.move import Move
 from wordcore.positions.position import Position
 from wordcore.rules.end_conditions import final_scores
@@ -68,8 +68,6 @@ class WordGameRules(Rules):
                 self._validate_exchange(position, move.player, action)
             case Pass():
                 self._validate_pass()
-            case Reorder():
-                self._validate_reorder(position, move.player, action)
 
     def apply(
         self,
@@ -102,8 +100,6 @@ class WordGameRules(Rules):
                     move.player,
                     went_out=None,
                 )
-            case Reorder():
-                return self._apply_reorder(position, move.player, action)
 
     def _validate_play(
         self,
@@ -137,16 +133,6 @@ class WordGameRules(Rules):
     def _validate_pass(self) -> None:
         if not self._parameters.pass_allowed:
             raise IllegalMove("passing is not allowed")
-
-    def _validate_reorder(
-        self,
-        position: Position,
-        player: int,
-        action: Reorder,
-    ) -> None:
-        rack_ids = [tile.identifier for tile in rack_of(position, player)]
-        if sorted(action.tile_ids) != sorted(rack_ids):
-            raise IllegalMove("reorder must list every rack tile exactly once")
 
     def _apply_play(
         self,
@@ -218,19 +204,6 @@ class WordGameRules(Rules):
         )
         return position.model_copy(update={"state": new_state})
 
-    def _apply_reorder(
-        self,
-        position: Position,
-        player: int,
-        action: Reorder,
-    ) -> Position:
-        by_id = {tile.identifier: tile for tile in rack_of(position, player)}
-        ordered = tuple(by_id[tile_id] for tile_id in action.tile_ids)
-        new_state = position.state.model_copy(
-            update={"racks": {**position.state.racks, player: ordered}},
-        )
-        return position.model_copy(update={"state": new_state})
-
     def _finish_turn(
         self,
         position: Position,
@@ -250,12 +223,21 @@ class WordGameRules(Rules):
         return self._advance_turn(position, mover)
 
     def _end_limit_reached(self, state: WordState) -> bool:
-        pass_limit = self._parameters.pass_end_limit
-        if pass_limit is not None and state.consecutive_passes >= pass_limit:
-            return True
+        return self._passes_exhausted(state) or self._scoreless_exhausted(state)
 
-        scoreless_limit = self._parameters.scoreless_end_limit
-        return scoreless_limit is not None and state.scoreless_turns >= scoreless_limit
+    def _passes_exhausted(self, state: WordState) -> bool:
+        rounds = self._parameters.pass_end_rounds
+        if rounds is None:
+            return False
+
+        return state.consecutive_passes >= rounds * len(self._players)
+
+    def _scoreless_exhausted(self, state: WordState) -> bool:
+        limit = self._parameters.scoreless_end_limit
+        if limit is None:
+            return False
+
+        return state.scoreless_turns >= limit
 
     def _solo_ended(self, position: Position, mover: int) -> bool:
         if len(self._players) != 1:
@@ -383,7 +365,7 @@ class WordGameRules(Rules):
                     player: state.scores[player] + scored.points,
                 },
                 "consecutive_passes": 0,
-                "scoreless_turns": 0,
+                "scoreless_turns": 0 if scored.points else state.scoreless_turns + 1,
                 "last_play": record,
             }
         )

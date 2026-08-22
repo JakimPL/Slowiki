@@ -36,13 +36,12 @@ const MOTION_OPTIONS: readonly Option<Motion>[] = MOTIONS.map((motion) => ({
 }));
 
 export interface TableMenuProps {
-    readonly table: string;
     readonly code: string | null;
     readonly onLeave: () => void;
     readonly onClose: () => void;
 }
 
-export function TableMenu({ table, code, onLeave, onClose }: TableMenuProps): ReactElement {
+export function TableMenu({ code, onLeave, onClose }: TableMenuProps): ReactElement {
     const { settings, change } = useSettings();
     const { wanted, choose } = useNotices();
     return (
@@ -53,7 +52,7 @@ export function TableMenu({ table, code, onLeave, onClose }: TableMenuProps): Re
                 {code === null ? null : (
                     <div className="menu-row">
                         <span className="menu-label">{MENU_INVITATION}</span>
-                        <Invitation table={table} code={code} />
+                        <Invitation code={code} />
                     </div>
                 )}
                 <Choice

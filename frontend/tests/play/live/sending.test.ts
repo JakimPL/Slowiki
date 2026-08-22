@@ -76,4 +76,20 @@ describe("delivered", () => {
         const { send } = sender(STALE(), ILLEGAL());
         await expect(delivered(send, 5, () => Promise.resolve(7))).rejects.toMatchObject({ code: "illegal_move" });
     });
+
+    it("keeps renewing through a run of stale refusals", async () => {
+        const { bases, send } = sender(STALE(), STALE(), 12);
+        let next = 6;
+        const renewed = (): Promise<number | null> => Promise.resolve(next++);
+        await expect(delivered(send, 5, renewed)).resolves.toBe(12);
+        expect(bases).toEqual([5, 6, 7]);
+    });
+
+    it("reports a stale refusal that outlasts the retries", async () => {
+        const { bases, send } = sender(STALE(), STALE(), STALE(), STALE());
+        let next = 6;
+        const renewed = (): Promise<number | null> => Promise.resolve(next++);
+        await expect(delivered(send, 5, renewed)).rejects.toMatchObject({ code: "stale_position" });
+        expect(bases).toEqual([5, 6, 7, 8]);
+    });
 });

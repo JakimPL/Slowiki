@@ -221,6 +221,7 @@ async def test_created_table_carries_the_asked_time_control(client: httpx.AsyncC
         "per_turn_seconds": None,
         "increment_seconds": 15,
         "total_seconds": 600,
+        "premove_delay_seconds": 1.0,
     }
     await client.post(f"/tables/{data['code']}/join", json={"name": "Ola"})
     view = await client.get(

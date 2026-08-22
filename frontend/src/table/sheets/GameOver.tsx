@@ -11,6 +11,7 @@ import {
     GAME_OVER_CLOSE,
     GAME_OVER_DISMISS,
     GAME_OVER_HEADING,
+    GAME_OVER_UNRESOLVED,
     GAME_OVER_VICTORY,
     HIGHLIGHT_LABELS,
     nameFor,
@@ -30,6 +31,7 @@ export interface GameOverProps {
 
 export function GameOver({ view, company, story, highlights, mySeat, onClose, onLeave }: GameOverProps): ReactElement {
     const crowned = story.mine && story.seats.length === 1;
+    const heading = story.kind === "unresolved" ? GAME_OVER_UNRESOLVED : GAME_OVER_HEADING;
     return (
         <section className="game-over">
             <button type="button" className="game-over-scrim" aria-label={GAME_OVER_DISMISS} onClick={onClose} />
@@ -39,7 +41,7 @@ export function GameOver({ view, company, story, highlights, mySeat, onClose, on
                 aria-label={GAME_OVER_HEADING}
                 data-mine={story.mine ? "true" : undefined}
             >
-                <h2>{story.mine ? GAME_OVER_VICTORY : GAME_OVER_HEADING}</h2>
+                <h2>{story.mine ? GAME_OVER_VICTORY : heading}</h2>
                 {crowned ? null : <p className="game-over-verdict">{captionFor(story, company)}</p>}
                 <ol className="standing">
                     {rankingOf(view).map((ranked) => (

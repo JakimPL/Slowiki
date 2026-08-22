@@ -1,21 +1,16 @@
-from wordcore.models.base import BaseFrozen
-from wordgames.names import GameName
+import logging
+
+from wordserver.models.game_record import GameRecord
+from wordserver.models.table_meta import TableMeta
+from wordserver.records import GameBook, game_record
 from wordserver.session import TableSession
-from wordtable.catalog import ResolvedScheme
-from wordtable.config import TimeConfig
 
-
-class TableMeta(BaseFrozen):
-    scheme: str
-    game: GameName
-    max_players: int
-    code: str
-    resolved: ResolvedScheme
-    time: TimeConfig
+logger = logging.getLogger(__name__)
 
 
 class TableRegistry:
-    def __init__(self) -> None:
+    def __init__(self, book: GameBook) -> None:
+        self._book = book
         self._tables: dict[str, TableSession] = {}
         self._codes: dict[str, str] = {}
         self._meta: dict[str, TableMeta] = {}
@@ -35,3 +30,24 @@ class TableRegistry:
 
     def meta_for(self, table_id: str) -> TableMeta | None:
         return self._meta.get(table_id)
+
+    def tables(self) -> tuple[tuple[str, TableSession], ...]:
+        return tuple(self._tables.items())
+
+    def record_for(self, table_id: str) -> GameRecord | None:
+        return self._book.record_for(table_id)
+
+    async def close(self, table_id: str, at: float) -> GameRecord | None:
+        session = self._tables.get(table_id)
+        meta = self._meta.get(table_id)
+        if session is None or meta is None:
+            return None
+
+        record = game_record(table_id, meta, session, closed=at)
+        self._book.remember(record)
+        del self._tables[table_id]
+        del self._meta[table_id]
+        self._codes.pop(meta.code, None)
+        await session.close()
+        logger.info("table closed: %s", record.model_dump_json())
+        return record

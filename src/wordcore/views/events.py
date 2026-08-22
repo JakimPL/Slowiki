@@ -2,7 +2,6 @@ from wordcore.errors.rejections import RejectionCode
 from wordcore.games.journal import JournalEntry
 from wordcore.games.kind import EntryKind
 from wordcore.models.base import BaseFrozen
-from wordcore.moves.kind import ActionKind
 from wordcore.moves.move import Move
 from wordcore.views.projection import PositionView, project
 
@@ -35,18 +34,15 @@ def _masked_move(entry: JournalEntry, observer: int | None) -> Move | None:
     if entry.move is None:
         return None
 
-    owned = observer is not None and observer == entry.actor
     match entry.kind:
         case EntryKind.MOVE:
-            if entry.move.action.kind == ActionKind.REORDER and not owned:
-                return None
-
             return entry.move
 
         case EntryKind.PREMOVE_SET:
+            owned = observer is not None and observer == entry.actor
             return entry.move if owned else None
 
-        case EntryKind.PREMOVE_CLEARED | EntryKind.PREMOVE_DISCARDED:
+        case EntryKind.PREMOVE_CLEARED | EntryKind.PREMOVE_DISCARDED | EntryKind.ABANDONED:
             return None
 
 

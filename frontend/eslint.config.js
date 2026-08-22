@@ -47,7 +47,7 @@ export default tseslint.config(
         },
     },
     {
-        files: ["src/play/clock/timing.ts"],
+        files: ["src/play/clock/timing.ts", "src/play/live/liveness.ts"],
         rules: {
             "@typescript-eslint/no-magic-numbers": "off",
         },

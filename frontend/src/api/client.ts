@@ -3,19 +3,13 @@ import { fetchEventSource } from "@microsoft/fetch-event-source";
 import type { GameHighlights } from "./highlights";
 import type { Move, MoveAccepted, MoveRequest } from "./moves";
 import { parsed } from "./parsing";
+import type { RackRequest } from "./rack";
 import { refusalOf } from "./refusal";
 import type { Seat } from "./seat";
 import { headersFor } from "./seat";
 import type { Streamed } from "./streaming";
 import { follow } from "./streaming";
-import type {
-    JoinRequest,
-    Offering,
-    OfferingsResponse,
-    TableAdmission,
-    TableDescription,
-    TableRequest,
-} from "./tables";
+import type { JoinRequest, OfferingsResponse, TableAdmission, TableDescription, TableRequest } from "./tables";
 import type { StyleTokens, TableViewResponse } from "./views";
 import type { WordVerdicts } from "./words";
 
@@ -28,10 +22,9 @@ async function answered(response: Response): Promise<Response> {
     return response;
 }
 
-export async function readOfferings(): Promise<readonly Offering[]> {
+export async function readOfferings(): Promise<OfferingsResponse> {
     const response = await answered(await fetch("/offerings"));
-    const body = await parsed<OfferingsResponse>(response);
-    return body.offerings;
+    return parsed<OfferingsResponse>(response);
 }
 
 export async function readStyle(): Promise<StyleTokens> {
@@ -101,6 +94,17 @@ export async function sendMove(seat: Seat, move: Move, baseSeq: number, premove:
     );
     const body = await parsed<MoveAccepted>(response);
     return body.seq;
+}
+
+export async function sendRackOrder(seat: Seat, tileIdentifiers: readonly number[]): Promise<void> {
+    const request: RackRequest = { tile_ids: [...tileIdentifiers] };
+    await answered(
+        await fetch(`/tables/${encodeURIComponent(seat.table)}/rack`, {
+            method: "PUT",
+            headers: { ...JSON_HEADERS, ...headersFor(seat) },
+            body: JSON.stringify(request),
+        }),
+    );
 }
 
 export async function cancelPremove(seat: Seat, baseSeq: number): Promise<number> {

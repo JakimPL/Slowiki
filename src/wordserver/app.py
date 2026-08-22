@@ -7,7 +7,7 @@ import secrets
 import time
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import Annotated, Final, NamedTuple
+from typing import Annotated, Any, Final, NamedTuple
 
 from fastapi import FastAPI, Header, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -22,20 +22,25 @@ from wordcore.models.base import BaseFrozen
 from wordcore.moves.move import Move
 from wordcore.views.events import EventView
 from wordcore.views.highlights import GameHighlights
+from wordserver.codes import join_code_shape, new_join_code
 from wordserver.describe import table_description, word_check_offered
 from wordserver.errors.body import ErrorBody
 from wordserver.errors.code import ErrorCode, code_for
-from wordserver.errors.exceptions import SeatTokenMismatch, TableGathering
+from wordserver.errors.exceptions import TableRefused
+from wordserver.errors.gone import table_gone
 from wordserver.errors.refusal import Refusal, refusal_response
 from wordserver.models.move_accepted import MoveAccepted
 from wordserver.models.offerings import OfferingsResponse
 from wordserver.models.table import TableViewResponse
 from wordserver.models.table_admission import TableAdmission
 from wordserver.models.table_description import TableDescription
+from wordserver.models.table_meta import TableMeta
 from wordserver.models.table_time import TableTimeRequest
 from wordserver.models.word_verdicts import WordVerdicts
-from wordserver.registry import TableMeta, TableRegistry
+from wordserver.records import KEPT_GAMES, GameBook
+from wordserver.registry import TableRegistry
 from wordserver.session import TableSession
+from wordserver.sweep import TableSweep
 from wordtable.build import build_rules
 from wordtable.catalog import ResolvedScheme, offerings, resolve_scheme
 from wordtable.config import (
@@ -50,6 +55,15 @@ from wordtable.paths import ASSETS_DIR, CONFIG_DIR, FRONTEND_DIST_DIR, RUN_CONFI
 
 MAX_PLAYER_NAME_LENGTH: Final = 32
 MAX_JUDGED_WORDS: Final = 16
+
+_TABLE_RESPONSES: Final[dict[int | str, dict[str, Any]]] = {
+    404: {"model": ErrorBody},
+    410: {"model": ErrorBody},
+}
+_PLAY_RESPONSES: Final[dict[int | str, dict[str, Any]]] = {
+    **_TABLE_RESPONSES,
+    409: {"model": ErrorBody},
+}
 
 PlayerName = Annotated[
     str,
@@ -74,8 +88,10 @@ class MoveRequest(BaseFrozen):
     premove: bool = False
 
 
-_JOIN_ALPHABET: Final = "ABCDEFGHJKLMNPQRSTUVWXYZ"
-_JOIN_CODE_LENGTH: Final = 6
+class RackRequest(BaseFrozen):
+    tile_ids: tuple[int, ...]
+
+
 _TOKEN_BYTES: Final = 16
 _TABLE_ID_BYTES: Final = 8
 
@@ -84,10 +100,6 @@ class _TableIdentity(NamedTuple):
     table_id: str
     code: str
     tokens: dict[int, str]
-
-
-def _new_join_code() -> str:
-    return "".join(secrets.choice(_JOIN_ALPHABET) for _ in range(_JOIN_CODE_LENGTH))
 
 
 def _resolved_offering(scheme_name: str) -> ResolvedScheme:
@@ -159,7 +171,7 @@ async def _built_game(
 def _minted_identity(seats: int) -> _TableIdentity:
     return _TableIdentity(
         table_id=secrets.token_hex(_TABLE_ID_BYTES),
-        code=_new_join_code(),
+        code=new_join_code(),
         tokens={seat: secrets.token_urlsafe(_TOKEN_BYTES) for seat in range(seats)},
     )
 
@@ -178,6 +190,7 @@ def _table_time(scheme: SchemeConfig, asked: TableTimeRequest | None) -> TimeCon
         per_turn_seconds=None,
         increment_seconds=asked.increment_seconds,
         total_seconds=asked.total_seconds,
+        premove_delay_seconds=scheme.time.premove_delay_seconds,
     )
 
 
@@ -228,7 +241,7 @@ def _table_for_code(
     session = registry.get(table_id)
     meta = registry.meta_for(table_id)
     if session is None or meta is None:
-        raise Refusal(404, "unknown table", ErrorCode.UNKNOWN_TABLE)
+        raise table_gone(registry.record_for(table_id))
 
     return table_id, session, meta
 
@@ -266,14 +279,17 @@ def create_app() -> FastAPI:
     configuration = read_config(RUN_CONFIG_FILE)
     style_tokens = load_style_tokens(CONFIG_DIR, configuration.style)
     service = LexiconService()
-    registry = TableRegistry()
+    registry = TableRegistry(GameBook(KEPT_GAMES))
+    sweep = TableSweep(registry, configuration.tables, time.time)
 
     @asynccontextmanager
     async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
         default = resolve_scheme(CONFIG_DIR, configuration.scheme)
         preload = asyncio.create_task(service.get(default.scheme.dictionary))
+        sweeping = asyncio.create_task(sweep.run())
         yield
         preload.cancel()
+        sweeping.cancel()
 
     app = FastAPI(title="slowiki", lifespan=lifespan)
     app.add_middleware(
@@ -294,31 +310,24 @@ def create_app() -> FastAPI:
     ) -> JSONResponse:
         return refusal_response(409, str(error), code_for(error))
 
-    @app.exception_handler(SeatTokenMismatch)
-    async def mismatched(
+    @app.exception_handler(TableRefused)
+    async def table_refused(
         _request: Request,
-        error: SeatTokenMismatch,
+        error: TableRefused,
     ) -> JSONResponse:
-        return refusal_response(409, str(error), ErrorCode.SEAT_TOKEN_MISMATCH)
-
-    @app.exception_handler(TableGathering)
-    async def still_gathering(
-        _request: Request,
-        error: TableGathering,
-    ) -> JSONResponse:
-        return refusal_response(409, str(error), ErrorCode.GATHERING)
+        return refusal_response(409, str(error), error.code)
 
     def session_for(table_id: str) -> TableSession:
         session = registry.get(table_id)
         if session is None:
-            raise Refusal(404, "unknown table", ErrorCode.UNKNOWN_TABLE)
+            raise table_gone(registry.record_for(table_id))
         return session
 
     def table_with_meta(table_id: str) -> tuple[TableSession, TableMeta]:
         session = registry.get(table_id)
         meta = registry.meta_for(table_id)
         if session is None or meta is None:
-            raise Refusal(404, "unknown table", ErrorCode.UNKNOWN_TABLE)
+            raise table_gone(registry.record_for(table_id))
         return session, meta
 
     @app.get("/offerings")
@@ -326,7 +335,7 @@ def create_app() -> FastAPI:
         ready = tuple(
             offering for offering in offerings(CONFIG_DIR) if dictionary_ready(offering.dictionary)
         )
-        return OfferingsResponse(offerings=ready)
+        return OfferingsResponse(offerings=ready, code=join_code_shape())
 
     @app.get("/style")
     def read_style() -> StyleTokens:
@@ -343,10 +352,7 @@ def create_app() -> FastAPI:
         game = await _built_game(service, resolved, tuple(range(body.seats)))
         return _open_table(registry, game, resolved, body)
 
-    @app.post(
-        "/tables/{code}/join",
-        responses={404: {"model": ErrorBody}, 409: {"model": ErrorBody}},
-    )
+    @app.post("/tables/{code}/join", responses=_PLAY_RESPONSES)
     async def join_table(code: str, body: JoinRequest) -> TableAdmission:
         table_id, session, meta = _table_for_code(registry, code)
         seat, token = await _claimed_seat(session, body.name)
@@ -359,7 +365,7 @@ def create_app() -> FastAPI:
             name=body.name,
         )
 
-    @app.get("/tables/{table_id}", responses={404: {"model": ErrorBody}})
+    @app.get("/tables/{table_id}", responses=_TABLE_RESPONSES)
     def describe_table(table_id: str, request: Request) -> TableDescription:
         session, meta = table_with_meta(table_id)
         observer = session.observer_for(request.headers.get("X-Seat-Token"))
@@ -367,7 +373,7 @@ def create_app() -> FastAPI:
 
     @app.get(
         "/tables/{table_id}/words",
-        responses={404: {"model": ErrorBody}, 422: {"model": ErrorBody}},
+        responses={**_TABLE_RESPONSES, 422: {"model": ErrorBody}},
     )
     async def judge_words(
         table_id: str,
@@ -381,11 +387,11 @@ def create_app() -> FastAPI:
         lexicon = await service.get(scheme.dictionary)
         return WordVerdicts(verdicts={word: lexicon.judge(word) for word in asked})
 
-    @app.get("/tables/{table_id}/highlights", responses={404: {"model": ErrorBody}})
+    @app.get("/tables/{table_id}/highlights", responses=_TABLE_RESPONSES)
     def table_highlights(table_id: str) -> GameHighlights:
         return session_for(table_id).highlights()
 
-    @app.get("/tables/{table_id}/view", responses={404: {"model": ErrorBody}})
+    @app.get("/tables/{table_id}/view", responses=_TABLE_RESPONSES)
     def table_view(table_id: str, request: Request) -> TableViewResponse:
         session = session_for(table_id)
         observer = session.observer_for(request.headers.get("X-Seat-Token"))
@@ -396,10 +402,7 @@ def create_app() -> FastAPI:
             clock=session.clock(),
         )
 
-    @app.post(
-        "/tables/{table_id}/moves",
-        responses={404: {"model": ErrorBody}, 409: {"model": ErrorBody}},
-    )
+    @app.post("/tables/{table_id}/moves", responses=_PLAY_RESPONSES)
     async def submit_move(
         table_id: str,
         body: MoveRequest,
@@ -415,10 +418,19 @@ def create_app() -> FastAPI:
         )
         return MoveAccepted(seq=seq)
 
-    @app.delete(
-        "/tables/{table_id}/premove",
-        responses={404: {"model": ErrorBody}, 409: {"model": ErrorBody}},
-    )
+    @app.put("/tables/{table_id}/rack", status_code=204, responses=_PLAY_RESPONSES)
+    async def arrange_rack(
+        table_id: str,
+        body: RackRequest,
+        request: Request,
+    ) -> None:
+        session = session_for(table_id)
+        await session.arrange_rack(
+            body.tile_ids,
+            token=request.headers.get("X-Seat-Token"),
+        )
+
+    @app.delete("/tables/{table_id}/premove", responses=_PLAY_RESPONSES)
     async def cancel_premove(
         table_id: str,
         base_seq: int,
@@ -433,7 +445,7 @@ def create_app() -> FastAPI:
 
     @app.get(
         "/tables/{table_id}/events",
-        responses={200: {"model": EventView}, 404: {"model": ErrorBody}},
+        responses={200: {"model": EventView}, **_TABLE_RESPONSES},
     )
     def stream_events(
         table_id: str,

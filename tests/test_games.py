@@ -7,7 +7,7 @@ from wordcore.errors.exceptions import IllegalMove, InvalidWord
 from wordcore.games.game import Game
 from wordcore.lexicon.lexicon import TextLexicon
 from wordcore.lexicon.protocol import Lexicon
-from wordcore.moves.action import Exchange, Pass, Play, PlayPlacement, Reorder
+from wordcore.moves.action import Exchange, Pass, Play, PlayPlacement
 from wordcore.moves.move import Move
 from wordcore.positions.position import Position
 from wordcore.states.state import Phase, WordState
@@ -44,7 +44,7 @@ def make_rules(lexicon: Lexicon, players: tuple[int, ...] = (0, 1)) -> WordGameR
         exchange_limit=None,
         exchange_min_bag=7,
         pass_allowed=True,
-        pass_end_limit=2,
+        pass_end_rounds=2,
         scoreless_end_limit=None,
         bingo_bonus=50,
     )
@@ -244,7 +244,7 @@ def test_exchange_replaces_tiles_and_advances() -> None:
     assert updated.state.to_act == frozenset({1})
 
 
-def test_two_passes_end_game() -> None:
+def test_a_round_of_passes_leaves_the_game_running() -> None:
     rules = make_rules(TextLexicon.from_words(["ab"]))
     position = make_position(
         racks={
@@ -253,11 +253,47 @@ def test_two_passes_end_game() -> None:
         },
         bag=(),
     )
-    first = rules.apply(position, Move(player=0, action=Pass()), random.Random(0))
-    assert first.state.phase == Phase.TURN
-    second = rules.apply(first, Move(player=1, action=Pass()), random.Random(0))
-    assert second.state.phase == Phase.GAME_OVER
-    assert second.state.scores == {0: -1, 1: -2}
+    for seat in (0, 1, 0):
+        position = rules.apply(position, Move(player=seat, action=Pass()), random.Random(0))
+        assert position.state.phase == Phase.TURN
+
+
+def test_two_rounds_of_passes_end_game() -> None:
+    rules = make_rules(TextLexicon.from_words(["ab"]))
+    position = make_position(
+        racks={
+            0: (make_tile(1, "a", 1, "yellow"),),
+            1: (make_tile(2, "b", 2, "green"),),
+        },
+        bag=(),
+    )
+    for seat in (0, 1, 0, 1):
+        position = rules.apply(position, Move(player=seat, action=Pass()), random.Random(0))
+
+    assert position.state.phase == Phase.GAME_OVER
+    assert position.state.scores == {0: -1, 1: -2}
+
+
+def test_pass_rounds_scale_with_the_seat_count() -> None:
+    rules = make_rules(TextLexicon.from_words(["ab"]), players=(0, 1, 2))
+    state = WordState(
+        phase=Phase.TURN,
+        to_act=frozenset({0}),
+        racks={seat: () for seat in (0, 1, 2)},
+        bag=(),
+        scores={seat: 0 for seat in (0, 1, 2)},
+        exchange_counts={seat: 0 for seat in (0, 1, 2)},
+        consecutive_passes=0,
+        premoves={},
+        turn_number=0,
+    )
+    position = Position(board=make_board(), state=state, players=(0, 1, 2))
+    for seat in (0, 1, 2, 0, 1):
+        position = rules.apply(position, Move(player=seat, action=Pass()), random.Random(0))
+        assert position.state.phase == Phase.TURN
+
+    position = rules.apply(position, Move(player=2, action=Pass()), random.Random(0))
+    assert position.state.phase == Phase.GAME_OVER
 
 
 def test_solo_unlimited_deals_all_tiles() -> None:
@@ -267,7 +303,7 @@ def test_solo_unlimited_deals_all_tiles() -> None:
         exchange_limit=None,
         exchange_min_bag=7,
         pass_allowed=True,
-        pass_end_limit=None,
+        pass_end_rounds=None,
         scoreless_end_limit=None,
         bingo_bonus=50,
     )
@@ -285,60 +321,6 @@ def test_literaki_scheme_builds_and_deals() -> None:
     position = rules.initial_position(random.Random(0))
     assert [len(rack or ()) for rack in position.state.racks.values()] == [7, 7]
     assert len(position.state.bag) == 86
-
-
-def test_reorder_applies_without_advancing() -> None:
-    rules = make_rules(TextLexicon.from_words(["ab"]))
-    position = make_position(
-        racks={
-            0: (
-                make_tile(1, "a", 1, "yellow"),
-                make_tile(2, "b", 2, "green"),
-                make_tile(3, "c", 1, "yellow"),
-            ),
-            1: (),
-        },
-        bag=(),
-    )
-    move = Move(player=0, action=Reorder(tile_ids=(3, 1, 2)))
-    rules.validate(position, move)
-    updated = rules.apply(position, move, random.Random(0))
-    assert [tile.identifier for tile in updated.state.racks[0]] == [3, 1, 2]
-    assert updated.state.to_act == frozenset({0})
-
-
-def test_reorder_rejects_wrong_multiset() -> None:
-    rules = make_rules(TextLexicon.from_words(["ab"]))
-    position = make_position(
-        racks={
-            0: (make_tile(1, "a", 1, "yellow"), make_tile(2, "b", 2, "green")),
-            1: (),
-        },
-        bag=(),
-    )
-    move = Move(player=0, action=Reorder(tile_ids=(1,)))
-    with pytest.raises(IllegalMove):
-        rules.validate(position, move)
-
-
-def test_engine_reorder_does_not_advance_turn() -> None:
-    rules = make_rules(TextLexicon.from_words(["ab"]))
-    game = Game(rules, random.Random(0), premoves_allowed=True)
-    rack = [tile.identifier for tile in game.position.state.racks[0]]
-    reordered = tuple(reversed(rack))
-    game.submit(Move(player=0, action=Reorder(tile_ids=reordered)), base_seq=0)
-    assert game.position.state.to_act == frozenset({0})
-    assert [tile.identifier for tile in game.position.state.racks[0]] == list(reordered)
-
-
-def test_engine_reorder_applies_off_turn() -> None:
-    rules = make_rules(TextLexicon.from_words(["ab"]))
-    game = Game(rules, random.Random(0), premoves_allowed=True)
-    rack = [tile.identifier for tile in game.position.state.racks[1]]
-    reordered = tuple(reversed(rack))
-    game.submit(Move(player=1, action=Reorder(tile_ids=reordered)), base_seq=0)
-    assert game.position.state.to_act == frozenset({0})
-    assert [tile.identifier for tile in game.position.state.racks[1]] == list(reordered)
 
 
 def test_pass_leaves_the_exchange_budget_alone() -> None:

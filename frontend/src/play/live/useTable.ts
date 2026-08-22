@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { followEvents, readView } from "../../api/client";
-import { reasonOf } from "../../api/refusal";
+import { gone, reasonOf } from "../../api/refusal";
 import type { Seat } from "../../api/seat";
 import type { ClockView } from "../../api/views";
-import { whileInView } from "../device/viewing";
+import { whenInView } from "../device/viewing";
 import type { Connection } from "./connection";
 import type { TableState } from "./events";
-import { accompanied, advanced, gathered, openedFrom, refreshed } from "./events";
+import { accompanied, advanced, openedFrom, positioned, refreshed } from "./events";
+import { silent, WATCH_INTERVAL_MILLISECONDS } from "./liveness";
 
 export interface TableHold {
     readonly connection: Connection;
@@ -17,7 +18,7 @@ export interface TableHold {
     readonly refresh: () => Promise<number | null>;
 }
 
-export function useTable(table: string, token: string | null, awake: boolean): TableHold {
+export function useTable(table: string, token: string | null): TableHold {
     const [connection, setConnection] = useState<Connection>("joining");
     const [state, setState] = useState<TableState | null>(null);
     const [clock, setClock] = useState<ClockView | null>(null);
@@ -27,8 +28,9 @@ export function useTable(table: string, token: string | null, awake: boolean): T
 
     useEffect(() => {
         let alive = true;
+        let departed = false;
         let release: (() => void) | null = null;
-        let wasGathered = false;
+        let lastBeat = Date.now();
         const seat: Seat = { table, token };
         const refresh = (): Promise<number | null> =>
             readView(seat)
@@ -42,68 +44,120 @@ export function useTable(table: string, token: string | null, awake: boolean): T
                     return response.seq;
                 })
                 .catch((error: unknown) => {
-                    if (alive) {
+                    if (gone(error)) {
+                        depart(reasonOf(error));
+                    } else if (alive) {
                         setTrouble(reasonOf(error));
                     }
                     return null;
                 });
         refreshRef.current = refresh;
+
+        const hold = (): (() => void) => {
+            lastBeat = Date.now();
+            return followEvents(seat, sinceRef.current, {
+                onOpen: (): void => {
+                    setConnection("live");
+                    setTrouble(null);
+                },
+                onBeat: (): void => {
+                    lastBeat = Date.now();
+                },
+                onCommit: (event): void => {
+                    sinceRef.current = Math.max(sinceRef.current, event.seq + 1);
+                    setState((current) => (current === null ? current : advanced(current, event)));
+                },
+                onPresence: (company): void => {
+                    setState((current) => (current === null ? current : accompanied(current, company)));
+                },
+                onPosition: (view): void => {
+                    setState((current) => (current === null ? current : positioned(current, view)));
+                },
+                onClock: (served): void => {
+                    setClock(served);
+                },
+                onDropped: (reason): void => {
+                    setConnection("resuming");
+                    setTrouble(reason);
+                },
+                onEnded: (): void => {
+                    resume();
+                },
+                onGone: (reason): void => {
+                    depart(reason);
+                },
+            });
+        };
+
+        const depart = (reason: string): void => {
+            departed = true;
+            if (release !== null) {
+                release();
+                release = null;
+            }
+            if (alive) {
+                setConnection("lost");
+                setTrouble(reason);
+            }
+        };
+
+        const resume = (): void => {
+            if (!alive || departed) {
+                return;
+            }
+            setConnection("resuming");
+            if (release !== null) {
+                release();
+            }
+            void refresh();
+            release = hold();
+        };
+
         readView(seat)
             .then((response) => {
                 if (!alive) {
                     return;
                 }
                 sinceRef.current = response.seq;
-                wasGathered = gathered(response.company);
                 setClock(response.clock);
                 setState(openedFrom(response));
-                let heldBefore = false;
-                const hold = (): (() => void) => {
-                    if (heldBefore) {
-                        void refresh();
-                    }
-                    heldBefore = true;
-                    return followEvents(seat, sinceRef.current, {
-                        onOpen: (): void => {
-                            setConnection("live");
-                            setTrouble(null);
-                        },
-                        onCommit: (event): void => {
-                            sinceRef.current = Math.max(sinceRef.current, event.seq + 1);
-                            setState((current) => (current === null ? current : advanced(current, event)));
-                        },
-                        onPresence: (company): void => {
-                            const nowGathered = gathered(company);
-                            if (nowGathered && !wasGathered) {
-                                void refresh();
-                            }
-                            wasGathered = nowGathered;
-                            setState((current) => (current === null ? current : accompanied(current, company)));
-                        },
-                        onClock: (served): void => {
-                            setClock(served);
-                        },
-                        onDropped: (reason): void => {
-                            setConnection("resuming");
-                            setTrouble(reason);
-                        },
-                    });
-                };
-                release = awake ? hold() : whileInView(document, hold);
+                release = hold();
             })
             .catch((error: unknown) => {
-                if (alive) {
+                if (gone(error)) {
+                    depart(reasonOf(error));
+                } else if (alive) {
                     setConnection("lost");
                     setTrouble(reasonOf(error));
                 }
             });
+
+        const resumedIfSilent = (): boolean => {
+            if (departed || !silent(lastBeat, Date.now())) {
+                return false;
+            }
+            resume();
+            return true;
+        };
+
+        const watchdog = window.setInterval((): void => {
+            resumedIfSilent();
+        }, WATCH_INTERVAL_MILLISECONDS);
+        const stopWatchingView = whenInView(document, (): void => {
+            if (!departed && !resumedIfSilent()) {
+                void refresh();
+            }
+        });
+
         return (): void => {
             alive = false;
+            window.clearInterval(watchdog);
+            stopWatchingView();
             if (release !== null) {
                 release();
             }
         };
-    }, [table, token, awake]);
+    }, [table, token]);
 
     const refresh = useCallback((): Promise<number | null> => refreshRef.current(), []);
 

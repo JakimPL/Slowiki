@@ -5,11 +5,12 @@ import { readStyle } from "./api/client";
 import { useTable } from "./play/live/useTable";
 import type { Arrival } from "./play/seats/useStanding";
 import { useStanding } from "./play/seats/useStanding";
-import { useSettings } from "./play/settings/useSettings";
+import { finished } from "./play/story/ending";
 import { Home } from "./table/arrive/Home";
 import { JOINING_CAPTION, STYLE_FALLBACK_NOTE } from "./table/strings";
 import { Table } from "./table/Table";
 import { applyTheme } from "./table/theme";
+import { Waiting } from "./table/Waiting";
 
 export function App(): ReactElement {
     const [themeNote, setThemeNote] = useState<string | null>(null);
@@ -53,26 +54,17 @@ interface TableScreenProps {
 }
 
 function TableScreen({ arrival, onLeave, onFinished }: TableScreenProps): ReactElement {
-    const { settings } = useSettings();
-    const { connection, state, clock, trouble, refresh } = useTable(
-        arrival.seat.table,
-        arrival.seat.token,
-        settings.notices,
-    );
-    const finished = state !== null && state.view.phase === "game_over";
+    const { connection, state, clock, trouble, refresh } = useTable(arrival.seat.table, arrival.seat.token);
+    const over = state !== null && finished(state.view.phase);
 
     useEffect(() => {
-        if (finished) {
+        if (over) {
             onFinished();
         }
-    }, [finished, onFinished]);
+    }, [over, onFinished]);
 
     if (state === null) {
-        return (
-            <main className="waiting">
-                <p role="status">{trouble ?? JOINING_CAPTION}</p>
-            </main>
-        );
+        return <Waiting note={trouble ?? JOINING_CAPTION} onLeave={trouble === null ? null : onLeave} />;
     }
     return (
         <Table

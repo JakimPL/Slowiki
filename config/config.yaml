@@ -1,5 +1,9 @@
 service:
   host: 0.0.0.0
   port: 8532
+tables:
+  life_seconds: 86400
+  linger_seconds: 3600
+  sweep_seconds: 60
 scheme: literaki
 style: default

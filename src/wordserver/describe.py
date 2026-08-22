@@ -1,7 +1,7 @@
 from wordcore.tiles.tile import Letter, TilePreset
 from wordserver.models.rule_parameters import RuleParameters
 from wordserver.models.table_description import TableDescription
-from wordserver.registry import TableMeta
+from wordserver.models.table_meta import TableMeta
 from wordtable.config import SchemeConfig, TimeConfig
 from wordtable.lexicons import dictionary_ready
 
@@ -43,7 +43,7 @@ def _rule_parameters(
         validate_on_play=scheme.validate_on_play,
         word_check=word_check_offered(scheme),
         premoves_allowed=scheme.premoves,
-        pass_end_limit=scheme.pass_end_limit,
+        pass_end_rounds=scheme.pass_end_rounds,
         scoreless_end_limit=scheme.scoreless_end_limit,
         time=time,
     )

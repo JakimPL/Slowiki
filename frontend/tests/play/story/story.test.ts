@@ -22,6 +22,12 @@ describe("storyFor", () => {
         expect(storyFor(view, aCompany(), null).seats).toEqual([0, 1]);
     });
 
+    it("crowns nobody when the game was left unfinished", () => {
+        const view = aView({ phase: "unresolved", scores: { 0: 30, 1: 42 } });
+        const story = storyFor(view, aCompany(), 1);
+        expect(story).toEqual({ kind: "unresolved", seats: [], points: null, mine: false });
+    });
+
     it("reports acting when I am among the actors", () => {
         const story = storyFor(aView({ to_act: [0, 1] }), aCompany(), 0);
         expect(story.kind).toBe("acting");

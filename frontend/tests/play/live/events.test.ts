@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { accompanied, advanced, gathered, openedFrom, refreshed, seatedAs } from "../../../src/play/live/events";
+import { accompanied, advanced, openedFrom, positioned, refreshed, seatedAs } from "../../../src/play/live/events";
 import { aCompany, anEvent, aSeatView, aTableResponse, aTile, aView } from "../../fixtures/positions";
 
 describe("openedFrom", () => {
@@ -47,6 +47,18 @@ describe("accompanied", () => {
     });
 });
 
+describe("positioned", () => {
+    it("replaces only the view, so the letters arrive without a re-read", () => {
+        const state = openedFrom(aTableResponse({ seq: 3, view: aView({ racks: { 0: null, 1: null } }) }));
+        const revealed = aView({ racks: { 0: [aTile()], 1: null } });
+        const next = positioned(state, revealed);
+        expect(next.view).toBe(revealed);
+        expect(next.seq).toBe(3);
+        expect(next.company).toBe(state.company);
+        expect(next.log).toBe(state.log);
+    });
+});
+
 describe("seatedAs", () => {
     it("finds the seat whose rack is visible", () => {
         expect(seatedAs(aView({ racks: { 0: null, 1: [aTile()] } }))).toBe(1);
@@ -58,13 +70,6 @@ describe("seatedAs", () => {
 
     it("returns null for a spectator", () => {
         expect(seatedAs(aView({ racks: { 0: null, 1: null } }))).toBeNull();
-    });
-});
-
-describe("gathered", () => {
-    it("holds once every seat is claimed", () => {
-        expect(gathered(aCompany())).toBe(true);
-        expect(gathered(aCompany([aSeatView(0), aSeatView(1, { claimed: false })]))).toBe(false);
     });
 });
 

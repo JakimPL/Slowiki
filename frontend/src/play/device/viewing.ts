@@ -4,25 +4,14 @@ export interface Watched {
     removeEventListener(type: "visibilitychange", listener: () => void): void;
 }
 
-export function whileInView(watched: Watched, hold: () => () => void): () => void {
-    let release: (() => void) | null = null;
+export function whenInView(watched: Watched, returned: () => void): () => void {
     const settle = (): void => {
         if (watched.visibilityState === "visible") {
-            release = release ?? hold();
-            return;
-        }
-        if (release !== null) {
-            release();
-            release = null;
+            returned();
         }
     };
     watched.addEventListener("visibilitychange", settle);
-    settle();
     return (): void => {
         watched.removeEventListener("visibilitychange", settle);
-        if (release !== null) {
-            release();
-            release = null;
-        }
     };
 }

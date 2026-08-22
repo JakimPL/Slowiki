@@ -31,6 +31,18 @@ describe("tapEffects", () => {
         expect(effects.reduce(affected, lifted).lift).toBeNull();
     });
 
+    it("trades the places of a lifted board tile and the one tapped", () => {
+        expect(tapEffects(fromCell, { kind: "cell", cell: ELSEWHERE }, OH)).toEqual([
+            { kind: "relay", from: CELL, to: ELSEWHERE },
+        ]);
+    });
+
+    it("lifts the tapped board tile when the hand holds a tile from a row", () => {
+        expect(tapEffects(fromRack, { kind: "cell", cell: CELL }, OH)).toEqual([
+            { kind: "lift", tile: OH, from: { kind: "cell", cell: CELL } },
+        ]);
+    });
+
     it("switches the lift within one region", () => {
         expect(tapEffects(fromRack, { kind: "rack" }, OH)).toEqual([
             { kind: "lift", tile: OH, from: { kind: "rack" } },

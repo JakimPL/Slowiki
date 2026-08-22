@@ -31,6 +31,14 @@ repos:
         files: ^(src/lexica/|src/wordtable/paths\.py|docs/lexicon-contract\.md|scripts/contract\.py)
         pass_filenames: false
 
+      - id: backend-test
+        name: pytest
+        entry: uv run pytest
+        language: system
+        files: ^(src|tests|scripts|config)/
+        pass_filenames: false
+        stages: [pre-push]
+
       - id: frontend-format
         name: prettier
         entry: bash -c 'cd frontend && npx prettier --check src tests index.html public'

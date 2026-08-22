@@ -5,3 +5,7 @@ export interface WordChip {
     readonly points: number;
     readonly status: WordStatus;
 }
+
+export function wordRefused(chips: readonly WordChip[]): boolean {
+    return chips.some((chip) => chip.status === "invalid");
+}
