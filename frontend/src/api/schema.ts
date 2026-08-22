@@ -671,6 +671,8 @@ export interface components {
             increment_seconds: number;
             /** Per Turn Seconds */
             per_turn_seconds: number | null;
+            /** Premove Delay Seconds */
+            premove_delay_seconds: number;
             /** Total Seconds */
             total_seconds: number | null;
         };

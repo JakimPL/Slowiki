@@ -49,9 +49,11 @@ class TableSession:
         self._tokens = tokens
         self._names = names
         self._now = now
+        self._time = time
         self._clock = TurnClock(time, tokens, now)
         self._condition = asyncio.Condition()
         self._timer_task: asyncio.Task[None] | None = None
+        self._premove_task: asyncio.Task[None] | None = None
         self._claimed: set[int] = {0}
         self._streams: dict[int, int] = {}
         self._company_version = 0
@@ -65,6 +67,7 @@ class TableSession:
 
     def close(self) -> None:
         self._cancel_timer()
+        self._cancel_premove_timer()
 
     def observer_for(self, token: str | None) -> int | None:
         if token is None:
@@ -132,8 +135,7 @@ class TableSession:
             before = self._turn_cursor()
             self._game.submit(move, base_seq=base_seq, premove=premove)
             if self._turn_cursor() != before:
-                self._clock.settle(earns_increment=self._earns_increment(move))
-                self._schedule_timer()
+                self._turn_opened(move)
 
             self._condition.notify_all()
             return self._game.seq
@@ -257,8 +259,13 @@ class TableSession:
             self._company_version += 1
             self._condition.notify_all()
 
-    def _earns_increment(self, move: Move) -> bool:
-        if move.player != self._clock.armed_seat():
+    def _turn_opened(self, move: Move | None) -> None:
+        self._clock.settle(earns_increment=self._earns_increment(move))
+        self._schedule_timer()
+        self._schedule_premove()
+
+    def _earns_increment(self, move: Move | None) -> bool:
+        if move is None or move.player != self._clock.armed_seat():
             return False
 
         return move.action.kind in (ActionKind.PLAY, ActionKind.EXCHANGE)
@@ -276,17 +283,64 @@ class TableSession:
 
     def _schedule_timer(self) -> None:
         self._cancel_timer()
-        position = self._game.position
-        if position.state.phase == Phase.GAME_OVER or len(position.state.to_act) != 1:
+        seat = self._sole_actor()
+        if seat is None:
             self._clock.disarm()
             return
 
-        seat = next(iter(position.state.to_act))
         budget = self._clock.arm(seat)
         if budget is None:
             return
 
         self._timer_task = asyncio.create_task(self._timeout(seat, budget))
+
+    def _cancel_premove_timer(self) -> None:
+        if self._premove_task is not None:
+            self._premove_task.cancel()
+            self._premove_task = None
+
+    def _schedule_premove(self) -> None:
+        self._cancel_premove_timer()
+        seat = self._premoving_seat()
+        if seat is None:
+            return
+
+        self._premove_task = asyncio.create_task(self._settle_premove(seat))
+
+    def _sole_actor(self) -> int | None:
+        state = self._game.position.state
+        if state.phase == Phase.GAME_OVER or len(state.to_act) != 1:
+            return None
+
+        return next(iter(state.to_act))
+
+    def _premoving_seat(self) -> int | None:
+        seat = self._sole_actor()
+        if seat is None or self._game.position.state.premoves.get(seat) is None:
+            return None
+
+        return seat
+
+    async def _settle_premove(self, seat: int) -> None:
+        await asyncio.sleep(self._time.premove_delay_seconds)
+        async with self._condition:
+            if self._premoving_seat() != seat:
+                return
+
+            before = self._turn_cursor()
+            settled = self._premove_answer(seat)
+            if self._turn_cursor() != before:
+                self._turn_opened(settled)
+
+            self._condition.notify_all()
+
+    def _premove_answer(self, seat: int) -> Move | None:
+        if self._out_of_time(seat):
+            self._discard_premove(seat, RejectionCode.OUT_OF_TIME)
+            return None
+
+        settled = self._game.settle_premove()
+        return settled.move if settled is not None else None
 
     async def _timeout(self, seat: int, seconds: float) -> None:
         await asyncio.sleep(seconds)
@@ -305,6 +359,7 @@ class TableSession:
                 base_seq=self._game.seq,
             )
             self._schedule_timer()
+            self._schedule_premove()
             self._condition.notify_all()
 
 

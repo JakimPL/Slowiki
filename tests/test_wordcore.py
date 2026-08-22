@@ -141,14 +141,25 @@ def test_engine_illegal_move() -> None:
         )
 
 
-def test_engine_premove_executes() -> None:
+def test_engine_premove_waits_for_its_settlement() -> None:
     game = Game(TrivialRules(), random.Random(0), premoves_allowed=True)
     game.submit(queued_exchange(), base_seq=0, premove=True)
     assert game.position.state.premoves == {1: queued_exchange()}
     game.submit(Move(player=0, action=Pass()), base_seq=1)
+    assert game.position.state.premoves == {1: queued_exchange()}
+    assert game.position.state.to_act == frozenset({1})
+    settled = game.settle_premove()
+    assert settled is not None
+    assert settled.move == queued_exchange()
     assert game.position.state.premoves == {1: None}
     assert game.position.state.to_act == frozenset({0})
     assert game.position.state.turn_number == 2
+
+
+def test_engine_settles_nothing_without_a_premove() -> None:
+    game = Game(TrivialRules(), random.Random(0), premoves_allowed=True)
+    assert game.settle_premove() is None
+    assert game.seq == 0
 
 
 def test_engine_premove_discarded_when_invalid() -> None:
@@ -157,6 +168,9 @@ def test_engine_premove_discarded_when_invalid() -> None:
     game.submit(queued_exchange(), base_seq=0, premove=True)
     rules.reject_seat = 1
     game.submit(Move(player=0, action=Pass()), base_seq=1)
+    discarded = game.settle_premove()
+    assert discarded is not None
+    assert discarded.kind == EntryKind.PREMOVE_DISCARDED
     assert game.position.state.premoves == {1: None}
     assert game.position.state.to_act == frozenset({1})
     assert game.position.state.turn_number == 1
@@ -265,6 +279,7 @@ def test_discard_reason_reaches_owner_only() -> None:
     game.submit(queued_exchange(), base_seq=0, premove=True)
     rules.reject_seat = 1
     game.submit(Move(player=0, action=Pass()), base_seq=1)
+    game.settle_premove()
     owned = game.events(observer=1, since=2)[0]
     assert owned.kind == EntryKind.PREMOVE_DISCARDED
     assert owned.actor == 1
@@ -279,6 +294,7 @@ def test_settled_premove_becomes_public_move() -> None:
     game = Game(TrivialRules(), random.Random(0), premoves_allowed=True)
     game.submit(queued_exchange(), base_seq=0, premove=True)
     game.submit(Move(player=0, action=Pass()), base_seq=1)
+    game.settle_premove()
     settled = game.events(observer=0, since=2)[0]
     assert settled.kind == EntryKind.MOVE
     assert settled.actor == 1
@@ -305,6 +321,7 @@ def test_late_subscriber_reads_the_same_masked_history() -> None:
     game = Game(rules, random.Random(0), premoves_allowed=True)
     game.submit(queued_exchange(), base_seq=0, premove=True)
     game.submit(Move(player=0, action=Pass()), base_seq=1)
+    game.settle_premove()
     live = game.events(observer=0, since=0)
     resumed = game.events(observer=0, since=0)[:1] + game.events(observer=0, since=1)
     assert live == resumed

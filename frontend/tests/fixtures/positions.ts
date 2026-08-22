@@ -81,7 +81,7 @@ export function someParameters(overrides: Partial<RuleParameters> = {}): RulePar
         premoves_allowed: true,
         pass_end_rounds: 2,
         scoreless_end_limit: null,
-        time: { per_turn_seconds: null, increment_seconds: 0, total_seconds: null },
+        time: { per_turn_seconds: null, increment_seconds: 0, total_seconds: null, premove_delay_seconds: 1 },
         ...overrides,
     };
 }

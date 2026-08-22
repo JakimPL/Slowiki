@@ -90,6 +90,18 @@ class Game:
             position=self._without_premove(position, player),
         )
 
+    def settle_premove(self) -> JournalEntry | None:
+        position = self.position
+        seat = self._sole_actor(position)
+        if seat is None:
+            return None
+
+        pending = position.state.premoves.get(seat)
+        if pending is None:
+            return None
+
+        return self._resolve_premove(position, seat, pending)
+
     def discard_premove(
         self,
         player: int,
@@ -147,50 +159,27 @@ class Game:
     def _play_move(self, position: Position, move: Move) -> JournalEntry:
         self._ensure_on_turn(position, move)
         self._rules.validate(position, move)
-        entry = self._record(
+        return self._record(
             kind=EntryKind.MOVE,
             move=move,
             actor=move.player,
             reason=None,
             position=self._rules.apply(position, move, self._rng),
         )
-        if move.action.kind != ActionKind.REORDER:
-            self._settle_premoves()
-
-        return entry
-
-    def _settle_premoves(self) -> None:
-        for _ in range(len(self.position.players)):
-            if not self._settle_next_premove():
-                return
-
-    def _settle_next_premove(self) -> bool:
-        position = self.position
-        seat = self._sole_actor(position)
-        if seat is None:
-            return False
-
-        pending = position.state.premoves.get(seat)
-        if pending is None:
-            return False
-
-        self._resolve_premove(position, seat, pending)
-        return True
 
     def _resolve_premove(
         self,
         position: Position,
         seat: int,
         pending: Move,
-    ) -> None:
+    ) -> JournalEntry:
         try:
             self._rules.validate(position, pending)
         except WordcoreError as error:
-            self._premove_discarded(position, seat, rejection_code(error))
-            return
+            return self._premove_discarded(position, seat, rejection_code(error))
 
         applied = self._rules.apply(position, pending, self._rng)
-        self._record(
+        return self._record(
             kind=EntryKind.MOVE,
             move=pending,
             actor=seat,

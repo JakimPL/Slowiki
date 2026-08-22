@@ -28,6 +28,7 @@ class TimeConfig(BaseFrozen):
     per_turn_seconds: int | None
     increment_seconds: int
     total_seconds: int | None
+    premove_delay_seconds: float
 
 
 class SchemeConfig(BaseFrozen):

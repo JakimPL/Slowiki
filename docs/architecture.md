@@ -22,7 +22,8 @@ P5. The journal is append-only. Each move appends a transaction of the form
     `(sequence, move, resulting_position)`.
 
 P6. The engine owns the cursor. Turn order, phase, and premove settlement are
-    engine concerns; game rules supply validation and application.
+    engine concerns; game rules supply validation and application. The session
+    decides when a queued premove settles, the way it already owns the wall clock.
 
 P7. Letters are canonical. Every letter inside the system is uppercase; dictionary
     loaders, tile presets, and move payloads normalize on ingestion, so rules,
@@ -102,9 +103,12 @@ the seat's own remaining time, settling a turn charges the thinking time and add
 the increment after a play or an exchange. A seat whose budget is spent leaves the
 game as an observer: the session refuses every move it submits, discards any premove
 it left standing, and auto-passes on its turn, so the opponents play on and the
-scheme's end limit closes the game. A table asks for its own control at creation
-(`TableRequest.time`), which replaces the scheme's default and rides in the
-description as `parameters.time`.
+scheme's end limit closes the game. A queued premove settles
+`premove_delay_seconds` after the turn opens, so the move that answered it stands
+alone on its own frame first; the seat on turn is already armed, so its clock pays
+for the pause. A table asks for its own control at creation (`TableRequest.time`),
+which replaces the scheme's default and rides in the description as
+`parameters.time`.
 
 ## Concurrency
 
