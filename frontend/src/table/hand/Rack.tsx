@@ -9,6 +9,7 @@ import { RACK_LABEL, RETURN_HERE } from "../strings";
 import { tileSlots } from "../tiles/slots";
 import { TileFace } from "../tiles/TileFace";
 import { rowCountStyle } from "./sizing";
+import { useRowSlide } from "./useRowSlide";
 
 export interface RackProps {
     readonly tiles: readonly Tile[];
@@ -23,6 +24,7 @@ export interface RackProps {
 const RACK_SPOT: DeskSpot = { kind: "rack" };
 
 export function Rack({ tiles, capacity, locked, incoming, bindings, returnable, onReturn }: RackProps): ReactElement {
+    const rowRef = useRowSlide(bindings?.carried ?? null);
     if (bindings === null) {
         return (
             <div
@@ -41,6 +43,7 @@ export function Rack({ tiles, capacity, locked, incoming, bindings, returnable, 
     const slots = row.tiles.length + (row.shadowAt === null ? 0 : 1) + (returnable ? 1 : 0);
     return (
         <div
+            ref={rowRef}
             className="rack"
             role="group"
             aria-label={RACK_LABEL}

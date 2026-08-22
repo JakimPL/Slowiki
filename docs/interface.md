@@ -193,6 +193,11 @@ belongs to the nearer of the two, and an aim a few pixels above or below the til
 row. Within the row the tile takes the gap it is nearest to, counting from the left, and a wrapped
 row is read band by band. The end of a row is reached by aiming past its last tile.
 
+A tile given a new place slides to it from the one it held, so reordering, shuffling, parking and
+retrieving read as movement rather than as a row that has changed behind the player's back. The rack
+and the tray rest while a tile is in hand — the landing slot already says where it would go — and the
+`calm` motion setting stills the slide entirely.
+
 Desk effects — the only mutation vocabulary, shared by tap and drag:
 
 | effect | meaning |
@@ -267,8 +272,8 @@ Four choices belong to the device rather than to a table: the color mode, the in
 language, and the turn notice. They travel together as one record that every tab on the device
 shares, and the first three follow the same three-state shape — a system setting that reads what the
 device already says, and an explicit choice that overrides it on the document root (`data-mode`,
-`data-motion`, `lang`). Motion at `calm` stills the acting plaque's breath, the fresh-play cue, and
-the tile lift; at the system setting `prefers-reduced-motion` decides. The table menu holds the
+`data-motion`, `lang`). Motion at `calm` stills the acting plaque's breath, the fresh-play cue, the
+tile lift, and the sliding rows; at the system setting `prefers-reduced-motion` decides. The table menu holds the
 color mode, the motion, and the turn notice while a game runs; the main view holds the color mode
 and the language. A device that made its choices under an earlier version keeps them.
 
