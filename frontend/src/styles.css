@@ -851,7 +851,7 @@ button.status-line {
 }
 
 .carry-ghost[data-touch] {
-    transform: translate(-50%, calc(-55% - 44px));
+    transform: translate(-50%, calc(-55% - var(--carry-lift)));
 }
 
 .carry-ghost .tile {

@@ -1,4 +1,4 @@
-import type { Landing } from "../../play/board/landing";
+import type { Landing, RowRegion } from "../../play/board/landing";
 
 export interface Rect {
     readonly left: number;
@@ -12,26 +12,45 @@ export interface SlotRect {
     readonly rect: Rect;
 }
 
+export interface RowTarget {
+    readonly region: RowRegion;
+    readonly rect: Rect;
+    readonly slots: readonly SlotRect[];
+}
+
 export interface TargetMap {
     readonly size: number;
     readonly board: Rect | null;
     readonly viewport: Rect | null;
-    readonly rack: Rect | null;
-    readonly rackSlots: readonly SlotRect[];
-    readonly tray: Rect | null;
-    readonly traySlots: readonly SlotRect[];
+    readonly rows: readonly RowTarget[];
 }
+
+const ROW_REGIONS: readonly RowRegion[] = ["rack", "tray"];
+const ROW_REACH_SHARE = 0.25;
+const HALF_DIVISOR = 2;
 
 export function targetsFrom(root: HTMLElement, size: number): TargetMap {
     return {
         size,
         board: regionRect(root, "board"),
         viewport: regionRect(root, "board-view"),
-        rack: regionRect(root, "rack"),
-        rackSlots: slotRects(root, "rack"),
-        tray: regionRect(root, "tray"),
-        traySlots: slotRects(root, "tray"),
+        rows: rowsFrom(root),
     };
+}
+
+export function rowsFrom(root: HTMLElement): readonly RowTarget[] {
+    const rows: RowTarget[] = [];
+    for (const region of ROW_REGIONS) {
+        const rect = regionRect(root, region);
+        if (rect !== null) {
+            rows.push({ region, rect, slots: slotRects(root, region) });
+        }
+    }
+    return rows;
+}
+
+export function withRows(targets: TargetMap, rows: readonly RowTarget[]): TargetMap {
+    return { ...targets, rows };
 }
 
 export function landingAt(targets: TargetMap, x: number, y: number): Landing | null {
@@ -39,13 +58,11 @@ export function landingAt(targets: TargetMap, x: number, y: number): Landing | n
     if (board !== null) {
         return { kind: "cell", cell: cellAt(board, targets.size, x, y) };
     }
-    if (targets.rack !== null && within(targets.rack, x, y)) {
-        return { kind: "rack", before: slotBefore(targets.rackSlots, x, y) };
-    }
-    if (targets.tray !== null && within(targets.tray, x, y)) {
-        return { kind: "tray", before: slotBefore(targets.traySlots, x, y) };
-    }
-    return null;
+    return rowLanding(targets.rows, x, y);
+}
+
+export function overBoard(targets: TargetMap, x: number, y: number): boolean {
+    return seenBoard(targets, x, y) !== null;
 }
 
 function seenBoard(targets: TargetMap, x: number, y: number): Rect | null {
@@ -96,18 +113,63 @@ function clamped(coordinate: number, size: number): number {
     return Math.min(Math.max(coordinate, 0), size - 1);
 }
 
-const HALF_DIVISOR = 2;
+interface SlotBand {
+    readonly rect: Rect;
+    readonly slots: SlotRect[];
+}
 
-function slotBefore(slots: readonly SlotRect[], x: number, y: number): number | null {
+function rowLanding(rows: readonly RowTarget[], x: number, y: number): Landing | null {
+    const row = nearest(rows, (candidate) => reachedBy(candidate.rect, x, y));
+    if (row === null) {
+        return null;
+    }
+    return { kind: row.region, before: gapIn(row.slots, x, y) };
+}
+
+function gapIn(slots: readonly SlotRect[], x: number, y: number): number | null {
+    const band = nearest(bandsOf(slots), (candidate) => spanDistance(candidate.rect, y));
+    const beyond = band?.slots.find((slot) => x < slot.rect.left + slot.rect.width / HALF_DIVISOR);
+    return beyond?.id ?? null;
+}
+
+function bandsOf(slots: readonly SlotRect[]): readonly SlotBand[] {
+    const bands: SlotBand[] = [];
     for (const slot of slots) {
-        const centerX = slot.rect.left + slot.rect.width / HALF_DIVISOR;
-        const rowBottom = slot.rect.top + slot.rect.height;
-        if (y < slot.rect.top) {
-            return slot.id;
+        const current = bands.at(-1);
+        if (current !== undefined && sameBand(current.rect, slot.rect)) {
+            current.slots.push(slot);
+            continue;
         }
-        if (y < rowBottom && x < centerX) {
-            return slot.id;
+        bands.push({ rect: slot.rect, slots: [slot] });
+    }
+    return bands;
+}
+
+function sameBand(band: Rect, slot: Rect): boolean {
+    return Math.abs(slot.top - band.top) < band.height / HALF_DIVISOR;
+}
+
+function reachedBy(rect: Rect, x: number, y: number): number | null {
+    if (x < rect.left || x >= rect.left + rect.width) {
+        return null;
+    }
+    const distance = spanDistance(rect, y);
+    return distance <= rect.height * ROW_REACH_SHARE ? distance : null;
+}
+
+function spanDistance(rect: Rect, y: number): number {
+    return Math.max(rect.top - y, y - (rect.top + rect.height), 0);
+}
+
+function nearest<Item>(items: readonly Item[], distance: (item: Item) => number | null): Item | null {
+    let found: Item | null = null;
+    let shortest = Number.POSITIVE_INFINITY;
+    for (const item of items) {
+        const reach = distance(item);
+        if (reach !== null && reach < shortest) {
+            found = item;
+            shortest = reach;
         }
     }
-    return null;
+    return found;
 }

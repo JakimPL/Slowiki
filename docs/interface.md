@@ -165,23 +165,33 @@ tiles carry while base forms and paradigm cells print lowercase.
 One pointer code path serves mouse and touch: press-and-release within 6 px is a tap, further travel
 is a drag, and a press held in place on a standing tile reads the word instead of moving it — in
 place meaning within that same 6 px, so travel past it hands the gesture on. On touch, the carried
-tile ghosts above the finger and the computed target cell shows a high-contrast ring. While a tile
-travels, its resting place dims to a shadow, and the row it would join — rack or tray — carries an
-accent ring with a tile-shaped landing slot at the insertion point. A release lands where the player
-is looking: the part of the board in view takes the tile, the rack and the tray take it at the
-insertion point, and a release anywhere else sends it home to the rack, whether it was carried from
-a square, from the tray, or from the rack itself. The page holds one scale — the browser's own pinch
-zoom, double-tap zoom, and long-press callout stay off — so a gesture over the board is always a
-game gesture. Two fingers on the board magnify it, and the board follows the point between them, so
-the same gesture that zooms also moves. A trackpad pinch or a modifier-held wheel reaches the same
-scale on a pointing device, anchored where the cursor rests. A magnified board also moves under one
-finger: a press where the board answers for itself — a square's ground, a tile already standing —
-drags the board into view, and the board follows the finger exactly and rests where it is let go,
-while a press on a tile still being arranged, or on a square offered as its landing, belongs to the
-tile. A pointing device reaches the same movement by dragging, by the wheel, or by a two-finger
-trackpad scroll. At the fitted size the board fills its frame and rests there. The moment a second
-pointer arrives, the grasp it interrupts is let go and any building press-and-hold stops: the tile
-stays where it started and the pinch takes the gesture from there.
+tile ghosts above the finger and the computed target cell shows a high-contrast ring; the tile aims
+where it is drawn, so the player reads the target from the tile rather than from the finger under it.
+While a tile travels, its resting place dims to a shadow, and the row it would join — rack or tray —
+carries an accent ring with a tile-shaped landing slot at the insertion point. The row is measured as
+it stands, so the slot follows the tile through a row that has already opened for it. A release lands
+where the player is looking: the part of the board in view takes the tile, the rack and the tray take
+it at the insertion point, and a release anywhere else sends it home to the rack, whether it was
+carried from a square, from the tray, or from the rack itself.
+
+The page holds one scale — the browser's own pinch zoom, double-tap zoom, and long-press callout
+stay off — so a gesture over the board is always a game gesture. Two fingers on the board magnify
+it, and the board follows the point between them, so the same gesture that zooms also moves. A
+trackpad pinch or a modifier-held wheel reaches the same scale on a pointing device, anchored where
+the cursor rests. A magnified board also moves under one finger: a press where the board answers for
+itself — a square's ground, a tile already standing — drags the board into view, and the board
+follows the finger exactly and rests where it is let go, while a press on a tile still being
+arranged, or on a square offered as its landing, belongs to the tile. A pointing device reaches the
+same movement by dragging, by the wheel, or by a two-finger trackpad scroll. At the fitted size the
+board fills its frame and rests there. The moment a second pointer arrives, the grasp it interrupts
+is let go and any building press-and-hold stops: the tile stays where it started and the pinch takes
+the gesture from there.
+
+The insertion point is the gap the tile is nearest to. A row answers for the whole of its own
+rectangle and for a quarter of its height beyond it, so the space between the rack and the tray
+belongs to the nearer of the two, and an aim a few pixels above or below the tiles still reads as the
+row. Within the row the tile takes the gap it is nearest to, counting from the left, and a wrapped
+row is read band by band. The end of a row is reached by aiming past its last tile.
 
 Desk effects — the only mutation vocabulary, shared by tap and drag:
 
