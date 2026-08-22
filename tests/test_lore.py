@@ -1,4 +1,5 @@
 import pytest
+from tests.fixtures.engines import scripted_sources
 
 from lexica.grammar.case import Case
 from lexica.grammar.part_of_speech import PartOfSpeech
@@ -25,31 +26,12 @@ KOT_PARADIGM: list[Interpretation] = [
 ]
 
 
-class ScriptedEngine:
-    def __init__(
-        self,
-        answers: dict[str, list[Interpretation]],
-        paradigms: dict[str, list[Interpretation]],
-    ) -> None:
-        self._answers = answers
-        self._paradigms = paradigms
-
-    def analyse(self, text: str) -> list[tuple[int, int, Interpretation]]:
-        return [(0, 1, interpretation) for interpretation in self._answers.get(text, [])]
-
-    def generate(self, lemma: str) -> list[Interpretation]:
-        return self._paradigms.get(lemma, [(lemma, lemma, "ign", [], [])])
-
-    def dict_id(self) -> str:
-        return "scripted"
-
-
 def _sources(
     answers: dict[str, list[Interpretation]],
     paradigms: dict[str, list[Interpretation]],
     rescue: RescueTable,
 ) -> LoreSources:
-    return LoreSources(engine=ScriptedEngine(answers, paradigms), rescue=rescue)
+    return scripted_sources(answers, paradigms, rescue)
 
 
 def _kot_lore(*dictionary: str) -> WordLore:

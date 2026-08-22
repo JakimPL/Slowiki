@@ -3,10 +3,12 @@ from pathlib import Path
 import pytest
 import yaml
 
-from lexica.build.orchestrate import analyse_dictionary
 from lexica.grammar.dialect import TagsetDialect
 from lexica.grammar.parse import inflection_of
+from lexica.lore.lookup import lore_of
+from lexica.lore.sources import LoreSources
 from lexica.sources.sgjp import analyse_word, build_morfeusz_engine
+from wordcore.lexicon.lexicon import TextLexicon
 
 try:
     import morfeusz2  # type: ignore[import-untyped]
@@ -62,30 +64,26 @@ def test_stress_specimens_match_reference_analyses() -> None:
 
 @requires_morfeusz2
 @requires_stress
-def test_stress_pipeline_builds_classes() -> None:
+def test_every_stress_specimen_reads_into_a_based_reading() -> None:
     _, specimens = _read_stress()
     words = tuple(word.upper() for (word, _) in specimens)
-    analyzer = build_morfeusz_engine()
-    result = analyse_dictionary(words, analyzer, None)
-    store = result.store
+    sources = LoreSources(engine=build_morfeusz_engine(), rescue={})
+    lexicon = TextLexicon.from_words(words)
+    lore = {word: lore_of(sources, word, lexicon) for word in words}
 
-    assert len(store.entries["BRONIĄ"]) == 2
-    zamek_lexemes = store.entries["ZAMEK"]
-    assert len(zamek_lexemes) == 2
-    assert {store.classes[lexeme].base for lexeme in zamek_lexemes} == {"ZAMEK"}
+    assert len(lore["BRONIĄ"].readings) == 2
+    assert {reading.base for reading in lore["ZAMEK"].readings} == {"ZAMEK"}
+    assert len(lore["ZAMEK"].readings) == 2
 
-    for record in store.classes.values():
-        assert record.base
-        for variant in record.variants:
-            assert variant.form
+    for word, answer in lore.items():
+        for reading in answer.readings:
+            assert reading.base, word
+            assert all(form.text for form in reading.forms), word
 
     for word, reference in specimens:
         surface = word.upper()
-        has_real = any(not analysis[2].startswith(_IGNORED) for analysis in reference)
-        if has_real:
-            assert surface in store.entries, surface
-        else:
-            assert surface in store.unknown, surface
+        read = any(not analysis[2].startswith(_IGNORED) for analysis in reference)
+        assert (len(lore[surface].readings) > 0) is read, surface
 
 
 def _split_lemma(lemma: str) -> tuple[str, str]:

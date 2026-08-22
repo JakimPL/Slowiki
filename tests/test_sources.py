@@ -7,10 +7,11 @@ import pytest
 from lexica.grammar.gender import Gender
 from lexica.grammar.part_of_speech import PartOfSpeech
 from lexica.grammar.qualifier import Qualifier, QualifierKind
+from lexica.lore.analysis import Analysis
 from lexica.lore.analysis_source import AnalysisSource
-from lexica.lore.rescue import RescueRow
+from lexica.lore.rescue import RescueRow, rescued_analyses
 from lexica.sources import sgjp
-from lexica.sources.polimorf import rescue_analyses, rescue_rows
+from lexica.sources.polimorf import rescue_rows
 from lexica.sources.sgjp import Interpretation, analyse_word, generate_paradigm
 from wordcore.errors.exceptions import InvalidConfiguration
 
@@ -179,6 +180,13 @@ def _write_polimorf(path: Path, rows: list[tuple[str, str, str, str, str]]) -> N
             handle.write(f"{form}\t{lemma}\t{tag}\t{name}\t{labels}\n")
 
 
+def _rescued(path: Path, targets: frozenset[str]) -> dict[str, tuple[Analysis, ...]]:
+    return {
+        surface: rescued_analyses(surface, rows)
+        for surface, rows in rescue_rows(path, targets).items()
+    }
+
+
 def test_rescue_analyses_collects_and_dedupes_targets(tmp_path: Path) -> None:
     path = tmp_path / "polimorf.tab.gz"
     _write_polimorf(
@@ -190,7 +198,7 @@ def test_rescue_analyses_collects_and_dedupes_targets(tmp_path: Path) -> None:
             ("niecelowy", "niecelowy", "adj:sg:nom:m3:pos", "nazwa_pospolita", ""),
         ],
     )
-    rescued = rescue_analyses(path, frozenset({"ABADAŃSCY", "ABBOZZO"}))
+    rescued = _rescued(path, frozenset({"ABADAŃSCY", "ABBOZZO"}))
     assert set(rescued) == {"ABADAŃSCY", "ABBOZZO"}
     assert len(rescued["ABADAŃSCY"]) == 1
     analysis = rescued["ABBOZZO"][0]
@@ -208,7 +216,7 @@ def test_rescue_analyses_reads_the_name_beside_the_qualifier(tmp_path: Path) -> 
         path,
         [("Abchazja", "Abchazja", "subst:sg:nom:f", "nazwa_geograficzna", "zwykle_lp")],
     )
-    analysis = rescue_analyses(path, frozenset({"ABCHAZJA"}))["ABCHAZJA"][0]
+    analysis = _rescued(path, frozenset({"ABCHAZJA"}))["ABCHAZJA"][0]
     assert analysis.qualifiers == (
         Qualifier(kind=QualifierKind.NAZWA, code="nazwa_geograficzna"),
         Qualifier(kind=QualifierKind.KWALIFIKATOR, code="zwykle_lp"),
@@ -219,7 +227,7 @@ def test_rescue_analyses_reads_the_name_beside_the_qualifier(tmp_path: Path) -> 
 def test_rescue_analyses_reaches_a_capitalised_row(tmp_path: Path) -> None:
     path = tmp_path / "polimorf.tab.gz"
     _write_polimorf(path, [("Abchazja", "Abchazja", "subst:sg:nom:f", "nazwa_geograficzna", "")])
-    analysis = rescue_analyses(path, frozenset({"ABCHAZJA"}))["ABCHAZJA"][0]
+    analysis = _rescued(path, frozenset({"ABCHAZJA"}))["ABCHAZJA"][0]
     assert analysis.surface == "ABCHAZJA"
     assert analysis.lexeme.lemma == "ABCHAZJA"
 
@@ -227,7 +235,7 @@ def test_rescue_analyses_reaches_a_capitalised_row(tmp_path: Path) -> None:
 def test_rescue_analyses_passes_over_the_copyright_preamble(tmp_path: Path) -> None:
     path = tmp_path / "polimorf.tab.gz"
     _write_polimorf(path, [])
-    assert rescue_analyses(path, frozenset({"AALBORSCY"})) == {}
+    assert _rescued(path, frozenset({"AALBORSCY"})) == {}
 
 
 def test_rescue_rows_hold_the_source_fields_a_reading_needs(tmp_path: Path) -> None:

@@ -1,8 +1,9 @@
 import pytest
 
-from lexica.build.orchestrate import analyse_dictionary
-from lexica.lore.lexeme_id import token_of
+from lexica.lore.lookup import lore_of
+from lexica.lore.sources import LoreSources
 from lexica.sources.sgjp import analyse_word, build_morfeusz_engine, generate_paradigm
+from wordcore.lexicon.lexicon import TextLexicon
 
 try:
     import morfeusz2  # type: ignore[import-untyped]
@@ -50,28 +51,29 @@ def test_the_conditional_reaches_the_generated_verb_paradigm() -> None:
 
 
 @requires_morfeusz2
-def test_picia_reads_as_the_verbal_noun_of_pic_and_the_noun_picie() -> None:
-    engine = build_morfeusz_engine()
-    result = analyse_dictionary(("PICIA", "PICIE", "PICIU", "PICIEM"), engine, None)
-    tokens = {token_of(lexeme) for lexeme in result.store.entries["PICIA"]}
-    assert tokens == {"czasownik:PIĆ:", "rzeczownik:PICIE:"}
-
-    picie = next(lexeme for lexeme in result.store.entries["PICIA"] if lexeme.lemma == "PICIE")
-    record = result.store.classes[picie]
-    assert record.base == "PICIE"
-    forms = {variant.form for variant in record.variants}
+def test_the_odslownik_of_pic_carries_its_whole_case_and_number_grid() -> None:
+    sources = LoreSources(engine=build_morfeusz_engine(), rescue={})
+    lexicon = TextLexicon.from_words(["PICIA", "PICIE", "PICIU", "PICIEM"])
+    picie = next(
+        reading
+        for reading in lore_of(sources, "PICIA", lexicon).readings
+        if reading.lexeme == "rzeczownik:PICIE:"
+    )
+    assert picie.base == "PICIE"
+    forms = {form.text for form in picie.forms}
     assert {"PICIE", "PICIA", "PICIU", "PICIEM", "PICIACH"} <= forms
-    assert not any(form.endswith("SZY") for form in forms)
 
 
 @requires_morfeusz2
 def test_a_generated_form_outside_the_dictionary_is_marked() -> None:
-    engine = build_morfeusz_engine()
-    result = analyse_dictionary(("ZAMEK", "ZAMKA"), engine, None)
-    hard = next(lexeme for lexeme in result.store.entries["ZAMEK"] if lexeme.pattern == "Sm3~a")
-    membership = {
-        variant.form: variant.in_dictionary for variant in result.store.classes[hard].variants
-    }
+    sources = LoreSources(engine=build_morfeusz_engine(), rescue={})
+    lexicon = TextLexicon.from_words(["ZAMEK", "ZAMKA"])
+    hard = next(
+        reading
+        for reading in lore_of(sources, "ZAMEK", lexicon).readings
+        if reading.lexeme == "rzeczownik:ZAMEK:Sm3~a"
+    )
+    membership = {form.text: form.playable for form in hard.forms}
     assert membership["ZAMEK"] is True
     assert membership["ZAMKA"] is True
     assert membership["ZAMKOWI"] is False

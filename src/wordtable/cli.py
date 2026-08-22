@@ -3,8 +3,9 @@ import logging
 from pathlib import Path
 
 from lexica.names import DictionaryName
+from wordtable.coverage import report_coverage, summary_of
 from wordtable.lexicons import compile_dictionary
-from wordtable.paths import POLIMORF_TABLE
+from wordtable.paths import POLIMORF_TABLE, dictionary_coverage, dictionary_unread
 from wordtable.play import run
 from wordtable.rescue import compile_rescue
 from wordtable.serve import run as run_server
@@ -23,6 +24,8 @@ def build_parser() -> argparse.ArgumentParser:
     rescue = subparsers.add_parser("rescue")
     rescue.add_argument("--name", default="sjp")
     rescue.add_argument("--polimorf", type=Path, default=POLIMORF_TABLE)
+    coverage = subparsers.add_parser("coverage")
+    coverage.add_argument("--name", default="sjp")
     serve = subparsers.add_parser("serve")
     serve.add_argument("--host")
     serve.add_argument("--port", type=int)
@@ -41,6 +44,14 @@ def run_rescue(name: str, polimorf: Path) -> None:
     logger.info("compiled rescue table at %s", compiled)
 
 
+def run_coverage(name: str) -> None:
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+    result = report_coverage(DictionaryName(name))
+    logger.info(summary_of(result.coverage))
+    logger.info("wrote %s", dictionary_coverage(DictionaryName(name)))
+    logger.info("wrote %s", dictionary_unread(DictionaryName(name)))
+
+
 def main(argv: list[str] | None = None) -> None:
     args = build_parser().parse_args(argv)
     match args.command:
@@ -52,6 +63,9 @@ def main(argv: list[str] | None = None) -> None:
 
         case "rescue":
             run_rescue(args.name, args.polimorf)
+
+        case "coverage":
+            run_coverage(args.name)
 
         case "serve":
             run_server(args.host, args.port)

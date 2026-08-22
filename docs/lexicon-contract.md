@@ -44,6 +44,11 @@ answer.
 An em dash marks a reserved kind: one that owns a name and a format while its code is
 still to come.
 
+Beside the artifacts, `wordtable coverage` writes two diagnostics next to them —
+`{stem}.coverage.json` and `{stem}.unread.txt` — which state how much of a dictionary the
+sources read and name every form they leave unread. They carry no envelope and no kind,
+so the contract governs the artifacts and leaves the diagnostics to the tool.
+
 ## Envelope
 
 An artifact opens with a marker, then a four-byte big-endian header length, then a JSON

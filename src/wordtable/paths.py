@@ -31,6 +31,14 @@ def dictionary_compiled(name: DictionaryName, kind: ArtifactKind) -> Path:
     return DICTIONARIES_DIR / f"{_dictionary_stem(name)}.{kind}.v{ARTIFACT_FORMATS[kind]}.lexicon"
 
 
+def dictionary_coverage(name: DictionaryName) -> Path:
+    return DICTIONARIES_DIR / f"{_dictionary_stem(name)}.coverage.json"
+
+
+def dictionary_unread(name: DictionaryName) -> Path:
+    return DICTIONARIES_DIR / f"{_dictionary_stem(name)}.unread.txt"
+
+
 def _dictionary_stem(name: DictionaryName) -> str:
     match name:
         case DictionaryName.SJP:

@@ -2,8 +2,7 @@ import gzip
 from pathlib import Path
 from typing import Final, NamedTuple
 
-from lexica.lore.analysis import Analysis
-from lexica.lore.rescue import RescueRow, rescued_analyses
+from lexica.lore.rescue import RescueRow
 
 FIELD_SEPARATOR: Final = "\t"
 
@@ -24,16 +23,6 @@ def rescue_rows(
 ) -> dict[str, tuple[RescueRow, ...]]:
     readings = _matching_readings(polimorf_path, target_forms)
     return {surface: tuple(sorted(rows)) for surface, rows in readings.items()}
-
-
-def rescue_analyses(
-    polimorf_path: Path,
-    target_forms: frozenset[str],
-) -> dict[str, tuple[Analysis, ...]]:
-    return {
-        surface: rescued_analyses(surface, rows)
-        for surface, rows in rescue_rows(polimorf_path, target_forms).items()
-    }
 
 
 def _matching_readings(

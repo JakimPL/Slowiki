@@ -13,7 +13,7 @@ from wordcore.lexicon.protocol import Lexicon
 
 
 def lore_of(sources: LoreSources, surface: str, lexicon: Lexicon) -> WordLore:
-    analyses = _analyses_of(sources, surface)
+    analyses = analyses_of(sources, surface)
     store = assemble_classes(
         {surface: analyses},
         _playable_in(lexicon),
@@ -26,7 +26,7 @@ def lore_of(sources: LoreSources, surface: str, lexicon: Lexicon) -> WordLore:
     )
 
 
-def _analyses_of(sources: LoreSources, surface: str) -> tuple[Analysis, ...]:
+def analyses_of(sources: LoreSources, surface: str) -> tuple[Analysis, ...]:
     analyses = analyse_word(sources.engine, surface)
     if analyses:
         return analyses

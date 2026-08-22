@@ -35,11 +35,7 @@ def assemble_classes(
         lexeme: _class_record(lexeme, forms, playable)
         for lexeme, forms in sorted(variants.items(), key=lambda entry: token_of(entry[0]))
     }
-    return ClassStore(
-        entries=_entries(analyses_by_form),
-        classes=classes,
-        unknown=tuple(form for form, analyses in analyses_by_form.items() if len(analyses) == 0),
-    )
+    return ClassStore(entries=_entries(analyses_by_form), classes=classes)
 
 
 def select_base(lexeme: LexemeId, variants: Variants) -> str:
