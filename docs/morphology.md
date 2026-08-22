@@ -1,24 +1,23 @@
 # Polish morphology — grammar reference and data sources
 
-This document records the grammatical model the morphology pipeline encodes and
-the survey of data sources that supply complete Polish inflection data. All
-license, format, and coverage facts below were verified on 2026-08-17 during
-Phase 0; measurement numbers come from runs in this repository.
+This document records the grammatical model `lexica.grammar` encodes and the
+survey of data sources that supply complete Polish inflection data. Every
+license, format and measurement below comes from a run in this repository.
+`docs/lore.md` holds what the running game does with these sources.
 
 ## Purpose
 
-The morphology subsystem produces, for every word in the game dictionary:
+The grammar vocabulary lets the game state, for a word in its dictionary:
 
 - a classification into Polish parts of speech (części mowy, Polish
   nomenclature), with grammatical tags for each inflected form,
-- equivalence classes of words and their inflected variants (deklinacja,
-  koniugacja, stopniowanie),
-- robust handling of homonyms: one surface form may belong to several classes,
-  and one class may share forms with other classes.
+- the paradigm the form belongs to (deklinacja, koniugacja, stopniowanie),
+- the homonymy: one surface form belongs to as many paradigms as Polish gives
+  it, and paradigms share forms with each other.
 
-A class groups a lemma, its part of speech, and its inflection pattern with all
-of its inflected forms. Classes describe paradigms; the pipeline performs
-variant recognition, explicitly separating it from lemmatization and stemming.
+A paradigm groups a lemma, its part of speech and its inflection pattern with
+all of its inflected forms, which makes variant recognition the unit of work,
+distinct from lemmatization and from stemming.
 
 ## Polish grammar reference
 
@@ -162,7 +161,7 @@ The bundled dictionary is the Słownik gramatyczny języka polskiego (SGJP) by
 Zygmunt Saloni et al., which lists every inflected form of every paradigm
 explicitly. The analyzer also generates the full paradigm of a lemma.
 
-Verified in Phase 0 (2026-08-17):
+Verified in this repository:
 
 - License: the program and the bundled inflectional data (SGJP and PoliMorf
   data) ship under the 2-clause BSD license
@@ -177,11 +176,9 @@ Verified in Phase 0 (2026-08-17):
   e.g. `zamek:Sm3~a` (dopełniacz `zamka`) versus `zamek:Sm3~u` (dopełniacz
   `zamku`); usage qualifiers arrive in the qualifiers list (e.g. `muz.`).
 - Unrecognized forms yield a single interpretation tagged `ign`.
-- Throughput: ≈29,000 words/s in Python; the full 3,240,429-form pass takes
-  ≈110 s.
-- Coverage: 2,696,531 forms (83.22%) receive at least one real analysis;
-  1,220,280 forms (37.66%) receive multiple interpretations, with up to 48
-  interpretations per form.
+- Throughput: ≈35,000 forms/s in Python; the full 3,240,471-form pass takes
+  ≈91 s in composite mode.
+- Coverage: `docs/lore.md` holds the share of the SJP list this source reads.
 
 Role: primary analysis source.
 
@@ -258,46 +255,51 @@ classifications. Licenses: to confirm when a cross-check tool is built.
 
 ## Morfeusz tagset → PartOfSpeech mapping (measured)
 
-The mapping is a deterministic table, unit-tested in Phase 1. Prefixes below
-come from the full-corpus pass over słowa.txt with the bundled
-`pl.sgjp.sgjp-2026.06.01` dictionary; counts sum interpretations (one form may
-carry several).
+The mapping is a deterministic table, held by unit tests. Prefixes below come
+from a full pass over słowa.txt (3,240,471 forms) in composite mode with the
+bundled `pl.sgjp.sgjp-2026.06.01` dictionary. Counts sum the head readings the
+pipeline consumes — the interpretations spanning the whole surface — so one
+form contributes as many as it carries.
 
-| Tag prefix | PartOfSpeech | Interpretations | Notes |
+| Tag prefix | PartOfSpeech | Head readings | Notes |
 |---|---|---|---|
-| subst | RZECZOWNIK | 723,526 | case, number, gender |
-| depr | RZECZOWNIK | 10,801 | deprecjatywna forma |
-| adj | PRZYMIOTNIK | 1,190,005 | case, number, gender, degree |
+| subst | RZECZOWNIK | 723,547 | case, number, gender |
+| depr | RZECZOWNIK | 10,802 | deprecjatywna forma |
+| adj | PRZYMIOTNIK | 1,190,028 | case, number, gender, degree |
 | adjp | PRZYMIOTNIK | 6,232 | poprzyimkowy, recorded as a quality |
 | adjc | PRZYMIOTNIK | 11 | forma predykatywna (wart, gotów) |
-| adv | PRZYSŁÓWEK | 26,141 | degree where present |
-| comp | SPÓJNIK | 166 | spójnik podrzędny (by:M, to:M); the conditional clitic is `by:T part` |
+| adv | PRZYSŁÓWEK | 26,136 | degree where present |
+| comp | SPÓJNIK | 156 | spójnik podrzędny (by:M, to:M); the conditional clitic is `by:T part` |
 | num | LICZEBNIK | 569 | główny; collective forms carry `:col` → ZBIOROWY |
 | frag | LICZEBNIK | 90 | fragment of a multiword numeral |
-| ppron12, ppron3, siebie | ZAIMEK | 100 | osobowy, zwrotny |
-| prep | PRZYIMEK | 167 | governed case |
-| conj | SPÓJNIK | 72 | |
-| part | PARTYKUŁA | 297,406 | the 2026 tagset names particles `part` (classic `qub`) |
+| ppron12, ppron3, siebie | ZAIMEK | 85 | osobowy, zwrotny |
+| prep | PRZYIMEK | 166 | governed case |
+| conj | SPÓJNIK | 71 | |
+| part | PARTYKUŁA | 268 | the 2026 tagset names particles `part` (classic `qub`) |
 | interj | WYKRZYKNIK | 378 | |
-| fin, bedzie, aglt, praet, cond, impt, imps, inf, pcon, pant, pact, ppas, ger | CZASOWNIK | 2,193,530 | verb form, aspect, person, tense; `cond` arrives with composite past forms |
+| fin, bedzie, praet, cond, impt, imps, inf, pcon, pant, pact, ppas, ger | CZASOWNIK | 1,910,480 | verb form, aspect, person, tense; `cond` and a past form carrying its person both arrive in composite mode |
+| aglt | CZASOWNIK | 182 | ruchoma końcówka standing on its own |
 | winien | CZASOWNIK | 56 | defective verb (winien/powinien) |
 | pred | CZASOWNIK | 30 | czasownik niewłaściwy |
 | brev | INNY | 24 | skrót |
 | romandig | INNY | 3 | Roman numeral |
-| ign, xx | INNY | — | unrecognized → UNKNOWN report |
+| ign, xx | INNY | 543,909 | the forms SGJP leaves unread; PoliMorf rescues a share of them |
 
 Liczebniki porządkowe (piąty, drugi) carry the adjective tagset (`adj` with
 the lemma qualifier `:A`) and classify as PRZYMIOTNIK; the school-level
 ordinal reading is a lemma-level refinement.
 
-## Tag segment inventory (measured, 2026-08-19)
+## Tag segment inventory (measured)
 
-The closed vocabulary in `lexica.grammar` comes from a full pass over
-słowa.txt (3,240,429 forms) in both analyzer modes and over the whole PoliMorf
-0.6.7 table (6,578,142 rows, every row four fields). Every distinct tag each
-source can produce parses: **576** SGJP tags in the default mode, **645** in the
-composite mode, **574** PoliMorf tags, with zero unrecognised segments. A
-segment outside the table refuses the tag and names the dialect.
+The closed vocabulary in `lexica.grammar` comes from a full pass over słowa.txt
+(3,240,471 forms) in both analyzer modes and over the whole PoliMorf table
+(8,505,529 five-field rows). Every distinct tag each source produces parses:
+**645** SGJP tags in the composite mode, **576** in the default mode, and
+**714** PoliMorf tags under the same 2026 dialect, with zero unrecognised
+segments. A segment outside the table refuses the tag and names the dialect.
+
+The 2026 PoliMorf releases answer in the SGJP tagset, so
+`TagsetDialect.POLIMORF` serves the classic codes that older tables carry:
 
 | Dimension | SGJP 2026 codes | PoliMorf classic codes |
 |---|---|---|
@@ -345,92 +347,29 @@ mood of its own.
 ### Qualifiers (measured over słowa.txt)
 
 SGJP answers with two vocabularies: **26** name categories (`nazwa_pospolita`
-711,240 interpretations, `nazwa_geograficzna` 4,180, `nazwisko` 16,347, `imię`
+711,277 head readings, `nazwisko` 16,347, `nazwa_geograficzna` 4,180, `imię`
 1,323, and 22 rarer ones) and **533** label strings built from **119** atoms
-joined by commas (`daw.,char.`). PoliMorf answers with **12** name categories
-(`pospolita`, `nazwisko`, `imię`, `geograficzna`, `określenie dodatkowe`, and
-seven more). `lexica.grammar.qualifier` splits a joined label and types each
-code as a name or a qualifier.
+joined by commas (`daw.,char.`). The 2026 PoliMorf shares that vocabulary and
+joins with a pipe instead: **35** name atoms across **72** column values
+(`imię|nazwisko`) and **596** label values, 43,419 rows of which state several
+(`daw.|rzad.`). `lexica.grammar.qualifier` splits on both separators and types
+each code as a name or a qualifier.
 
-## Measured coverage (Phase 0, 2026-08-17)
+## Coverage
 
-Measured over the full słowa.txt (3,240,429 forms) with morfeusz2
-(`pl.sgjp.sgjp-2026.06.01`, ≈110 s):
+`docs/lore.md` holds the measured coverage of the SJP list by these sources, the
+policy for the forms they leave unread, and the attribution each source
+requires.
 
-| Metric | Value |
-|---|---|
-| Classified by SGJP 2026 | 2,696,531 (83.22%) |
-| SGJP-unknown | 543,898 (16.78%) |
-| Rescued by PoliMorf 0.6.7 | 200,451 (36.85% of SGJP-unknown) |
-| Combined classified | 2,896,982 (89.40%) |
-| Remaining UNKNOWN | 343,447 (10.60%) |
-| Forms with multiple interpretations | 1,220,280 (37.66%) |
-| Maximum interpretations per form | 48 |
-| Unique class keys (lemma + tag prefix) | 361,664 |
+## Source decision
 
-Unknown forms concentrate in proper-noun-derived adjectives (`aalborscy`,
-`abadański`) and other formations absent from both dictionaries; PoliMorf
-rescues many proper-derived forms. The remaining forms become `UNKNOWN`
-entries in the report. Case folds cleanly: the analyzer classifies lowercase
-and uppercase input identically (verified on a 10k sample).
-
-### Analysis pipeline run (Phase 2, full corpus)
-
-`lexica analyze --polimorf dictionaries/sources/PoliMorf-0.6.7.tab.gz` over
-all 3,240,429 forms:
-
-| Metric | Value |
-|---|---|
-| Classes assembled | 201,821 |
-| Classes per POS | rzeczownik 86,223 · przymiotnik 64,132 · przysłówek 25,727 · czasownik 24,728 · wykrzyknik 378 · partykuła 243 · liczebnik 205 · przyimek 106 · spójnik 46 · zaimek 7 · inny 26 |
-| Forms with multiple classes | 572,899 (17.68%) |
-| Maximum classes per form | 7 |
-| Wall time / peak memory | 9 min 7 s / 21.8 GB |
-
-The 361,664 measured lemma+prefix pairs collapse to 201,821 classes because
-one lemma carries several verb or adjective tag prefixes within a single
-class. The zaimek count stays small because the tagset classifies most
-pronouns as adjectives (a lemma-level refinement).
-
-### Compiled artifact v2 (Phase 3, full corpus)
-
-`lexica compile` over all 3,240,429 forms with PoliMorf rescue:
-
-| Metric | Value |
-|---|---|
-| Compile wall time / peak memory | 3 min 51 s / 3.4 GB |
-| Artifact size | 216 MB |
-| Load time / resident memory | 7.7 s / 1.5 GB |
-| Artifact contents | 3,240,429 surfaces, 201,821 classes, 343,447 UNKNOWN |
-
-`BRONIĄ` resolves to both classes (`czasownik:BRONIĆ`, `rzeczownik:BROŃ`) with
-correct bases; the surface index keeps `judge`/`has_prefix` at bisect speed.
-
-## Source decision (Phase 0)
-
-- Primary analysis source: morfeusz2 with the bundled SGJP 2026.06.01 —
-  newest data, paradigm-level homonym separation through pattern-qualified
-  lemmas, native paradigm generation.
-- Supplementary rescue source: PoliMorf 0.6.7 tabular data for SGJP-unknown
-  forms; analyses carry a `source` flag.
+- Primary analysis source: morfeusz2 with the bundled SGJP 2026.06.01 — newest
+  data, paradigm-level homonym separation through pattern-qualified lemmas,
+  native paradigm generation.
+- Supplementary rescue source: the PoliMorf tabular data for SGJP-unknown
+  forms; analyses carry a `source` flag, and the merged lemma-level rows record
+  the lower fidelity.
 - Both sources ship under the 2-clause BSD license, compatible with the SJP
-  list's GPL 2 / CC BY 4.0 terms for the compiled artifact.
+  list's GPL 2 / CC BY 4.0 terms for the compiled artifacts.
 - WSJP and kaikki remain cross-check options; WSJP returned HTTP 403 to plain
   clients.
-
-## Phase 0 verification checklist — status
-
-Completed on 2026-08-17:
-
-- Morfeusz 2: license (BSD-2-Clause for program and inflectional data),
-  PyPI package (`morfeusz2` 1.99.15), bundled dictionary
-  (`pl.sgjp.sgjp-2026.06.01`), output shape, homonym representation
-  (pattern-qualified lemmas), throughput, coverage.
-- PoliMorf: license (BSD-2-Clause), download URL, row format, tagset
-  differences, homonym merging behaviour, rescue coverage.
-- Morfologik: library license (BSD-3-Clause).
-- kaikki.org: Polish dictionary index exists.
-- WSJP: API access remains to confirm; the site returned HTTP 403 to plain
-  clients.
-- Taggers (spaCy, KRNNT, Concraft-pl): licenses to confirm when a
-  cross-check tool is built.

@@ -224,6 +224,21 @@ def test_rescue_analyses_reads_the_name_beside_the_qualifier(tmp_path: Path) -> 
     assert analysis.inflection.genders == frozenset({Gender.ŻEŃSKI})
 
 
+def test_rescue_analyses_split_the_alternatives_polimorf_joins(tmp_path: Path) -> None:
+    path = tmp_path / "polimorf.tab.gz"
+    _write_polimorf(
+        path,
+        [("Kyriosa", "Kyrios", "subst:sg:gen:m1", "imię|tytuł", "daw.|rzad.")],
+    )
+    analysis = _rescued(path, frozenset({"KYRIOSA"}))["KYRIOSA"][0]
+    assert analysis.qualifiers == (
+        Qualifier(kind=QualifierKind.NAZWA, code="imię"),
+        Qualifier(kind=QualifierKind.NAZWA, code="tytuł"),
+        Qualifier(kind=QualifierKind.KWALIFIKATOR, code="daw."),
+        Qualifier(kind=QualifierKind.KWALIFIKATOR, code="rzad."),
+    )
+
+
 def test_rescue_analyses_reaches_a_capitalised_row(tmp_path: Path) -> None:
     path = tmp_path / "polimorf.tab.gz"
     _write_polimorf(path, [("Abchazja", "Abchazja", "subst:sg:nom:f", "nazwa_geograficzna", "")])

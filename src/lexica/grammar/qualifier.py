@@ -5,6 +5,7 @@ from typing import Final
 from wordcore.models.base import BaseFrozen
 
 LABEL_SEPARATOR: Final = ","
+ALTERNATIVE_SEPARATOR: Final = "|"
 
 
 class QualifierKind(StrEnum):
@@ -30,5 +31,6 @@ def _qualifiers(kind: QualifierKind, values: Sequence[str]) -> tuple[Qualifier, 
 
 
 def _codes(value: str) -> tuple[str, ...]:
-    stripped = (code.strip() for code in value.split(LABEL_SEPARATOR))
+    joined = value.replace(ALTERNATIVE_SEPARATOR, LABEL_SEPARATOR)
+    stripped = (code.strip() for code in joined.split(LABEL_SEPARATOR))
     return tuple(code for code in stripped if len(code) > 0)
