@@ -41,6 +41,7 @@ import { liftedIdentifier } from "../play/tiles/selection";
 import { trayTilesOf } from "../play/tiles/tray";
 import { useDesk } from "../play/tiles/useDesk";
 import { askedPlayed, askedStanding } from "../play/words/asked";
+import { wordRefused } from "../play/words/chips";
 import { invalidTextsOf, wordStatusFor } from "../play/words/feedback";
 import { askedWord, panelStanding } from "../play/words/panel";
 import { useJudgements } from "../play/words/useJudgements";
@@ -54,10 +55,10 @@ import { Rack } from "./hand/Rack";
 import { Tray } from "./hand/Tray";
 import type { TileBindings } from "./input/bindings";
 import type { Carry, DragPoint, Grasp, GraspSession } from "./input/dragging";
-import { carriedTo, crowded, isCarry } from "./input/dragging";
+import { aimedOverBoard, carriedTo, CARRY_LIFT, crowded, isCarry } from "./input/dragging";
 import type { KeyHandlers } from "./input/keys";
 import { boundKeys } from "./input/keys";
-import { targetsFrom } from "./input/targets";
+import { rowsFrom, targetsFrom, withRows } from "./input/targets";
 import { useHold } from "./input/useHold";
 import { MenuButton } from "./menu/MenuButton";
 import { TableMenu } from "./menu/TableMenu";
@@ -190,9 +191,6 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
 
     const exchanging = desk.draft.length === 0 && desk.tray.length > 0;
     const exchange = mySeat === null ? null : exchangeProspectOf(desk.tray.length, state.view, mySeat, rules);
-    const playArmed = mayAct && prospect.verdict === "playable";
-    const primaryArmed = (exchanging ? mayAct && (exchange?.allowed ?? false) : playArmed) && !panelStanding(panel);
-
     const invalidTexts = invalidTextsOf(noticeCode, notice);
     const judged = useJudgements(
         arrival.seat,
@@ -203,6 +201,9 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
         ...word,
         status: wordStatusFor(rules.feedback, word.text, invalidTexts, judged),
     }));
+    const refused = !asPremove && wordRefused(chips);
+    const playArmed = mayAct && prospect.verdict === "playable" && !refused;
+    const primaryArmed = (exchanging ? mayAct && (exchange?.allowed ?? false) : playArmed) && !panelStanding(panel);
     const shownNotice = noticeCode === STALE_POSITION_CODE ? STALE_NOTICE : notice;
     const offline = connection === "live" ? null : trouble;
     const hint = ranOut
@@ -356,6 +357,13 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
             };
         },
     };
+    const relayRows = (session: GraspSession, point: DragPoint): void => {
+        const root = rootRef.current;
+        if (root === null || aimedOverBoard(session, point)) {
+            return;
+        }
+        session.targets = withRows(session.targets, rowsFrom(root));
+    };
     const carryOn = (point: DragPoint): void => {
         const session = sessionRef.current;
         if (session === null) {
@@ -365,6 +373,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
             session.carrying = true;
         }
         if (session.carrying) {
+            relayRows(session, point);
             setCarry(carriedTo(session, point));
         }
     };
@@ -579,7 +588,11 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
                 <div
                     className="carry-ghost"
                     data-touch={carry.touch ? "true" : undefined}
-                    style={{ "--carry-x": `${String(carry.point.x)}px`, "--carry-y": `${String(carry.point.y)}px` }}
+                    style={{
+                        "--carry-x": `${String(carry.point.x)}px`,
+                        "--carry-y": `${String(carry.point.y)}px`,
+                        "--carry-lift": `${String(CARRY_LIFT)}px`,
+                    }}
                 >
                     <TileFace tile={carry.tile} />
                 </div>

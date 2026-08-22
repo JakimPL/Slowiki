@@ -169,23 +169,38 @@ tiles carry while base forms and paradigm cells print lowercase.
 One pointer code path serves mouse and touch: press-and-release within 6 px is a tap, further travel
 is a drag, and a press held in place on a standing tile reads the word instead of moving it — in
 place meaning within that same 6 px, so travel past it hands the gesture on. On touch, the carried
-tile ghosts above the finger and the computed target cell shows a high-contrast ring. While a tile
-travels, its resting place dims to a shadow, and the row it would join — rack or tray — carries an
-accent ring with a tile-shaped landing slot at the insertion point. A release lands where the player
-is looking: the part of the board in view takes the tile, the rack and the tray take it at the
-insertion point, and a release anywhere else sends it home to the rack, whether it was carried from
-a square, from the tray, or from the rack itself. The page holds one scale — the browser's own pinch
-zoom, double-tap zoom, and long-press callout stay off — so a gesture over the board is always a
-game gesture. Two fingers on the board magnify it, and the board follows the point between them, so
-the same gesture that zooms also moves. A trackpad pinch or a modifier-held wheel reaches the same
-scale on a pointing device, anchored where the cursor rests. A magnified board also moves under one
-finger: a press where the board answers for itself — a square's ground, a tile already standing —
-drags the board into view, and the board follows the finger exactly and rests where it is let go,
-while a press on a tile still being arranged, or on a square offered as its landing, belongs to the
-tile. A pointing device reaches the same movement by dragging, by the wheel, or by a two-finger
-trackpad scroll. At the fitted size the board fills its frame and rests there. The moment a second
-pointer arrives, the grasp it interrupts is let go and any building press-and-hold stops: the tile
-stays where it started and the pinch takes the gesture from there.
+tile ghosts above the finger and the computed target cell shows a high-contrast ring; the tile aims
+where it is drawn, so the player reads the target from the tile rather than from the finger under it.
+While a tile travels, its resting place dims to a shadow, and the row it would join — rack or tray —
+carries an accent ring with a tile-shaped landing slot at the insertion point. The row is measured as
+it stands, so the slot follows the tile through a row that has already opened for it. A release lands
+where the player is looking: the part of the board in view takes the tile, the rack and the tray take
+it at the insertion point, and a release anywhere else sends it home to the rack, whether it was
+carried from a square, from the tray, or from the rack itself.
+
+The page holds one scale — the browser's own pinch zoom, double-tap zoom, and long-press callout
+stay off — so a gesture over the board is always a game gesture. Two fingers on the board magnify
+it, and the board follows the point between them, so the same gesture that zooms also moves. A
+trackpad pinch or a modifier-held wheel reaches the same scale on a pointing device, anchored where
+the cursor rests. A magnified board also moves under one finger: a press where the board answers for
+itself — a square's ground, a tile already standing — drags the board into view, and the board
+follows the finger exactly and rests where it is let go, while a press on a tile still being
+arranged, or on a square offered as its landing, belongs to the tile. A pointing device reaches the
+same movement by dragging, by the wheel, or by a two-finger trackpad scroll. At the fitted size the
+board fills its frame and rests there. The moment a second pointer arrives, the grasp it interrupts
+is let go and any building press-and-hold stops: the tile stays where it started and the pinch takes
+the gesture from there.
+
+The insertion point is the gap the tile is nearest to. A row answers for the whole of its own
+rectangle and for a quarter of its height beyond it, so the space between the rack and the tray
+belongs to the nearer of the two, and an aim a few pixels above or below the tiles still reads as the
+row. Within the row the tile takes the gap it is nearest to, counting from the left, and a wrapped
+row is read band by band. The end of a row is reached by aiming past its last tile.
+
+A tile given a new place slides to it from the one it held, so reordering, shuffling, parking and
+retrieving read as movement rather than as a row that has changed behind the player's back. The rack
+and the tray rest while a tile is in hand — the landing slot already says where it would go — and the
+`calm` motion setting stills the slide entirely.
 
 Desk effects — the only mutation vocabulary, shared by tap and drag:
 
@@ -193,6 +208,7 @@ Desk effects — the only mutation vocabulary, shared by tap and drag:
 |---|---|
 | `lift` | pick a tile up from rack, tray, or a pending cell |
 | `lay` | put the lifted tile on an empty cell (a blank opens the letter picker) |
+| `relay` | move a pending tile to another square, trading places with a pending tile already there |
 | `take-back` | return a pending tile to the rack |
 | `park` / `retrieve` | move a tile into or out of the exchange tray |
 | `reorder` | insert a tile at a new rack position (remembered for the seat's next read) |
@@ -200,11 +216,12 @@ Desk effects — the only mutation vocabulary, shared by tap and drag:
 | `shuffle` | randomize the local rack order |
 
 Tap and drag reach the same places. A tap lifts the tile it lands on — rack, tray, or a pending
-board square — and the next tap sets it down: an empty square moves it, a rack tile inserts it
-before that tile, a tray tile parks it there, and the "Return here" and "Park here" slots take it at
-the end of a row. Tapping the lifted tile again puts it back. One tile is lifted at a time. Escape
-clears the lift, then recalls; Enter fires the primary action when it is armed. The blank picker is a
-sheet with the scheme's own alphabet.
+board square — and the next tap sets it down: an empty square moves it, another pending square
+trades the two tiles, a rack tile inserts it before that tile, a tray tile parks it there, and the
+"Return here" and "Park here" slots take it at the end of a row. Tapping the lifted tile again puts
+it back. Only tiles still being arranged answer to either gesture; a tile the board has taken stays
+where it was played. One tile is lifted at a time. Escape clears the lift, then recalls; Enter fires
+the primary action when it is armed. The blank picker is a sheet with the scheme's own alphabet.
 
 ## State vocabulary
 
@@ -256,7 +273,11 @@ answers word checks, so each formed word carries its verdict as it stands), `sub
 answers on submission), `challenge` (reserved: plays stand until contested). A table advertises the
 live path through `parameters.word_check`, which holds while the scheme validates on play and its
 dictionary is loaded; the interface asks `GET /tables/{id}/words` for the words it shows and
-remembers every answer. The word-status vocabulary above is the seam that lets challenge schemes
+remembers every answer. A word the dictionary turns down rests the Play button, so a turn is spent
+only on a play the table will take; a word still waiting on its answer leaves the button armed, and
+the server has the last word either way. A premove stays armed whatever the verdict reads: it is
+judged against a board the opponent has yet to change, and a player who reads the move coming keeps
+the right to answer it. The word-status vocabulary above is the seam that lets challenge schemes
 arrive without redesign.
 
 ## Preferences
@@ -265,8 +286,8 @@ Four choices belong to the device rather than to a table: the color mode, the in
 language, and the turn notice. They travel together as one record that every tab on the device
 shares, and the first three follow the same three-state shape — a system setting that reads what the
 device already says, and an explicit choice that overrides it on the document root (`data-mode`,
-`data-motion`, `lang`). Motion at `calm` stills the acting plaque's breath, the fresh-play cue, and
-the tile lift; at the system setting `prefers-reduced-motion` decides. The table menu holds the
+`data-motion`, `lang`). Motion at `calm` stills the acting plaque's breath, the fresh-play cue, the
+tile lift, and the sliding rows; at the system setting `prefers-reduced-motion` decides. The table menu holds the
 color mode, the motion, and the turn notice while a game runs; the main view holds the color mode
 and the language. A device that made its choices under an earlier version keeps them.
 

@@ -28,6 +28,7 @@
     --motion-fresh: fresh-wave;
     --motion-hold: cell-hold;
     --motion-lift: 120ms;
+    --motion-slide: 150ms;
     --motion-crown: crown-rise;
     --motion-shine: crown-shine;
     --motion-wanted: name-wanted;
@@ -90,6 +91,7 @@
         --motion-fresh: none;
         --motion-hold: none;
         --motion-lift: 0s;
+        --motion-slide: 0s;
         --motion-crown: none;
         --motion-shine: none;
         --motion-wanted: none;
@@ -102,6 +104,7 @@
     --motion-fresh: none;
     --motion-hold: none;
     --motion-lift: 0s;
+    --motion-slide: 0s;
     --motion-crown: none;
     --motion-shine: none;
     --motion-wanted: none;
@@ -855,7 +858,7 @@ button.status-line {
 }
 
 .carry-ghost[data-touch] {
-    transform: translate(-50%, calc(-55% - 44px));
+    transform: translate(-50%, calc(-55% - var(--carry-lift)));
 }
 
 .carry-ghost .tile {

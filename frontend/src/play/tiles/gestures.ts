@@ -5,7 +5,13 @@ import type { DeskEffect } from "./desk";
 import type { Lift } from "./selection";
 
 export function tapEffects(lift: Lift | null, spot: DeskSpot, tile: Tile): readonly DeskEffect[] {
-    if (lift === null || spot.kind === "cell" || lift.from.kind === spot.kind) {
+    if (lift === null) {
+        return [{ kind: "lift", tile, from: spot }];
+    }
+    if (spot.kind === "cell") {
+        return cellTapEffects(lift, spot.cell, tile);
+    }
+    if (lift.from.kind === spot.kind) {
         return [{ kind: "lift", tile, from: spot }];
     }
     return rowEffects(lift.from, lift.tile, spot.kind, tile.identifier);
@@ -31,6 +37,13 @@ export function blankLanding(spot: DeskSpot, tile: Tile, landing: Landing | null
         return null;
     }
     return landing.cell;
+}
+
+function cellTapEffects(lift: Lift, cell: number, tile: Tile): readonly DeskEffect[] {
+    if (lift.from.kind !== "cell" || lift.from.cell === cell) {
+        return [{ kind: "lift", tile, from: { kind: "cell", cell } }];
+    }
+    return [{ kind: "relay", from: lift.from.cell, to: cell }];
 }
 
 function homeEffects(spot: DeskSpot, tile: Tile): readonly DeskEffect[] {

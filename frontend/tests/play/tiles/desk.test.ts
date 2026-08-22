@@ -50,6 +50,23 @@ describe("desk", () => {
         expect(affected(desk, { kind: "relay", from: 113, to: 113 }).draft).toEqual(desk.draft);
     });
 
+    it("trades the places of two pending tiles", () => {
+        const desk = performed(
+            { kind: "lay", cell: 112, tile: KAY, letter: "Ż" },
+            { kind: "lay", cell: 113, tile: OH, letter: null },
+            { kind: "relay", from: 112, to: 113 },
+        );
+        expect(desk.draft).toEqual([
+            { cell: 113, tile: KAY, letter: "Ż" },
+            { cell: 112, tile: OH, letter: null },
+        ]);
+    });
+
+    it("leaves a square the draft does not hold alone", () => {
+        const desk = performed({ kind: "lay", cell: 112, tile: KAY, letter: null });
+        expect(affected(desk, { kind: "relay", from: 113, to: 112 }).draft).toEqual(desk.draft);
+    });
+
     it("stamps a laid blank with the chosen letter", () => {
         const hanging = performed({ kind: "lay", cell: 112, tile: BLANK, letter: null });
         expect(hanging.draft).toEqual([{ cell: 112, tile: BLANK, letter: null }]);
