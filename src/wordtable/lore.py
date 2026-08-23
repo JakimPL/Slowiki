@@ -8,6 +8,7 @@ from lexica.sources.coverage import morphology_covers
 from lexica.sources.sgjp import MorfeuszEngine, build_morfeusz_engine, morphology_available
 from wordcore.lexicon.protocol import Lexicon
 from wordtable.lexicons import LexiconService, dictionary_ready
+from wordtable.overrides import load_overrides
 from wordtable.rescue import load_rescue
 
 
@@ -25,21 +26,23 @@ class LoreService:
     async def read(self, name: DictionaryName, words: tuple[str, ...]) -> dict[str, WordLore]:
         lexicon = await self._lexicons.get(name)
         async with self._lock:
-            sources = await self._prepared(name)
+            sources = await self._prepared(name, lexicon)
             return await asyncio.to_thread(_read_words, sources, words, lexicon)
 
     async def prepare(self, name: DictionaryName) -> None:
+        lexicon = await self._lexicons.get(name)
         async with self._lock:
-            await self._prepared(name)
+            await self._prepared(name, lexicon)
 
-    async def _prepared(self, name: DictionaryName) -> LoreSources:
+    async def _prepared(self, name: DictionaryName, lexicon: Lexicon) -> LoreSources:
         standing = self._sources.get(name)
         if standing is not None:
             return standing
 
         engine = await self._engine_ready()
         rescue = await asyncio.to_thread(load_rescue, name)
-        sources = LoreSources(engine=engine, rescue=rescue)
+        overrides = await asyncio.to_thread(load_overrides, name, lexicon)
+        sources = LoreSources(engine=engine, rescue=rescue, overrides=overrides)
         self._sources[name] = sources
         return sources
 

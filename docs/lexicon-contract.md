@@ -47,10 +47,16 @@ answer.
 An em dash marks a reserved kind: one that owns a name and a format while its code is
 still to come.
 
-Beside the artifacts, `wordtable coverage` writes two diagnostics next to them —
-`{stem}.coverage.json` and `{stem}.unread.txt` — which state how much of a dictionary the
-sources read and name every form they leave unread. They carry no envelope and no kind,
-so the contract governs the artifacts and leaves the diagnostics to the tool.
+Beside the artifacts, four files share their stem and carry no envelope and no kind, so
+the contract governs the artifacts and leaves these to the tool:
+
+- `{stem}.coverage.json` and `{stem}.unread.txt`, written by `wordtable coverage`, state
+  how much of a dictionary the sources read and name every form they leave unread.
+- `{stem}.manifest.json`, written by `wordtable rescue`, records the digests of what the
+  rescue table was built from, so a source that moves without moving a path earns a
+  rebuild.
+- `{stem}.morph.yaml`, written by hand, states readings for forms the sources leave
+  unread; `docs/lore.md` holds its shape.
 
 ## Envelope
 

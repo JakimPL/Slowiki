@@ -119,6 +119,7 @@ reproduces the table and writes it to `{stem}.coverage.json` beside
 | --- | --- | --- |
 | Read by SGJP | 2,696,562 | 83.22% |
 | Rescued by PoliMorf | 205,151 | 6.33% |
+| Overridden by hand | 0 | 0.00% |
 | Residual | 338,758 | 10.45% |
 
 199,843 lexemes carry the readings: rzeczownik 86,424 · przymiotnik 64,097 ·
@@ -151,16 +152,38 @@ numbers stand if the residual becomes worth attacking; the shipped answer is
 `nieznane`.
 
 Odmiana and part of speech come from the sources alone: SGJP is a hand-built
-gold resource, and a generative step over it can only add error. The channel a
-later model proposal would take is `lexica.maintenance.overrides`, which reads
-a gitignored YAML per dictionary, fails loudly on a form absent from the
-dictionary and on a duplicate marker, and is reviewed by hand before it is
-accepted. A reading that arrived that way carries `AnalysisSource.OVERRIDE`, so
-the panel can say where it came from. The sibling ContextGraph repository runs
-an LLM pipeline whose shape suits this one: a client protocol with structured
-output, a content-addressed response cache keyed on prompt and schema, and
-per-stage input digests in a manifest, which together keep a rerun
-byte-identical.
+gold resource, and a generative step over it can only add error.
+
+## Overrides
+
+One channel stands open for readings the sources do not supply.
+`dictionaries/{stem}.morph.yaml`, gitignored and read by
+`lexica.maintenance.overrides`, states a reading per form:
+
+```yaml
+overrides:
+  - form: aalborscy
+    analyses:
+      - lemma: aalborski
+        tag: adj:pl:nom.voc:m1:pos
+```
+
+The reader validates as it goes: a form the dictionary refuses and a form
+stated twice each stop the load with a message naming the form. An entry
+carrying an empty `analyses` list states that the form has no reading, which is
+how a reviewer refuses a rescue they judge wrong.
+
+An override wins over both sources, and its analysis carries
+`AnalysisSource.OVERRIDE`, which `wordtable coverage` counts in its own bucket.
+The reading holds the asked form alone, the way a rescued reading does, since a
+paradigm can be generated only for a lexeme Morfeusz holds; the panel reads that
+fidelity from the paradigm it receives.
+
+The file is meant to be reviewed by hand. A model may propose entries for the
+residual; the sibling ContextGraph repository runs an LLM pipeline whose shape
+suits that work — a client protocol with structured output, a content-addressed
+response cache keyed on prompt and schema, and per-stage input digests in a
+manifest, which together keep a rerun byte-identical.
 
 ## Determinism
 
@@ -168,6 +191,15 @@ Every step is a lookup or a pure table: analysis is a dictionary lookup,
 classification is the segment table in `lexica.grammar`, assembly is grouping.
 The same inputs produce the same artifacts byte for byte, which is what makes
 the pinned releases in `wordtable.releases` a complete description of a build.
+
+The word list's inputs are named by its path: the file name carries the release
+stem, so a bump writes a new file. The rescue table reads more than its path
+states, so `wordtable rescue` records what it read in
+`dictionaries/{stem}.manifest.json` — sha256 over the SJP archive and the
+PoliMorf table, plus the pinned SGJP dictionary identity, the mapping version
+and the pipeline version — and rebuilds whenever those digests move. A PoliMorf
+bump therefore reaches the rescue table on the next build. With the sources off
+disk, as in the deployed image, the standing artifact stands.
 
 ## What the tests hold
 

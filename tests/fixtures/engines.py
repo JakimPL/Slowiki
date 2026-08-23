@@ -1,6 +1,11 @@
+from typing import Final
+
+from lexica.lore.override import OverrideTable
 from lexica.lore.rescue import RescueTable
 from lexica.lore.sources import LoreSources
 from lexica.sources.sgjp import Interpretation
+
+NO_OVERRIDES: Final[OverrideTable] = {}
 
 
 class ScriptedEngine:
@@ -26,5 +31,10 @@ def scripted_sources(
     answers: dict[str, list[Interpretation]],
     paradigms: dict[str, list[Interpretation]],
     rescue: RescueTable,
+    overrides: OverrideTable = NO_OVERRIDES,
 ) -> LoreSources:
-    return LoreSources(engine=ScriptedEngine(answers, paradigms), rescue=rescue)
+    return LoreSources(
+        engine=ScriptedEngine(answers, paradigms),
+        rescue=rescue,
+        overrides=overrides,
+    )

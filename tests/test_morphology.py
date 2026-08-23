@@ -52,7 +52,7 @@ def test_the_conditional_reaches_the_generated_verb_paradigm() -> None:
 
 @requires_morfeusz2
 def test_the_odslownik_of_pic_carries_its_whole_case_and_number_grid() -> None:
-    sources = LoreSources(engine=build_morfeusz_engine(), rescue={})
+    sources = LoreSources(engine=build_morfeusz_engine(), rescue={}, overrides={})
     lexicon = TextLexicon.from_words(["PICIA", "PICIE", "PICIU", "PICIEM"])
     picie = next(
         reading
@@ -66,7 +66,7 @@ def test_the_odslownik_of_pic_carries_its_whole_case_and_number_grid() -> None:
 
 @requires_morfeusz2
 def test_a_generated_form_outside_the_dictionary_is_marked() -> None:
-    sources = LoreSources(engine=build_morfeusz_engine(), rescue={})
+    sources = LoreSources(engine=build_morfeusz_engine(), rescue={}, overrides={})
     lexicon = TextLexicon.from_words(["ZAMEK", "ZAMKA"])
     hard = next(
         reading

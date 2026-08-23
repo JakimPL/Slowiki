@@ -17,6 +17,7 @@ class Coverage(BaseFrozen):
     forms: int
     read: int
     rescued: int
+    overridden: int
     residual: int
     lexemes: int
     parts: dict[PartOfSpeech, int]
@@ -29,8 +30,7 @@ class CoverageResult(NamedTuple):
 
 class _Tally(NamedTuple):
     forms: int
-    read: int
-    rescued: int
+    counted: Counter[AnalysisSource]
     lexemes: set[LexemeId]
     unread: list[str]
 
@@ -46,8 +46,9 @@ def coverage_of(
             dictionary=dictionary,
             dict_id=sources.engine.dict_id(),
             forms=tally.forms,
-            read=tally.read,
-            rescued=tally.rescued,
+            read=tally.counted[AnalysisSource.SGJP],
+            rescued=tally.counted[AnalysisSource.POLIMORF],
+            overridden=tally.counted[AnalysisSource.OVERRIDE],
             residual=len(tally.unread),
             lexemes=len(tally.lexemes),
             parts=_lexemes_by_part(tally.lexemes),
@@ -59,9 +60,8 @@ def coverage_of(
 def _tallied(words: Iterable[str], sources: LoreSources) -> _Tally:
     lexemes: set[LexemeId] = set()
     unread: list[str] = []
+    counted: Counter[AnalysisSource] = Counter()
     forms = 0
-    read = 0
-    rescued = 0
     for form in words:
         forms += 1
         analyses = analyses_of(sources, form)
@@ -69,13 +69,10 @@ def _tallied(words: Iterable[str], sources: LoreSources) -> _Tally:
             unread.append(form)
             continue
 
-        if analyses[0].source is AnalysisSource.SGJP:
-            read += 1
-        else:
-            rescued += 1
+        counted[analyses[0].source] += 1
         lexemes.update(analysis.lexeme for analysis in analyses)
 
-    return _Tally(forms=forms, read=read, rescued=rescued, lexemes=lexemes, unread=unread)
+    return _Tally(forms=forms, counted=counted, lexemes=lexemes, unread=unread)
 
 
 def _lexemes_by_part(lexemes: Iterable[LexemeId]) -> dict[PartOfSpeech, int]:

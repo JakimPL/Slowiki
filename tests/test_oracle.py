@@ -30,7 +30,7 @@ def oracle_fixture() -> Oracle:
 @pytest.fixture(scope="module", name="answers")
 def answers_fixture(oracle: Oracle) -> dict[str, WordLore]:
     words = tuple(specimen.word for specimen in oracle.specimens)
-    sources = LoreSources(engine=build_morfeusz_engine(), rescue={})
+    sources = LoreSources(engine=build_morfeusz_engine(), rescue={}, overrides={})
     lexicon = TextLexicon.from_words(words)
     return {word: lore_of(sources, word, lexicon) for word in words}
 

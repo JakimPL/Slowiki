@@ -6,7 +6,6 @@ from wordcore.models.base import BaseFrozen
 
 TOKEN_SEPARATOR: Final = ":"
 PATTERN_SEPARATOR: Final = ":"
-NO_PATTERN: Final = ""
 
 _TOKEN_FIELDS: Final = 3
 

@@ -298,31 +298,29 @@ The closed vocabulary in `lexica.grammar` comes from a full pass over słowa.txt
 **714** PoliMorf tags under the same 2026 dialect, with zero unrecognised
 segments. A segment outside the table refuses the tag and names the dialect.
 
-The 2026 PoliMorf releases answer in the SGJP tagset, so
-`TagsetDialect.POLIMORF` serves the classic codes that older tables carry:
+The 2026 PoliMorf releases answer in the SGJP tagset, so one segment table
+serves both sources and `TagsetDialect` carries the single dialect they speak:
 
-| Dimension | SGJP 2026 codes | PoliMorf classic codes |
-|---|---|---|
-| case | nom gen dat acc inst loc voc | same |
-| number | sg pl | same |
-| gender | m1 m2 m3 f n | m1 m2 m3 f n1 n2 p1 p2 p3 `_` |
-| person | pri sec ter | same |
-| aspect | imperf perf | same |
-| degree | pos com sup | same |
-| negation | aff neg | same |
-| quality | akc nakc praep npraep agl nagl wok nwok congr rec col ncol pt pun npun | akc nakc praep npraep agl nagl wok nwok congr rec comp |
+| Dimension | SGJP 2026 codes |
+|---|---|
+| case | nom gen dat acc inst loc voc |
+| number | sg pl |
+| gender | m1 m2 m3 f n |
+| person | pri sec ter |
+| aspect | imperf perf |
+| degree | pos com sup |
+| negation | aff neg |
+| quality | akc nakc praep npraep agl nagl wok nwok congr rec col ncol pt pun npun |
 
 Dotted segments state alternatives on one dimension and arrive on every
 dimension a source uses them for: `nom.acc.voc` (case), `m1.m2.m3` (gender),
 `imperf.perf` (aspect), `akc.nakc` and `congr.rec` and `praep.npraep`
-(quality), and **`sg.pl`** (number, 1,540 interpretations over nouns and
+(quality), and **`sg.pl`** (number, 1,540 head readings over nouns and
 numerals). Number is therefore a set, as case, gender and aspect already were.
 
-The classic PoliMorf gender codes read into the 2026 five-gender system:
-`n1` and `n2` are NIJAKI, `p1` is MĘSKOOSOBOWY, `p2` and `p3` are NIJAKI (the
-treatment SGJP gives pluralia tantum), and `_` states no gender. The PoliMorf
-segment `comp` on a numeral and the SGJP prefix `numcomp` both state the
-quality ZŁOŻONY, so a compound-forming numeral reads the same either way.
+The prefixes `numcomp` and `adja` state the quality ZŁOŻONY on their own, so a
+compound-forming numeral and the first member of a compound adjective each read
+as złożony without carrying a segment for it.
 
 ### Composite past forms (measured, both modes)
 

@@ -40,6 +40,14 @@ def dictionary_unread(name: DictionaryName) -> Path:
     return DICTIONARIES_DIR / f"{_dictionary_stem(name)}.unread.txt"
 
 
+def dictionary_overrides(name: DictionaryName) -> Path:
+    return DICTIONARIES_DIR / f"{_dictionary_stem(name)}.morph.yaml"
+
+
+def dictionary_manifest(name: DictionaryName) -> Path:
+    return DICTIONARIES_DIR / f"{_dictionary_stem(name)}.manifest.json"
+
+
 def _dictionary_stem(name: DictionaryName) -> str:
     match name:
         case DictionaryName.SJP:

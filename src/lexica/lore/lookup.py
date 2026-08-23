@@ -4,6 +4,7 @@ from lexica.grammar.parse import inflection_of
 from lexica.lore.analysis import Analysis
 from lexica.lore.analysis_source import dialect_of
 from lexica.lore.lexeme_id import token_of
+from lexica.lore.override import overridden_analyses
 from lexica.lore.reading import InflectedForm, LoreReading, WordLore
 from lexica.lore.rescue import rescued_analyses
 from lexica.lore.sources import LoreSources
@@ -27,6 +28,10 @@ def lore_of(sources: LoreSources, surface: str, lexicon: Lexicon) -> WordLore:
 
 
 def analyses_of(sources: LoreSources, surface: str) -> tuple[Analysis, ...]:
+    overridden = sources.overrides.get(surface)
+    if overridden is not None:
+        return overridden_analyses(surface, overridden)
+
     analyses = analyse_word(sources.engine, surface)
     if analyses:
         return analyses

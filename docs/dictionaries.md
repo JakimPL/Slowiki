@@ -53,7 +53,7 @@ requires, so it stands across releases and moves only when the language does.
 
 The Polish morphology pipeline annotates the SJP list with parts of speech and
 inflection. `lexica.grammar` holds the closed tagset, one module per dimension,
-with a segment table per dialect; `lexica.lore` holds the lexeme identity, the
+over a segment table per dialect; `lexica.lore` holds the lexeme identity, the
 analysis it carries and the reading the server answers with; `lexica.sources`
 reads SGJP and PoliMorf; `lexica.build` groups the analyses; `lexica.maintenance`
 holds the overrides and the build manifest. `docs/lore.md` holds the endpoint,
