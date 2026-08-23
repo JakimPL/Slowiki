@@ -17,6 +17,10 @@ export interface LandedRow {
     readonly shadowAt: number | null;
 }
 
+export function ringedCell(landing: Landing | null, mayAct: boolean): number | null {
+    return mayAct && landing?.kind === "cell" ? landing.cell : null;
+}
+
 export function incomingOf(landing: Landing | null, carried: number, region: RowRegion): Incoming | null {
     if (landing === null || landing.kind === "cell" || landing.kind !== region) {
         return null;

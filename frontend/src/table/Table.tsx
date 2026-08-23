@@ -5,7 +5,7 @@ import { exchangeMove, passMove, playMove } from "../api/moves";
 import { STALE_POSITION_CODE } from "../api/refusal";
 import type { ClockView, CompanyView, Tile } from "../api/views";
 import type { Incoming, Landing, RowRegion } from "../play/board/landing";
-import { incomingOf } from "../play/board/landing";
+import { incomingOf, ringedCell } from "../play/board/landing";
 import { prospectOf } from "../play/board/prospects";
 import type { DeskSpot } from "../play/board/spot";
 import { standingWordsAt } from "../play/board/standing";
@@ -55,10 +55,10 @@ import { Rack } from "./hand/Rack";
 import { Tray } from "./hand/Tray";
 import type { TileBindings } from "./input/bindings";
 import type { Carry, DragPoint, Grasp, GraspSession } from "./input/dragging";
-import { aimedOverBoard, carriedTo, CARRY_LIFT, crowded, isCarry } from "./input/dragging";
+import { carriedTo, crowded, isCarry } from "./input/dragging";
 import type { KeyHandlers } from "./input/keys";
 import { boundKeys } from "./input/keys";
-import { rowsFrom, targetsFrom, withRows } from "./input/targets";
+import { overBoard, rowsFrom, targetsFrom, withRows } from "./input/targets";
 import { useHold } from "./input/useHold";
 import { MenuButton } from "./menu/MenuButton";
 import { TableMenu } from "./menu/TableMenu";
@@ -359,7 +359,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
     };
     const relayRows = (session: GraspSession, point: DragPoint): void => {
         const root = rootRef.current;
-        if (root === null || aimedOverBoard(session, point)) {
+        if (root === null || overBoard(session.targets, point.x, point.y)) {
             return;
         }
         session.targets = withRows(session.targets, rowsFrom(root));
@@ -423,6 +423,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
         abandon();
     };
 
+    const ringedAt = ringedCell(reached(carry?.target ?? null), mayAct);
     const incoming = (region: RowRegion): Incoming | null =>
         carry === null ? null : incomingOf(carry.target, carry.tile.identifier, region);
 
@@ -492,9 +493,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
                         pending={pendingFacesOf(desk.draft)}
                         ghosts={ghosts}
                         targeting={mayAct && desk.lift !== null}
-                        dropCell={
-                            carry?.target?.kind === "cell" && !ghosts.has(carry.target.cell) ? carry.target.cell : null
-                        }
+                        dropCell={ringedAt}
                         fresh={fresh}
                         freshFrame={freshFrame}
                         freshTint={freshTint}
@@ -588,11 +587,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
                 <div
                     className="carry-ghost"
                     data-touch={carry.touch ? "true" : undefined}
-                    style={{
-                        "--carry-x": `${String(carry.point.x)}px`,
-                        "--carry-y": `${String(carry.point.y)}px`,
-                        "--carry-lift": `${String(CARRY_LIFT)}px`,
-                    }}
+                    style={{ "--carry-x": `${String(carry.point.x)}px`, "--carry-y": `${String(carry.point.y)}px` }}
                 >
                     <TileFace tile={carry.tile} />
                 </div>

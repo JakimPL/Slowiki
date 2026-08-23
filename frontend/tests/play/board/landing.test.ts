@@ -1,12 +1,28 @@
 import { describe, expect, it } from "vitest";
 
-import { incomingOf, landedRow } from "../../../src/play/board/landing";
+import { incomingOf, landedRow, ringedCell } from "../../../src/play/board/landing";
 import { aTile } from "../../fixtures/positions";
 
 const KAY = aTile({ identifier: 7, letter: "K" });
 const OH = aTile({ identifier: 8, letter: "O" });
 const TEE = aTile({ identifier: 9, letter: "T" });
 const ROW = [KAY, OH, TEE];
+
+describe("ringedCell", () => {
+    it("names the square a release would take", () => {
+        expect(ringedCell({ kind: "cell", cell: 112 }, true)).toBe(112);
+    });
+
+    it("leaves the board unmarked while the aim rests on a row", () => {
+        expect(ringedCell({ kind: "rack", before: 8 }, true)).toBeNull();
+        expect(ringedCell({ kind: "tray", before: null }, true)).toBeNull();
+        expect(ringedCell(null, true)).toBeNull();
+    });
+
+    it("leaves the board unmarked while the seat may only watch", () => {
+        expect(ringedCell({ kind: "cell", cell: 112 }, false)).toBeNull();
+    });
+});
 
 describe("incomingOf", () => {
     it("claims the region the carry currently points at", () => {

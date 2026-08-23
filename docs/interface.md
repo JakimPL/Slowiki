@@ -168,12 +168,14 @@ tiles carry while base forms and paradigm cells print lowercase.
 
 One pointer code path serves mouse and touch: press-and-release within 6 px is a tap, further travel
 is a drag, and a press held in place on a standing tile reads the word instead of moving it — in
-place meaning within that same 6 px, so travel past it hands the gesture on. On touch, the carried
-tile ghosts above the finger and the computed target cell shows a high-contrast ring; the tile aims
-where it is drawn, so the player reads the target from the tile rather than from the finger under it.
-While a tile travels, its resting place dims to a shadow, and the row it would join — rack or tray —
-carries an accent ring with a tile-shaped landing slot at the insertion point. The row is measured as
-it stands, so the slot follows the tile through a row that has already opened for it. A release lands
+place meaning within that same 6 px, so travel past it hands the gesture on. The aim is the pointer
+itself, mouse and finger alike: the square, the rack gap or the tray gap under the pointer is the one
+a release takes, and the computed target cell shows a high-contrast ring. The carried tile follows
+the pointer as a free face, and on touch it rides far enough above the finger to keep the letter in
+sight — a distance the eye reads and the aim ignores. While a tile travels, its resting place dims to
+a shadow, and the row it would join — rack or tray — carries an accent ring with a tile-shaped
+landing slot that says where in the row it goes. The row is measured as it stands, so the slot
+follows the tile through a row that has already opened for it. A release lands
 where the player is looking: the part of the board in view takes the tile, the rack and the tray take
 it at the insertion point, and a release anywhere else sends it home to the rack, whether it was
 carried from a square, from the tray, or from the rack itself.
