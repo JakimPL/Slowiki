@@ -19,4 +19,3 @@ class ClassRecord(BaseFrozen):
 class ClassStore(BaseFrozen):
     entries: dict[str, tuple[LexemeId, ...]]
     classes: dict[LexemeId, ClassRecord]
-    unknown: tuple[str, ...]

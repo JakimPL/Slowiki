@@ -69,14 +69,6 @@ SGJP_PART_CASES = [
     ("xx", PartOfSpeech.INNY),
 ]
 
-POLIMORF_PART_CASES = [
-    ("burk", PartOfSpeech.INNY),
-    ("comp", PartOfSpeech.SPÓJNIK),
-    ("qub", PartOfSpeech.PARTYKUŁA),
-    ("num:comp", PartOfSpeech.LICZEBNIK),
-    ("subst:sg:gen:n2", PartOfSpeech.RZECZOWNIK),
-]
-
 SGJP_TAG_CASES = [
     (
         "subst:sg:inst:f",
@@ -393,76 +385,7 @@ REKCJA_CASES = [
     ("prep:nom", an_inflection(governed_case=Case.MIANOWNIK)),
 ]
 
-POLIMORF_TAG_CASES = [
-    (
-        "subst:sg:gen:n2",
-        an_inflection(
-            cases=[Case.DOPEŁNIACZ],
-            numbers=[Number.POJEDYNCZA],
-            genders=[Gender.NIJAKI],
-        ),
-    ),
-    (
-        "subst:pl:nom:p3",
-        an_inflection(
-            cases=[Case.MIANOWNIK],
-            numbers=[Number.MNOGA],
-            genders=[Gender.NIJAKI],
-        ),
-    ),
-    (
-        "adj:pl:nom.voc:m1.p1:pos",
-        an_inflection(
-            cases=[Case.MIANOWNIK, Case.WOŁACZ],
-            numbers=[Number.MNOGA],
-            genders=[Gender.MĘSKOOSOBOWY],
-            degree=Degree.RÓWNY,
-        ),
-    ),
-    (
-        "adj:pl:gen:m1.m2.m3.f.n1.n2.p1.p2.p3:pos",
-        an_inflection(
-            cases=[Case.DOPEŁNIACZ],
-            numbers=[Number.MNOGA],
-            genders=EVERY_GENDER,
-            degree=Degree.RÓWNY,
-        ),
-    ),
-    (
-        "ppron12:pl:acc:_:pri",
-        an_inflection(
-            cases=[Case.BIERNIK],
-            numbers=[Number.MNOGA],
-            person=Person.PIERWSZA,
-            pronoun_type=PronounType.OSOBOWY,
-        ),
-    ),
-    (
-        "num:comp",
-        an_inflection(numeral_type=NumeralType.GŁÓWNY, qualities=[Quality.ZŁOŻONY]),
-    ),
-    ("burk", an_inflection()),
-]
-
-SHARED_TAGS = [
-    "subst:sg:inst:f",
-    "subst:pl:nom.acc.voc:m1",
-    "depr:pl:nom.acc.voc:m2",
-    "adj:sg:nom:m3:pos",
-    "adv:com",
-    "fin:pl:ter:imperf",
-    "praet:sg:f:imperf",
-    "impt:sg:sec:perf",
-    "aglt:sg:pri:imperf:wok",
-    "pact:pl:nom.voc:m1:imperf:neg",
-    "prep:acc:nwok",
-    "winien:sg:m1.m2.m3:imperf",
-    "pred",
-]
-
-SGJP_ONLY_TAGS = ["cond:sg:f:pri:perf", "siebie:acc", "frag", "brev:npun", "subst:pl:gen:n:ncol"]
-
-POLIMORF_ONLY_TAGS = ["burk", "subst:sg:gen:n2", "subst:pl:nom:p1", "ppron12:pl:acc:_:pri"]
+FOREIGN_TAGS = ["burk", "subst:sg:gen:n2", "subst:pl:nom:p1", "ppron12:pl:acc:_:pri"]
 
 MALFORMED_TAGS = [
     "subst:sg:zzz:m1",
@@ -482,11 +405,6 @@ def test_the_sgjp_tagset_names_a_part_of_speech(tag: str, part: PartOfSpeech) ->
     assert part_of_speech(tag, TagsetDialect.SGJP) is part
 
 
-@pytest.mark.parametrize(("tag", "part"), POLIMORF_PART_CASES)
-def test_the_polimorf_tagset_names_a_part_of_speech(tag: str, part: PartOfSpeech) -> None:
-    assert part_of_speech(tag, TagsetDialect.POLIMORF) is part
-
-
 @pytest.mark.parametrize(("tag", "expected"), SGJP_TAG_CASES)
 def test_an_sgjp_tag_digests_into_an_inflection(tag: str, expected: Inflection) -> None:
     assert inflection_of(tag, TagsetDialect.SGJP) == expected
@@ -499,27 +417,8 @@ def test_a_preposition_states_the_case_it_governs(tag: str, expected: Inflection
     assert inflection.cases == frozenset()
 
 
-@pytest.mark.parametrize(("tag", "expected"), POLIMORF_TAG_CASES)
-def test_a_polimorf_tag_digests_into_an_inflection(tag: str, expected: Inflection) -> None:
-    assert inflection_of(tag, TagsetDialect.POLIMORF) == expected
-
-
-@pytest.mark.parametrize("tag", SHARED_TAGS)
-def test_a_shared_tag_reads_the_same_in_both_dialects(tag: str) -> None:
-    assert inflection_of(tag, TagsetDialect.SGJP) == inflection_of(tag, TagsetDialect.POLIMORF)
-    assert part_of_speech(tag, TagsetDialect.SGJP) is part_of_speech(tag, TagsetDialect.POLIMORF)
-
-
-@pytest.mark.parametrize("tag", SGJP_ONLY_TAGS)
-def test_the_polimorf_tagset_refuses_an_sgjp_tag(tag: str) -> None:
-    inflection_of(tag, TagsetDialect.SGJP)
-    with pytest.raises(InvalidConfiguration):
-        inflection_of(tag, TagsetDialect.POLIMORF)
-
-
-@pytest.mark.parametrize("tag", POLIMORF_ONLY_TAGS)
-def test_the_sgjp_tagset_refuses_a_polimorf_tag(tag: str) -> None:
-    inflection_of(tag, TagsetDialect.POLIMORF)
+@pytest.mark.parametrize("tag", FOREIGN_TAGS)
+def test_a_tag_from_another_tagset_is_refused(tag: str) -> None:
     with pytest.raises(InvalidConfiguration):
         inflection_of(tag, TagsetDialect.SGJP)
 

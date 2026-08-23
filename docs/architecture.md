@@ -44,9 +44,9 @@ P7. Letters are canonical. Every letter inside the system is uppercase; dictiona
 - `wordgames` — game presets: shared rules and the literaki/scrabble backends.
 - `wordserver` — the FastAPI adapter: tables, sessions, SSE, identity, time.
 - `wordtable` — configuration, paths, lexicon service, and CLI entry points.
-- `lexica` — dictionary building: word entries, SJP loader, compilation, the
-  closed Polish grammar vocabulary in `lexica.grammar`, and the morphology
-  pipeline (`docs/morphology.md`, `docs/morphology-pipeline.md`).
+- `lexica` — dictionary building: the source loaders, the compiled artifacts,
+  the closed Polish grammar vocabulary in `lexica.grammar`, and the readings the
+  word panel prints (`docs/lore.md`, `docs/morphology.md`).
 - `wordbots` — automated player stubs.
 - `wordassets` — asset generation: an SVG element tree, board specimens, and the
   build CLI writing gitignored `assets/` plus committed specimen copies in
@@ -94,6 +94,10 @@ design contract.
   and the turn clock.
 - `GET /tables/{table_id}/words` — dictionary verdicts for up to sixteen words,
   offered while the scheme validates on play (`parameters.word_check`).
+- `GET /tables/{table_id}/lore` — the readings of up to sixteen words: part of
+  speech, base form and whole paradigm per reading, offered while the scheme's
+  dictionary carries Polish morphology (`parameters.lore`). `docs/lore.md` holds
+  the sources behind it.
 - `GET /tables/{table_id}/highlights` — the highest-scoring word and the longest
   word of the game, walked from the journal, so the answer stays whole however
   late a client connects.

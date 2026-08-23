@@ -1,19 +1,18 @@
-import gzip
-from pathlib import Path
-
-from lexica.build.assemble import assemble_classes, select_base
-from lexica.build.orchestrate import analyse_dictionary
+from lexica.build.assemble import Playable, assemble_classes, select_base
 from lexica.grammar.part_of_speech import PartOfSpeech
 from lexica.lore.analysis import Analysis, analysis_of
 from lexica.lore.analysis_source import AnalysisSource
 from lexica.lore.lexeme_id import LexemeId, lexeme_id_from_lemma, token_of
-from lexica.sources.sgjp import Interpretation
 
 KOT = lexeme_id_from_lemma(PartOfSpeech.RZECZOWNIK, "KOT:Sm1")
 
 
 def _analysis(form: str, lemma: str, tag: str) -> Analysis:
     return analysis_of(form, lemma, tag, AnalysisSource.SGJP, (), ())
+
+
+def _playable(*forms: str) -> Playable:
+    return frozenset(forms).__contains__
 
 
 def test_assemble_classes_groups_variants_and_flags_dictionary_membership() -> None:
@@ -24,7 +23,7 @@ def test_assemble_classes_groups_variants_and_flags_dictionary_membership() -> N
         "KOCIE": (_analysis("KOCIE", "KOT:Sm1", "subst:sg:loc:m1"),),
         "KOTY": (_analysis("KOTY", "KOT:Sm1", "subst:pl:nom.acc.voc:m1"),),
     }
-    dictionary = frozenset({"KOT", "KOTA", "KOTEM", "KOCIE", "KOTY"})
+    dictionary = _playable("KOT", "KOTA", "KOTEM", "KOCIE", "KOTY")
     generated = {
         KOT: (
             ("KOT", "subst:sg:nom:m1"),
@@ -37,7 +36,6 @@ def test_assemble_classes_groups_variants_and_flags_dictionary_membership() -> N
         ),
     }
     store = assemble_classes(analyses_by_form, dictionary, generated)
-    assert store.unknown == ()
     assert store.entries["KOT"] == (KOT,)
     record = store.classes[KOT]
     assert record.lexeme.part is PartOfSpeech.RZECZOWNIK
@@ -55,7 +53,7 @@ def test_generated_forms_reach_no_lexeme_of_their_own() -> None:
     unseen = lexeme_id_from_lemma(PartOfSpeech.RZECZOWNIK, "PIES:Sm2")
     store = assemble_classes(
         {"KOT": (_analysis("KOT", "KOT:Sm1", "subst:sg:nom:m1"),)},
-        frozenset({"KOT"}),
+        _playable("KOT"),
         {unseen: (("PSA", "subst:sg:gen:m2"),)},
     )
     assert set(store.classes) == {KOT}
@@ -64,7 +62,7 @@ def test_generated_forms_reach_no_lexeme_of_their_own() -> None:
 def test_every_variant_carries_the_source_that_read_it() -> None:
     store = assemble_classes(
         {"KOT": (_analysis("KOT", "KOT:Sm1", "subst:sg:nom:m1"),)},
-        frozenset({"KOT"}),
+        _playable("KOT"),
         {KOT: (("KOTOWI", "subst:sg:dat:m1"),)},
     )
     sources = {variant.source for variant in store.classes[KOT].variants}
@@ -78,7 +76,7 @@ def test_homonym_forms_belong_to_several_classes() -> None:
             _analysis("BRONIĄ", "BRONIĆ", "fin:pl:ter:imperf"),
         ),
     }
-    store = assemble_classes(analyses_by_form, frozenset({"BRONIĄ"}), {})
+    store = assemble_classes(analyses_by_form, _playable("BRONIĄ"), {})
     tokens = tuple(token_of(lexeme) for lexeme in store.entries["BRONIĄ"])
     assert tokens == ("czasownik:BRONIĆ:", "rzeczownik:BROŃ:")
     for lexeme in store.entries["BRONIĄ"]:
@@ -94,7 +92,7 @@ def test_zamek_homonyms_keep_separate_classes() -> None:
         "ZAMKA": (_analysis("ZAMKA", "ZAMEK:Sm3~a", "subst:sg:gen:m3"),),
         "ZAMKU": (_analysis("ZAMKU", "ZAMEK:Sm3~u", "subst:sg:gen:m3"),),
     }
-    store = assemble_classes(analyses_by_form, frozenset(analyses_by_form), {})
+    store = assemble_classes(analyses_by_form, _playable(*analyses_by_form), {})
     assert {token_of(lexeme) for lexeme in store.entries["ZAMEK"]} == {
         "rzeczownik:ZAMEK:Sm3~a",
         "rzeczownik:ZAMEK:Sm3~u",
@@ -107,15 +105,15 @@ def test_an_sgjp_lexeme_never_merges_with_a_rescued_one() -> None:
         "KOT": (_analysis("KOT", "KOT:Sm1", "subst:sg:nom:m1"),),
         "KOTA": (analysis_of("KOTA", "kot", "subst:sg:gen:m1", AnalysisSource.POLIMORF, (), ()),),
     }
-    store = assemble_classes(analyses_by_form, frozenset(analyses_by_form), {})
+    store = assemble_classes(analyses_by_form, _playable(*analyses_by_form), {})
     assert len(store.classes) == 2
     assert {lexeme.pattern for lexeme in store.classes} == {"Sm1", ""}
 
 
-def test_unknown_forms_pass_through() -> None:
-    store = assemble_classes({"AALBORSCY": ()}, frozenset({"AALBORSCY"}), {})
-    assert store.unknown == ("AALBORSCY",)
+def test_a_form_no_source_reads_earns_no_class() -> None:
+    store = assemble_classes({"AALBORSCY": ()}, _playable("AALBORSCY"), {})
     assert store.entries == {}
+    assert store.classes == {}
 
 
 def _variants(readings: dict[str, tuple[str, ...]]) -> dict[str, frozenset[tuple[str, str]]]:
@@ -152,67 +150,42 @@ def test_select_base_adjective_prefers_masculine_nominative() -> None:
     assert select_base(drogi, variants) == "DROGI"
 
 
+def test_select_base_adjective_takes_the_positive_degree() -> None:
+    zielony = lexeme_id_from_lemma(PartOfSpeech.PRZYMIOTNIK, "ZIELONY")
+    variants = _variants(
+        {
+            "NAJZIELEŃSZY": ("adj:sg:nom.voc:m1.m2.m3:sup",),
+            "ZIELEŃSZY": ("adj:sg:nom.voc:m1.m2.m3:com",),
+            "ZIELONY": ("adj:sg:nom.voc:m1.m2.m3:pos",),
+        }
+    )
+    assert select_base(zielony, variants) == "ZIELONY"
+
+
+def test_select_base_takes_the_lemma_among_variant_infinitives() -> None:
+    przepasc = lexeme_id_from_lemma(PartOfSpeech.CZASOWNIK, "PRZEPAŚĆ")
+    variants = _variants({"PRZEPADNĄĆ": ("inf:perf",), "PRZEPAŚĆ": ("inf:perf",)})
+    assert select_base(przepasc, variants) == "PRZEPAŚĆ"
+
+
 def test_select_base_uninflected_returns_the_lemma() -> None:
     szybko = lexeme_id_from_lemma(PartOfSpeech.PRZYSŁÓWEK, "SZYBKO")
     assert select_base(szybko, {}) == "SZYBKO"
 
 
-def test_select_base_reads_a_rescued_form_in_its_own_dialect() -> None:
+def test_select_base_reads_a_rescued_form() -> None:
     abadanski = lexeme_id_from_lemma(PartOfSpeech.PRZYMIOTNIK, "ABADAŃSKI")
     variants = {
-        "ABADAŃSCY": frozenset({("adj:pl:nom.voc:m1.p1:pos", AnalysisSource.POLIMORF)}),
+        "ABADAŃSCY": frozenset({("adj:pl:nom.voc:m1:pos", AnalysisSource.POLIMORF)}),
         "ABADAŃSKI": frozenset({("adj:sg:nom:m1:pos", AnalysisSource.POLIMORF)}),
     }
     assert select_base(abadanski, variants) == "ABADAŃSKI"
 
 
-class ScriptedAnalyzer:
-    def __init__(self, answers: dict[str, list[Interpretation]]) -> None:
-        self._answers = answers
-
-    def analyse(self, text: str) -> list[tuple[int, int, Interpretation]]:
-        return [(0, 1, interpretation) for interpretation in self._answers.get(text, [])]
-
-    def generate(self, lemma: str) -> list[Interpretation]:
-        return []
-
-    def dict_id(self) -> str:
-        return "scripted"
-
-
-def _write_polimorf(path: Path, rows: list[tuple[str, str, str, str]]) -> None:
-    with gzip.open(path, "wt", encoding="utf-8") as handle:
-        for form, lemma, tag, category in rows:
-            handle.write(f"{form}\t{lemma}\t{tag}\t{category}\n")
-
-
-def test_analyse_dictionary_runs_sgjp_rescue_and_unknown(tmp_path: Path) -> None:
-    polimorf_path = tmp_path / "polimorf.tab.gz"
-    _write_polimorf(
-        polimorf_path,
-        [("aalborscy", "aalborski", "adj:pl:nom.voc:m1.p1:pos", "pospolita")],
-    )
-    analyzer = ScriptedAnalyzer(
-        answers={
-            "kot": [("kot", "kot:Sm1", "subst:sg:nom:m1", ["nazwa_pospolita"], [])],
-            "kota": [("kota", "kot:Sm1", "subst:sg:gen.acc:m1", ["nazwa_pospolita"], [])],
-            "nic": [("nic", "nic", "ign", [], [])],
-        },
-    )
-    words = ("KOT", "KOTA", "AALBORSCY", "NIC")
-    result = analyse_dictionary(words, analyzer, polimorf_path)
-    assert result.dict_id == "scripted"
-    assert result.sgjp_classified == 2
-    assert result.rescued == 1
-    assert result.store.unknown == ("NIC",)
-    assert "AALBORSCY" in result.store.entries
-    assert "KOT" in {variant.form for variant in result.store.classes[KOT].variants}
-
-
 def test_a_lexeme_identifier_keys_the_store() -> None:
     store = assemble_classes(
         {"KOT": (_analysis("KOT", "KOT:Sm1", "subst:sg:nom:m1"),)},
-        frozenset({"KOT"}),
+        _playable("KOT"),
         {},
     )
     assert isinstance(next(iter(store.classes)), LexemeId)

@@ -13,12 +13,16 @@ RUN apt-get update \
 
 COPY . .
 
-RUN mkdir -p dictionaries \
-    && curl -fsSL -o dictionaries/sjp-20260803.zip https://sjp.pl/sl/growy/sjp-20260803.zip
+ARG SOURCE_MIRROR=
+ENV SLOWIKI_SOURCE_MIRROR=${SOURCE_MIRROR}
 
-RUN uv sync --extra server --no-group dev
+RUN uv sync --extra server --extra morphology --no-group dev
+
+RUN uv run python -m wordtable.cli fetch
 
 RUN uv run python -m wordtable.cli dictionary --name sjp \
+    && uv run python -m wordtable.cli rescue --name sjp \
+    && rm -rf dictionaries/sources \
     && uv run python scripts/openapi.py \
     && uv run python scripts/strings.py \
     && uv run python -m wordassets.cli build --output assets

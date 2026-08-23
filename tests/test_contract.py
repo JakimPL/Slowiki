@@ -8,8 +8,16 @@ from wordcore.views.highlights import GameHighlights
 from wordserver.app import MAX_JUDGED_WORDS, create_app
 from wordserver.models.table import TableViewResponse
 from wordserver.models.table_admission import TableAdmission
+from wordserver.models.word_lore import WordLoreResponse
 from wordserver.models.word_verdicts import WordVerdicts
 from wordtable.config import StyleTokens
+
+try:
+    import morfeusz2  # type: ignore[import-untyped]
+except ImportError:
+    morfeusz2 = None
+
+requires_morfeusz2 = pytest.mark.skipif(morfeusz2 is None, reason="morfeusz2 missing")
 
 
 @pytest.fixture
@@ -190,6 +198,43 @@ async def test_word_check_refuses_an_overlong_request(client: httpx.AsyncClient)
     response = await client.get(f"/tables/{table_id}/words", params={"words": asked})
     assert response.status_code == 422
     assert response.json()["code"] == "too_many_words"
+
+
+@requires_morfeusz2
+async def test_lore_reads_the_asked_word_through_the_table(client: httpx.AsyncClient) -> None:
+    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
+    table_id = created.json()["table_id"]
+    described = await client.get(f"/tables/{table_id}")
+    assert described.json()["parameters"]["lore"] is True
+    response = await client.get(f"/tables/{table_id}/lore", params={"words": ["picia"]})
+    assert response.status_code == 200
+    answer = WordLoreResponse.model_validate(response.json())
+    lore = answer.lore["PICIA"]
+    assert lore.playable is True
+    assert {reading.lexeme for reading in lore.readings} == {"czasownik:PIĆ:", "rzeczownik:PICIE:"}
+    forms = {form.text for reading in lore.readings for form in reading.forms}
+    assert "PICISZY" not in forms
+
+
+@requires_morfeusz2
+async def test_lore_answers_a_playable_word_no_source_reads(client: httpx.AsyncClient) -> None:
+    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
+    table_id = created.json()["table_id"]
+    response = await client.get(f"/tables/{table_id}/lore", params={"words": ["aalborscy"]})
+    lore = WordLoreResponse.model_validate(response.json()).lore["AALBORSCY"]
+    assert lore.playable is True
+    assert lore.readings == ()
+
+
+async def test_lore_is_refused_where_the_table_serves_no_readings(
+    client: httpx.AsyncClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
+    table_id = created.json()["table_id"]
+    monkeypatch.setattr("wordserver.app.lore_offered", lambda scheme: False)
+    response = await client.get(f"/tables/{table_id}/lore", params={"words": ["dom"]})
+    assert response.status_code == 422
+    assert response.json()["code"] == "lore_unavailable"
 
 
 async def test_highlights_are_served_for_a_table(client: httpx.AsyncClient) -> None:

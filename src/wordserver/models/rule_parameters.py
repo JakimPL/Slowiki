@@ -10,6 +10,7 @@ class RuleParameters(BaseFrozen):
     bingo_bonus: int
     validate_on_play: bool
     word_check: bool
+    lore: bool
     premoves_allowed: bool
     pass_end_rounds: int | None
     scoreless_end_limit: int | None

@@ -125,7 +125,6 @@ words:
   absent: The dictionary refuses this word, so there is no reading.
   unclassified_part: no analysis
   unclassified: The word plays. The morphology sources carry no analysis for it.
-  sample: sample data
   deepen: Cała odmiana
   paradigm_back: Back
   paradigm_back_label: Back to the word card

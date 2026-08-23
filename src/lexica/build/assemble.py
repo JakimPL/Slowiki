@@ -2,6 +2,7 @@ from collections.abc import Callable, Mapping
 
 from lexica.build.records import ClassRecord, ClassStore, VariantRecord
 from lexica.grammar.case import Case
+from lexica.grammar.degree import Degree
 from lexica.grammar.gender import Gender
 from lexica.grammar.inflection import Inflection
 from lexica.grammar.number import Number
@@ -14,6 +15,7 @@ from lexica.lore.lexeme_id import LexemeId, token_of
 
 Reading = tuple[str, AnalysisSource]
 Variants = Mapping[str, frozenset[Reading]]
+Playable = Callable[[str], bool]
 
 _MASCULINE: frozenset[Gender] = frozenset(
     {
@@ -26,26 +28,22 @@ _MASCULINE: frozenset[Gender] = frozenset(
 
 def assemble_classes(
     analyses_by_form: Mapping[str, tuple[Analysis, ...]],
-    dictionary: frozenset[str],
+    playable: Playable,
     generated_by_lexeme: Mapping[LexemeId, tuple[tuple[str, str], ...]],
 ) -> ClassStore:
     variants = _variants(analyses_by_form, generated_by_lexeme)
     classes = {
-        lexeme: _class_record(lexeme, forms, dictionary)
+        lexeme: _class_record(lexeme, forms, playable)
         for lexeme, forms in sorted(variants.items(), key=lambda entry: token_of(entry[0]))
     }
-    return ClassStore(
-        entries=_entries(analyses_by_form),
-        classes=classes,
-        unknown=tuple(form for form, analyses in analyses_by_form.items() if len(analyses) == 0),
-    )
+    return ClassStore(entries=_entries(analyses_by_form), classes=classes)
 
 
 def select_base(lexeme: LexemeId, variants: Variants) -> str:
     predicate = _base_predicate(lexeme.part)
     if predicate is None:
         return lexeme.lemma
-    form = _matching_form(variants, predicate)
+    form = _matching_form(variants, predicate, lexeme.lemma)
     return form if form is not None else lexeme.lemma
 
 
@@ -83,11 +81,11 @@ def _entries(
 def _class_record(
     lexeme: LexemeId,
     forms: Mapping[str, set[Reading]],
-    dictionary: frozenset[str],
+    playable: Playable,
 ) -> ClassRecord:
     variants = {form: frozenset(readings) for form, readings in forms.items()}
     records = tuple(
-        VariantRecord(form=form, tag=tag, source=source, in_dictionary=form in dictionary)
+        VariantRecord(form=form, tag=tag, source=source, in_dictionary=playable(form))
         for form in sorted(variants)
         for tag, source in sorted(variants[form])
     )
@@ -115,15 +113,28 @@ def _is_nominative_singular(inflection: Inflection) -> bool:
 
 
 def _is_nominative_singular_masculine(inflection: Inflection) -> bool:
-    return _is_nominative_singular(inflection) and len(inflection.genders & _MASCULINE) > 0
+    return (
+        _is_nominative_singular(inflection)
+        and len(inflection.genders & _MASCULINE) > 0
+        and inflection.degree is Degree.RÓWNY
+    )
 
 
 def _is_infinitive(inflection: Inflection) -> bool:
     return inflection.verb_form is VerbForm.BEZOKOLICZNIK
 
 
-def _matching_form(variants: Variants, predicate: Callable[[Inflection], bool]) -> str | None:
-    for form in sorted(variants):
-        if any(predicate(inflection_of(tag, dialect_of(source))) for tag, source in variants[form]):
-            return form
-    return None
+def _matching_form(
+    variants: Variants,
+    predicate: Callable[[Inflection], bool],
+    lemma: str,
+) -> str | None:
+    matching = [form for form in sorted(variants) if _satisfies(variants[form], predicate)]
+    if lemma in matching:
+        return lemma
+
+    return matching[0] if matching else None
+
+
+def _satisfies(readings: frozenset[Reading], predicate: Callable[[Inflection], bool]) -> bool:
+    return any(predicate(inflection_of(tag, dialect_of(source))) for tag, source in readings)

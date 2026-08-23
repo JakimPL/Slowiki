@@ -140,7 +140,6 @@ export const EN: Catalog = {
         "words.paradigm_gap": "—",
         "words.paradigm_other_forms": "other forms",
         "words.paradigm_plain_forms": "forms",
-        "words.sample": "sample data",
         "words.term_separator": " · ",
         "words.unclassified": "The word plays. The morphology sources carry no analysis for it.",
         "words.unclassified_part": "no analysis",

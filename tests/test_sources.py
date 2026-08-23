@@ -1,12 +1,19 @@
 import gzip
 from pathlib import Path
+from types import SimpleNamespace
+
+import pytest
 
 from lexica.grammar.gender import Gender
 from lexica.grammar.part_of_speech import PartOfSpeech
 from lexica.grammar.qualifier import Qualifier, QualifierKind
+from lexica.lore.analysis import Analysis
 from lexica.lore.analysis_source import AnalysisSource
-from lexica.sources.polimorf import rescue_analyses
-from lexica.sources.sgjp import Interpretation, analyse_word
+from lexica.lore.rescue import RescueRow, rescued_analyses
+from lexica.sources import sgjp
+from lexica.sources.polimorf import rescue_rows
+from lexica.sources.sgjp import Interpretation, analyse_word, generate_paradigm
+from wordcore.errors.exceptions import InvalidConfiguration
 
 
 class ScriptedAnalyzer:
@@ -23,7 +30,7 @@ class ScriptedAnalyzer:
         return "scripted"
 
 
-def test_analyse_word_filters_ign_and_uppercases() -> None:
+def test_analyse_word_filters_the_ign_reading() -> None:
     analyzer = ScriptedAnalyzer(
         {
             "bronią": [
@@ -33,7 +40,7 @@ def test_analyse_word_filters_ign_and_uppercases() -> None:
             ]
         }
     )
-    analyses = analyse_word(analyzer, "bronią")
+    analyses = analyse_word(analyzer, "BRONIĄ")
     assert len(analyses) == 2
     noun = analyses[0]
     assert noun.surface == "BRONIĄ"
@@ -51,7 +58,7 @@ def test_analyse_word_types_names_apart_from_labels() -> None:
             ]
         }
     )
-    analyses = analyse_word(analyzer, "marsz")
+    analyses = analyse_word(analyzer, "MARSZ")
     assert analyses[0].qualifiers == (
         Qualifier(kind=QualifierKind.NAZWA, code="nazwa_pospolita"),
         Qualifier(kind=QualifierKind.KWALIFIKATOR, code="muz."),
@@ -61,11 +68,27 @@ def test_analyse_word_types_names_apart_from_labels() -> None:
 
 def test_analyse_word_splits_a_joined_label() -> None:
     analyzer = ScriptedAnalyzer({"czyżby": [("czyżby", "czyżby:T", "part", [], ["daw.,char."])]})
-    analyses = analyse_word(analyzer, "czyżby")
+    analyses = analyse_word(analyzer, "CZYŻBY")
     assert analyses[0].qualifiers == (
         Qualifier(kind=QualifierKind.KWALIFIKATOR, code="daw."),
         Qualifier(kind=QualifierKind.KWALIFIKATOR, code="char."),
     )
+
+
+class RecordingAnalyzer(ScriptedAnalyzer):
+    def __init__(self) -> None:
+        super().__init__({})
+        self.asked: list[str] = []
+
+    def analyse(self, text: str) -> list[tuple[int, int, Interpretation]]:
+        self.asked.append(text)
+        return super().analyse(text)
+
+
+def test_analyse_word_asks_the_engine_in_lower_case() -> None:
+    analyzer = RecordingAnalyzer()
+    analyse_word(analyzer, "ŻÓŁWIA")
+    assert analyzer.asked == ["żółwia"]
 
 
 class SegmentedAnalyzer:
@@ -77,7 +100,7 @@ class SegmentedAnalyzer:
 
 
 def test_analyse_word_skips_movable_ending_segments() -> None:
-    analyses = analyse_word(SegmentedAnalyzer(), "biegłem")
+    analyses = analyse_word(SegmentedAnalyzer(), "BIEGŁEM")
     assert [analysis.lexeme.lemma for analysis in analyses] == ["BIEC"]
     assert [analysis.surface for analysis in analyses] == ["BIEGŁEM"]
 
@@ -93,17 +116,75 @@ class MixedAnalyzer:
 
 
 def test_analyse_word_prefers_full_word_over_segments() -> None:
-    analyses = analyse_word(MixedAnalyzer(), "czyżby")
+    analyses = analyse_word(MixedAnalyzer(), "CZYŻBY")
     assert [(analysis.lexeme.lemma, analysis.lexeme.pattern) for analysis in analyses] == [
         ("CZYŻBY", "I"),
         ("CZYŻBY", "T"),
     ]
 
 
-def _write_polimorf(path: Path, rows: list[tuple[str, str, str, str]]) -> None:
+class ScriptedGenerator:
+    def __init__(self, paradigms: dict[str, list[Interpretation]]) -> None:
+        self._paradigms = paradigms
+
+    def analyse(self, _text: str) -> list[tuple[int, int, Interpretation]]:
+        return []
+
+    def generate(self, lemma: str) -> list[Interpretation]:
+        return self._paradigms.get(lemma, [(lemma, lemma, "ign", [], [])])
+
+    def dict_id(self) -> str:
+        return sgjp.SGJP_DICTIONARY
+
+
+def test_generate_paradigm_uppercases_every_form_it_keeps() -> None:
+    generator = ScriptedGenerator(
+        {
+            "zamek:Sm3~a": [
+                ("zamek", "zamek:Sm3~a", "subst:sg:nom.acc:m3", ["nazwa_pospolita"], []),
+                ("zamka", "zamek:Sm3~a", "subst:sg:gen:m3", ["nazwa_pospolita"], []),
+            ]
+        }
+    )
+    assert generate_paradigm(generator, "zamek:Sm3~a") == (
+        ("ZAMEK", "subst:sg:nom.acc:m3"),
+        ("ZAMKA", "subst:sg:gen:m3"),
+    )
+
+
+def test_generate_paradigm_holds_no_form_for_a_lemma_the_engine_lacks() -> None:
+    assert generate_paradigm(ScriptedGenerator({}), "abbozzo") == ()
+
+
+def test_build_morfeusz_engine_refuses_a_dictionary_that_moved(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class MovedEngine(ScriptedGenerator):
+        def dict_id(self) -> str:
+            return "pl.sgjp.sgjp-2027.01.01"
+
+    monkeypatch.setattr(
+        sgjp,
+        "morfeusz2",
+        SimpleNamespace(Morfeusz=lambda **_options: MovedEngine({})),
+    )
+    with pytest.raises(InvalidConfiguration, match=sgjp.SGJP_DICTIONARY):
+        sgjp.build_morfeusz_engine()
+
+
+def _write_polimorf(path: Path, rows: list[tuple[str, str, str, str, str]]) -> None:
     with gzip.open(path, "wt", encoding="utf-8") as handle:
-        for form, lemma, tag, category in rows:
-            handle.write(f"{form}\t{lemma}\t{tag}\t{category}\n")
+        handle.write("#!DICT-ID pl.waw.ipipan.polimorf-2026.07.27\r\n")
+        handle.write("#<COPYRIGHT>\r\nPortions copyright 2026 the authors\r\n#</COPYRIGHT>\n")
+        for form, lemma, tag, name, labels in rows:
+            handle.write(f"{form}\t{lemma}\t{tag}\t{name}\t{labels}\n")
+
+
+def _rescued(path: Path, targets: frozenset[str]) -> dict[str, tuple[Analysis, ...]]:
+    return {
+        surface: rescued_analyses(surface, rows)
+        for surface, rows in rescue_rows(path, targets).items()
+    }
 
 
 def test_rescue_analyses_collects_and_dedupes_targets(tmp_path: Path) -> None:
@@ -111,35 +192,80 @@ def test_rescue_analyses_collects_and_dedupes_targets(tmp_path: Path) -> None:
     _write_polimorf(
         path,
         [
-            ("abadańscy", "abadański", "adj:pl:nom.voc:m1.p1:pos", "pospolita"),
-            ("abadańscy", "abadański", "adj:pl:nom.voc:m1.p1:pos", "pospolita"),
-            ("abbozzo", "abbozzo", "subst:sg:nom:n2", "pospolita"),
-            ("niecelowy", "niecelowy", "adj:sg:nom:m3:pos", "pospolita"),
+            ("abadańscy", "abadański", "adj:pl:nom.voc:m1:pos", "nazwa_pospolita", ""),
+            ("abadańscy", "abadański", "adj:pl:nom.voc:m1:pos", "nazwa_pospolita", ""),
+            ("abbozzo", "abbozzo", "subst:sg:nom.acc.voc:n:ncol", "nazwa_pospolita", ""),
+            ("niecelowy", "niecelowy", "adj:sg:nom:m3:pos", "nazwa_pospolita", ""),
         ],
     )
-    rescued = rescue_analyses(path, frozenset({"abadańscy", "abbozzo"}))
-    assert set(rescued) == {"abadańscy", "abbozzo"}
-    assert len(rescued["abadańscy"]) == 1
-    analysis = rescued["abbozzo"][0]
+    rescued = _rescued(path, frozenset({"ABADAŃSCY", "ABBOZZO"}))
+    assert set(rescued) == {"ABADAŃSCY", "ABBOZZO"}
+    assert len(rescued["ABADAŃSCY"]) == 1
+    analysis = rescued["ABBOZZO"][0]
     assert analysis.surface == "ABBOZZO"
     assert analysis.lexeme.lemma == "ABBOZZO"
     assert analysis.lexeme.part is PartOfSpeech.RZECZOWNIK
     assert analysis.source is AnalysisSource.POLIMORF
-    assert analysis.qualifiers == (Qualifier(kind=QualifierKind.NAZWA, code="pospolita"),)
+    assert analysis.qualifiers == (Qualifier(kind=QualifierKind.NAZWA, code="nazwa_pospolita"),)
     assert analysis.inflection.genders == frozenset({Gender.NIJAKI})
 
 
-def test_rescue_analyses_reads_the_plural_gender_the_old_tagset_wrote(tmp_path: Path) -> None:
+def test_rescue_analyses_reads_the_name_beside_the_qualifier(tmp_path: Path) -> None:
     path = tmp_path / "polimorf.tab.gz"
     _write_polimorf(
         path,
-        [("abadańscy", "abadański", "adj:pl:nom.voc:m1.p1:pos", "pospolita")],
+        [("Abchazja", "Abchazja", "subst:sg:nom:f", "nazwa_geograficzna", "zwykle_lp")],
     )
-    analysis = rescue_analyses(path, frozenset({"abadańscy"}))["abadańscy"][0]
-    assert analysis.inflection.genders == frozenset({Gender.MĘSKOOSOBOWY})
+    analysis = _rescued(path, frozenset({"ABCHAZJA"}))["ABCHAZJA"][0]
+    assert analysis.qualifiers == (
+        Qualifier(kind=QualifierKind.NAZWA, code="nazwa_geograficzna"),
+        Qualifier(kind=QualifierKind.KWALIFIKATOR, code="zwykle_lp"),
+    )
+    assert analysis.inflection.genders == frozenset({Gender.ŻEŃSKI})
 
 
-def test_rescue_analyses_returns_nothing_for_empty_targets(tmp_path: Path) -> None:
-    path = tmp_path / "empty.tab.gz"
+def test_rescue_analyses_split_the_alternatives_polimorf_joins(tmp_path: Path) -> None:
+    path = tmp_path / "polimorf.tab.gz"
+    _write_polimorf(
+        path,
+        [("Kyriosa", "Kyrios", "subst:sg:gen:m1", "imię|tytuł", "daw.|rzad.")],
+    )
+    analysis = _rescued(path, frozenset({"KYRIOSA"}))["KYRIOSA"][0]
+    assert analysis.qualifiers == (
+        Qualifier(kind=QualifierKind.NAZWA, code="imię"),
+        Qualifier(kind=QualifierKind.NAZWA, code="tytuł"),
+        Qualifier(kind=QualifierKind.KWALIFIKATOR, code="daw."),
+        Qualifier(kind=QualifierKind.KWALIFIKATOR, code="rzad."),
+    )
+
+
+def test_rescue_analyses_reaches_a_capitalised_row(tmp_path: Path) -> None:
+    path = tmp_path / "polimorf.tab.gz"
+    _write_polimorf(path, [("Abchazja", "Abchazja", "subst:sg:nom:f", "nazwa_geograficzna", "")])
+    analysis = _rescued(path, frozenset({"ABCHAZJA"}))["ABCHAZJA"][0]
+    assert analysis.surface == "ABCHAZJA"
+    assert analysis.lexeme.lemma == "ABCHAZJA"
+
+
+def test_rescue_analyses_passes_over_the_copyright_preamble(tmp_path: Path) -> None:
+    path = tmp_path / "polimorf.tab.gz"
     _write_polimorf(path, [])
-    assert rescue_analyses(path, frozenset({"aalborscy"})) == {}
+    assert _rescued(path, frozenset({"AALBORSCY"})) == {}
+
+
+def test_rescue_rows_hold_the_source_fields_a_reading_needs(tmp_path: Path) -> None:
+    path = tmp_path / "polimorf.tab.gz"
+    _write_polimorf(
+        path,
+        [("Abchazja", "Abchazja", "subst:sg:nom:f", "nazwa_geograficzna", "zwykle_lp")],
+    )
+    assert rescue_rows(path, frozenset({"ABCHAZJA"})) == {
+        "ABCHAZJA": (
+            RescueRow(
+                lemma="Abchazja",
+                tag="subst:sg:nom:f",
+                name="nazwa_geograficzna",
+                label="zwykle_lp",
+            ),
+        )
+    }

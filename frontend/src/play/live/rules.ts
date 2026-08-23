@@ -2,8 +2,6 @@ import type { Letter, TableDescription } from "../../api/tables";
 import type { FeedbackPolicy } from "../words/feedback";
 import { policyOf } from "../words/feedback";
 
-const LORE_OFFERED = true;
-
 export interface TableRules {
     readonly rackSize: number | null;
     readonly exchangeLimit: number | null;
@@ -41,7 +39,7 @@ export function rulesFrom(description: TableDescription | null): TableRules {
         bingoBonus: parameters.bingo_bonus,
         premovesAllowed: parameters.premoves_allowed,
         feedback: policyOf(parameters.validate_on_play, parameters.word_check),
-        lore: LORE_OFFERED,
+        lore: parameters.lore,
         alphabet: description.alphabet,
     };
 }

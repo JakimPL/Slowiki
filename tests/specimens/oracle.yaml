@@ -1,0 +1,1183 @@
+dict_id: pl.sgjp.sgjp-2026.06.01
+specimens:
+  - word: "aalborscy"
+    readings: []
+    note: "Adjective derived from Aalborg; SGJP holds no entry for it."
+  - word: "abadańscy"
+    readings: []
+    note: "Adjective derived from Abadan; SGJP holds no entry, PoliMorf rescues it."
+  - word: "aha"
+    readings:
+      - part: "wykrzyknik"
+        base: "aha"
+  - word: "ale"
+    readings:
+      - part: "spójnik"
+        base: "ale"
+      - part: "partykuła"
+        base: "ale"
+    note: "Adversative conjunction and the intensifying particle of 'ale ładnie'."
+  - word: "bal"
+    readings:
+      - part: "rzeczownik"
+        base: "bal"
+        surface:
+          cases: ["mianownik"]
+          numbers: ["pojedyncza"]
+        contains: ["balu"]
+      - part: "rzeczownik"
+        base: "bal"
+        surface:
+          cases: ["mianownik"]
+          numbers: ["pojedyncza"]
+        contains: ["bala"]
+    note: "Two paradigms: the dance takes dopełniacz 'balu', the log takes 'bala'."
+  - word: "bala"
+    readings:
+      - part: "rzeczownik"
+        base: "bal"
+        surface:
+          cases: ["dopełniacz"]
+          numbers: ["pojedyncza"]
+    note: "Only the log paradigm reaches this form."
+  - word: "balu"
+    readings:
+      - part: "rzeczownik"
+        base: "bal"
+      - part: "rzeczownik"
+        base: "bal"
+    note: "Dopełniacz of the dance and miejscownik of both paradigms."
+  - word: "bracia"
+    readings:
+      - part: "rzeczownik"
+        base: "brat"
+        surface:
+          cases: ["mianownik"]
+          numbers: ["mnoga"]
+          genders: ["męskoosobowy"]
+        contains: ["brat", "braci", "braćmi", "braty"]
+    note: >-
+      Irregular plural of brat, which also carries the depreciative braty.
+      SGJP holds a second lexeme, the archaic feminine collective bracia.
+  - word: "brat"
+    readings:
+      - part: "rzeczownik"
+        base: "brat"
+        surface:
+          cases: ["mianownik"]
+          numbers: ["pojedyncza"]
+          genders: ["męskoosobowy"]
+        contains: ["bracia"]
+  - word: "bronią"
+    readings:
+      - part: "czasownik"
+        base: "bronić"
+        surface:
+          person: "trzecia"
+          numbers: ["mnoga"]
+          tense: "teraźniejszy"
+          aspects: ["niedokonany"]
+      - part: "rzeczownik"
+        base: "broń"
+        surface:
+          cases: ["narzędnik"]
+          numbers: ["pojedyncza"]
+          genders: ["żeński"]
+    note: "The classic homograph: a verb form and a noun in narzędnik."
+  - word: "by"
+    readings:
+      - part: "partykuła"
+        base: "by"
+      - part: "spójnik"
+        base: "by"
+  - word: "bym"
+    readings:
+      - part: "partykuła"
+        base: "by"
+    note: "Conditional marker carrying the first person singular agglutinant."
+  - word: "być"
+    readings:
+      - part: "czasownik"
+        base: "być"
+        surface:
+          verb_form: "bezokolicznik"
+          aspects: ["niedokonany"]
+  - word: "był"
+    readings:
+      - part: "czasownik"
+        base: "być"
+        surface:
+          numbers: ["pojedyncza"]
+          tense: "przeszły"
+          aspects: ["niedokonany"]
+    note: "A bare past form carries no person; the person arrives with the agglutinant."
+  - word: "była"
+    readings:
+      - part: "czasownik"
+        base: "być"
+        surface:
+          numbers: ["pojedyncza"]
+          genders: ["żeński"]
+          tense: "przeszły"
+  - word: "byś"
+    readings:
+      - part: "partykuła"
+        base: "by"
+  - word: "bądź"
+    readings:
+      - part: "czasownik"
+        base: "być"
+        surface:
+          mood: "rozkazujący"
+      - part: "spójnik"
+        base: "bądź"
+  - word: "będzie"
+    readings:
+      - part: "czasownik"
+        base: "być"
+        surface:
+          person: "trzecia"
+          numbers: ["pojedyncza"]
+          tense: "przyszły"
+  - word: "chłop"
+    readings:
+      - part: "rzeczownik"
+        base: "chłop"
+        surface:
+          cases: ["mianownik"]
+          numbers: ["pojedyncza"]
+          genders: ["męskoosobowy"]
+        contains: ["chłopi", "chłopy"]
+  - word: "chłopi"
+    readings:
+      - part: "rzeczownik"
+        base: "chłop"
+        surface:
+          cases: ["mianownik"]
+          numbers: ["mnoga"]
+          genders: ["męskoosobowy"]
+  - word: "chłopy"
+    readings:
+      - part: "rzeczownik"
+        base: "chłop"
+        surface:
+          numbers: ["mnoga"]
+          deprecative: true
+    denied:
+      - part: "rzeczownik"
+        base: "chłopy"
+    note: "Depreciative plural, a separate cell from the mianownik 'chłopi'."
+  - word: "ci"
+    readings:
+      - part: "zaimek"
+        base: "ty"
+        surface:
+          cases: ["celownik"]
+          numbers: ["pojedyncza"]
+      - part: "przymiotnik"
+        base: "ten"
+        surface:
+          numbers: ["mnoga"]
+          genders: ["męskoosobowy"]
+    note: "SGJP classifies demonstratives with the adjective tagset, so 'ten' reads as przymiotnik."
+  - word: "czytanie"
+    readings:
+      - part: "czasownik"
+        base: "czytać"
+        surface:
+          verb_form: "odsłownik"
+      - part: "rzeczownik"
+        base: "czytanie"
+    absent: ["czytaniszy", "czytaniego", "czytaniemu"]
+    denied:
+      - part: "przymiotnik"
+        base: "czytanie"
+    note: "Odsłownik of czytać beside the noun; the absent forms are the shape a synthesiser invents."
+  - word: "czytano"
+    readings:
+      - part: "czasownik"
+        base: "czytać"
+        surface:
+          verb_form: "bezosobnik"
+  - word: "czyżby"
+    readings:
+      - part: "partykuła"
+        base: "czyżby"
+    note: "A whole word, preferred over the segmentation czyż + by."
+  - word: "człowiek"
+    readings:
+      - part: "rzeczownik"
+        base: "człowiek"
+        surface:
+          cases: ["mianownik"]
+          numbers: ["pojedyncza"]
+          genders: ["męskoosobowy"]
+        contains: ["ludzie"]
+    note: "Suppletive plural."
+  - word: "dni"
+    readings:
+      - part: "rzeczownik"
+        base: "dzień"
+        surface:
+          numbers: ["mnoga"]
+  - word: "dnia"
+    readings:
+      - part: "rzeczownik"
+        base: "dzień"
+        surface:
+          cases: ["dopełniacz"]
+          numbers: ["pojedyncza"]
+  - word: "drogi"
+    readings:
+      - part: "przymiotnik"
+        base: "drogi"
+      - part: "rzeczownik"
+        base: "droga"
+  - word: "drogą"
+    readings:
+      - part: "przymiotnik"
+        base: "drogi"
+        surface:
+          cases: ["narzędnik"]
+          numbers: ["pojedyncza"]
+          genders: ["żeński"]
+      - part: "rzeczownik"
+        base: "droga"
+        surface:
+          cases: ["narzędnik"]
+          numbers: ["pojedyncza"]
+          genders: ["żeński"]
+  - word: "drugi"
+    readings:
+      - part: "przymiotnik"
+        base: "drugi"
+    note: "Ordinals carry the adjective tagset and classify as przymiotnik."
+  - word: "drugiego"
+    readings:
+      - part: "przymiotnik"
+        base: "drugi"
+  - word: "dwa"
+    readings:
+      - part: "liczebnik"
+        base: "dwa"
+  - word: "dwie"
+    readings:
+      - part: "liczebnik"
+        base: "dwa"
+        surface:
+          genders: ["żeński"]
+  - word: "dzieci"
+    readings:
+      - part: "rzeczownik"
+        base: "dziecko"
+        surface:
+          numbers: ["mnoga"]
+    absent: ["dziecki"]
+    denied:
+      - part: "rzeczownik"
+        base: "dzieci"
+  - word: "dziecko"
+    readings:
+      - part: "rzeczownik"
+        base: "dziecko"
+        surface:
+          cases: ["mianownik"]
+          numbers: ["pojedyncza"]
+          genders: ["nijaki"]
+        contains: ["dzieci"]
+  - word: "dzień"
+    readings:
+      - part: "rzeczownik"
+        base: "dzień"
+        surface:
+          cases: ["mianownik"]
+          numbers: ["pojedyncza"]
+        contains: ["dnia", "dni"]
+  - word: "hej"
+    readings:
+      - part: "wykrzyknik"
+        base: "hej"
+  - word: "ich"
+    readings:
+      - part: "zaimek"
+        base: "on"
+        surface:
+          cases: ["dopełniacz"]
+          numbers: ["mnoga"]
+    note: "The possessive is a form of on rather than a lexeme of its own."
+  - word: "idąc"
+    readings:
+      - part: "czasownik"
+        base: "iść"
+        surface:
+          verb_form: "imiesłów współczesny"
+  - word: "imienia"
+    readings:
+      - part: "rzeczownik"
+        base: "imię"
+        surface:
+          cases: ["dopełniacz"]
+          numbers: ["pojedyncza"]
+    note: "The -en- stem extension of neuter nouns in -ę."
+  - word: "imię"
+    readings:
+      - part: "rzeczownik"
+        base: "imię"
+        surface:
+          numbers: ["pojedyncza"]
+          genders: ["nijaki"]
+        contains: ["imienia", "imiona"]
+  - word: "jeden"
+    readings:
+      - part: "przymiotnik"
+        base: "jeden"
+  - word: "jednego"
+    readings:
+      - part: "przymiotnik"
+        base: "jeden"
+  - word: "jego"
+    readings:
+      - part: "zaimek"
+        base: "on"
+        surface:
+          cases: ["dopełniacz"]
+          numbers: ["pojedyncza"]
+    note: "The possessive is a form of on rather than a lexeme of its own."
+  - word: "jest"
+    readings:
+      - part: "czasownik"
+        base: "być"
+        surface:
+          person: "trzecia"
+          numbers: ["pojedyncza"]
+          tense: "teraźniejszy"
+  - word: "kocie"
+    readings:
+      - part: "rzeczownik"
+        base: "kot"
+      - part: "przymiotnik"
+        base: "koci"
+    note: "Miejscownik or wołacz of the noun beside the relational adjective."
+  - word: "kogo"
+    readings:
+      - part: "rzeczownik"
+        base: "kto"
+        surface:
+          cases: ["dopełniacz"]
+    note: "SGJP classifies the interrogative kto with the noun tagset."
+  - word: "komu"
+    readings:
+      - part: "rzeczownik"
+        base: "kto"
+        surface:
+          cases: ["celownik"]
+  - word: "kot"
+    readings:
+      - part: "rzeczownik"
+        base: "kot"
+        surface:
+          cases: ["mianownik"]
+          numbers: ["pojedyncza"]
+          genders: ["męskozwierzęcy"]
+        contains: ["kota", "kotu", "kotem", "koty"]
+  - word: "kota"
+    readings:
+      - part: "rzeczownik"
+        base: "kot"
+        surface:
+          cases: ["dopełniacz"]
+          numbers: ["pojedyncza"]
+  - word: "kotem"
+    readings:
+      - part: "rzeczownik"
+        base: "kot"
+        surface:
+          cases: ["narzędnik"]
+          numbers: ["pojedyncza"]
+  - word: "kotu"
+    readings:
+      - part: "rzeczownik"
+        base: "kot"
+        surface:
+          cases: ["celownik"]
+          numbers: ["pojedyncza"]
+  - word: "ksiądz"
+    readings:
+      - part: "rzeczownik"
+        base: "ksiądz"
+        surface:
+          cases: ["mianownik"]
+          numbers: ["pojedyncza"]
+          genders: ["męskoosobowy"]
+        contains: ["księża", "księdza"]
+  - word: "księża"
+    readings:
+      - part: "rzeczownik"
+        base: "ksiądz"
+        surface:
+          numbers: ["mnoga"]
+          genders: ["męskoosobowy"]
+    absent: ["ksiądzy"]
+    note: "Irregular plural with stem alternation."
+  - word: "kto"
+    readings:
+      - part: "rzeczownik"
+        base: "kto"
+        surface:
+          cases: ["mianownik"]
+  - word: "którego"
+    readings:
+      - part: "przymiotnik"
+        base: "który"
+    denied:
+      - part: "przymiotnik"
+        base: "któren"
+  - word: "który"
+    readings:
+      - part: "przymiotnik"
+        base: "który"
+    denied:
+      - part: "przymiotnik"
+        base: "któren"
+    note: "The archaic variant któren shares this paradigm and stays out of the citation form."
+  - word: "ku"
+    readings:
+      - part: "przyimek"
+        base: "ku"
+        surface:
+          governed_case: "celownik"
+  - word: "lat"
+    readings:
+      - part: "rzeczownik"
+        base: "rok"
+        surface:
+          cases: ["dopełniacz"]
+          numbers: ["mnoga"]
+      - part: "rzeczownik"
+        base: "lato"
+        surface:
+          cases: ["dopełniacz"]
+          numbers: ["mnoga"]
+    note: "Suppletive dopełniacz mnoga of rok, identical to that of lato."
+  - word: "lata"
+    readings:
+      - part: "rzeczownik"
+        base: "rok"
+      - part: "rzeczownik"
+        base: "lato"
+      - part: "czasownik"
+        base: "latać"
+    note: "Plural of rok, a form of lato, and the third person singular of latać."
+  - word: "lub"
+    readings:
+      - part: "spójnik"
+        base: "lub"
+      - part: "czasownik"
+        base: "lubić"
+        surface:
+          mood: "rozkazujący"
+  - word: "ludzie"
+    readings:
+      - part: "rzeczownik"
+        base: "człowiek"
+        surface:
+          numbers: ["mnoga"]
+          genders: ["męskoosobowy"]
+    absent: ["człowieki"]
+    denied:
+      - part: "rzeczownik"
+        base: "ludzie"
+  - word: "marsz"
+    readings:
+      - part: "rzeczownik"
+        base: "marsz"
+        contains: ["marszu"]
+      - part: "rzeczownik"
+        base: "marsz"
+        contains: ["marsza"]
+    note: "The walk takes dopełniacz 'marszu', the musical piece 'marsza'."
+  - word: "marsza"
+    readings:
+      - part: "rzeczownik"
+        base: "marsz"
+        surface:
+          cases: ["dopełniacz"]
+          numbers: ["pojedyncza"]
+  - word: "marszu"
+    readings:
+      - part: "rzeczownik"
+        base: "marsz"
+      - part: "rzeczownik"
+        base: "marsz"
+    note: "Dopełniacz of the walk and miejscownik of both paradigms."
+  - word: "milion"
+    readings:
+      - part: "rzeczownik"
+        base: "milion"
+    note: "SGJP inflects milion as a noun rather than a numeral."
+  - word: "morze"
+    readings:
+      - part: "rzeczownik"
+        base: "morze"
+        surface:
+          numbers: ["pojedyncza"]
+          genders: ["nijaki"]
+  - word: "może"
+    readings:
+      - part: "czasownik"
+        base: "móc"
+        surface:
+          person: "trzecia"
+          numbers: ["pojedyncza"]
+          tense: "teraźniejszy"
+      - part: "partykuła"
+        base: "może"
+  - word: "można"
+    readings:
+      - part: "czasownik"
+        base: "można"
+        surface:
+          verb_form: "predykatyw"
+      - part: "przymiotnik"
+        base: "możny"
+        surface:
+          genders: ["żeński"]
+    denied:
+      - part: "przymiotnik"
+        base: "możniejszy"
+    note: "The impersonal predicative beside the feminine of the adjective możny."
+  - word: "mądry"
+    readings:
+      - part: "przymiotnik"
+        base: "mądry"
+        surface:
+          degree: "równy"
+        contains: ["mądrzejszy", "najmądrzejszy"]
+  - word: "mądrzejszy"
+    readings:
+      - part: "przymiotnik"
+        base: "mądry"
+        surface:
+          degree: "wyższy"
+    absent: ["mądrzejszejszy"]
+    denied:
+      - part: "przymiotnik"
+        base: "mądrzejszy"
+      - part: "przymiotnik"
+        base: "najmądrzejszy"
+    note: "A comparative belongs to the paradigm of the positive rather than forming a lexeme."
+  - word: "męski"
+    readings:
+      - part: "przymiotnik"
+        base: "męski"
+  - word: "nad"
+    readings:
+      - part: "przyimek"
+        base: "nad"
+  - word: "najmądrzejszy"
+    readings:
+      - part: "przymiotnik"
+        base: "mądry"
+        surface:
+          degree: "najwyższy"
+    denied:
+      - part: "przymiotnik"
+        base: "najmądrzejszy"
+  - word: "najszybciej"
+    readings:
+      - part: "przysłówek"
+        base: "szybko"
+        surface:
+          degree: "najwyższy"
+    note: "Adverb degrees share the lemma of the positive."
+    denied:
+      - part: "przysłówek"
+        base: "najszybciej"
+  - word: "nasi"
+    readings:
+      - part: "przymiotnik"
+        base: "nasz"
+        surface:
+          numbers: ["mnoga"]
+          genders: ["męskoosobowy"]
+  - word: "nasz"
+    readings:
+      - part: "przymiotnik"
+        base: "nasz"
+  - word: "nie"
+    readings:
+      - part: "partykuła"
+        base: "nie"
+  - word: "no"
+    readings:
+      - part: "partykuła"
+        base: "no"
+  - word: "noc"
+    readings:
+      - part: "rzeczownik"
+        base: "noc"
+        surface:
+          numbers: ["pojedyncza"]
+          genders: ["żeński"]
+        contains: ["nocy", "nocą"]
+  - word: "nocy"
+    readings:
+      - part: "rzeczownik"
+        base: "noc"
+  - word: "oczy"
+    readings:
+      - part: "rzeczownik"
+        base: "oko"
+        surface:
+          numbers: ["mnoga"]
+    denied:
+      - part: "rzeczownik"
+        base: "oczy"
+    note: "The anatomical plural, distinct from the regular 'oka' of loops and meshes."
+  - word: "ojej"
+    readings:
+      - part: "wykrzyknik"
+        base: "ojej"
+  - word: "oka"
+    readings:
+      - part: "rzeczownik"
+        base: "oko"
+  - word: "oko"
+    readings:
+      - part: "rzeczownik"
+        base: "oko"
+        surface:
+          numbers: ["pojedyncza"]
+          genders: ["nijaki"]
+        contains: ["oczy", "oka"]
+  - word: "oraz"
+    readings:
+      - part: "spójnik"
+        base: "oraz"
+  - word: "panie"
+    readings:
+      - part: "rzeczownik"
+        base: "pan"
+      - part: "rzeczownik"
+        base: "pani"
+  - word: "panowie"
+    readings:
+      - part: "rzeczownik"
+        base: "pan"
+        surface:
+          numbers: ["mnoga"]
+          genders: ["męskoosobowy"]
+    denied:
+      - part: "rzeczownik"
+        base: "panowie"
+  - word: "pary"
+    readings:
+      - part: "rzeczownik"
+        base: "para"
+  - word: "państwo"
+    readings:
+      - part: "rzeczownik"
+        base: "państwo"
+      - part: "rzeczownik"
+        base: "państwo"
+    note: "The country in nijaki and the honorific 'Państwo' addressing a couple."
+  - word: "pieniądz"
+    readings:
+      - part: "rzeczownik"
+        base: "pieniądz"
+        surface:
+          numbers: ["pojedyncza"]
+        contains: ["pieniądze"]
+  - word: "pieniądze"
+    readings:
+      - part: "rzeczownik"
+        base: "pieniądz"
+        surface:
+          numbers: ["mnoga"]
+    denied:
+      - part: "rzeczownik"
+        base: "pieniądze"
+  - word: "pierwszy"
+    readings:
+      - part: "przymiotnik"
+        base: "pierwszy"
+  - word: "pisanie"
+    readings:
+      - part: "czasownik"
+        base: "pisać"
+        surface:
+          verb_form: "odsłownik"
+      - part: "rzeczownik"
+        base: "pisanie"
+    absent: ["pisaniszy", "pisaniego", "pisaniemu"]
+    denied:
+      - part: "przymiotnik"
+        base: "pisanie"
+  - word: "piąty"
+    readings:
+      - part: "przymiotnik"
+        base: "piąty"
+  - word: "pod"
+    readings:
+      - part: "przyimek"
+        base: "pod"
+  - word: "polski"
+    readings:
+      - part: "przymiotnik"
+        base: "polski"
+  - word: "polskiego"
+    readings:
+      - part: "przymiotnik"
+        base: "polski"
+  - word: "przyjaciel"
+    readings:
+      - part: "rzeczownik"
+        base: "przyjaciel"
+        surface:
+          cases: ["mianownik"]
+          numbers: ["pojedyncza"]
+          genders: ["męskoosobowy"]
+        contains: ["przyjaciele", "przyjaciół", "przyjaciółmi"]
+    note: "Irregular plural stem in -ół."
+  - word: "przyjaciółka"
+    readings:
+      - part: "rzeczownik"
+        base: "przyjaciółka"
+        surface:
+          numbers: ["pojedyncza"]
+          genders: ["żeński"]
+  - word: "przyszedłszy"
+    readings:
+      - part: "czasownik"
+        base: "przyjść"
+        surface:
+          verb_form: "imiesłów uprzedni"
+          aspects: ["dokonany"]
+  - word: "psa"
+    readings:
+      - part: "rzeczownik"
+        base: "pies"
+        surface:
+          cases: ["dopełniacz"]
+          numbers: ["pojedyncza"]
+    note: "The e of the nominative drops throughout the paradigm."
+  - word: "psem"
+    readings:
+      - part: "rzeczownik"
+        base: "pies"
+        surface:
+          cases: ["narzędnik"]
+          numbers: ["pojedyncza"]
+  - word: "psy"
+    readings:
+      - part: "rzeczownik"
+        base: "pies"
+        surface:
+          numbers: ["mnoga"]
+  - word: "robi"
+    readings:
+      - part: "czasownik"
+        base: "robić"
+        surface:
+          person: "trzecia"
+          numbers: ["pojedyncza"]
+          tense: "teraźniejszy"
+          aspects: ["niedokonany"]
+  - word: "robiono"
+    readings:
+      - part: "czasownik"
+        base: "robić"
+        surface:
+          verb_form: "bezosobnik"
+  - word: "robiący"
+    readings:
+      - part: "czasownik"
+        base: "robić"
+        surface:
+          verb_form: "imiesłów czynny"
+  - word: "robić"
+    readings:
+      - part: "czasownik"
+        base: "robić"
+        surface:
+          verb_form: "bezokolicznik"
+          aspects: ["niedokonany"]
+        contains: ["robił", "robiono", "robiący", "robi"]
+  - word: "robił"
+    readings:
+      - part: "czasownik"
+        base: "robić"
+        surface:
+          numbers: ["pojedyncza"]
+          tense: "przeszły"
+  - word: "rok"
+    readings:
+      - part: "rzeczownik"
+        base: "rok"
+        surface:
+          cases: ["mianownik"]
+          numbers: ["pojedyncza"]
+        contains: ["roku", "lata", "lat"]
+    note: "The plural is suppletive, taken from lato."
+  - word: "roku"
+    readings:
+      - part: "rzeczownik"
+        base: "rok"
+        surface:
+          numbers: ["pojedyncza"]
+  - word: "rząd"
+    readings:
+      - part: "rzeczownik"
+        base: "rząd"
+        contains: ["rządu"]
+      - part: "rzeczownik"
+        base: "rząd"
+        contains: ["rzędu"]
+    note: "The government takes dopełniacz 'rządu', the row 'rzędu'."
+  - word: "rządu"
+    readings:
+      - part: "rzeczownik"
+        base: "rząd"
+        surface:
+          cases: ["dopełniacz"]
+          numbers: ["pojedyncza"]
+  - word: "rzędu"
+    readings:
+      - part: "rzeczownik"
+        base: "rząd"
+        surface:
+          cases: ["dopełniacz"]
+          numbers: ["pojedyncza"]
+  - word: "ręce"
+    readings:
+      - part: "rzeczownik"
+        base: "ręka"
+        surface:
+          numbers: ["mnoga"]
+    denied:
+      - part: "rzeczownik"
+        base: "ręce"
+  - word: "ręka"
+    readings:
+      - part: "rzeczownik"
+        base: "ręka"
+        surface:
+          cases: ["mianownik"]
+          numbers: ["pojedyncza"]
+          genders: ["żeński"]
+        contains: ["ręce", "rąk"]
+  - word: "setka"
+    readings:
+      - part: "rzeczownik"
+        base: "setka"
+        surface:
+          numbers: ["pojedyncza"]
+          genders: ["żeński"]
+  - word: "siebie"
+    readings:
+      - part: "zaimek"
+        base: "siebie"
+        contains: ["sobie", "sobą"]
+    note: "The paradigm runs siebie, sobie, sobą; the clitic się is a lexeme of its own."
+  - word: "się"
+    readings:
+      - part: "partykuła"
+        base: "się"
+    note: "SGJP files the clitic reflexive with the particles, apart from the siebie paradigm."
+  - word: "sobie"
+    readings:
+      - part: "zaimek"
+        base: "siebie"
+        surface:
+          cases: ["celownik"]
+  - word: "soli"
+    readings:
+      - part: "rzeczownik"
+        base: "sól"
+      - part: "czasownik"
+        base: "solić"
+        surface:
+          person: "trzecia"
+          numbers: ["pojedyncza"]
+          tense: "teraźniejszy"
+  - word: "sto"
+    readings:
+      - part: "liczebnik"
+        base: "sto"
+  - word: "stołem"
+    readings:
+      - part: "rzeczownik"
+        base: "stół"
+        surface:
+          cases: ["narzędnik"]
+          numbers: ["pojedyncza"]
+  - word: "stołu"
+    readings:
+      - part: "rzeczownik"
+        base: "stół"
+        surface:
+          cases: ["dopełniacz"]
+          numbers: ["pojedyncza"]
+  - word: "stół"
+    readings:
+      - part: "rzeczownik"
+        base: "stół"
+        surface:
+          numbers: ["pojedyncza"]
+        contains: ["stołu", "stołem", "stoły"]
+    note: "The ó of the nominative alternates with o in the oblique cases."
+  - word: "szybciej"
+    readings:
+      - part: "przysłówek"
+        base: "szybko"
+        surface:
+          degree: "wyższy"
+    denied:
+      - part: "przysłówek"
+        base: "szybciej"
+      - part: "przysłówek"
+        base: "najszybciej"
+  - word: "szybko"
+    readings:
+      - part: "przysłówek"
+        base: "szybko"
+        surface:
+          degree: "równy"
+        contains: ["szybciej", "najszybciej"]
+  - word: "sól"
+    readings:
+      - part: "rzeczownik"
+        base: "sól"
+        surface:
+          numbers: ["pojedyncza"]
+          genders: ["żeński"]
+        contains: ["soli", "solą"]
+  - word: "są"
+    readings:
+      - part: "czasownik"
+        base: "być"
+        surface:
+          person: "trzecia"
+          numbers: ["mnoga"]
+          tense: "teraźniejszy"
+  - word: "sąsiad"
+    readings:
+      - part: "rzeczownik"
+        base: "sąsiad"
+        surface:
+          cases: ["mianownik"]
+          numbers: ["pojedyncza"]
+          genders: ["męskoosobowy"]
+        contains: ["sąsiedzi"]
+  - word: "sąsiedzi"
+    readings:
+      - part: "rzeczownik"
+        base: "sąsiad"
+        surface:
+          cases: ["mianownik"]
+          numbers: ["mnoga"]
+          genders: ["męskoosobowy"]
+    denied:
+      - part: "rzeczownik"
+        base: "sąsiedzi"
+    note: "The a of the singular fronts to e before the -i of the personal plural."
+  - word: "ta"
+    readings:
+      - part: "przymiotnik"
+        base: "ten"
+        surface:
+          cases: ["mianownik"]
+          numbers: ["pojedyncza"]
+          genders: ["żeński"]
+  - word: "te"
+    readings:
+      - part: "przymiotnik"
+        base: "ten"
+        surface:
+          numbers: ["mnoga"]
+  - word: "ten"
+    readings:
+      - part: "przymiotnik"
+        base: "ten"
+        contains: ["ta", "to", "ci", "te"]
+  - word: "to"
+    readings:
+      - part: "przymiotnik"
+        base: "ten"
+      - part: "partykuła"
+        base: "to"
+      - part: "spójnik"
+        base: "to"
+  - word: "troje"
+    readings:
+      - part: "liczebnik"
+        base: "trzy"
+        surface:
+          numeral_type: "zbiorowy"
+    note: "The collective numeral belongs to the paradigm of trzy."
+  - word: "trzeba"
+    readings:
+      - part: "czasownik"
+        base: "trzeba"
+        surface:
+          verb_form: "predykatyw"
+  - word: "trzech"
+    readings:
+      - part: "liczebnik"
+        base: "trzy"
+  - word: "trzy"
+    readings:
+      - part: "liczebnik"
+        base: "trzy"
+        contains: ["trzech", "trzem"]
+  - word: "tydzień"
+    readings:
+      - part: "rzeczownik"
+        base: "tydzień"
+        surface:
+          numbers: ["pojedyncza"]
+        contains: ["tygodnia", "tygodnie"]
+    note: "Suppletive stem: the oblique cases build on tygodni-."
+  - word: "tygodnia"
+    readings:
+      - part: "rzeczownik"
+        base: "tydzień"
+        surface:
+          cases: ["dopełniacz"]
+          numbers: ["pojedyncza"]
+  - word: "tysiąc"
+    readings:
+      - part: "rzeczownik"
+        base: "tysiąc"
+  - word: "ucha"
+    readings:
+      - part: "rzeczownik"
+        base: "ucho"
+  - word: "ucho"
+    readings:
+      - part: "rzeczownik"
+        base: "ucho"
+        surface:
+          numbers: ["pojedyncza"]
+          genders: ["nijaki"]
+        contains: ["uszy", "ucha"]
+    note: "The anatomical plural is uszy; handles take the regular ucha."
+  - word: "uczeń"
+    readings:
+      - part: "rzeczownik"
+        base: "uczeń"
+        surface:
+          cases: ["mianownik"]
+          numbers: ["pojedyncza"]
+          genders: ["męskoosobowy"]
+        contains: ["ucznia", "uczniowie"]
+  - word: "ucznia"
+    readings:
+      - part: "rzeczownik"
+        base: "uczeń"
+        surface:
+          cases: ["dopełniacz"]
+          numbers: ["pojedyncza"]
+  - word: "uczniowie"
+    readings:
+      - part: "rzeczownik"
+        base: "uczeń"
+        surface:
+          cases: ["mianownik"]
+          numbers: ["mnoga"]
+          genders: ["męskoosobowy"]
+    denied:
+      - part: "rzeczownik"
+        base: "uczniowie"
+  - word: "uszy"
+    readings:
+      - part: "rzeczownik"
+        base: "ucho"
+        surface:
+          numbers: ["mnoga"]
+    absent: ["uchy"]
+    denied:
+      - part: "rzeczownik"
+        base: "uszy"
+  - word: "warto"
+    readings:
+      - part: "czasownik"
+        base: "warto"
+        surface:
+          verb_form: "predykatyw"
+  - word: "wina"
+    readings:
+      - part: "rzeczownik"
+        base: "wina"
+      - part: "rzeczownik"
+        base: "wino"
+    note: "The fault in mianownik beside a form of the wine."
+  - word: "wino"
+    readings:
+      - part: "rzeczownik"
+        base: "wino"
+        surface:
+          numbers: ["pojedyncza"]
+          genders: ["nijaki"]
+        contains: ["wina", "winem"]
+  - word: "zamek"
+    readings:
+      - part: "rzeczownik"
+        base: "zamek"
+        surface:
+          cases: ["mianownik"]
+          numbers: ["pojedyncza"]
+        contains: ["zamka"]
+      - part: "rzeczownik"
+        base: "zamek"
+        surface:
+          cases: ["mianownik"]
+          numbers: ["pojedyncza"]
+        contains: ["zamku"]
+    note: "The fastener takes dopełniacz 'zamka', the castle 'zamku'."
+  - word: "zamka"
+    readings:
+      - part: "rzeczownik"
+        base: "zamek"
+        surface:
+          cases: ["dopełniacz"]
+          numbers: ["pojedyncza"]
+  - word: "zamku"
+    readings:
+      - part: "rzeczownik"
+        base: "zamek"
+      - part: "rzeczownik"
+        base: "zamek"
+    note: "Dopełniacz of the castle and miejscownik of both paradigms."
+  - word: "zieleni"
+    readings:
+      - part: "rzeczownik"
+        base: "zieleń"
+      - part: "czasownik"
+        base: "zielenić"
+  - word: "zieleń"
+    readings:
+      - part: "rzeczownik"
+        base: "zieleń"
+      - part: "czasownik"
+        base: "zielenić"
+        surface:
+          mood: "rozkazujący"
+  - word: "zielony"
+    readings:
+      - part: "przymiotnik"
+        base: "zielony"
+        surface:
+          degree: "równy"
+    denied:
+      - part: "przymiotnik"
+        base: "zieleńszy"
+      - part: "przymiotnik"
+        base: "najzieleńszy"
+  - word: "zrobiony"
+    readings:
+      - part: "czasownik"
+        base: "zrobić"
+        surface:
+          verb_form: "imiesłów bierny"
+          aspects: ["dokonany"]

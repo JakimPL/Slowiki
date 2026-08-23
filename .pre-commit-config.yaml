@@ -28,7 +28,7 @@ repos:
         name: lexicon contract
         entry: uv run python -m scripts.contract
         language: system
-        files: ^(src/lexica/|src/wordtable/paths\.py|docs/lexicon-contract\.md|scripts/contract\.py)
+        files: ^(src/lexica/|src/wordtable/paths\.py|src/wordtable/releases\.py|docs/lexicon-contract\.md|scripts/contract\.py)
         pass_filenames: false
 
       - id: backend-test

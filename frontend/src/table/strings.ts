@@ -135,7 +135,6 @@ export const WORD_FAILED_NOTE = text("words.failed");
 export const WORD_ABSENT_NOTE = text("words.absent");
 export const WORD_UNCLASSIFIED_PART = text("words.unclassified_part");
 export const WORD_UNCLASSIFIED_NOTE = text("words.unclassified");
-export const WORD_SAMPLE_NOTE = text("words.sample");
 export const WORD_DEEPEN = text("words.deepen");
 export const PARADIGM_BACK = text("words.paradigm_back");
 export const PARADIGM_BACK_LABEL = text("words.paradigm_back_label");

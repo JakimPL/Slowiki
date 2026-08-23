@@ -1,87 +1,20 @@
-export type Part =
-    | "rzeczownik"
-    | "przymiotnik"
-    | "czasownik"
-    | "przysłówek"
-    | "liczebnik"
-    | "zaimek"
-    | "przyimek"
-    | "spójnik"
-    | "partykuła"
-    | "wykrzyknik"
-    | "inny";
+import type { Schemas } from "./views";
 
-export type Case = "mianownik" | "dopełniacz" | "celownik" | "biernik" | "narzędnik" | "miejscownik" | "wołacz";
-
-export type GrammaticalNumber = "pojedyncza" | "mnoga";
-
-export type Gender = "męskoosobowy" | "męskozwierzęcy" | "męskorzeczowy" | "żeński" | "nijaki";
-
-export type Person = "pierwsza" | "druga" | "trzecia";
-
-export type Tense = "teraźniejszy" | "przeszły" | "przyszły";
-
-export type Mood = "oznajmujący" | "rozkazujący" | "przypuszczający";
-
-export type Aspect = "dokonany" | "niedokonany";
-
-export type Degree = "równy" | "wyższy" | "najwyższy";
-
-export type VerbForm =
-    | "bezokolicznik"
-    | "forma osobowa"
-    | "forma przeszła"
-    | "forma przypuszczająca"
-    | "rozkaźnik"
-    | "bezosobnik"
-    | "imiesłów czynny"
-    | "imiesłów bierny"
-    | "imiesłów współczesny"
-    | "imiesłów uprzedni"
-    | "odsłownik"
-    | "końcówka ruchoma"
-    | "predykatyw"
-    | "winien";
-
-export type NumeralType = "główny" | "zbiorowy";
-
-export type PronounType = "osobowy" | "zwrotny";
-
-export interface Inflection {
-    readonly cases: readonly Case[];
-    readonly numbers: readonly GrammaticalNumber[];
-    readonly genders: readonly Gender[];
-    readonly person: Person | null;
-    readonly tense: Tense | null;
-    readonly mood: Mood | null;
-    readonly aspects: readonly Aspect[];
-    readonly degree: Degree | null;
-    readonly verb_form: VerbForm | null;
-    readonly numeral_type: NumeralType | null;
-    readonly pronoun_type: PronounType | null;
-    readonly negation: boolean | null;
-    readonly deprecative: boolean;
-}
-
-export interface InflectedForm {
-    readonly text: string;
-    readonly tags: Inflection;
-    readonly playable: boolean;
-}
-
-export interface LoreReading {
-    readonly lexeme: string;
-    readonly part: Part;
-    readonly base: string;
-    readonly forms: readonly InflectedForm[];
-}
-
-export interface WordLore {
-    readonly word: string;
-    readonly playable: boolean;
-    readonly readings: readonly LoreReading[];
-}
-
-export interface WordLoreResponse {
-    readonly lore: Readonly<Record<string, WordLore>>;
-}
+export type Part = Schemas["PartOfSpeech"];
+export type Case = Schemas["Case"];
+export type GrammaticalNumber = Schemas["Number"];
+export type Gender = Schemas["Gender"];
+export type Person = Schemas["Person"];
+export type Tense = Schemas["Tense"];
+export type Mood = Schemas["Mood"];
+export type Aspect = Schemas["Aspect"];
+export type Degree = Schemas["Degree"];
+export type VerbForm = Schemas["VerbForm"];
+export type NumeralType = Schemas["NumeralType"];
+export type PronounType = Schemas["PronounType"];
+export type Quality = Schemas["Quality"];
+export type Inflection = Schemas["Inflection"];
+export type InflectedForm = Schemas["InflectedForm"];
+export type LoreReading = Schemas["LoreReading"];
+export type WordLore = Schemas["WordLore"];
+export type WordLoreResponse = Schemas["WordLoreResponse"];

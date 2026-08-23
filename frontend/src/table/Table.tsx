@@ -166,7 +166,7 @@ export function Table({ arrival, connection, state, clock, trouble, onOutdated, 
         close: closePanel,
     } = useWordPanel();
     const asked = askedWord(panel);
-    const loreAnswer = useLore(asked);
+    const loreAnswer = useLore(arrival.seat, asked);
     const hold = useHold(
         rules.lore
             ? (cell: number): void => {

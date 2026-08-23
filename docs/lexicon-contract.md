@@ -11,8 +11,11 @@ agreement, both as a pre-commit hook and as a step of `make check`.
   writes the envelope, and offers one reader per kind. A damaged or foreign artifact
   earns its refusal here, from a message that names the path and states the remedy.
 - **`wordtable` owns the placement.** It composes each file name from the kind and the
-  format `lexica` declares, builds a missing artifact, caches a loaded one per
-  dictionary, and offers the game exactly the capability it asks for.
+  format `lexica` declares over the stem of the pinned source release in
+  `wordtable.releases`, builds a missing artifact, caches a loaded one per dictionary,
+  and offers the game exactly the capability it asks for. A release bump therefore moves
+  the archive, every artifact and every diagnostic to a new set of paths at once, and
+  the next build writes them.
 - **`wordcore` sees a port.** The rules kernel asks a lexicon for a verdict and for a
   prefix; that pair is the whole of what the engine knows about dictionaries.
 - **`wordserver` and `wordgames` reach a lexicon through `wordtable`**, by dictionary
@@ -27,17 +30,33 @@ way, the reader belongs in `lexica`.
 | Kind | Format | File name | Producer | Reader | Consumer |
 | --- | --- | --- | --- | --- | --- |
 | `words` | 1 | `{stem}.words.v1.lexicon` | `lexica.artifact.words.write_word_list` | `lexica.artifact.words.read_word_list` | `wordtable.lexicons.load_lexicon` |
-| `lore` | 1 | `{stem}.lore.v1.lexicon` | — | — | — |
+| `rescue` | 1 | `{stem}.rescue.v1.lexicon` | `lexica.artifact.rescue.write_rescue_table` | `lexica.artifact.rescue.read_rescue_table` | `wordtable.rescue.load_rescue` |
 
 `words` carries the playable surfaces of one dictionary, sorted and canonically
 uppercase, and answers the verdict port.
 
-`lore` carries the augmented lexicon: the readings, paradigms and inflections of each
-surface. Its row stands before its producer does, so the path is claimed and a second
-builder finds it taken.
+`rescue` carries the PoliMorf readings of the surfaces Morfeusz leaves unread: one row
+per surface holding the lemma, the tag, the name and the qualifier label. The server
+consults it when the engine answers nothing, so a rescued surface earns a part of speech
+and an inflection while its paradigm stays with the forms the sources hold.
+
+Readings, paradigms and inflections themselves stay uncompiled: `wordserver` asks
+`lexica.lore.lookup.lore_of` for one surface at a time and the engine composes the
+answer.
 
 An em dash marks a reserved kind: one that owns a name and a format while its code is
 still to come.
+
+Beside the artifacts, four files share their stem and carry no envelope and no kind, so
+the contract governs the artifacts and leaves these to the tool:
+
+- `{stem}.coverage.json` and `{stem}.unread.txt`, written by `wordtable coverage`, state
+  how much of a dictionary the sources read and name every form they leave unread.
+- `{stem}.manifest.json`, written by `wordtable rescue`, records the digests of what the
+  rescue table was built from, so a source that moves without moving a path earns a
+  rebuild.
+- `{stem}.morph.yaml`, written by hand, states readings for forms the sources leave
+  unread; `docs/lore.md` holds its shape.
 
 ## Envelope
 
@@ -63,8 +82,10 @@ A reader accepts one kind and one format, and states the remedy in every other c
 - a header that fails validation — `carries an unreadable artifact header`
 - a kind other than the one the caller asked for — `holds a … artifact where a … artifact belongs`
 - a retired format — `holds … format N where format M belongs`
-- a body that decodes to another shape — `holds a word list of an unreadable shape`
-- an entry count that disagrees with the header — `declares N words and holds M`
+- a body that decodes to another shape — `holds a word list of an unreadable shape`,
+  `holds a rescue table of an unreadable shape`
+- an entry count that disagrees with the header — `declares N words and holds M`,
+  `declares N surfaces and holds M`
 
 ## Boundaries
 

@@ -1,6 +1,7 @@
 import { fetchEventSource } from "@microsoft/fetch-event-source";
 
 import type { GameHighlights } from "./highlights";
+import type { WordLoreResponse } from "./lore";
 import type { Move, MoveAccepted, MoveRequest } from "./moves";
 import { parsed } from "./parsing";
 import type { RackRequest } from "./rack";
@@ -61,12 +62,19 @@ export async function readDescription(seat: Seat): Promise<TableDescription> {
     return parsed<TableDescription>(response);
 }
 
-export async function readWordVerdicts(seat: Seat, words: readonly string[]): Promise<WordVerdicts> {
+async function askedAbout(seat: Seat, route: string, words: readonly string[]): Promise<Response> {
     const asked = words.map((word) => `words=${encodeURIComponent(word)}`).join("&");
-    const response = await answered(
-        await fetch(`/tables/${encodeURIComponent(seat.table)}/words?${asked}`, { headers: headersFor(seat) }),
+    return answered(
+        await fetch(`/tables/${encodeURIComponent(seat.table)}/${route}?${asked}`, { headers: headersFor(seat) }),
     );
-    return parsed<WordVerdicts>(response);
+}
+
+export async function readWordVerdicts(seat: Seat, words: readonly string[]): Promise<WordVerdicts> {
+    return parsed<WordVerdicts>(await askedAbout(seat, "words", words));
+}
+
+export async function readWordLore(seat: Seat, words: readonly string[]): Promise<WordLoreResponse> {
+    return parsed<WordLoreResponse>(await askedAbout(seat, "lore", words));
 }
 
 export async function readHighlights(seat: Seat): Promise<GameHighlights> {

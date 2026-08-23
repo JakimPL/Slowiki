@@ -21,7 +21,6 @@ def build_parser() -> argparse.ArgumentParser:
     fetch_osps.add_argument("output", type=Path)
     fetch_english = subparsers.add_parser("fetch-english")
     fetch_english.add_argument("output", type=Path)
-    subparsers.add_parser("label")
     return parser
 
 
@@ -49,9 +48,6 @@ def main(argv: list[str] | None = None) -> None:
 
         case "fetch-english":
             print("download an English word list and write it to", args.output)
-
-        case "label":
-            print("the LLM labelling pipeline lands here")
 
         case _:
             raise ValueError(f"unsupported command {args.command}")

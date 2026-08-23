@@ -11,10 +11,13 @@ except ImportError:
 
 Interpretation = tuple[str, str, str, list[str], list[str]]
 
+SGJP_DICTIONARY: Final = "pl.sgjp.sgjp-2026.06.01"
+
+_COMPOSITE_PAST: Final = "composite"
 _IGNORED_PREFIXES: Final[frozenset[str]] = frozenset({"ign", "xx"})
 
 
-class MorfeuszAnalyzer(Protocol):
+class MorfeuszEngine(Protocol):
     def analyse(self, text: str) -> list[tuple[int, int, Interpretation]]: ...
 
     def generate(self, lemma: str) -> list[Interpretation]: ...
@@ -22,14 +25,15 @@ class MorfeuszAnalyzer(Protocol):
     def dict_id(self) -> str: ...
 
 
-def build_morfeusz_analyzer() -> MorfeuszAnalyzer:
-    if morfeusz2 is None:
-        raise InvalidConfiguration(
-            "morfeusz2 is required for the SJP morphology compile; "
-            "install it with: uv sync --extra morphology"
-        )
-    analyzer: MorfeuszAnalyzer = morfeusz2.Morfeusz()
-    return analyzer
+def morphology_available() -> bool:
+    return morfeusz2 is not None
+
+
+def build_morfeusz_engine() -> MorfeuszEngine:
+    _ensure_morfeusz_available()
+    engine: MorfeuszEngine = morfeusz2.Morfeusz(praet=_COMPOSITE_PAST)
+    _ensure_pinned_dictionary(engine.dict_id())
+    return engine
 
 
 def head_interpretations(
@@ -44,10 +48,39 @@ def head_interpretations(
     return [(start, end, analysis) for start, end, analysis in analyses if start == 0]
 
 
-def analyse_word(analyzer: MorfeuszAnalyzer, word: str) -> tuple[Analysis, ...]:
+def analyse_word(engine: MorfeuszEngine, surface: str) -> tuple[Analysis, ...]:
+    interpretations = head_interpretations(engine.analyse(surface.lower()))
     analyses: list[Analysis] = []
-    for _, _, (_, lemma, tag, names, labels) in head_interpretations(analyzer.analyse(word)):
-        if tag.split(":", 1)[0] in _IGNORED_PREFIXES:
+    for _, _, (_, lemma, tag, names, labels) in interpretations:
+        if _is_ignored(tag):
             continue
-        analyses.append(analysis_of(word.upper(), lemma, tag, AnalysisSource.SGJP, names, labels))
+        analyses.append(analysis_of(surface, lemma, tag, AnalysisSource.SGJP, names, labels))
     return tuple(analyses)
+
+
+def generate_paradigm(engine: MorfeuszEngine, source_lemma: str) -> tuple[tuple[str, str], ...]:
+    return tuple(
+        (form.upper(), tag)
+        for form, _, tag, _, _ in engine.generate(source_lemma)
+        if not _is_ignored(tag)
+    )
+
+
+def _is_ignored(tag: str) -> bool:
+    return tag.split(":", 1)[0] in _IGNORED_PREFIXES
+
+
+def _ensure_morfeusz_available() -> None:
+    if not morphology_available():
+        raise InvalidConfiguration(
+            "morfeusz2 is required for the SJP morphology compile; "
+            "install it with: uv sync --extra morphology"
+        )
+
+
+def _ensure_pinned_dictionary(dictionary: str) -> None:
+    if dictionary != SGJP_DICTIONARY:
+        raise InvalidConfiguration(
+            f"the morphology build reads the SGJP dictionary {SGJP_DICTIONARY}; "
+            f"morfeusz2 offers {dictionary}"
+        )

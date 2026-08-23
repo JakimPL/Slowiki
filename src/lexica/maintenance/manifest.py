@@ -5,19 +5,19 @@ from typing import Final
 
 PIPELINE_VERSION: Final = 1
 
+_CHUNK: Final = 1 << 16
 
-def compile_input_digests(
+
+def build_digests(
     archive: Path,
-    polimorf_path: Path | None,
-    overrides_path: Path | None,
+    polimorf_path: Path,
     dict_id: str,
     mapping_version: int,
     pipeline_version: int,
 ) -> dict[str, str]:
     digests = {
         "archive": _file_digest(archive),
-        "polimorf": _file_digest(polimorf_path) if polimorf_path is not None else "absent",
-        "overrides": _file_digest(overrides_path) if overrides_path is not None else "absent",
+        "polimorf": _file_digest(polimorf_path),
         "dict_id": _text_digest(dict_id),
         "mapping_version": _text_digest(str(mapping_version)),
         "pipeline_version": _text_digest(str(pipeline_version)),
@@ -28,9 +28,11 @@ def compile_input_digests(
 def load_manifest(path: Path) -> dict[str, str]:
     if not path.is_file():
         return {}
+
     document = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(document, dict):
         return {}
+
     return {str(key): str(value) for key, value in document.items()}
 
 
@@ -42,7 +44,7 @@ def write_manifest(path: Path, digests: dict[str, str]) -> None:
 def _file_digest(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(65536), b""):
+        for chunk in iter(lambda: handle.read(_CHUNK), b""):
             digest.update(chunk)
     return digest.hexdigest()
 

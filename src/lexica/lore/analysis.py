@@ -10,6 +10,7 @@ from wordcore.models.base import BaseFrozen
 
 class Analysis(BaseFrozen):
     surface: str
+    source_lemma: str
     lexeme: LexemeId
     tag: str
     inflection: Inflection
@@ -28,6 +29,7 @@ def analysis_of(
     dialect = dialect_of(source)
     return Analysis(
         surface=surface,
+        source_lemma=lemma,
         lexeme=lexeme_id_from_lemma(part_of_speech(tag, dialect), lemma),
         tag=tag,
         inflection=inflection_of(tag, dialect),

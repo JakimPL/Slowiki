@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 import type { LoreAnswer } from "../../../src/play/lore/readings";
 import {
     askedFormsOf,
-    assumedPlayable,
     chosenReading,
     firstLexeme,
     loreStateOf,
@@ -55,7 +54,7 @@ describe("readingByLexeme", () => {
 describe("chosenReading", () => {
     const drinking = aReading({ lexeme: "czasownik:PIĆ:V", part: "czasownik", base: "PIĆ" });
     const readings = [aReading(), drinking];
-    const ready: LoreAnswer = { state: "ready", lore: aLore({ readings }), sample: true };
+    const ready: LoreAnswer = { state: "ready", lore: aLore({ readings }) };
 
     it("carries the chosen reading beside the siblings it can switch to", () => {
         expect(chosenReading(ready, "czasownik:PIĆ:V")).toEqual({ readings, reading: drinking });
@@ -70,7 +69,7 @@ describe("chosenReading", () => {
     });
 
     it("chooses nothing while the answer is still on its way or lost", () => {
-        expect(chosenReading({ state: "asking", lore: null, sample: false }, "czasownik:PIĆ:V")).toBeNull();
+        expect(chosenReading({ state: "asking", lore: null }, "czasownik:PIĆ:V")).toBeNull();
         expect(chosenReading({ ...ready, state: "failed" }, "czasownik:PIĆ:V")).toBeNull();
     });
 });
@@ -82,17 +81,5 @@ describe("firstLexeme", () => {
 
     it("names nothing when no reading arrived", () => {
         expect(firstLexeme(aLore({ readings: [] }))).toBeNull();
-    });
-});
-
-describe("assumedPlayable", () => {
-    it("takes the chip's refusal as the dictionary's answer", () => {
-        expect(assumedPlayable("invalid")).toBe(false);
-    });
-
-    it("takes every other chip state as accepted", () => {
-        expect(assumedPlayable("valid")).toBe(true);
-        expect(assumedPlayable("unknown")).toBe(true);
-        expect(assumedPlayable("standing")).toBe(true);
     });
 });
