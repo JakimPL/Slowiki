@@ -16,7 +16,9 @@ rules:
   opening_covers_center: true
   bingo_bonus: 50
   bingo_tiles: null
+  rack_penalties: true
   going_out_award: true
+  going_out_bonus: 0
   pass_end_rounds: 2
   scoreless_end_limit: null
   per_turn_seconds: null

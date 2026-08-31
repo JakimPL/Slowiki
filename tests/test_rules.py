@@ -1,3 +1,5 @@
+from typing import Final
+
 import pytest
 
 from wordcore.board.board import Board
@@ -14,6 +16,10 @@ from wordcore.rules.words.formed import formed_words, validate_anchor
 from wordcore.rules.words.placement import Placement
 from wordcore.states.state import Phase, WordState
 from wordcore.tiles.tile import Tile
+
+_PENALTIES_APPLY: Final = True
+_AWARD_STANDS: Final = True
+_NO_FLAT_BONUS: Final = 0
 
 
 def tile(identifier: int, letter: str, value: int, category: str) -> Tile:
@@ -236,8 +242,33 @@ def test_exchange_limit() -> None:
 
 
 def test_final_scores() -> None:
+    position = _scoring_position()
+    assert _scored(position, went_out=0) == {0: 8, 1: 19}
+    assert _scored(position, went_out=None) == {0: 7, 1: 19}
+    assert _scored(position, went_out=0, going_out_award=False) == {0: 7, 1: 19}
+
+
+def test_final_scores_leave_the_racks_alone_where_penalties_are_off() -> None:
+    position = _scoring_position()
+    assert _scored(position, went_out=None, rack_penalties=False) == {0: 10, 1: 20}
+    assert _scored(position, went_out=0, rack_penalties=False) == {0: 11, 1: 20}
+
+
+def test_a_flat_bonus_rewards_the_finisher_where_the_award_is_off() -> None:
+    position = _scoring_position()
+    assert _scored(
+        position,
+        went_out=0,
+        going_out_award=False,
+        going_out_bonus=20,
+    ) == {0: 27, 1: 19}
+    assert _scored(position, went_out=0, going_out_bonus=20) == {0: 28, 1: 19}
+    assert _scored(position, went_out=None, going_out_bonus=20) == {0: 7, 1: 19}
+
+
+def _scoring_position() -> Position:
     position = empty_position()
-    position = position.model_copy(
+    return position.model_copy(
         update={
             "state": position.state.model_copy(
                 update={
@@ -247,9 +278,23 @@ def test_final_scores() -> None:
             )
         }
     )
-    assert final_scores(position, went_out=0, going_out_award=True) == {0: 8, 1: 19}
-    assert final_scores(position, went_out=None, going_out_award=True) == {0: 7, 1: 19}
-    assert final_scores(position, went_out=0, going_out_award=False) == {0: 7, 1: 19}
+
+
+def _scored(
+    position: Position,
+    *,
+    went_out: int | None,
+    rack_penalties: bool = _PENALTIES_APPLY,
+    going_out_award: bool = _AWARD_STANDS,
+    going_out_bonus: int = _NO_FLAT_BONUS,
+) -> dict[int, int]:
+    return final_scores(
+        position,
+        went_out,
+        rack_penalties=rack_penalties,
+        going_out_award=going_out_award,
+        going_out_bonus=going_out_bonus,
+    )
 
 
 def test_next_seat() -> None:

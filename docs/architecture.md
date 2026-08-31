@@ -108,14 +108,15 @@ class is chosen by nothing and `build_rules` translates the record into
 
 ## Fixed policy
 
-Four rules a scheme tunes reach the kernel as keyword-only scalars on pure
+Six rules a scheme tunes reach the kernel as keyword-only scalars on pure
 functions, the way `validate_exchange` and `validate_words` already took theirs:
 how many tiles the opening play takes and whether it covers the center
 (`validate_anchor`), how many tiles earn the bingo bonus
 (`WordGameRules._bingo_bonus`, where `bingo_tiles` left unstated means the whole
-rack), and whether the seat that goes out takes the opponents' rack totals
-(`final_scores`). `wordcore` stays configuration-ignorant; `wordgames` holds the
-only parameters record.
+rack), and the three that close a game — whether a seat's leftover letters count
+against it, whether the seat that goes out takes the opponents' rack totals, and
+the flat bonus that seat earns (`final_scores`). `wordcore` stays
+configuration-ignorant; `wordgames` holds the only parameters record.
 
 The rest is policy the engine fixes, and this is the whole list:
 
@@ -124,8 +125,11 @@ The rest is policy the engine fixes, and this is the whole list:
   paint and a letter adjustment may not claim. A blank takes any alphabetic
   character as its letter for the play.
 - A play takes at least one tile, and tiles adjoin orthogonally.
-- A seat goes out by emptying its rack while the bag is empty. Final scoring
-  deducts each seat's remaining rack.
+- A seat goes out by emptying its rack while the bag is empty. What the closing
+  arithmetic makes of that is the table's to state: `rack_penalties` deducts each
+  seat's remaining rack, `going_out_award` hands those totals to the finisher, and
+  `going_out_bonus` pays the finisher a flat sum, which is what still rewards going
+  out when the award is off.
 - A one-seat table ends when the seat empties its rack or passes once, whichever
   comes first — the solitaire ending, which a one-seat literaki table inherits.
 - `pass_end_rounds` counts rounds, so the limit it sets is

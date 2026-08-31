@@ -251,7 +251,9 @@ rules:
     opening_covers_center: The opening word crosses the centre
     bingo_bonus: Bonus for using the whole rack
     bingo_tiles: Tiles a bonus play must use
-    going_out_award: Award for going out first
+    rack_penalties: Leftover letters count against a player
+    going_out_award: Finisher takes opponents' racks
+    going_out_bonus: Bonus for going out first
     pass_end_rounds: Rounds of passes that end the game
     scoreless_end_limit: Scoreless moves that end the game
     per_turn_seconds: Time per turn

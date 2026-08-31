@@ -78,10 +78,21 @@ allowances:
     maximum: 15
     step: 1
     unlimited: true
+  - setting: rack_penalties
+    group: scoring
+    tier: common
+    kind: toggle
   - setting: going_out_award
     group: scoring
     tier: common
     kind: toggle
+  - setting: going_out_bonus
+    group: scoring
+    tier: common
+    kind: count
+    minimum: 0
+    maximum: 200
+    step: 5
   - setting: pass_end_rounds
     group: scoring
     tier: common

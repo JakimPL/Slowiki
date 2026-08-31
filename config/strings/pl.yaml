@@ -258,7 +258,9 @@ rules:
     opening_covers_center: Pierwsze słowo przez środek
     bingo_bonus: Premia za cały stojak
     bingo_tiles: Litery potrzebne do premii
-    going_out_award: Nagroda za pierwsze zakończenie
+    rack_penalties: Litery na stojaku odejmują punkty
+    going_out_award: Kończący zabiera litery przeciwników
+    going_out_bonus: Premia za pierwsze zakończenie
     pass_end_rounds: Rundy pasów kończące grę
     scoreless_end_limit: Ruchy bez punktów kończące grę
     per_turn_seconds: Czas na turę

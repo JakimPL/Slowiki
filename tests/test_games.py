@@ -50,7 +50,9 @@ TINY_PARAMETERS: Final = GameParameters(
     scoreless_end_limit=None,
     bingo_bonus=50,
     bingo_tiles=None,
+    rack_penalties=True,
     going_out_award=True,
+    going_out_bonus=0,
 )
 
 
@@ -279,6 +281,60 @@ def test_two_rounds_of_passes_end_game() -> None:
 
     assert position.state.phase == Phase.GAME_OVER
     assert position.state.scores == {0: -1, 1: -2}
+
+
+def test_a_table_without_rack_penalties_keeps_the_scores_it_earned() -> None:
+    rules = _ruled({"rack_penalties": False})
+    position = make_position(
+        racks={
+            0: (make_tile(1, "a", 1, "yellow"),),
+            1: (make_tile(2, "b", 2, "green"),),
+        },
+        bag=(),
+    )
+    for seat in (0, 1, 0, 1):
+        position = rules.apply(position, Move(player=seat, action=Pass()), random.Random(0))
+
+    assert position.state.phase == Phase.GAME_OVER
+    assert position.state.scores == {0: 0, 1: 0}
+
+
+def test_a_flat_bonus_rewards_the_finisher_whatever_the_award_does() -> None:
+    barred = _went_out(_ruled({"bingo_bonus": 0, "going_out_award": False, "going_out_bonus": 20}))
+    assert barred.state.phase == Phase.GAME_OVER
+    assert barred.state.scores == {0: 23, 1: -1}
+    stacked = _went_out(_ruled({"bingo_bonus": 0, "going_out_bonus": 20}))
+    assert stacked.state.scores == {0: 24, 1: -1}
+
+
+def _ruled(changes: dict[str, object]) -> WordGameRules:
+    return WordGameRules(
+        (0, 1),
+        make_board(),
+        TINY_TILES,
+        TextLexicon.from_words(["ab"]),
+        TINY_PARAMETERS.model_copy(update=changes),
+    )
+
+
+def _went_out(rules: WordGameRules) -> Position:
+    position = make_position(
+        racks={
+            0: (make_tile(1, "a", 1, "yellow"), make_tile(2, "b", 2, "green")),
+            1: (make_tile(3, "a", 1, "yellow"),),
+        },
+        bag=(),
+    )
+    opening = Move(
+        player=0,
+        action=Play(
+            placements=(
+                PlayPlacement(tile_id=1, row=1, column=0),
+                PlayPlacement(tile_id=2, row=1, column=1),
+            )
+        ),
+    )
+    return rules.apply(position, opening, random.Random(0))
 
 
 def test_pass_rounds_scale_with_the_seat_count() -> None:

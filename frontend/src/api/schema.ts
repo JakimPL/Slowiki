@@ -768,6 +768,8 @@ export interface components {
             readonly exchange_min_bag: number;
             /** Going Out Award */
             readonly going_out_award: boolean;
+            /** Going Out Bonus */
+            readonly going_out_bonus: number;
             /** Increment Seconds */
             readonly increment_seconds: number;
             /** Letters */
@@ -786,6 +788,8 @@ export interface components {
             readonly per_turn_seconds: number | null;
             /** Premoves */
             readonly premoves: boolean;
+            /** Rack Penalties */
+            readonly rack_penalties: boolean;
             /** Rack Size */
             readonly rack_size: number | null;
             /** Scoreless End Limit */
@@ -848,7 +852,7 @@ export interface components {
          * SettingName
          * @enum {string}
          */
-        readonly SettingName: "board" | "alphabet" | "distribution" | "dictionary" | "seats" | "rack_size" | "blanks" | "validate_on_play" | "premoves" | "pass_allowed" | "exchange_limit" | "exchange_min_bag" | "opening_tiles" | "opening_covers_center" | "bingo_bonus" | "bingo_tiles" | "going_out_award" | "pass_end_rounds" | "scoreless_end_limit" | "per_turn_seconds" | "total_seconds" | "increment_seconds" | "letters";
+        readonly SettingName: "board" | "alphabet" | "distribution" | "dictionary" | "seats" | "rack_size" | "blanks" | "validate_on_play" | "premoves" | "pass_allowed" | "exchange_limit" | "exchange_min_bag" | "opening_tiles" | "opening_covers_center" | "bingo_bonus" | "bingo_tiles" | "rack_penalties" | "going_out_award" | "going_out_bonus" | "pass_end_rounds" | "scoreless_end_limit" | "per_turn_seconds" | "total_seconds" | "increment_seconds" | "letters";
         /**
          * SettingTier
          * @enum {string}

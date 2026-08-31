@@ -134,6 +134,7 @@ export interface PlainValues {
     readonly "rules.setting.exchange_limit": EmptyValues;
     readonly "rules.setting.exchange_min_bag": EmptyValues;
     readonly "rules.setting.going_out_award": EmptyValues;
+    readonly "rules.setting.going_out_bonus": EmptyValues;
     readonly "rules.setting.increment_seconds": EmptyValues;
     readonly "rules.setting.letters": EmptyValues;
     readonly "rules.setting.opening_covers_center": EmptyValues;
@@ -142,6 +143,7 @@ export interface PlainValues {
     readonly "rules.setting.pass_end_rounds": EmptyValues;
     readonly "rules.setting.per_turn_seconds": EmptyValues;
     readonly "rules.setting.premoves": EmptyValues;
+    readonly "rules.setting.rack_penalties": EmptyValues;
     readonly "rules.setting.rack_size": EmptyValues;
     readonly "rules.setting.scoreless_end_limit": EmptyValues;
     readonly "rules.setting.seats": EmptyValues;

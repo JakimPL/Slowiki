@@ -276,7 +276,9 @@ class WordGameRules(Rules):
                 "scores": final_scores(
                     position,
                     went_out,
+                    rack_penalties=self._parameters.rack_penalties,
                     going_out_award=self._parameters.going_out_award,
+                    going_out_bonus=self._parameters.going_out_bonus,
                 ),
                 "to_act": frozenset(),
             }

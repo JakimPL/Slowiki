@@ -13,4 +13,6 @@ class GameParameters(BaseFrozen):
     scoreless_end_limit: int | None
     bingo_bonus: int
     bingo_tiles: int | None
+    rack_penalties: bool
     going_out_award: bool
+    going_out_bonus: int
