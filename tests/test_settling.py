@@ -1,16 +1,25 @@
+import random
 import shutil
 from pathlib import Path
 
 import pytest
 
 from lexica.names import DictionaryName
-from wordcore.errors.exceptions import InvalidConfiguration
+from wordcore.errors.exceptions import IllegalMove, InvalidConfiguration
+from wordcore.lexicon.lexicon import TextLexicon
+from wordcore.moves.action import Play, PlayPlacement
+from wordcore.moves.move import Move
+from wordcore.positions.position import Position
+from wordcore.rules.rack import rack_of
 from wordtable.audit import audit_configuration
+from wordtable.build import build_rules
 from wordtable.catalog import list_schemes, offerings, resolve_scheme
 from wordtable.paths import CONFIG_DIR
+from wordtable.resolved import ResolvedScheme
 from wordtable.rules import RulesConfig, restated
 from wordtable.scheme import load_scheme
 from wordtable.settling import resolve_table, seats_admitted
+from wordtable.style import load_style_tokens
 from wordtable.timing import time_of
 
 TINY_BOARD = """size: 5
@@ -43,6 +52,19 @@ def test_every_scheme_carries_a_complete_record() -> None:
     for name, scheme in list_schemes(CONFIG_DIR).items():
         assert scheme.name == name
         assert scheme.rules.seats >= 1
+
+
+def test_the_polish_scrabble_scheme_plays_polish_letters_at_scrabble_values() -> None:
+    resolved = resolve_scheme(CONFIG_DIR, "scrabble-pl")
+    by_symbol = {spec.symbol: spec for spec in resolved.tiles.letters}
+    assert resolved.tiles.total() == 100
+    assert {spec.category for spec in resolved.tiles.letters} == {"standard"}
+    assert by_symbol["Ź"].value == 9
+    assert by_symbol["Ź"].count == 1
+    assert by_symbol["A"].value == 1
+    assert by_symbol["A"].count == 9
+    assert resolved.rules.board == "scrabble"
+    assert resolved.rules.dictionary == DictionaryName.SJP
 
 
 def test_the_settled_record_reaches_the_description() -> None:
@@ -185,3 +207,48 @@ def test_the_audit_names_a_specimen_wider_than_the_board(tree: Path) -> None:
     repainted(tree, "A" * 16)
     with pytest.raises(InvalidConfiguration, match="paints 16 letters"):
         audit_configuration(tree)
+
+
+def test_a_theme_carries_a_band_for_every_category_a_scheme_paints() -> None:
+    theme = load_style_tokens(CONFIG_DIR, "default").light
+    for name in list_schemes(CONFIG_DIR):
+        resolved = resolve_scheme(CONFIG_DIR, name)
+        painted = {bonus.category for bonus in resolved.board.bonuses if bonus.category is not None}
+        assert painted <= set(theme.tiles.bands)
+        assert painted <= set(theme.category_premiums)
+
+
+def test_the_opening_rules_a_table_states_reach_the_engine(tree: Path) -> None:
+    scheme = load_scheme(tree, "literaki")
+    standard = resolve_table(tree, scheme, None)
+    off_centre = resolve_table(
+        tree,
+        scheme,
+        restated(scheme.rules, {"opening_covers_center": False}),
+    )
+    wider = resolve_table(tree, scheme, restated(scheme.rules, {"opening_tiles": 3}))
+    with pytest.raises(IllegalMove, match="center"):
+        _opened(standard, row=0, column=0)
+
+    _opened(off_centre, row=0, column=0)
+    _opened(standard, row=7, column=7)
+    with pytest.raises(IllegalMove, match="at least 3 tiles"):
+        _opened(wider, row=7, column=7)
+
+
+def _opened(resolved: ResolvedScheme, *, row: int, column: int) -> None:
+    seats = tuple(range(resolved.rules.seats))
+    position = _dealt(resolved, seats)
+    tiles = [tile for tile in rack_of(position, 0) if not tile.blank][:2]
+    word = "".join(tile.letter for tile in tiles)
+    rules = build_rules(resolved, seats, TextLexicon.from_words([word]))
+    placements = tuple(
+        PlayPlacement(tile_id=tile.identifier, row=row, column=column + offset)
+        for offset, tile in enumerate(tiles)
+    )
+    rules.validate(position, Move(player=0, action=Play(placements=placements)))
+
+
+def _dealt(resolved: ResolvedScheme, seats: tuple[int, ...]) -> Position:
+    lexicon = TextLexicon.from_words(["AA"])
+    return build_rules(resolved, seats, lexicon).initial_position(random.Random(0))

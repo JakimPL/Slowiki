@@ -111,6 +111,10 @@ inside the sheet, which is what the sheet's own scroll is for.
   points, color and count. Where the letters carry more than one color the grid also offers to set the
   points of a whole color at once. One line beneath the grid counts the bag, which is the number the
   server refuses on.
+- **A letter carries no enamel band where its scheme names no color.** Literaki's four colors are
+  tokens the theme states; Scrabble's letters are all one class, and the theme states no band for it,
+  so a Scrabble tile is a plain tile with its face, its relief and its printed value. That is what a
+  Scrabble tile is, and the fallback in the tile's own custom properties is what makes it so.
 - **Saved rules** are the player's own, kept on the device: a record is named to save it, named again
   to rename it, copied out as text, or deleted. The standard schemes and the saved records present as
   one list in the card's game control, because they are one kind of thing — a named set of rules.

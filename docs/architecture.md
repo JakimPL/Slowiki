@@ -161,6 +161,8 @@ design contract.
   so the client renders a control per setting from server data.
 - `GET /presets` — every board, alphabet and distribution on disk, so a client
   composes a letter set it has never seen and prints what the bag would hold.
+  Board art belongs to the scheme named after the board, so which specimen a board
+  wears is stated rather than left to the order the files are read in.
 - `GET /style` — the design tokens for the active theme, asked once per client.
 - `POST /tables` — a scheme, a player name, and optionally the whole rules record
   the table plays by; absent, the scheme's own record stands. A record outside its

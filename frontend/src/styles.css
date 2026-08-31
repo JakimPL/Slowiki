@@ -266,6 +266,12 @@ select {
     font-size: 22px;
 }
 
+.letters-cell .tile {
+    width: 34px;
+    height: 38px;
+    font-size: 18px;
+}
+
 .home-name {
     width: min(100%, 420px);
 }

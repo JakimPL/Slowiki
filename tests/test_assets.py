@@ -83,6 +83,15 @@ def _specimen_markup() -> tuple[str, ThemeTokens]:
     return markup, tokens.light
 
 
+def test_the_scheme_named_after_a_board_paints_its_specimen(tmp_path) -> None:
+    records = build_assets(tmp_path, None)
+    written = {record.path for record in records if record.kind == "board-specimen"}
+    assert written == {"specimens/board-literaki.svg", "specimens/board-scrabble.svg"}
+    painted = (tmp_path / "specimens" / "board-scrabble.svg").read_text(encoding="utf-8")
+    assert ">W</text>" in painted
+    assert ">Ł</text>" not in painted
+
+
 def test_board_specimen_draws_from_tokens_only() -> None:
     markup, theme = _specimen_markup()
     for letter in "SŁOWIKI":

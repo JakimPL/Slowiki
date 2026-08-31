@@ -151,7 +151,10 @@ def _resolved_by_board() -> dict[str, ResolvedScheme]:
     by_board: dict[str, ResolvedScheme] = {}
     for name in list_schemes(CONFIG_DIR):
         resolved = resolve_scheme(CONFIG_DIR, name)
-        by_board.setdefault(resolved.rules.board, resolved)
+        board = resolved.rules.board
+        if board not in by_board or resolved.scheme == board:
+            by_board[board] = resolved
+
     return by_board
 
 

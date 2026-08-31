@@ -1,0 +1,25 @@
+specimen: SŁOWIKI
+rules:
+  board: scrabble
+  alphabet: scrabble-pl
+  distribution: polish
+  dictionary: sjp
+  seats: 2
+  rack_size: 7
+  blanks: 2
+  validate_on_play: true
+  premoves: true
+  pass_allowed: true
+  exchange_limit: null
+  exchange_min_bag: 7
+  opening_tiles: 2
+  opening_covers_center: true
+  bingo_bonus: 50
+  bingo_tiles: null
+  going_out_award: true
+  pass_end_rounds: null
+  scoreless_end_limit: 6
+  per_turn_seconds: null
+  total_seconds: null
+  increment_seconds: 0
+  letters: {}
