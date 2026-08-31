@@ -7,7 +7,6 @@ from typing import Final
 from wordcore.errors.rejections import RejectionCode
 from wordcore.games.game import Game
 from wordcore.models.base import BaseFrozen
-from wordcore.moves.action import Pass
 from wordcore.moves.kind import ActionKind
 from wordcore.moves.move import Move
 from wordcore.rules.rack import rack_of
@@ -431,10 +430,7 @@ class TableSession:
 
             self._clock.settle(earns_increment=False)
             self._discard_premove(seat, RejectionCode.OUT_OF_TIME)
-            self._game.submit(
-                Move(player=seat, action=Pass()),
-                base_seq=self._game.seq,
-            )
+            self._game.adjudicate_pass(seat, self._game.seq)
             self._schedule_timer()
             self._schedule_premove()
             self._stirred()

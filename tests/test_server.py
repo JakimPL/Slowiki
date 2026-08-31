@@ -13,6 +13,7 @@ from wordcore.games.game import Game
 from wordcore.games.kind import EntryKind
 from wordcore.lexicon.lexicon import TextLexicon
 from wordcore.moves.action import Exchange, Pass
+from wordcore.moves.kind import ActionKind
 from wordcore.moves.move import Move
 from wordcore.states.phase import Phase
 from wordserver.app import create_app
@@ -28,9 +29,16 @@ from wordtable.build import build_rules
 from wordtable.catalog import resolve_scheme
 from wordtable.config import TablesConfig
 from wordtable.paths import CONFIG_DIR
+from wordtable.resolved import ResolvedScheme
+from wordtable.rules import restated
+from wordtable.scheme import load_scheme
+from wordtable.settling import resolve_table
 from wordtable.timing import TimeConfig, time_of
 
 _PREMOVE_DELAY: Final = 0.05
+_PATIENT_DELAY: Final = 5.0
+_SHORTEST_BUDGET: Final = 1
+_PAST_THE_BUDGET: Final = 1.1
 
 
 @pytest.fixture
@@ -302,7 +310,21 @@ async def _next_event(session: TableSession, observer: int, since: int) -> dict[
 
 
 def _session_with(time: TimeConfig, clock: _FakeClock) -> TableSession:
-    resolved = resolve_scheme(CONFIG_DIR, "literaki")
+    return _tailored_session(
+        time,
+        clock,
+        resolved=resolve_scheme(CONFIG_DIR, "literaki"),
+        premove_delay=_PREMOVE_DELAY,
+    )
+
+
+def _tailored_session(
+    time: TimeConfig,
+    clock: _FakeClock,
+    *,
+    resolved: ResolvedScheme,
+    premove_delay: float,
+) -> TableSession:
     rules = build_rules(resolved, (0, 1), TextLexicon.from_words(["aa"]))
     game = Game(rules, random.Random(0), premoves_allowed=True)
     names: dict[int, str | None] = {0: None, 1: None}
@@ -312,8 +334,13 @@ def _session_with(time: TimeConfig, clock: _FakeClock) -> TableSession:
         time,
         names,
         clock,
-        premove_delay_seconds=_PREMOVE_DELAY,
+        premove_delay_seconds=premove_delay,
     )
+
+
+def _resolved_with(changes: dict[str, object]) -> ResolvedScheme:
+    scheme = load_scheme(CONFIG_DIR, "literaki")
+    return resolve_table(CONFIG_DIR, scheme, restated(scheme.rules, changes))
 
 
 async def test_clock_arms_when_the_table_gathers() -> None:
@@ -520,6 +547,82 @@ async def test_timeout_auto_passes_until_the_game_ends() -> None:
     assert session.seq == 4
     assert session.view(None).phase == "game_over"
     assert session.clock() is None
+    await session.close()
+
+
+async def test_an_expired_clock_passes_the_turn_a_player_may_not() -> None:
+    clock = _FakeClock()
+    session = _tailored_session(
+        TimeConfig(per_turn_seconds=0, increment_seconds=0, total_seconds=None),
+        clock,
+        resolved=_resolved_with({"pass_allowed": False}),
+        premove_delay=_PREMOVE_DELAY,
+    )
+    await session.claim(None)
+    await asyncio.sleep(0.2)
+    assert session.seq == 4
+    assert session.view(None).phase == Phase.GAME_OVER
+    passed = await _next_event(session, observer=0, since=0)
+    assert passed["kind"] == EntryKind.MOVE
+    assert passed["actor"] == 0
+    assert passed["move"]["action"]["kind"] == ActionKind.PASS
+    await session.close()
+
+
+async def test_an_expired_clock_discards_the_queued_move_it_skips() -> None:
+    clock = _FakeClock()
+    session = _tailored_session(
+        TimeConfig(
+            per_turn_seconds=None,
+            increment_seconds=0,
+            total_seconds=_SHORTEST_BUDGET,
+        ),
+        clock,
+        resolved=resolve_scheme(CONFIG_DIR, "literaki"),
+        premove_delay=_PATIENT_DELAY,
+    )
+    await session.claim(None)
+    held = session.view(1).racks[1]
+    assert held is not None
+    exchanged = held[0].identifier
+    queued = Move(player=1, action=Exchange(tile_ids=[exchanged]))
+    await session.submit(queued, base_seq=0, premove=True, token="token-b")
+    await session.submit(Move(player=0, action=Pass()), base_seq=1, premove=False, token="token-a")
+    await asyncio.sleep(_PAST_THE_BUDGET)
+    discarded = await _next_event(session, observer=1, since=2)
+    assert discarded["kind"] == EntryKind.PREMOVE_DISCARDED
+    assert discarded["reason"] == RejectionCode.OUT_OF_TIME
+    assert session.view(1).premove is None
+    assert session.view(1).to_act == frozenset({0})
+    kept = session.view(1).racks[1]
+    assert kept is not None
+    assert exchanged in {tile.identifier for tile in kept}
+    await session.close()
+
+
+async def test_a_seat_out_of_time_neither_plays_nor_queues() -> None:
+    clock = _FakeClock()
+    session = _budgeted_session(300, 0, clock)
+    await session.claim(None)
+    clock.moment = 1300.0
+    await session.submit(Move(player=0, action=Pass()), base_seq=0, premove=False, token="token-a")
+    spent = session.clock()
+    assert spent is not None
+    assert spent.remaining["0"] == 0.0
+    held = session.view(0).racks[0]
+    assert held is not None
+    queued = Move(player=0, action=Exchange(tile_ids=[held[0].identifier]))
+    with pytest.raises(OutOfTime):
+        await session.submit(queued, base_seq=1, premove=True, token="token-a")
+
+    with pytest.raises(OutOfTime):
+        await session.submit(
+            Move(player=0, action=Pass()),
+            base_seq=1,
+            premove=False,
+            token="token-a",
+        )
+
     await session.close()
 
 

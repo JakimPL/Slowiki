@@ -217,7 +217,10 @@ the seat's own remaining time, settling a turn charges the thinking time and add
 the increment after a play or an exchange. A seat whose budget is spent leaves the
 game as an observer: the session refuses every move it submits, discards any premove
 it left standing, and auto-passes on its turn, so the opponents play on and the
-scheme's end limit closes the game. A queued premove settles
+scheme's end limit closes the game. That pass is the referee's, not the player's:
+`Game.adjudicate_pass` records it on the seat's behalf, so a table that bars passing
+still advances when a clock runs out. `pass_allowed` governs what a player may choose.
+A queued premove settles
 `tables.premove_delay_seconds` after the turn opens, so the move that answered it
 stands alone on its own frame first; the seat on turn is already armed, so its
 clock pays for the pause. That delay is stream policy the host sets, so it stands
