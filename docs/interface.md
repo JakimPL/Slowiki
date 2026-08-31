@@ -120,10 +120,11 @@ inside the sheet, which is what the sheet's own scroll is for.
   is answered.
 - **Every rule explains itself.** A small `?` sits beside each rule's name and opens one authored
   sentence under the row, saying what the rule does — what an expired clock does with the turn, what a
-  bonus play must use, when the game ends. It is a disclosure, not a hover, so a phone reaches it the
-  same way a laptop does, and closing it leaves the row exactly as tall as it was. The card's own
-  three rules — the players, the clock and the bonus per move — carry the same affordance, since the
-  sheet does not draw the group they belong to.
+  bonus play must use, when the game ends. The row grows into the sentence and hands the space back as
+  it closes, landing at the height it held before. A click pins the sentence open on every device and
+  the mark turns to say so; where a pointer can rest, hovering the `?` previews the same sentence and
+  moving away puts it back. The card's own three rules — the players, the clock and the bonus per move
+  — carry the same affordance, since the sheet does not draw the group they belong to.
 - **A row ends where every other row ends.** The label opens the line and the control closes it,
   pushed to the right edge whether or not it wraps to a line of its own, and a control too wide for
   the line wraps inside itself rather than past that edge. Every panel's buttons are the same button:

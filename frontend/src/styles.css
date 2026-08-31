@@ -260,6 +260,20 @@ select {
     height: var(--reveal-gap);
 }
 
+@media (hover: hover) {
+    .rules-help:hover ~ .reveal {
+        grid-template-rows: 1fr;
+    }
+
+    .rules-help:hover ~ .reveal .reveal-body {
+        visibility: visible;
+        opacity: 1;
+        transition:
+            opacity var(--motion-quick) var(--ease-settle) var(--motion-quick),
+            visibility 0s;
+    }
+}
+
 .tile {
     position: relative;
     display: flex;
