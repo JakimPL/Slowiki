@@ -40,7 +40,7 @@ export function RulesRow({ control, standard, readOnly, onChange, onRevert }: Ru
     }
     return (
         <div className="rules-item" data-deviating={standard === null ? undefined : "true"}>
-            <div className="rules-item-head">
+            <div className="rules-item-head reveal-host">
                 <span className="menu-label">{label}</span>
                 <Help setting={control.setting} />
                 {held}

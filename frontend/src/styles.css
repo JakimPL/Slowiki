@@ -46,6 +46,12 @@
     initial-value: 5400ms;
 }
 
+@property --reveal-gap {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: 0;
+}
+
 :root {
     --chrome-surface: #f3eddf;
     --chrome-panel: #e9e1cd;
@@ -207,6 +213,51 @@ select {
     padding: 24px;
     text-align: center;
     color: var(--chrome-muted);
+}
+
+.reveal-host {
+    row-gap: 0;
+    margin-top: calc(-1 * var(--reveal-gap));
+}
+
+.reveal-host > :not(.reveal) {
+    margin-top: var(--reveal-gap);
+}
+
+.reveal {
+    display: grid;
+    overflow: hidden;
+    flex-basis: 100%;
+    order: 1;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows var(--motion-settle) var(--ease-settle);
+}
+
+.reveal[data-open="true"] {
+    grid-template-rows: 1fr;
+}
+
+.reveal-body {
+    min-height: 0;
+    visibility: hidden;
+    opacity: 0;
+    transition:
+        opacity var(--motion-quick) var(--ease-settle),
+        visibility 0s var(--motion-settle);
+}
+
+.reveal[data-open="true"] .reveal-body {
+    visibility: visible;
+    opacity: 1;
+    transition:
+        opacity var(--motion-quick) var(--ease-settle) var(--motion-quick),
+        visibility 0s;
+}
+
+.reveal-body::before {
+    content: "";
+    display: block;
+    height: var(--reveal-gap);
 }
 
 .tile {
@@ -372,9 +423,11 @@ select {
 }
 
 .field-head {
+    --reveal-gap: 4px;
+
     display: flex;
     flex-wrap: wrap;
-    gap: 4px;
+    column-gap: var(--reveal-gap);
     align-items: center;
 }
 
@@ -2139,9 +2192,11 @@ button.word-chip[data-open] {
 }
 
 .rules-item-head {
+    --reveal-gap: 6px;
+
     display: flex;
     flex-wrap: wrap;
-    gap: 6px 10px;
+    column-gap: 10px;
     align-items: center;
     grid-column: 1 / -1;
 }
@@ -2173,8 +2228,6 @@ button.word-chip[data-open] {
 }
 
 .rules-help-note {
-    flex-basis: 100%;
-    order: 1;
     color: var(--chrome-muted);
     font-size: 12px;
     font-weight: 400;

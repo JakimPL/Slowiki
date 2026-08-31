@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 import { useState } from "react";
 
 import type { SettingName } from "../../api/tables";
+import { Reveal } from "../motion/Reveal";
 import { RULES_HELP, SETTING_HELP } from "../strings";
 
 const HELP_GLYPH = "?";
@@ -27,9 +28,9 @@ export function Help({ setting }: HelpProps): ReactElement {
             >
                 {HELP_GLYPH}
             </button>
-            <span className="rules-help-note" id={noteId} hidden={!open}>
-                {SETTING_HELP[setting]}
-            </span>
+            <Reveal open={open} id={noteId}>
+                <span className="rules-help-note">{SETTING_HELP[setting]}</span>
+            </Reveal>
         </>
     );
 }

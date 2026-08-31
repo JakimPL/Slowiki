@@ -64,10 +64,10 @@ export function CreateCard({ composing, busy, named, onCreate, onOpenRules }: Cr
                         </select>
                     </label>
                     <div className="field">
-                        <span className="field-head">
+                        <div className="field-head reveal-host">
                             <label htmlFor="create-seats">{SEATS_LABEL}</label>
                             <Help setting="seats" />
-                        </span>
+                        </div>
                         <select
                             id="create-seats"
                             value={record.seats}
@@ -84,10 +84,10 @@ export function CreateCard({ composing, busy, named, onCreate, onOpenRules }: Cr
                     </div>
                     <div className="field-row">
                         <div className="field">
-                            <span className="field-head">
+                            <div className="field-head reveal-host">
                                 <label htmlFor="create-total">{TIME_LABEL}</label>
                                 <Help setting="total_seconds" />
-                            </span>
+                            </div>
                             <select
                                 id="create-total"
                                 value={record.total_seconds ?? ""}
@@ -107,10 +107,10 @@ export function CreateCard({ composing, busy, named, onCreate, onOpenRules }: Cr
                             </select>
                         </div>
                         <div className="field">
-                            <span className="field-head">
+                            <div className="field-head reveal-host">
                                 <label htmlFor="create-increment">{INCREMENT_LABEL}</label>
                                 <Help setting="increment_seconds" />
-                            </span>
+                            </div>
                             <select
                                 id="create-increment"
                                 value={record.increment_seconds}

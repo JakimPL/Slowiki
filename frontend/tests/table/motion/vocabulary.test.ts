@@ -9,12 +9,17 @@ const SHEET = readFileSync(new URL("../../../src/styles.css", import.meta.url), 
 
 const DECLARATION = /(?:^|[;{}])\s*(?<property>animation[a-z-]*|transition[a-z-]*)\s*:\s*(?<value>[^;{}]*)/g;
 const TIME = /(?<![\w-])\d*\.?\d+m?s(?![\w-])/;
+const INSTANT = /(?<![\w-])0m?s(?![\w-])/g;
 const CURVE = /(?<![\w-])(?:linear|ease-in-out|ease-in|ease-out|ease|step-start|step-end|steps|cubic-bezier)(?![\w-])/;
 const PACED = new Set(["animation", "transition", "animation-duration", "transition-duration"]);
 
 interface Declaration {
     readonly property: string;
     readonly value: string;
+}
+
+function paces(value: string): string {
+    return value.replaceAll(INSTANT, "");
 }
 
 function declarations(): readonly Declaration[] {
@@ -25,8 +30,8 @@ function declarations(): readonly Declaration[] {
 }
 
 describe("the motion vocabulary", () => {
-    it("spends a named step at every use site", () => {
-        const literal = declarations().filter((held) => TIME.test(held.value));
+    it("spends a named step wherever an effect takes time", () => {
+        const literal = declarations().filter((held) => TIME.test(paces(held.value)));
         expect(literal.map((held) => `${held.property}: ${held.value}`)).toEqual([]);
     });
 
@@ -35,7 +40,7 @@ describe("the motion vocabulary", () => {
         expect(literal.map((held) => `${held.property}: ${held.value}`)).toEqual([]);
     });
 
-    it("names a step wherever an effect takes time", () => {
+    it("names a step in every declaration that paces something", () => {
         const paced = declarations().filter((held) => PACED.has(held.property));
         expect(paced.length).toBeGreaterThan(0);
         expect(paced.filter((held) => !held.value.includes("var(--motion-")).map((held) => held.property)).toEqual([]);

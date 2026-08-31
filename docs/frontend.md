@@ -113,7 +113,9 @@ F16. **Motion is one vocabulary.** Durations and easing curves are named steps i
      effect is stilled the moment it is written. What that leaves behind is the appearance the
      element declares for itself: keyframes add movement to a resting state, they never supply one.
      Where the client must know a duration, it reads the step back out of the stylesheet
-     (`play/motion/tokens.ts`) rather than restating it.
+     (`play/motion/tokens.ts`) rather than restating it. A region that opens or closes grows through
+     the one reveal (`table/motion/Reveal.tsx`), which holds its content mounted and out of reach
+     while it is shut, so a new disclosure inherits the movement rather than inventing one.
 
 ## Where a new concern goes
 

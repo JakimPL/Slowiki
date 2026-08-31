@@ -75,7 +75,7 @@ describe("RulesSheet", () => {
         expect(markup).toContain('aria-expanded="false"');
         expect(markup).toContain('aria-controls="help-premoves"');
         expect(markup).toContain("A player may prepare a move while waiting");
-        expect(markup).toContain('id="help-premoves" hidden=""');
+        expect(markup).toContain('<div class="reveal"><div class="reveal-body" id="help-premoves">');
     });
 
     it("names a choice in the reader's own words", () => {
