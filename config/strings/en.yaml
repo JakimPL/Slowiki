@@ -216,10 +216,17 @@ rules:
   save_button: Save
   saved_none: Nothing saved yet.
   delete: Delete
+  confirm_heading: Are you sure?
+  confirm_revert: Your unsaved changes to these rules will be lost.
+  confirm_delete: "These saved rules will be gone: {label}."
+  confirm_keep: Keep them
   export: Copy as text
   retired: Its game is no longer offered.
   letters_heading: The letters
   letters_close: Close the letters
+  letters_done: Done
+  letters_cancel: Cancel
+  letters_shut: Close
   letter_points: Points
   letter_count: In the bag
   letter_category: Color
@@ -252,6 +259,34 @@ rules:
     polish: Polish
     sjp: Polish (SJP)
     osps: Polish tournament (OSPS)
+  help_label: What this rule does
+  help:
+    board: The pattern of premium squares the game is played on.
+    alphabet: The letters the bag holds and what each one is worth.
+    distribution: How many of each letter go into the bag.
+    dictionary: The word list every play is judged against.
+    seats: How many players sit at the table.
+    rack_size: How many letters a player holds at once. Left open, one player takes the whole bag.
+    blanks: How many blank tiles the bag holds. A blank stands for any letter and scores nothing.
+    validate_on_play: Every word is checked against the dictionary as it is played, and one the list does not hold is refused.
+    premoves: A player may prepare a move while waiting, and it plays itself once the turn arrives.
+    pass_allowed: A player may give up a turn. A clock that runs out passes the turn on whatever this says.
+    exchange_limit: How many times a player may swap letters for new ones.
+    exchange_min_bag: An exchange needs at least this many letters left in the bag.
+    opening_tiles: How many letters the first word of the game takes.
+    opening_covers_center: The first word must cross the star at the middle of the board.
+    bingo_bonus: Extra points for a play that uses enough letters at once.
+    bingo_tiles: How many letters a play must use to earn that bonus. Left open, it takes the whole rack.
+    ending: Whether the game ends the moment one player runs out of letters, or plays on until everyone has.
+    rack_penalties: Each player's leftover letters are deducted from their score when the game ends.
+    going_out_award: The player who runs out first also takes what everyone else is left holding.
+    going_out_bonus: A flat number of points for the player who runs out first.
+    pass_end_rounds: The game ends after this many full rounds in which every player passes.
+    scoreless_end_limit: The game ends after this many moves in a row that score nothing.
+    per_turn_seconds: How long a player has for one turn. When it runs out the turn passes on and any prepared move is dropped.
+    total_seconds: How long a player has for the whole game. When it runs out that player watches the rest.
+    increment_seconds: Time added to a player's clock after each play or exchange. It needs a game budget to add to.
+    letters: Change what each letter is worth, how many the bag holds, and what colour it carries.
   group:
     table: The table
     words: Words and the dictionary

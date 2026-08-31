@@ -2,9 +2,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
 import type { AlphabetPreset, DistributionPreset } from "../../../src/api/tables";
+import type { LetterAdjustments } from "../../../src/play/rules/changes";
 import { LettersEditor } from "../../../src/table/rules/LettersEditor";
-import { someRules } from "../../fixtures/positions";
-import { aComposing } from "../../fixtures/rules";
 
 const ALPHABET: AlphabetPreset = {
     name: "literaki",
@@ -25,16 +24,20 @@ const PLAIN: AlphabetPreset = {
 
 const DISTRIBUTION: DistributionPreset = { name: "polish", counts: { "9": ["A"], "2": ["B", "C"] } };
 
-function markupOf(alphabet: AlphabetPreset, letters: Record<string, object> = {}): string {
+const NOTHING = (): void => undefined;
+
+function markupOf(alphabet: AlphabetPreset, letters: LetterAdjustments = {}): string {
     return renderToStaticMarkup(
         <LettersEditor
-            composing={aComposing(someRules({ letters, blanks: 2 }))}
+            adjustments={letters}
+            blanks={2}
             alphabet={alphabet}
             distribution={DISTRIBUTION}
             minimum={0}
             maximum={99}
             step={1}
             readOnly={false}
+            onChange={NOTHING}
         />,
     );
 }
@@ -69,6 +72,27 @@ describe("LettersEditor", () => {
         expect(markup).toContain("Yellow");
         expect(markup).toContain("Blue");
         expect(markup).not.toContain(">yellow<");
+    });
+
+    it("keeps a change to itself until it is asked for", () => {
+        const asked: LetterAdjustments[] = [];
+        const markup = renderToStaticMarkup(
+            <LettersEditor
+                adjustments={{}}
+                blanks={2}
+                alphabet={ALPHABET}
+                distribution={DISTRIBUTION}
+                minimum={0}
+                maximum={99}
+                step={1}
+                readOnly={false}
+                onChange={(held): void => {
+                    asked.push(held);
+                }}
+            />,
+        );
+        expect(markup).toContain("letters-grid");
+        expect(asked).toHaveLength(0);
     });
 
     it("marks the letters an adjustment touches", () => {

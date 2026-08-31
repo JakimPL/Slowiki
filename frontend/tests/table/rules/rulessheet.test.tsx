@@ -9,7 +9,16 @@ import { aComposing } from "../../fixtures/rules";
 const NOTHING = (): void => undefined;
 
 function markupOf(composing: Composing = aComposing()): string {
-    return renderToStaticMarkup(<RulesSheet composing={composing} readOnly={false} onClose={NOTHING} />);
+    return renderToStaticMarkup(
+        <RulesSheet
+            composing={composing}
+            readOnly={false}
+            editing={false}
+            onEdit={NOTHING}
+            onAsk={NOTHING}
+            onClose={NOTHING}
+        />,
+    );
 }
 
 describe("RulesSheet", () => {
@@ -58,6 +67,15 @@ describe("RulesSheet", () => {
         expect(markup).toContain('class="stepper-value"');
         expect(markup).toContain('inputMode="numeric"');
         expect(markup).toContain('value="6"');
+    });
+
+    it("offers one sentence for every rule it draws", () => {
+        const markup = markupOf(aComposing(someRules({ premoves: false })));
+        expect(markup).toContain('class="rules-help"');
+        expect(markup).toContain('aria-expanded="false"');
+        expect(markup).toContain('aria-controls="help-premoves"');
+        expect(markup).toContain("A player may prepare a move while waiting");
+        expect(markup).toContain('id="help-premoves" hidden=""');
     });
 
     it("names a choice in the reader's own words", () => {

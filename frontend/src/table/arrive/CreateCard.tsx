@@ -4,6 +4,7 @@ import type { RulesConfig, SettingAllowance, SettingName } from "../../api/table
 import { outsideGroup } from "../../play/rules/deviation";
 import { seatsOffered } from "../../play/rules/seats";
 import type { Composing } from "../../play/rules/useComposing";
+import { Help } from "../rules/Help";
 import {
     budgetCaption,
     CREATE_BUTTON,
@@ -62,9 +63,13 @@ export function CreateCard({ composing, busy, named, onCreate, onOpenRules }: Cr
                             ))}
                         </select>
                     </label>
-                    <label className="field">
-                        <span>{SEATS_LABEL}</span>
+                    <div className="field">
+                        <span className="field-head">
+                            <label htmlFor="create-seats">{SEATS_LABEL}</label>
+                            <Help setting="seats" />
+                        </span>
                         <select
+                            id="create-seats"
                             value={record.seats}
                             onChange={(change): void => {
                                 composing.setSetting("seats", Number(change.target.value));
@@ -76,11 +81,15 @@ export function CreateCard({ composing, busy, named, onCreate, onOpenRules }: Cr
                                 </option>
                             ))}
                         </select>
-                    </label>
+                    </div>
                     <div className="field-row">
-                        <label className="field">
-                            <span>{TIME_LABEL}</span>
+                        <div className="field">
+                            <span className="field-head">
+                                <label htmlFor="create-total">{TIME_LABEL}</label>
+                                <Help setting="total_seconds" />
+                            </span>
                             <select
+                                id="create-total"
                                 value={record.total_seconds ?? ""}
                                 onChange={(change): void => {
                                     composing.setSetting(
@@ -96,10 +105,14 @@ export function CreateCard({ composing, busy, named, onCreate, onOpenRules }: Cr
                                     </option>
                                 ))}
                             </select>
-                        </label>
-                        <label className="field">
-                            <span>{INCREMENT_LABEL}</span>
+                        </div>
+                        <div className="field">
+                            <span className="field-head">
+                                <label htmlFor="create-increment">{INCREMENT_LABEL}</label>
+                                <Help setting="increment_seconds" />
+                            </span>
                             <select
+                                id="create-increment"
                                 value={record.increment_seconds}
                                 disabled={record.total_seconds === null}
                                 onChange={(change): void => {
@@ -112,7 +125,7 @@ export function CreateCard({ composing, busy, named, onCreate, onOpenRules }: Cr
                                     </option>
                                 ))}
                             </select>
-                        </label>
+                        </div>
                     </div>
                     <button type="button" className="rules-row" onClick={onOpenRules}>
                         <span className="rules-row-label">{RULES_ROW_LABEL}</span>

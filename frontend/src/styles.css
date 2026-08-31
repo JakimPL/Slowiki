@@ -335,6 +335,13 @@ select {
     font-weight: 600;
 }
 
+.field-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+}
+
 .field-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -1941,6 +1948,28 @@ button.word-chip[data-open] {
     overscroll-behavior: contain;
 }
 
+.sheet-scrim-deep {
+    z-index: 16;
+}
+
+.sheet[data-depth="2"] {
+    z-index: 17;
+}
+
+.letters-foot {
+    position: sticky;
+    bottom: 0;
+    display: flex;
+    gap: 10px;
+    margin-top: 2px;
+    padding-top: 10px;
+    background: var(--chrome-panel);
+}
+
+.letters-foot .action {
+    flex: 1;
+}
+
 .sheet-heading {
     margin: 0;
     font-size: 17px;
@@ -2084,6 +2113,36 @@ button.word-chip[data-open] {
 .rules-item-head > :last-child {
     min-width: 0;
     margin-left: auto;
+}
+
+.rules-help {
+    flex: none;
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    border: 1px solid var(--chrome-edge);
+    border-radius: 999px;
+    background: none;
+    color: var(--chrome-muted);
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.rules-help[aria-expanded="true"] {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+}
+
+.rules-help-note {
+    flex-basis: 100%;
+    order: 1;
+    color: var(--chrome-muted);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.35;
 }
 
 .rules-item-note {
@@ -2356,6 +2415,57 @@ button.word-chip[data-open] {
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
+}
+
+.confirm {
+    position: fixed;
+    inset: 0;
+    z-index: 22;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+}
+
+.confirm-scrim {
+    position: absolute;
+    inset: 0;
+    padding: 0;
+    border: 0;
+    background: rgb(0 0 0 / 35%);
+}
+
+.confirm-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: min(100%, 360px);
+    padding: 16px;
+    border: 1px solid var(--chrome-edge);
+    border-radius: 16px;
+    background: var(--chrome-panel);
+    box-shadow: 0 12px 40px rgb(0 0 0 / 30%);
+}
+
+.confirm-card h2 {
+    margin: 0;
+    font-size: 17px;
+}
+
+.confirm-sentence {
+    margin: 0;
+    color: var(--chrome-muted);
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.confirm-foot {
+    display: flex;
+    gap: 10px;
+}
+
+.confirm-foot .action {
+    flex: 1;
 }
 
 .game-over {
@@ -2651,6 +2761,7 @@ button.word-chip[data-open] {
 .stepper-step:focus-visible,
 .stepper-value:focus-visible,
 .rules-group .rules-group-head:focus-visible,
+.rules-help:focus-visible,
 .rules-revert:focus-visible,
 .rules-saved-name:focus-visible,
 .rules-row:focus-visible,

@@ -14,6 +14,7 @@ import {
     valueCaption,
 } from "../strings";
 import { Budget } from "./Budget";
+import { Help } from "./Help";
 import { OptionalCount } from "./OptionalCount";
 import { Picker } from "./Picker";
 import { Stepper } from "./Stepper";
@@ -41,6 +42,7 @@ export function RulesRow({ control, standard, readOnly, onChange, onRevert }: Ru
         <div className="rules-item" data-deviating={standard === null ? undefined : "true"}>
             <div className="rules-item-head">
                 <span className="menu-label">{label}</span>
+                <Help setting={control.setting} />
                 {held}
             </div>
             <p className="rules-item-note">{standard === null ? "" : standardNote(valueCaption(standard))}</p>

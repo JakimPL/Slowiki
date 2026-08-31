@@ -38,7 +38,9 @@ F6. **Every word comes from the catalog.** No user-facing text is written in a c
     server sends — a tile category, a board, an alphabet, a letter distribution, a word list — reaches
     the eye through `categoryCaption` or `choiceCaption`, which speak the authored word and fall back to
     the identifier itself; `tests/test_labels.py` holds both catalogs against what is on disk, so a
-    preset ships readable.
+    preset ships readable. Every setting also carries one authored sentence: `SETTING_HELP` is
+    exhaustive over `SettingName`, so a new setting fails the build until it is explained, and
+    `tests/test_labels.py` holds that sentence in every locale.
 
 F7. **Color and metric come from tokens.** The theme arrives as tokens and becomes custom properties;
     components set properties and the stylesheet spends them. A derived value — a tint, a wash, a
@@ -100,7 +102,9 @@ F14. **Tests reach the logic.** Pure modules carry the behavior tests, which is 
 
 F15. **Every control is a real control.** Actions are buttons, groups are labeled, labels come from
      the catalog, pressed and open states are announced, and focus stays visible. An affordance
-     reachable only by a gesture gets a second route that a keyboard can take.
+     reachable only by a gesture gets a second route that a keyboard can take. A surface that stacks
+     answers Escape by closing its innermost open layer, and the order of those layers is a tested
+     rule (`play/rules/ladder.ts`) rather than a chain of branches in a view.
 
 ## Where a new concern goes
 

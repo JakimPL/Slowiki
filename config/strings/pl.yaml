@@ -222,10 +222,17 @@ rules:
   save_button: Zapisz
   saved_none: Nic jeszcze nie zapisano.
   delete: Usuń
+  confirm_heading: Na pewno?
+  confirm_revert: Niezapisane zmiany w tych zasadach przepadną.
+  confirm_delete: "Te zapisane zasady znikną: {label}."
+  confirm_keep: Zostaw
   export: Kopiuj jako tekst
   retired: Ta gra nie jest już oferowana.
   letters_heading: Litery
   letters_close: Zamknij litery
+  letters_done: Gotowe
+  letters_cancel: Anuluj
+  letters_shut: Zamknij
   letter_points: Punkty
   letter_count: W worku
   letter_category: Kolor
@@ -259,6 +266,34 @@ rules:
     polish: polski
     sjp: polski (SJP)
     osps: turniejowy (OSPS)
+  help_label: Co robi ta zasada
+  help:
+    board: Układ pól premiowych na planszy.
+    alphabet: Litery w worku i wartość każdej z nich.
+    distribution: Ile sztuk każdej litery trafia do worka.
+    dictionary: Lista słów, według której oceniamy każdy ruch.
+    seats: Ilu graczy siada przy stole.
+    rack_size: Ile liter gracz trzyma naraz. Bez limitu jeden gracz bierze cały worek.
+    blanks: Ile blanków jest w worku. Blank zastępuje dowolną literę i nie daje punktów.
+    validate_on_play: Każde słowo sprawdzamy w słowniku od razu, a słowo spoza listy odrzucamy.
+    premoves: Gracz może przygotować ruch, czekając na swoją kolej, a ruch wykona się sam.
+    pass_allowed: Gracz może oddać kolejkę. Zegar, który się skończy, przekazuje kolejkę dalej niezależnie od tego ustawienia.
+    exchange_limit: Ile razy gracz może wymienić litery na nowe.
+    exchange_min_bag: Do wymiany potrzeba co najmniej tylu liter w worku.
+    opening_tiles: Ile liter ma pierwsze słowo w grze.
+    opening_covers_center: Pierwsze słowo musi przechodzić przez gwiazdkę na środku planszy.
+    bingo_bonus: Dodatkowe punkty za ruch, który zużywa dość liter naraz.
+    bingo_tiles: Ile liter musi zużyć ruch, żeby dostać tę premię. Bez limitu liczy się cały stojak.
+    ending: Czy gra kończy się, gdy pierwszy gracz zejdzie z liter, czy trwa aż zejdą wszyscy.
+    rack_penalties: Litery, które gracz ma na stojaku, odejmujemy od jego wyniku na koniec gry.
+    going_out_award: Gracz, który pierwszy zejdzie z liter, zabiera też litery pozostałych.
+    going_out_bonus: Stała liczba punktów dla gracza, który pierwszy zejdzie z liter.
+    pass_end_rounds: Gra kończy się po tylu pełnych rundach, w których wszyscy pasują.
+    scoreless_end_limit: Gra kończy się po tylu ruchach z rzędu bez punktów.
+    per_turn_seconds: Ile czasu gracz ma na jedną kolejkę. Gdy czas minie, kolejka idzie dalej, a przygotowany ruch przepada.
+    total_seconds: Ile czasu gracz ma na całą grę. Gdy czas minie, gracz ogląda resztę partii.
+    increment_seconds: Czas dopisywany do zegara po każdym ruchu albo wymianie. Potrzebuje czasu na grę, do którego może dopisać.
+    letters: Zmień wartość każdej litery, liczbę sztuk w worku i jej kolor.
   group:
     table: Stół
     words: Słowa i słownik

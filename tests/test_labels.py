@@ -79,6 +79,12 @@ def test_every_setting_has_a_label(locale: str) -> None:
 
 
 @pytest.mark.parametrize("locale", locales())
+def test_every_setting_says_what_it_does(locale: str) -> None:
+    for setting in SettingName:
+        assert spoken(locale, f"rules.help.{setting.value}").endswith(".")
+
+
+@pytest.mark.parametrize("locale", locales())
 def test_every_group_has_a_heading(locale: str) -> None:
     for group in SettingGroup:
         assert spoken(locale, f"rules.group.{group.value}")

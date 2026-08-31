@@ -54,6 +54,7 @@ export const RULES_REVERT = text("rules.revert");
 export const RULES_LIMITED = text("rules.limited");
 export const RULES_UNLIMITED = text("rules.unlimited");
 export const RULES_UNTIMED = text("rules.untimed");
+export const RULES_HELP = text("rules.help_label");
 export const RULES_CUSTOM = text("rules.custom");
 export const RULES_CUSTOM_SPAN = text("rules.custom_span");
 export const RULES_STEP_UP = text("rules.step_up");
@@ -67,10 +68,16 @@ export const RULES_SAVE_PLACEHOLDER = text("rules.save_placeholder");
 export const RULES_SAVE_BUTTON = text("rules.save_button");
 export const RULES_SAVED_NONE = text("rules.saved_none");
 export const RULES_DELETE = text("rules.delete");
+export const CONFIRM_HEADING = text("rules.confirm_heading");
+export const CONFIRM_REVERT = text("rules.confirm_revert");
+export const CONFIRM_KEEP = text("rules.confirm_keep");
 export const RULES_EXPORT = text("rules.export");
 export const RULES_RETIRED = text("rules.retired");
 export const LETTERS_HEADING = text("rules.letters_heading");
 export const LETTERS_CLOSE = text("rules.letters_close");
+export const LETTERS_DONE = text("rules.letters_done");
+export const LETTERS_CANCEL = text("rules.letters_cancel");
+export const LETTERS_SHUT = text("rules.letters_shut");
 export const LETTER_POINTS = text("rules.letter_points");
 export const LETTER_COUNT = text("rules.letter_count");
 export const LETTER_CATEGORY = text("rules.letter_category");
@@ -138,6 +145,34 @@ export const SETTING_LABELS: Record<SettingName, string> = {
     total_seconds: text("rules.setting.total_seconds"),
     increment_seconds: text("rules.setting.increment_seconds"),
     letters: text("rules.setting.letters"),
+};
+export const SETTING_HELP: Record<SettingName, string> = {
+    board: text("rules.help.board"),
+    alphabet: text("rules.help.alphabet"),
+    distribution: text("rules.help.distribution"),
+    dictionary: text("rules.help.dictionary"),
+    seats: text("rules.help.seats"),
+    rack_size: text("rules.help.rack_size"),
+    blanks: text("rules.help.blanks"),
+    validate_on_play: text("rules.help.validate_on_play"),
+    premoves: text("rules.help.premoves"),
+    pass_allowed: text("rules.help.pass_allowed"),
+    exchange_limit: text("rules.help.exchange_limit"),
+    exchange_min_bag: text("rules.help.exchange_min_bag"),
+    opening_tiles: text("rules.help.opening_tiles"),
+    opening_covers_center: text("rules.help.opening_covers_center"),
+    bingo_bonus: text("rules.help.bingo_bonus"),
+    bingo_tiles: text("rules.help.bingo_tiles"),
+    ending: text("rules.help.ending"),
+    rack_penalties: text("rules.help.rack_penalties"),
+    going_out_award: text("rules.help.going_out_award"),
+    going_out_bonus: text("rules.help.going_out_bonus"),
+    pass_end_rounds: text("rules.help.pass_end_rounds"),
+    scoreless_end_limit: text("rules.help.scoreless_end_limit"),
+    per_turn_seconds: text("rules.help.per_turn_seconds"),
+    total_seconds: text("rules.help.total_seconds"),
+    increment_seconds: text("rules.help.increment_seconds"),
+    letters: text("rules.help.letters"),
 };
 export const GROUP_LABELS: Record<SettingGroup, string> = {
     table: text("rules.group.table"),
@@ -292,6 +327,10 @@ export function rulesCaption(changes: number): string {
 
 export function bagTotalCaption(tiles: number): string {
     return counted("rules.bag_total", tiles);
+}
+
+export function confirmDelete(label: string): string {
+    return text("rules.confirm_delete", { label });
 }
 
 export function standardNote(value: string): string {

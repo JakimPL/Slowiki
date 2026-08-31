@@ -5,6 +5,7 @@ import { useCopy } from "../../play/device/useCopy";
 import type { SavedPreset } from "../../play/rules/preset";
 import type { Composing } from "../../play/rules/useComposing";
 import {
+    confirmDelete,
     COPIED_MARK,
     RULES_DELETE,
     RULES_EXPORT,
@@ -15,14 +16,16 @@ import {
     RULES_SAVED_HEADING,
     RULES_SAVED_NONE,
 } from "../strings";
+import type { Confirmation } from "./Confirm";
 
 const EXPORT_INDENT = 4;
 
 export interface SavedRulesProps {
     readonly composing: Composing;
+    readonly onAsk: (asked: Confirmation) => void;
 }
 
-export function SavedRules({ composing }: SavedRulesProps): ReactElement {
+export function SavedRules({ composing, onAsk }: SavedRulesProps): ReactElement {
     const [typed, setTyped] = useState<string | null>(null);
     const { copied, copy } = useCopy();
     const saved = composing.entry?.saved === true ? composing.entry : null;
@@ -85,7 +88,13 @@ export function SavedRules({ composing }: SavedRulesProps): ReactElement {
                                 type="button"
                                 className="rules-revert"
                                 onClick={(): void => {
-                                    composing.deletePreset(preset.id);
+                                    onAsk({
+                                        sentence: confirmDelete(preset.label),
+                                        proceed: RULES_DELETE,
+                                        onProceed: (): void => {
+                                            composing.deletePreset(preset.id);
+                                        },
+                                    });
                                 }}
                             >
                                 {RULES_DELETE}

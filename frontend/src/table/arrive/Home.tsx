@@ -1,13 +1,17 @@
 import type { ReactElement } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { createTable, joinTable, readOfferings } from "../../api/client";
 import { reasonOf } from "../../api/refusal";
 import type { OfferingsResponse, RulesConfig, TableAdmission } from "../../api/tables";
 import type { Tile } from "../../api/views";
 import type { Inspecting } from "../../play/rules/inspecting";
+import { innermost } from "../../play/rules/ladder";
 import { useComposing } from "../../play/rules/useComposing";
 import { rememberName, storedName } from "../../play/seats/identity";
+import { boundKeys } from "../input/keys";
+import type { Confirmation } from "../rules/Confirm";
+import { Confirm } from "../rules/Confirm";
 import { RulesSheet } from "../rules/RulesSheet";
 import { LocaleToggle } from "../seats/LocaleToggle";
 import { ModeToggle } from "../seats/ModeToggle";
@@ -50,6 +54,8 @@ export function Home({ invitedCode, themeNote, onArrive, onResume, onForget }: H
     const [joining, setJoining] = useState(invitedCode !== null);
     const [showingRules, setShowingRules] = useState(false);
     const [inspected, setInspected] = useState<Inspecting | null>(null);
+    const [editingLetters, setEditingLetters] = useState(false);
+    const [asked, setAsked] = useState<Confirmation | null>(null);
     const [busy, setBusy] = useState(false);
     const [trouble, setTrouble] = useState<string | null>(null);
     const composing = useComposing(arrivals);
@@ -71,6 +77,38 @@ export function Home({ invitedCode, themeNote, onArrive, onResume, onForget }: H
             alive = false;
         };
     }, []);
+
+    const retreat = (): void => {
+        const layer = innermost({
+            confirm: asked !== null,
+            letters: editingLetters,
+            inspected: inspected !== null,
+            rules: showingRules,
+        });
+        if (layer === "confirm") {
+            setAsked(null);
+        } else if (layer === "letters") {
+            setEditingLetters(false);
+        } else if (layer === "inspected") {
+            setInspected(null);
+        } else if (layer === "rules") {
+            setShowingRules(false);
+        }
+    };
+    const retreatRef = useRef(retreat);
+    useEffect(() => {
+        retreatRef.current = retreat;
+    });
+    useEffect(
+        () =>
+            boundKeys(document, {
+                onEscape: (): void => {
+                    retreatRef.current();
+                },
+                onEnter: (): void => undefined,
+            }),
+        [],
+    );
 
     const cleanedName = name.trim() === "" ? null : name.trim();
 
@@ -183,6 +221,9 @@ export function Home({ invitedCode, themeNote, onArrive, onResume, onForget }: H
                 <RulesSheet
                     composing={composing}
                     readOnly={false}
+                    editing={editingLetters}
+                    onEdit={setEditingLetters}
+                    onAsk={setAsked}
                     onClose={(): void => {
                         setShowingRules(false);
                     }}
@@ -192,8 +233,19 @@ export function Home({ invitedCode, themeNote, onArrive, onResume, onForget }: H
                 <RulesSheet
                     composing={inspected}
                     readOnly={true}
+                    editing={editingLetters}
+                    onEdit={setEditingLetters}
+                    onAsk={setAsked}
                     onClose={(): void => {
                         setInspected(null);
+                    }}
+                />
+            )}
+            {asked === null ? null : (
+                <Confirm
+                    asked={asked}
+                    onKeep={(): void => {
+                        setAsked(null);
                     }}
                 />
             )}

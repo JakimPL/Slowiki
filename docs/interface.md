@@ -107,6 +107,23 @@ inside the sheet, which is what the sheet's own scroll is for.
   neighbours, and the same words serve the sheet, the create card, the chips and the standard note. A
   budget's ladder ends in **Custom…**, which opens a field of seconds beside it; a value already off
   the ladder opens that field on sight, so the top rung is no ceiling.
+- **Work is never dropped without asking.** *Back to the standard rules* asks first whenever the
+  record holds edits the player has not saved, and deleting a saved record asks by name. The question
+  is one centered card — a sentence, the answer that proceeds, and the answer that keeps — in the shape
+  the end-of-game card already uses.
+- **Escape closes the innermost thing that is open**, in the order the question, the letters, the
+  sheet — so a laptop player leaves a surface the same way they entered it.
+- **The letters are edited as a draft.** The letters box holds its own copy of the adjustments: the
+  grid, the panel and the bag total all read that copy, and the foot offers **Done**, which hands it to
+  the record, beside **Cancel**, which drops it. A guest reading rules they cannot change gets one
+  **Close**. Its scrim sits above the rules sheet, so the sheet behind it is out of reach until the box
+  is answered.
+- **Every rule explains itself.** A small `?` sits beside each rule's name and opens one authored
+  sentence under the row, saying what the rule does — what an expired clock does with the turn, what a
+  bonus play must use, when the game ends. It is a disclosure, not a hover, so a phone reaches it the
+  same way a laptop does, and closing it leaves the row exactly as tall as it was. The card's own
+  three rules — the players, the clock and the bonus per move — carry the same affordance, since the
+  sheet does not draw the group they belong to.
 - **A row ends where every other row ends.** The label opens the line and the control closes it,
   pushed to the right edge whether or not it wraps to a line of its own, and a control too wide for
   the line wraps inside itself rather than past that edge. Every panel's buttons are the same button:

@@ -21,6 +21,14 @@ describe("CreateCard", () => {
         }
     });
 
+    it("explains the three rules it holds itself", () => {
+        const markup = markupOf();
+        expect(markup).toContain('aria-controls="help-seats"');
+        expect(markup).toContain('aria-controls="help-total_seconds"');
+        expect(markup).toContain('aria-controls="help-increment_seconds"');
+        expect(markup).toContain("How many players sit at the table.");
+    });
+
     it("names each game in the reader's own words", () => {
         const markup = markupOf();
         expect(markup).toContain(">Literaki<");

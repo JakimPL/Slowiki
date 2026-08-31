@@ -5,9 +5,9 @@ import type { AlphabetPreset, DistributionPreset } from "../../api/tables";
 import type { Tile } from "../../api/views";
 import type { LetterChange } from "../../play/rules/adjustments";
 import { withCategory, withLetter } from "../../play/rules/adjustments";
+import type { LetterAdjustments } from "../../play/rules/changes";
 import type { LetterRow } from "../../play/rules/letters";
 import { bagTotal, categoriesOf, letterRows } from "../../play/rules/letters";
-import type { Composing } from "../../play/rules/useComposing";
 import {
     bagTotalCaption,
     categoryCaption,
@@ -23,26 +23,28 @@ import { Stepper } from "./Stepper";
 const NO_IDENTIFIER = 0;
 
 export interface LettersEditorProps {
-    readonly composing: Composing;
+    readonly adjustments: LetterAdjustments;
+    readonly blanks: number;
     readonly alphabet: AlphabetPreset;
     readonly distribution: DistributionPreset;
     readonly minimum: number;
     readonly maximum: number;
     readonly step: number;
     readonly readOnly: boolean;
+    readonly onChange: (adjustments: LetterAdjustments) => void;
 }
 
 export function LettersEditor({
-    composing,
+    adjustments,
+    blanks,
     alphabet,
     distribution,
     minimum,
     maximum,
     step,
     readOnly,
+    onChange,
 }: LettersEditorProps): ReactElement {
-    const record = composing.record;
-    const adjustments = record?.letters ?? {};
     const standard = letterRows(alphabet, distribution, {});
     const rows = letterRows(alphabet, distribution, adjustments);
     const categories = categoriesOf(standard);
@@ -51,7 +53,7 @@ export function LettersEditor({
     const chosen = rows.find((row) => row.symbol === held) ?? rows[0] ?? null;
     const coloredOptions = categories.map((category) => ({ value: category, caption: categoryCaption(category) }));
     const change = (symbol: string, asked: LetterChange): void => {
-        composing.setSetting("letters", withLetter(adjustments, standard, symbol, asked));
+        onChange(withLetter(adjustments, standard, symbol, asked));
     };
     return (
         <>
@@ -73,7 +75,7 @@ export function LettersEditor({
                         step={step}
                         disabled={readOnly}
                         onChange={(value): void => {
-                            composing.setSetting("letters", withCategory(adjustments, standard, colored, value));
+                            onChange(withCategory(adjustments, standard, colored, value));
                         }}
                     />
                 </div>
@@ -142,7 +144,7 @@ export function LettersEditor({
                 </div>
             )}
             <p className="letters-total" role="status">
-                {bagTotalCaption(bagTotal(rows, record?.blanks ?? 0))}
+                {bagTotalCaption(bagTotal(rows, blanks))}
             </p>
         </>
     );

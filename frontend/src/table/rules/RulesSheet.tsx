@@ -8,6 +8,7 @@ import { useSheetFocus } from "../input/useSheetFocus";
 import type { Option } from "../menu/Options";
 import { Options } from "../menu/Options";
 import {
+    CONFIRM_REVERT,
     RULES_CLOSE,
     RULES_EXPERT_HIDDEN,
     RULES_EXPERT_LABEL,
@@ -15,6 +16,7 @@ import {
     RULES_HEADING,
     RULES_REVERT_ALL,
 } from "../strings";
+import type { Confirmation } from "./Confirm";
 import { LettersDepth } from "./LettersDepth";
 import { RulesGroup } from "./RulesGroup";
 import { SavedRules } from "./SavedRules";
@@ -29,16 +31,25 @@ const EXPERT_OPTIONS: readonly Option<boolean>[] = [
 export interface RulesSheetProps {
     readonly composing: Composing;
     readonly readOnly: boolean;
+    readonly editing: boolean;
+    readonly onEdit: (editing: boolean) => void;
+    readonly onAsk: (asked: Confirmation) => void;
     readonly onClose: () => void;
 }
 
-export function RulesSheet({ composing, readOnly, onClose }: RulesSheetProps): ReactElement {
+export function RulesSheet({ composing, readOnly, editing, onEdit, onAsk, onClose }: RulesSheetProps): ReactElement {
     const { catalog, deviations } = composing;
     const sheet = useSheetFocus<HTMLDivElement>();
     const [open, setOpen] = useState<readonly SettingGroup[]>(() => deviatingGroups(composing));
     const [expert, setExpert] = useState(false);
-    const [editing, setEditing] = useState(false);
     const letters = catalog.bySetting.get("letters") ?? null;
+    const revert = (): void => {
+        if (composing.unsaved) {
+            onAsk({ sentence: CONFIRM_REVERT, proceed: RULES_REVERT_ALL, onProceed: composing.revertAll });
+            return;
+        }
+        composing.revertAll();
+    };
     return (
         <div className="sheet-region">
             <button type="button" className="sheet-scrim" aria-label={RULES_CLOSE} onClick={onClose} />
@@ -69,13 +80,13 @@ export function RulesSheet({ composing, readOnly, onClose }: RulesSheetProps): R
                             onOpenLetters={
                                 rows.settings.includes("letters")
                                     ? (): void => {
-                                          setEditing(true);
+                                          onEdit(true);
                                       }
                                     : null
                             }
                         />
                     ))}
-                {readOnly ? null : <SavedRules composing={composing} />}
+                {readOnly ? null : <SavedRules composing={composing} onAsk={onAsk} />}
                 {holdsExpert(catalog) ? (
                     <div className="menu-row">
                         <span className="menu-label">{RULES_EXPERT_LABEL}</span>
@@ -93,7 +104,7 @@ export function RulesSheet({ composing, readOnly, onClose }: RulesSheetProps): R
                         type="button"
                         className="action action-quiet"
                         disabled={deviations.length === 0}
-                        onClick={composing.revertAll}
+                        onClick={revert}
                     >
                         {RULES_REVERT_ALL}
                     </button>
@@ -107,7 +118,7 @@ export function RulesSheet({ composing, readOnly, onClose }: RulesSheetProps): R
                     maximum={letters.maximum ?? 0}
                     step={letters.step ?? 1}
                     onClose={(): void => {
-                        setEditing(false);
+                        onEdit(false);
                     }}
                 />
             ) : null}

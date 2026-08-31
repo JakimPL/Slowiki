@@ -2,6 +2,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
 import type { Composing } from "../../../src/play/rules/useComposing";
+const NOTHING = (): void => undefined;
+
 import { SavedRules } from "../../../src/table/rules/SavedRules";
 import { someRules } from "../../fixtures/positions";
 import { aComposing } from "../../fixtures/rules";
@@ -12,7 +14,7 @@ function withPresets(presets: Composing["presets"]): Composing {
 
 describe("SavedRules", () => {
     it("asks for a name and rests the save while none is given", () => {
-        const markup = renderToStaticMarkup(<SavedRules composing={withPresets([])} />);
+        const markup = renderToStaticMarkup(<SavedRules composing={withPresets([])} onAsk={NOTHING} />);
         expect(markup).toContain("Name these rules");
         expect(markup).toContain("Save");
         expect(markup).toContain('disabled=""');
@@ -30,7 +32,7 @@ describe("SavedRules", () => {
             offered: true,
         };
         const markup = renderToStaticMarkup(
-            <SavedRules composing={{ ...composing, entry, entries: [...composing.entries, entry] }} />,
+            <SavedRules composing={{ ...composing, entry, entries: [...composing.entries, entry] }} onAsk={NOTHING} />,
         );
         expect(markup).toContain('value="House rules"');
     });
@@ -47,6 +49,7 @@ describe("SavedRules", () => {
                         saved: 1,
                     },
                 ])}
+                onAsk={NOTHING}
             />,
         );
         expect(markup).toContain("House rules");
@@ -67,6 +70,7 @@ describe("SavedRules", () => {
                         saved: 1,
                     },
                 ])}
+                onAsk={NOTHING}
             />,
         );
         expect(markup).toContain("Old rules");
