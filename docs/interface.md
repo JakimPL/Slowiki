@@ -85,7 +85,8 @@ sheet the table menu uses — a scrim above the card, a heading, its own scroll 
 disclosures, each naming its group and the state that group is in, plus one quiet control that puts the
 whole record back to the scheme's own. Collapsed, the sheet fits every phone in common use with room
 to spare, so a player meets five lines rather than twenty-three controls; an opened group scrolls
-inside the sheet, which is what the sheet's own scroll is for.
+inside the sheet, which is what the sheet's own scroll is for. Every sheet rises a short way into
+place as it arrives, behind a scrim that fades in with it, and leaves the moment it is answered.
 
 - **Words and the dictionary** · **Taking a turn** · **Scoring and ending** · **Letters and the board**
   · **Your saved rules.** The groups, the order, and which settings belong to each arrive from the

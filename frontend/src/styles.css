@@ -2024,6 +2024,13 @@ button.word-chip[data-open] {
     padding: 0;
     border: 0;
     background: rgb(0 0 0 / 35%);
+    animation: scrim-arrive var(--motion-quick) var(--ease-settle) both;
+}
+
+@keyframes scrim-arrive {
+    from {
+        opacity: 0;
+    }
 }
 
 .sheet {
@@ -2043,6 +2050,14 @@ button.word-chip[data-open] {
     border-radius: 16px 16px 0 0;
     background: var(--chrome-panel);
     box-shadow: 0 -8px 30px rgb(0 0 0 / 25%);
+    animation: sheet-rise var(--motion-settle) var(--ease-settle) both;
+}
+
+@keyframes sheet-rise {
+    from {
+        transform: translateY(16px);
+        opacity: 0;
+    }
 }
 
 .sheet[data-depth] {
