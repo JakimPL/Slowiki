@@ -60,6 +60,14 @@ F10. **Preferences are a layer.** Choices a player makes about the app rather th
      and one provider at the root carries the record to whatever reads it — a route reserved for
      device facts, never for the state of a game.
 
+     A remembered choice about a *game* — a named rules record the player keeps for next time — is a
+     second layer with its own owner, its own key and its own parse tolerance: it is game data, so it
+     stays out of the device record and out of the provider that carries it. Both layers keep one
+     storage shape: a pure module owns the key, takes `Pick<Storage, …>` so a test supplies its own,
+     and reads defensively enough that a document written by another version still yields what it can.
+     A saved record states its deviations from the game it came from, and the live catalog is what
+     resolves them, so a setting added since it was saved arrives at the server's own default.
+
 F11. **Failures are states.** A refusal becomes a typed value at the boundary, carrying its code and
      its sentence, and renders into a slot that reserves its space. The interface distinguishes what
      the player must decide from what the app can settle by itself.
@@ -98,8 +106,9 @@ F15. **Every control is a real control.** Actions are buttons, groups are labele
 4. **Does it show words?** They go into the source catalogs and reach the code as generated keys (F6).
 5. **Does it show color or spacing?** It becomes a token or spends one; a new derived value declares
    the share it derives from (F7).
-6. **Does it remember something?** Decide the scope first — device or tab — then add it to the
-   record that owns that scope rather than opening a new key (F10).
+6. **Does it remember something?** Decide the scope first — device or tab — then name the layer it
+   belongs to: device preferences, or the saved rules a player keeps for a game. Each layer owns one
+   key, so a fact joins the layer that owns its kind (F10).
 7. **Does it take a gesture?** It joins the existing pointer session rather than listening on its own,
    and its arithmetic is a function that takes points and rectangles (F1, F9).
 8. **Write the test where the behavior is.** A rule gets a unit test; a rendered offering gets a
