@@ -32,9 +32,11 @@ YAML under `config/` is the single authoritative configuration source:
   solo-literaki). Each one states its name and a single `rules:` record: which
   board, alphabet, distribution and word list it plays with, how many seats and
   tiles a rack holds, and every rule a table may change.
-- `config/allowances.yaml` — how each setting is presented: the group it joins,
-  how prominent it is, the kind of control it takes, and the values a picker
-  offers. The bounds live in the code that validates them.
+- `config/allowances.yaml` — what each setting may say and how it is presented:
+  the range it takes, the group it joins, how prominent it is, the kind of control
+  it takes, and the values a picker offers. One number is authored here and spent
+  twice — the server refuses a table outside the range, and the interface offers
+  what is inside it.
 - `config/presets/boards/` — board size and bonus squares.
 - `config/presets/alphabets/` — the letters a game plays with, their order, what
   each class of letters is worth, and the word lists it suits.
@@ -57,11 +59,17 @@ or a word list its letters do not suit is reported before the first table opens.
 
 A scheme is where a table starts, not where it ends. Whoever opens a table can
 change any of its rules — the word list, the players, the clock, passing and
-exchanging, what earns the bonus, what ends the game, the board, the letters and
-how many of each the bag holds — and everyone who joins reads the changes before
-taking a seat. The card names how far the rules stand from the scheme they came
-from, and the sheet behind it groups the rest so a standard game needs no
-decisions at all.
+exchanging, what earns the bonus, when the game ends and how it is scored, the
+board, the letters and how many of each the bag holds — and everyone who joins
+reads the changes before taking a seat. The card names how far the rules stand
+from the scheme they came from, and the sheet behind it groups the rest so a
+standard game needs no decisions at all.
+
+Every rule carries a `?` that says in one sentence what it does. Numbers can be
+stepped or simply typed, clocks read in plain spans (`1 min 30 s`), and a table
+chooses whether the game ends the moment one player runs out of letters or plays
+on until everyone has — along with what the leftover letters are worth and what
+finishing first earns.
 
 Rules a player likes are saved on their own device under a name, come back on the
 next visit, and can be copied out as text. There are no accounts yet, so they stay
