@@ -2249,7 +2249,7 @@ button.word-chip[data-open] {
 }
 
 .rules-item-note {
-    min-height: 15px;
+    min-height: 1lh;
     margin: 0;
     color: var(--chrome-muted);
     font-size: 12px;
