@@ -31,7 +31,7 @@ def resolve_table(
     _ensure_the_opening_fits_the_board(board, rules)
     return ResolvedScheme(
         scheme=scheme.name,
-        game=scheme.game,
+        specimen=scheme.specimen,
         rules=rules,
         board=board,
         tiles=tiles,

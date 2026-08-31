@@ -2,7 +2,7 @@ import shutil
 from pathlib import Path
 from typing import Final
 
-from wordassets.board import SPECIMEN_WORDS, board_specimen
+from wordassets.board import board_specimen
 from wordassets.brand import og_image, splash
 from wordassets.drawing.node import document
 from wordassets.icons import favicon_ico_bytes, icon_png_bytes, icon_svg_element
@@ -156,8 +156,7 @@ def _resolved_by_board() -> dict[str, ResolvedScheme]:
 
 
 def _specimen_document(resolved: ResolvedScheme, tokens: StyleTokens) -> str:
-    word = SPECIMEN_WORDS[resolved.game]
-    return document(board_specimen(resolved.board, resolved.tiles, tokens.light, word))
+    return document(board_specimen(resolved.board, resolved.tiles, tokens.light, resolved.specimen))
 
 
 def _copy_specimens(

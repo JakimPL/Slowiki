@@ -10,13 +10,7 @@ from wordcore.board.bonus import Bonus, BonusKind
 from wordcore.board.preset import BoardPreset, board_from_preset
 from wordcore.tiles.tile import LetterSpec
 from wordcore.tiles.tileset import TileSet
-from wordgames.names import GameName
 from wordtable.style import PremiumTokens, ThemeTokens
-
-SPECIMEN_WORDS: Final[dict[GameName, str]] = {
-    GameName.LITERAKI: "SŁOWIKI",
-    GameName.SCRABBLE: "WORDS",
-}
 
 _CELL: Final = 40.0
 _GAP: Final = 1.0

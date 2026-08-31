@@ -1,4 +1,4 @@
-game: scrabble
+specimen: WORDS
 rules:
   board: scrabble
   alphabet: scrabble-en

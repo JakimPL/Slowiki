@@ -41,7 +41,8 @@ P7. Letters are canonical. Every letter inside the system is uppercase; dictiona
 
 - `wordcore` — the engine: frozen models, tiles, board, moves, rules kernel,
   lexicon protocol, projections, and the game runner.
-- `wordgames` — game presets: shared rules and the literaki/scrabble backends.
+- `wordgames` — rules policy: the word-game backend and the parameters record it
+  plays by.
 - `wordserver` — the FastAPI adapter: tables, sessions, SSE, identity, time.
 - `wordtable` — configuration, paths, lexicon service, and CLI entry points.
 - `lexica` — dictionary building: the source loaders, the compiled artifacts,
@@ -83,7 +84,15 @@ and answers with a `wordtable.resolved.ResolvedScheme` — the scheme it came fr
 the rules it plays by, the board and the settled bag. `resolve_scheme` answers a
 scheme's own default; `resolve_table` settles a record onto one.
 `wordtable.audit.audit_configuration` walks the whole tree at startup, so a fault
-in a preset or a scheme is reported before the service accepts a request.
+in a preset or a scheme is reported before the service accepts a request — a
+preset that is absent, a letter left unvalued, a word list the letters do not
+suit, or board art a scheme's own letters cannot spell.
+
+A scheme's identity is its name and the word its board art paints. One backend
+serves every scheme: what distinguishes literaki from scrabble is the board, the
+letters and the word list a scheme names, all of them settings, so the rules
+class is chosen by nothing and `build_rules` translates the record into
+`wordgames.backend.parameters.GameParameters` for it.
 
 ## Frontend
 
@@ -95,7 +104,6 @@ design contract.
 
 ## Vocabulary
 
-- `wordgames.names.GameName` — literaki, scrabble.
 - `lexica.names.DictionaryName` — sjp, english, osps.
 - `wordcore.moves.kind.ActionKind` — play, exchange, pass.
 - `wordcore.games.kind.EntryKind` — move, premove_set, premove_cleared,

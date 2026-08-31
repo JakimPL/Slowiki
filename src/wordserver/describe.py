@@ -26,7 +26,6 @@ def table_description(
     return TableDescription(
         code=meta.code if observer is not None else None,
         scheme=resolved.scheme,
-        game=resolved.game,
         seats=rules.seats,
         dictionary=rules.dictionary,
         parameters=_rule_parameters(rules, meta.time),

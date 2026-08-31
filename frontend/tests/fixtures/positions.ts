@@ -91,7 +91,6 @@ export function aDescription(overrides: Partial<TableDescription> = {}): TableDe
     return {
         code: "KWPZTR",
         scheme: "literaki",
-        game: "literaki",
         seats: 2,
         dictionary: "sjp",
         parameters: someParameters(),

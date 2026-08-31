@@ -1,6 +1,5 @@
 from wordcore.models.base import BaseFrozen
 from wordcore.states.phase import Phase
-from wordgames.names import GameName
 
 
 class SeatRecord(BaseFrozen):
@@ -12,7 +11,6 @@ class SeatRecord(BaseFrozen):
 class GameRecord(BaseFrozen):
     table_id: str
     scheme: str
-    game: GameName
     phase: Phase
     seats: tuple[SeatRecord, ...]
     turns: int

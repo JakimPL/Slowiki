@@ -18,7 +18,6 @@ def game_record(
     return GameRecord(
         table_id=table_id,
         scheme=meta.resolved.scheme,
-        game=meta.resolved.game,
         phase=view.phase,
         seats=tuple(
             SeatRecord(

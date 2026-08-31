@@ -48,6 +48,7 @@ def test_every_scheme_carries_a_complete_record() -> None:
 def test_the_settled_record_reaches_the_description() -> None:
     resolved = resolve_scheme(CONFIG_DIR, "literaki")
     assert resolved.scheme == "literaki"
+    assert resolved.specimen == "SŁOWIKI"
     assert resolved.rules.dictionary == DictionaryName.SJP
     assert resolved.rules.opening_tiles == 2
     assert resolved.rules.opening_covers_center is True
@@ -162,4 +163,24 @@ def test_the_audit_reads_a_preset_no_scheme_names(tree: Path) -> None:
         encoding="utf-8",
     )
     with pytest.raises(InvalidConfiguration, match="gives B no value"):
+        audit_configuration(tree)
+
+
+def repainted(tree: Path, specimen: str) -> None:
+    path = tree / "schemes" / "literaki.yaml"
+    path.write_text(
+        path.read_text(encoding="utf-8").replace("specimen: SŁOWIKI", f"specimen: {specimen}"),
+        encoding="utf-8",
+    )
+
+
+def test_the_audit_names_a_specimen_the_letters_cannot_spell(tree: Path) -> None:
+    repainted(tree, "QUIZ")
+    with pytest.raises(InvalidConfiguration, match="paints Q on its board art"):
+        audit_configuration(tree)
+
+
+def test_the_audit_names_a_specimen_wider_than_the_board(tree: Path) -> None:
+    repainted(tree, "A" * 16)
+    with pytest.raises(InvalidConfiguration, match="paints 16 letters"):
         audit_configuration(tree)

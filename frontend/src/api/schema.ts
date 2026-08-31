@@ -388,11 +388,6 @@ export interface components {
             readonly longest_word: components["schemas"]["WordHighlight"] | null;
         };
         /**
-         * GameName
-         * @enum {string}
-         */
-        readonly GameName: "literaki" | "scrabble";
-        /**
          * Gender
          * @enum {string}
          */
@@ -507,7 +502,6 @@ export interface components {
         /** Offering */
         readonly Offering: {
             readonly dictionary: components["schemas"]["DictionaryName"];
-            readonly game: components["schemas"]["GameName"];
             /** Max Players */
             readonly max_players: number;
             /** Min Players */
@@ -697,7 +691,6 @@ export interface components {
         readonly TableAdmission: {
             /** Code */
             readonly code: string;
-            readonly game: components["schemas"]["GameName"];
             /** Max Players */
             readonly max_players: number;
             /** Name */
@@ -724,7 +717,6 @@ export interface components {
             readonly distribution: {
                 readonly [key: string]: number;
             };
-            readonly game: components["schemas"]["GameName"];
             readonly parameters: components["schemas"]["RuleParameters"];
             /** Scheme */
             readonly scheme: string;

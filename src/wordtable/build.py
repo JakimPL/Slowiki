@@ -1,11 +1,8 @@
 from wordcore.board.preset import board_from_preset
-from wordcore.errors.exceptions import InvalidConfiguration
 from wordcore.games.rules import Rules
 from wordcore.lexicon.protocol import Lexicon
-from wordgames.backend.literaki import LiterakiRules
+from wordgames.backend.base import WordGameRules
 from wordgames.backend.parameters import GameParameters
-from wordgames.backend.scrabble import ScrabbleRules
-from wordgames.names import GameName
 from wordtable.resolved import ResolvedScheme
 
 
@@ -14,7 +11,6 @@ def build_rules(
     players: tuple[int, ...],
     lexicon: Lexicon,
 ) -> Rules:
-    board = board_from_preset(resolved.board)
     rules = resolved.rules
     parameters = GameParameters(
         rack_size=rules.rack_size,
@@ -26,25 +22,10 @@ def build_rules(
         scoreless_end_limit=rules.scoreless_end_limit,
         bingo_bonus=rules.bingo_bonus,
     )
-
-    match resolved.game:
-        case GameName.LITERAKI:
-            return LiterakiRules(
-                players,
-                board,
-                resolved.tiles,
-                lexicon,
-                parameters,
-            )
-
-        case GameName.SCRABBLE:
-            return ScrabbleRules(
-                players,
-                board,
-                resolved.tiles,
-                lexicon,
-                parameters,
-            )
-
-        case _:
-            raise InvalidConfiguration(f"unknown game: {resolved.game}")
+    return WordGameRules(
+        players,
+        board_from_preset(resolved.board),
+        resolved.tiles,
+        lexicon,
+        parameters,
+    )

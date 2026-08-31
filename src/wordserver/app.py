@@ -298,7 +298,6 @@ def _admission(
         table_id=table_id,
         code=code,
         scheme=meta.resolved.scheme,
-        game=meta.resolved.game,
         max_players=meta.resolved.rules.seats,
         seat=seat,
         token=token,
