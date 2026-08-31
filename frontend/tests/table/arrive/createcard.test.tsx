@@ -25,7 +25,7 @@ describe("CreateCard", () => {
         const markup = markupOf();
         expect(markup).toContain('value="8"');
         expect(markup).toContain("10 min");
-        expect(markup).toContain("Untimed");
+        expect(markup).toContain("untimed");
     });
 
     it("reads as standard while the record matches its scheme", () => {

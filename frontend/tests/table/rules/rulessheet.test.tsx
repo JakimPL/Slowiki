@@ -47,6 +47,13 @@ describe("RulesSheet", () => {
         expect(markup).toContain("Board");
     });
 
+    it("names a choice in the reader's own words", () => {
+        const markup = markupOf(aComposing(someRules({ board: "scrabble" })));
+        expect(markup).toContain(">Literaki<");
+        expect(markup).toContain(">Scrabble<");
+        expect(markup).not.toContain(">literaki<");
+    });
+
     it("keeps the expert switch out of sight while no setting is expert", () => {
         expect(markupOf()).not.toContain("Expert settings");
     });

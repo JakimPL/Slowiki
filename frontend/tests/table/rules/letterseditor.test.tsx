@@ -64,6 +64,13 @@ describe("LettersEditor", () => {
         expect(markupOf(PLAIN)).not.toContain("Color</span>");
     });
 
+    it("names a color in the reader's own words", () => {
+        const markup = markupOf(ALPHABET);
+        expect(markup).toContain("Yellow");
+        expect(markup).toContain("Blue");
+        expect(markup).not.toContain(">yellow<");
+    });
+
     it("marks the letters an adjustment touches", () => {
         const markup = markupOf(ALPHABET, { B: { value: 12, count: 3 } });
         expect(markup).toContain('data-changed="true"');

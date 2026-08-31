@@ -4,7 +4,15 @@ import type { RuleValue } from "../../play/rules/changes";
 import type { Control } from "../../play/rules/control";
 import type { Option } from "../menu/Options";
 import { Options } from "../menu/Options";
-import { RULES_REVERT, SETTING_LABELS, standardNote, VALUE_OFF, VALUE_ON, valueCaption } from "../strings";
+import {
+    choiceCaption,
+    RULES_REVERT,
+    SETTING_LABELS,
+    standardNote,
+    VALUE_OFF,
+    VALUE_ON,
+    valueCaption,
+} from "../strings";
 import { Budget } from "./Budget";
 import { OptionalCount } from "./OptionalCount";
 import { Picker } from "./Picker";
@@ -89,7 +97,7 @@ function controlFor(
                 <Picker
                     label={label}
                     value={control.value}
-                    choices={control.choices}
+                    options={control.choices.map((choice) => ({ value: choice, caption: choiceCaption(choice) }))}
                     readOnly={readOnly}
                     onChange={onChange}
                 />

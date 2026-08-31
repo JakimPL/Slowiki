@@ -34,7 +34,6 @@ export const SCHEME_LABEL = text("arrive.scheme_label");
 export const SEATS_LABEL = text("arrive.seats_label");
 export const TIME_LABEL = text("arrive.time_label");
 export const INCREMENT_LABEL = text("arrive.increment_label");
-export const UNTIMED_CAPTION = text("arrive.untimed");
 export const CODE_LABEL = text("arrive.code_label");
 export const CREATE_BUTTON = text("arrive.create_button");
 export const JOIN_BUTTON = text("arrive.join_button");
@@ -75,6 +74,33 @@ export const LETTER_CATEGORY = text("rules.letter_category");
 export const LETTER_BULK_LABEL = text("rules.bulk_label");
 export const VALUE_ON = text("rules.value_on");
 export const VALUE_OFF = text("rules.value_off");
+const CATEGORY_LABELS: Record<string, string> = {
+    standard: text("rules.category.standard"),
+    yellow: text("rules.category.yellow"),
+    green: text("rules.category.green"),
+    blue: text("rules.category.blue"),
+    red: text("rules.category.red"),
+    blank: text("rules.category.blank"),
+};
+const CHOICE_LABELS: Record<string, string> = {
+    literaki: text("rules.choice.literaki"),
+    scrabble: text("rules.choice.scrabble"),
+    "scrabble-en": text("rules.choice.scrabble-en"),
+    "scrabble-pl": text("rules.choice.scrabble-pl"),
+    english: text("rules.choice.english"),
+    polish: text("rules.choice.polish"),
+    sjp: text("rules.choice.sjp"),
+    osps: text("rules.choice.osps"),
+};
+
+export function categoryCaption(category: string): string {
+    return CATEGORY_LABELS[category] ?? category;
+}
+
+export function choiceCaption(choice: string): string {
+    return CHOICE_LABELS[choice] ?? choice;
+}
+
 export const SETTING_LABELS: Record<SettingName, string> = {
     board: text("rules.setting.board"),
     alphabet: text("rules.setting.alphabet"),
@@ -272,7 +298,7 @@ export function valueCaption(control: Control): string {
         case "optional_count":
             return control.value === null ? RULES_UNLIMITED : String(control.value);
         case "choice":
-            return control.value;
+            return choiceCaption(control.value);
         case "seconds":
             return control.value === null ? RULES_UNTIMED : budgetCaption(control.value);
         case "letters":

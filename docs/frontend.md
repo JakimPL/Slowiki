@@ -34,7 +34,11 @@ F5. **One source of truth per fact.** Position and company come from the live st
 
 F6. **Every word comes from the catalog.** No user-facing text is written in a component. Keys are
     generated from the source catalogs, so a missing or misspelled key fails compilation, and counted
-    phrases go through the plural machinery rather than through string concatenation.
+    phrases go through the plural machinery rather than through string concatenation. An identifier the
+    server sends — a tile category, a board, an alphabet, a letter distribution, a word list — reaches
+    the eye through `categoryCaption` or `choiceCaption`, which speak the authored word and fall back to
+    the identifier itself; `tests/test_labels.py` holds both catalogs against what is on disk, so a
+    preset ships readable.
 
 F7. **Color and metric come from tokens.** The theme arrives as tokens and becomes custom properties;
     components set properties and the stylesheet spends them. A derived value — a tint, a wash, a

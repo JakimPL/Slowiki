@@ -8,7 +8,14 @@ import { withCategory, withLetter } from "../../play/rules/adjustments";
 import type { LetterRow } from "../../play/rules/letters";
 import { bagTotal, categoriesOf, letterRows } from "../../play/rules/letters";
 import type { Composing } from "../../play/rules/useComposing";
-import { bagTotalCaption, LETTER_BULK_LABEL, LETTER_CATEGORY, LETTER_COUNT, LETTER_POINTS } from "../strings";
+import {
+    bagTotalCaption,
+    categoryCaption,
+    LETTER_BULK_LABEL,
+    LETTER_CATEGORY,
+    LETTER_COUNT,
+    LETTER_POINTS,
+} from "../strings";
 import { TileFace } from "../tiles/TileFace";
 import { Picker } from "./Picker";
 import { Stepper } from "./Stepper";
@@ -42,6 +49,7 @@ export function LettersEditor({
     const [held, setHeld] = useState(rows[0]?.symbol ?? "");
     const [colored, setColored] = useState(categories[0] ?? "");
     const chosen = rows.find((row) => row.symbol === held) ?? rows[0] ?? null;
+    const coloredOptions = categories.map((category) => ({ value: category, caption: categoryCaption(category) }));
     const change = (symbol: string, asked: LetterChange): void => {
         composing.setSetting("letters", withLetter(adjustments, standard, symbol, asked));
     };
@@ -53,7 +61,7 @@ export function LettersEditor({
                     <Picker
                         label={LETTER_CATEGORY}
                         value={colored}
-                        choices={categories}
+                        options={coloredOptions}
                         readOnly={readOnly}
                         onChange={setColored}
                     />
@@ -123,7 +131,7 @@ export function LettersEditor({
                             <Picker
                                 label={LETTER_CATEGORY}
                                 value={chosen.category}
-                                choices={categories}
+                                options={coloredOptions}
                                 readOnly={readOnly}
                                 onChange={(category): void => {
                                     change(chosen.symbol, { category });

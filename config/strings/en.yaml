@@ -18,7 +18,6 @@ arrive:
   seats_label: Players
   time_label: Time per player
   increment_label: Bonus per move
-  untimed: Untimed
   code_label: Table code
   create_button: Start the table
   join_button: Join the table
@@ -225,9 +224,24 @@ rules:
   value_on: "on"
   value_off: "off"
   unlimited: any number
-  none: none
   untimed: untimed
   edited: edited
+  category:
+    standard: Plain
+    yellow: Yellow
+    green: Green
+    blue: Blue
+    red: Red
+    blank: Blank
+  choice:
+    literaki: Literaki
+    scrabble: Scrabble
+    scrabble-en: Scrabble (English)
+    scrabble-pl: Scrabble (Polish)
+    english: English
+    polish: Polish
+    sjp: Polish (SJP)
+    osps: Polish tournament (OSPS)
   group:
     table: The table
     words: Words and the dictionary

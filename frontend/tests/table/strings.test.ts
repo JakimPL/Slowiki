@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import { captionFor, gatheringCaption, nameFor, thinkingCaption, wonCaption } from "../../src/table/strings";
+import {
+    captionFor,
+    categoryCaption,
+    choiceCaption,
+    gatheringCaption,
+    nameFor,
+    thinkingCaption,
+    wonCaption,
+} from "../../src/table/strings";
 import { aCompany, aSeatView } from "../fixtures/positions";
 
 describe("nameFor", () => {
@@ -46,5 +54,18 @@ describe("captionFor", () => {
         expect(captionFor({ kind: "watching", seats: [1], points: null, mine: false }, aCompany())).toBe(
             "Ola is thinking…",
         );
+    });
+});
+
+describe("identifier captions", () => {
+    it("says a category and a choice in words", () => {
+        expect(categoryCaption("yellow")).toBe("Yellow");
+        expect(choiceCaption("sjp")).toBe("Polish (SJP)");
+        expect(choiceCaption("scrabble-en")).toBe("Scrabble (English)");
+    });
+
+    it("keeps an identifier it has no word for", () => {
+        expect(categoryCaption("teal")).toBe("teal");
+        expect(choiceCaption("hexagonal")).toBe("hexagonal");
     });
 });

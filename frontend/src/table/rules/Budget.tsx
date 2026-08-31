@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 
-import { budgetCaption, UNTIMED_CAPTION } from "../strings";
+import { budgetCaption, RULES_UNTIMED } from "../strings";
 
 export interface BudgetProps {
     readonly label: string;
@@ -22,7 +22,7 @@ export function Budget({ label, value, offered, unlimited, readOnly, onChange }:
                 onChange(change.target.value === "" ? null : Number(change.target.value));
             }}
         >
-            {unlimited ? <option value="">{UNTIMED_CAPTION}</option> : null}
+            {unlimited ? <option value="">{RULES_UNTIMED}</option> : null}
             {offered.map((seconds) => (
                 <option key={seconds} value={seconds}>
                     {budgetCaption(seconds)}

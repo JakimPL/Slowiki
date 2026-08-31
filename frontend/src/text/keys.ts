@@ -35,7 +35,6 @@ export interface PlainValues {
     readonly "arrive.switch_to_create": EmptyValues;
     readonly "arrive.switch_to_join": EmptyValues;
     readonly "arrive.time_label": EmptyValues;
-    readonly "arrive.untimed": EmptyValues;
     readonly "board.fit": EmptyValues;
     readonly "board.fit_label": EmptyValues;
     readonly "board.label": EmptyValues;
@@ -95,6 +94,20 @@ export interface PlainValues {
     readonly "product.style_fallback": EmptyValues;
     readonly "product.tagline": EmptyValues;
     readonly "rules.bulk_label": EmptyValues;
+    readonly "rules.category.blank": EmptyValues;
+    readonly "rules.category.blue": EmptyValues;
+    readonly "rules.category.green": EmptyValues;
+    readonly "rules.category.red": EmptyValues;
+    readonly "rules.category.standard": EmptyValues;
+    readonly "rules.category.yellow": EmptyValues;
+    readonly "rules.choice.english": EmptyValues;
+    readonly "rules.choice.literaki": EmptyValues;
+    readonly "rules.choice.osps": EmptyValues;
+    readonly "rules.choice.polish": EmptyValues;
+    readonly "rules.choice.scrabble": EmptyValues;
+    readonly "rules.choice.scrabble-en": EmptyValues;
+    readonly "rules.choice.scrabble-pl": EmptyValues;
+    readonly "rules.choice.sjp": EmptyValues;
     readonly "rules.close": EmptyValues;
     readonly "rules.delete": EmptyValues;
     readonly "rules.edited": EmptyValues;
@@ -114,7 +127,6 @@ export interface PlainValues {
     readonly "rules.letters_close": EmptyValues;
     readonly "rules.letters_heading": EmptyValues;
     readonly "rules.limited": EmptyValues;
-    readonly "rules.none": EmptyValues;
     readonly "rules.retired": EmptyValues;
     readonly "rules.revert": EmptyValues;
     readonly "rules.revert_all": EmptyValues;

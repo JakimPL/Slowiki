@@ -18,7 +18,6 @@ arrive:
   seats_label: Gracze
   time_label: Czas na gracza
   increment_label: Dodatek na ruch
-  untimed: Bez czasu
   code_label: Kod stołu
   create_button: Załóż stół
   join_button: Dołącz do stołu
@@ -232,9 +231,24 @@ rules:
   value_on: "tak"
   value_off: "nie"
   unlimited: bez limitu
-  none: brak
   untimed: bez zegara
   edited: zmienione
+  category:
+    standard: zwykły
+    yellow: żółty
+    green: zielony
+    blue: niebieski
+    red: czerwony
+    blank: blank
+  choice:
+    literaki: Literaki
+    scrabble: Scrabble
+    scrabble-en: Scrabble (angielskie)
+    scrabble-pl: Scrabble (polskie)
+    english: angielski
+    polish: polski
+    sjp: polski (SJP)
+    osps: turniejowy (OSPS)
   group:
     table: Stół
     words: Słowa i słownik

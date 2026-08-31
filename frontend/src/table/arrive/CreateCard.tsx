@@ -13,11 +13,11 @@ import {
     incrementCaption,
     OFFERINGS_LOADING,
     RULES_ROW_LABEL,
+    RULES_UNTIMED,
     rulesCaption,
     SCHEME_LABEL,
     SEATS_LABEL,
     TIME_LABEL,
-    UNTIMED_CAPTION,
 } from "../strings";
 
 const CARD_GROUP = "table";
@@ -88,7 +88,7 @@ export function CreateCard({ composing, busy, named, onCreate, onOpenRules }: Cr
                                     );
                                 }}
                             >
-                                <option value="">{UNTIMED_CAPTION}</option>
+                                <option value="">{RULES_UNTIMED}</option>
                                 {rungsOf(catalog.allowances, "total_seconds").map((seconds) => (
                                     <option key={seconds} value={seconds}>
                                         {budgetCaption(seconds)}
