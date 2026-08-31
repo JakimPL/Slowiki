@@ -16,17 +16,26 @@ export interface OptionalCountProps {
     readonly minimum: number;
     readonly maximum: number;
     readonly step: number;
+    readonly readOnly: boolean;
     readonly onChange: (value: number | null) => void;
 }
 
-export function OptionalCount({ label, value, minimum, maximum, step, onChange }: OptionalCountProps): ReactElement {
+export function OptionalCount({
+    label,
+    value,
+    minimum,
+    maximum,
+    step,
+    readOnly,
+    onChange,
+}: OptionalCountProps): ReactElement {
     return (
         <div className="optional-count">
             <Options
                 label={label}
                 options={LIMIT_OPTIONS}
                 chosen={value !== null}
-                disabled={false}
+                disabled={readOnly}
                 onChoose={(limited): void => {
                     onChange(limited ? minimum : null);
                 }}
@@ -37,7 +46,7 @@ export function OptionalCount({ label, value, minimum, maximum, step, onChange }
                 minimum={minimum}
                 maximum={maximum}
                 step={step}
-                disabled={value === null}
+                disabled={readOnly || value === null}
                 onChange={onChange}
             />
         </div>

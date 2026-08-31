@@ -9,7 +9,7 @@ import { aComposing } from "../../fixtures/rules";
 const NOTHING = (): void => undefined;
 
 function markupOf(composing: Composing = aComposing()): string {
-    return renderToStaticMarkup(<RulesSheet composing={composing} onClose={NOTHING} />);
+    return renderToStaticMarkup(<RulesSheet composing={composing} readOnly={false} onClose={NOTHING} />);
 }
 
 describe("RulesSheet", () => {

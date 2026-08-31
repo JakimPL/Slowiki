@@ -11,6 +11,7 @@ export type PluralCategory = "few" | "many" | "one" | "other";
 export type EmptyValues = Record<never, never>;
 
 export interface PlainValues {
+    readonly "arrive.code_hint": EmptyValues;
     readonly "arrive.code_label": EmptyValues;
     readonly "arrive.copied_mark": EmptyValues;
     readonly "arrive.copy_code_label": EmptyValues;
@@ -26,6 +27,7 @@ export interface PlainValues {
     readonly "arrive.name_label": EmptyValues;
     readonly "arrive.name_placeholder": EmptyValues;
     readonly "arrive.offerings_loading": EmptyValues;
+    readonly "arrive.reading_table": EmptyValues;
     readonly "arrive.return_button": EmptyValues;
     readonly "arrive.scheme_label": EmptyValues;
     readonly "arrive.seats_label": EmptyValues;
@@ -92,6 +94,7 @@ export interface PlainValues {
     readonly "product.name": EmptyValues;
     readonly "product.style_fallback": EmptyValues;
     readonly "product.tagline": EmptyValues;
+    readonly "rules.bulk_label": EmptyValues;
     readonly "rules.close": EmptyValues;
     readonly "rules.delete": EmptyValues;
     readonly "rules.edited": EmptyValues;
@@ -105,6 +108,11 @@ export interface PlainValues {
     readonly "rules.group.turns": EmptyValues;
     readonly "rules.group.words": EmptyValues;
     readonly "rules.heading": EmptyValues;
+    readonly "rules.letter_category": EmptyValues;
+    readonly "rules.letter_count": EmptyValues;
+    readonly "rules.letter_points": EmptyValues;
+    readonly "rules.letters_close": EmptyValues;
+    readonly "rules.letters_heading": EmptyValues;
     readonly "rules.limited": EmptyValues;
     readonly "rules.none": EmptyValues;
     readonly "rules.retired": EmptyValues;
@@ -211,7 +219,9 @@ export interface PlainValues {
 }
 
 export interface PluralValues {
+    readonly "arrive.standing": { readonly clock: string; readonly name: string };
     readonly "hand.exchange_left": EmptyValues;
+    readonly "rules.bag_total": EmptyValues;
     readonly "rules.changed": EmptyValues;
     readonly "seats.thinking": { readonly names: string };
     readonly "seats.won": { readonly names: string; readonly points: number };

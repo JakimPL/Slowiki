@@ -7,17 +7,18 @@ export interface PickerProps {
     readonly label: string;
     readonly value: string;
     readonly choices: readonly string[];
+    readonly readOnly: boolean;
     readonly onChange: (value: string) => void;
 }
 
-export function Picker({ label, value, choices, onChange }: PickerProps): ReactElement {
+export function Picker({ label, value, choices, readOnly, onChange }: PickerProps): ReactElement {
     if (asPills(choices.length)) {
         return (
             <Options
                 label={label}
                 options={choices.map((choice) => ({ value: choice, caption: choice }))}
                 chosen={value}
-                disabled={false}
+                disabled={readOnly}
                 onChoose={onChange}
             />
         );
@@ -25,6 +26,7 @@ export function Picker({ label, value, choices, onChange }: PickerProps): ReactE
     return (
         <select
             className="rules-select"
+            disabled={readOnly}
             aria-label={label}
             value={value}
             onChange={(change): void => {

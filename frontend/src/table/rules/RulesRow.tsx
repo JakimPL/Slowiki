@@ -18,13 +18,14 @@ const TOGGLE_OPTIONS: readonly Option<boolean>[] = [
 export interface RulesRowProps {
     readonly control: Control;
     readonly standard: Control | null;
+    readonly readOnly: boolean;
     readonly onChange: (value: RuleValue) => void;
     readonly onRevert: () => void;
 }
 
-export function RulesRow({ control, standard, onChange, onRevert }: RulesRowProps): ReactElement | null {
+export function RulesRow({ control, standard, readOnly, onChange, onRevert }: RulesRowProps): ReactElement | null {
     const label = SETTING_LABELS[control.setting];
-    const held = controlFor(control, label, onChange);
+    const held = controlFor(control, label, readOnly, onChange);
     if (held === null) {
         return null;
     }
@@ -35,14 +36,19 @@ export function RulesRow({ control, standard, onChange, onRevert }: RulesRowProp
                 {held}
             </div>
             <p className="rules-item-note">{standard === null ? "" : standardNote(valueCaption(standard))}</p>
-            <button type="button" className="rules-revert" hidden={standard === null} onClick={onRevert}>
+            <button type="button" className="rules-revert" hidden={standard === null || readOnly} onClick={onRevert}>
                 {RULES_REVERT}
             </button>
         </div>
     );
 }
 
-function controlFor(control: Control, label: string, onChange: (value: RuleValue) => void): ReactElement | null {
+function controlFor(
+    control: Control,
+    label: string,
+    readOnly: boolean,
+    onChange: (value: RuleValue) => void,
+): ReactElement | null {
     switch (control.kind) {
         case "toggle":
             return (
@@ -50,7 +56,7 @@ function controlFor(control: Control, label: string, onChange: (value: RuleValue
                     label={label}
                     options={TOGGLE_OPTIONS}
                     chosen={control.value}
-                    disabled={false}
+                    disabled={readOnly}
                     onChoose={onChange}
                 />
             );
@@ -62,7 +68,7 @@ function controlFor(control: Control, label: string, onChange: (value: RuleValue
                     minimum={control.minimum}
                     maximum={control.maximum}
                     step={control.step}
-                    disabled={false}
+                    disabled={readOnly}
                     onChange={onChange}
                 />
             );
@@ -74,11 +80,20 @@ function controlFor(control: Control, label: string, onChange: (value: RuleValue
                     minimum={control.minimum}
                     maximum={control.maximum}
                     step={control.step}
+                    readOnly={readOnly}
                     onChange={onChange}
                 />
             );
         case "choice":
-            return <Picker label={label} value={control.value} choices={control.choices} onChange={onChange} />;
+            return (
+                <Picker
+                    label={label}
+                    value={control.value}
+                    choices={control.choices}
+                    readOnly={readOnly}
+                    onChange={onChange}
+                />
+            );
         case "seconds":
             return (
                 <Budget
@@ -86,6 +101,7 @@ function controlFor(control: Control, label: string, onChange: (value: RuleValue
                     value={control.value}
                     offered={control.offered}
                     unlimited={control.unlimited}
+                    readOnly={readOnly}
                     onChange={onChange}
                 />
             );

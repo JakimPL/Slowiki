@@ -41,8 +41,9 @@ by amending it. The palette is the *Lniany* proposition chosen from the phase-0 
   for it — the game, the players, the clock, and how far its rules stand from standard — the note
   that the table is being read, and the invitation to enter a code. The read fires as soon as the
   code reaches the length the server declares, so a code that names no table says so while it is
-  being typed, and the second line opens the rules sheet with every value printed, so a guest
-  accepts rules they have read. A name is what both cards ask for first: the field carries a red
+  being typed, and the second line opens the rules sheet with every value printed — its groups
+  still open so a guest can read them, and nothing in it can be changed — so a guest accepts rules
+  they have read. A name is what both cards ask for first: the field carries a red
   glow that breathes while it stands empty, and neither table can be started until it holds
   something — the server asks for the same, so a nameless table cannot be minted by any client. The
   name persists in local storage across visits. A tab remembers the seat it arrived at while that

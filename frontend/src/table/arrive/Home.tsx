@@ -5,6 +5,7 @@ import { createTable, joinTable, readOfferings } from "../../api/client";
 import { reasonOf } from "../../api/refusal";
 import type { OfferingsResponse, RulesConfig, TableAdmission } from "../../api/tables";
 import type { Tile } from "../../api/views";
+import type { Inspecting } from "../../play/rules/inspecting";
 import { useComposing } from "../../play/rules/useComposing";
 import { rememberName, storedName } from "../../play/seats/identity";
 import { RulesSheet } from "../rules/RulesSheet";
@@ -48,6 +49,7 @@ export function Home({ invitedCode, themeNote, onArrive, onResume, onForget }: H
     const [code, setCode] = useState(invitedCode ?? "");
     const [joining, setJoining] = useState(invitedCode !== null);
     const [showingRules, setShowingRules] = useState(false);
+    const [inspected, setInspected] = useState<Inspecting | null>(null);
     const [busy, setBusy] = useState(false);
     const [trouble, setTrouble] = useState<string | null>(null);
     const composing = useComposing(arrivals);
@@ -143,11 +145,12 @@ export function Home({ invitedCode, themeNote, onArrive, onResume, onForget }: H
                 {joining ? (
                     <JoinCard
                         code={code}
-                        shape={arrivals?.code ?? null}
+                        arrivals={arrivals}
                         busy={busy}
                         named={cleanedName !== null}
                         onCode={setCode}
                         onJoin={join}
+                        onInspect={setInspected}
                     />
                 ) : (
                     <CreateCard
@@ -179,11 +182,21 @@ export function Home({ invitedCode, themeNote, onArrive, onResume, onForget }: H
             {showingRules ? (
                 <RulesSheet
                     composing={composing}
+                    readOnly={false}
                     onClose={(): void => {
                         setShowingRules(false);
                     }}
                 />
             ) : null}
+            {inspected === null ? null : (
+                <RulesSheet
+                    composing={inspected}
+                    readOnly={true}
+                    onClose={(): void => {
+                        setInspected(null);
+                    }}
+                />
+            )}
         </main>
     );
 }

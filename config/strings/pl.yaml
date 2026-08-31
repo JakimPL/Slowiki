@@ -27,6 +27,13 @@ arrive:
   stale_notice: Stół poszedł dalej — pokazujemy najnowszą pozycję.
   joining: Dołączanie do stołu…
   offerings_loading: Czytamy ofertę stołów…
+  reading_table: Czytamy stół…
+  code_hint: Wpisz kod z zaproszenia.
+  standing:
+    plural:
+      one: "{name} · {count:number} gracz · {clock}"
+      few: "{name} · {count:number} gracze · {clock}"
+      many: "{name} · {count:number} graczy · {clock}"
   return_button: Wróć do swojego stołu
   forget_button: Zapomnij ten stół
   invite_button: Kopiuj zaproszenie
@@ -211,6 +218,17 @@ rules:
   delete: Usuń
   export: Kopiuj jako tekst
   retired: Ta gra nie jest już oferowana.
+  letters_heading: Litery
+  letters_close: Zamknij litery
+  letter_points: Punkty
+  letter_count: W worku
+  letter_category: Kolor
+  bulk_label: Punkty dla całego koloru
+  bag_total:
+    plural:
+      one: "{count:number} litera w worku"
+      few: "{count:number} litery w worku"
+      many: "{count:number} liter w worku"
   value_on: "tak"
   value_off: "nie"
   unlimited: bez limitu

@@ -4,6 +4,7 @@ import type { Catalog } from "./keys";
 
 export const EN: Catalog = {
     plain: {
+        "arrive.code_hint": "Enter the code from your invitation.",
         "arrive.code_label": "Table code",
         "arrive.copied_mark": "✓",
         "arrive.copy_code_label": "Copy the table code",
@@ -19,6 +20,7 @@ export const EN: Catalog = {
         "arrive.name_label": "Your name",
         "arrive.name_placeholder": "Shown on your plaque",
         "arrive.offerings_loading": "Reading the table offerings…",
+        "arrive.reading_table": "Reading the table…",
         "arrive.return_button": "Return to your table",
         "arrive.scheme_label": "Game",
         "arrive.seats_label": "Players",
@@ -85,6 +87,7 @@ export const EN: Catalog = {
         "product.name": "Słowiki",
         "product.style_fallback": "Server style unavailable — showing the built-in palette.",
         "product.tagline": "A configurable Literaki/Scrabble-like table.",
+        "rules.bulk_label": "Points for a whole color",
         "rules.close": "Close the house rules",
         "rules.delete": "Delete",
         "rules.edited": "edited",
@@ -98,6 +101,11 @@ export const EN: Catalog = {
         "rules.group.turns": "Taking a turn",
         "rules.group.words": "Words and the dictionary",
         "rules.heading": "House rules",
+        "rules.letter_category": "Color",
+        "rules.letter_count": "In the bag",
+        "rules.letter_points": "Points",
+        "rules.letters_close": "Close the letters",
+        "rules.letters_heading": "The letters",
         "rules.limited": "Limited",
         "rules.none": "none",
         "rules.retired": "Its game is no longer offered.",
@@ -203,11 +211,23 @@ export const EN: Catalog = {
         "words.words_here": "Words at this square",
     },
     plural: {
+        "arrive.standing": {
+            one: "{name} · {count} player · {clock}",
+            few: "{name} · {count} players · {clock}",
+            many: "{name} · {count} players · {clock}",
+            other: "{name} · {count} players · {clock}",
+        },
         "hand.exchange_left": {
             one: "{count} exchange left this game.",
             few: "{count} exchanges left this game.",
             many: "{count} exchanges left this game.",
             other: "{count} exchanges left this game.",
+        },
+        "rules.bag_total": {
+            one: "{count} tile in the bag",
+            few: "{count} tiles in the bag",
+            many: "{count} tiles in the bag",
+            other: "{count} tiles in the bag",
         },
         "rules.changed": {
             one: "{count} change",

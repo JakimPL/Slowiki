@@ -27,6 +27,12 @@ arrive:
   stale_notice: The table has moved on — the latest position is shown.
   joining: Joining the table…
   offerings_loading: Reading the table offerings…
+  reading_table: Reading the table…
+  code_hint: Enter the code from your invitation.
+  standing:
+    plural:
+      one: "{name} · {count:number} player · {clock}"
+      other: "{name} · {count:number} players · {clock}"
   return_button: Return to your table
   forget_button: Forget that table
   invite_button: Copy invitation
@@ -206,6 +212,16 @@ rules:
   delete: Delete
   export: Copy as text
   retired: Its game is no longer offered.
+  letters_heading: The letters
+  letters_close: Close the letters
+  letter_points: Points
+  letter_count: In the bag
+  letter_category: Color
+  bulk_label: Points for a whole color
+  bag_total:
+    plural:
+      one: "{count:number} tile in the bag"
+      other: "{count:number} tiles in the bag"
   value_on: "on"
   value_off: "off"
   unlimited: any number

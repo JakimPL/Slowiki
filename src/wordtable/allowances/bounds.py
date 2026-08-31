@@ -1,7 +1,7 @@
 from typing import Final
 
 from wordcore.models.base import BaseFrozen
-from wordcore.models.letters import MAX_TILE_COUNT
+from wordcore.models.letters import MAX_LETTER_VALUE, MAX_TILE_COUNT
 from wordtable.allowances.name import SettingName
 from wordtable.rules import (
     MAX_BINGO_BONUS,
@@ -109,6 +109,12 @@ SETTING_BOUNDS: Final[dict[SettingName, SettingBounds]] = {
         minimum=0,
         maximum=MAX_INCREMENT_SECONDS,
         step=SECONDS_STEP,
+        unlimited=False,
+    ),
+    SettingName.LETTERS: SettingBounds(
+        minimum=0,
+        maximum=min(MAX_LETTER_VALUE, MAX_TILE_COUNT),
+        step=SINGLE_STEP,
         unlimited=False,
     ),
 }

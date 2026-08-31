@@ -1,4 +1,4 @@
-import type { SettingGroup, SettingName } from "../api/tables";
+import type { RulesConfig, SettingGroup, SettingName } from "../api/tables";
 import type { CompanyView, Tile } from "../api/views";
 import type { ScoredWord } from "../play/board/scoring";
 import type { Mode } from "../play/device/mode";
@@ -43,6 +43,8 @@ export const SWITCH_TO_CREATE = text("arrive.switch_to_create");
 export const STALE_NOTICE = text("arrive.stale_notice");
 export const JOINING_CAPTION = text("arrive.joining");
 export const OFFERINGS_LOADING = text("arrive.offerings_loading");
+export const READING_TABLE = text("arrive.reading_table");
+export const CODE_HINT = text("arrive.code_hint");
 export const RULES_HEADING = text("rules.heading");
 export const RULES_CLOSE = text("rules.close");
 export const RULES_ROW_LABEL = text("rules.row_label");
@@ -51,6 +53,7 @@ export const RULES_REVERT_ALL = text("rules.revert_all");
 export const RULES_REVERT = text("rules.revert");
 export const RULES_LIMITED = text("rules.limited");
 export const RULES_UNLIMITED = text("rules.unlimited");
+export const RULES_UNTIMED = text("rules.untimed");
 export const RULES_STEP_UP = text("rules.step_up");
 export const RULES_STEP_DOWN = text("rules.step_down");
 export const RULES_EXPERT_LABEL = text("rules.expert_label");
@@ -64,6 +67,12 @@ export const RULES_SAVED_NONE = text("rules.saved_none");
 export const RULES_DELETE = text("rules.delete");
 export const RULES_EXPORT = text("rules.export");
 export const RULES_RETIRED = text("rules.retired");
+export const LETTERS_HEADING = text("rules.letters_heading");
+export const LETTERS_CLOSE = text("rules.letters_close");
+export const LETTER_POINTS = text("rules.letter_points");
+export const LETTER_COUNT = text("rules.letter_count");
+export const LETTER_CATEGORY = text("rules.letter_category");
+export const LETTER_BULK_LABEL = text("rules.bulk_label");
 export const VALUE_ON = text("rules.value_on");
 export const VALUE_OFF = text("rules.value_off");
 export const SETTING_LABELS: Record<SettingName, string> = {
@@ -229,8 +238,19 @@ export function primaryCaption(premove: boolean, points: number | null): string 
     return points === null ? base : text("hand.primary_scored", { action: base, points });
 }
 
+export function standingCaption(name: string, rules: RulesConfig): string {
+    return counted("arrive.standing", rules.seats, {
+        name,
+        clock: rules.total_seconds === null ? RULES_UNTIMED : budgetCaption(rules.total_seconds),
+    });
+}
+
 export function rulesCaption(changes: number): string {
     return changes === 0 ? RULES_STANDARD : counted("rules.changed", changes);
+}
+
+export function bagTotalCaption(tiles: number): string {
+    return counted("rules.bag_total", tiles);
 }
 
 export function standardNote(value: string): string {
@@ -252,7 +272,7 @@ export function valueCaption(control: Control): string {
         case "choice":
             return control.value;
         case "seconds":
-            return control.value === null ? text("rules.untimed") : budgetCaption(control.value);
+            return control.value === null ? RULES_UNTIMED : budgetCaption(control.value);
         case "letters":
             return text("rules.edited");
     }

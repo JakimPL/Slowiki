@@ -4,6 +4,7 @@ import type { Catalog } from "./keys";
 
 export const PL: Catalog = {
     plain: {
+        "arrive.code_hint": "Wpisz kod z zaproszenia.",
         "arrive.code_label": "Kod stołu",
         "arrive.copied_mark": "✓",
         "arrive.copy_code_label": "Skopiuj kod stołu",
@@ -19,6 +20,7 @@ export const PL: Catalog = {
         "arrive.name_label": "Twoje imię",
         "arrive.name_placeholder": "Pokażemy je na tabliczce",
         "arrive.offerings_loading": "Czytamy ofertę stołów…",
+        "arrive.reading_table": "Czytamy stół…",
         "arrive.return_button": "Wróć do swojego stołu",
         "arrive.scheme_label": "Gra",
         "arrive.seats_label": "Gracze",
@@ -85,6 +87,7 @@ export const PL: Catalog = {
         "product.name": "Słowiki",
         "product.style_fallback": "Styl z serwera jest niedostępny — pokazujemy wbudowaną paletę.",
         "product.tagline": "Konfigurowalny stół do literaków i scrabble.",
+        "rules.bulk_label": "Punkty dla całego koloru",
         "rules.close": "Zamknij zasady domowe",
         "rules.delete": "Usuń",
         "rules.edited": "zmienione",
@@ -98,6 +101,11 @@ export const PL: Catalog = {
         "rules.group.turns": "Przebieg tury",
         "rules.group.words": "Słowa i słownik",
         "rules.heading": "Zasady domowe",
+        "rules.letter_category": "Kolor",
+        "rules.letter_count": "W worku",
+        "rules.letter_points": "Punkty",
+        "rules.letters_close": "Zamknij litery",
+        "rules.letters_heading": "Litery",
         "rules.limited": "Z limitem",
         "rules.none": "brak",
         "rules.retired": "Ta gra nie jest już oferowana.",
@@ -203,11 +211,23 @@ export const PL: Catalog = {
         "words.words_here": "Słowa na tym polu",
     },
     plural: {
+        "arrive.standing": {
+            one: "{name} · {count} gracz · {clock}",
+            few: "{name} · {count} gracze · {clock}",
+            many: "{name} · {count} graczy · {clock}",
+            other: "{name} · {count} graczy · {clock}",
+        },
         "hand.exchange_left": {
             one: "Została {count} wymiana w tej grze.",
             few: "Zostały {count} wymiany w tej grze.",
             many: "Zostało {count} wymian w tej grze.",
             other: "Zostało {count} wymian w tej grze.",
+        },
+        "rules.bag_total": {
+            one: "{count} litera w worku",
+            few: "{count} litery w worku",
+            many: "{count} liter w worku",
+            other: "{count} liter w worku",
         },
         "rules.changed": {
             one: "{count} zmiana",

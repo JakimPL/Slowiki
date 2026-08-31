@@ -6,7 +6,7 @@ import type { Deviation } from "../../play/rules/deviation";
 import { insideGroup } from "../../play/rules/deviation";
 import { rowsOf } from "../../play/rules/rows";
 import type { Composing } from "../../play/rules/useComposing";
-import { GROUP_LABELS, rulesCaption } from "../strings";
+import { GROUP_LABELS, rulesCaption, SETTING_LABELS } from "../strings";
 import { RulesRow } from "./RulesRow";
 
 export interface RulesGroupProps {
@@ -16,7 +16,9 @@ export interface RulesGroupProps {
     readonly deviations: readonly Deviation[];
     readonly open: boolean;
     readonly expert: boolean;
+    readonly readOnly: boolean;
     readonly onToggle: () => void;
+    readonly onOpenLetters: (() => void) | null;
 }
 
 export function RulesGroup({
@@ -26,7 +28,9 @@ export function RulesGroup({
     deviations,
     open,
     expert,
+    readOnly,
     onToggle,
+    onOpenLetters,
 }: RulesGroupProps): ReactElement {
     const apart = insideGroup(deviations, group);
     const record = composing.record;
@@ -44,6 +48,7 @@ export function RulesGroup({
                             key={row.setting}
                             control={row.control}
                             standard={row.standard}
+                            readOnly={readOnly}
                             onChange={(value: RuleValue): void => {
                                 composing.setSetting(row.setting, value);
                             }}
@@ -52,8 +57,19 @@ export function RulesGroup({
                             }}
                         />
                     ))}
+                    {onOpenLetters === null ? null : (
+                        <button type="button" className="rules-row" onClick={onOpenLetters}>
+                            <span className="rules-row-label">{SETTING_LABELS.letters}</span>
+                            <span className="rules-row-state">{lettersCaption(composing)}</span>
+                        </button>
+                    )}
                 </div>
             ) : null}
         </section>
     );
+}
+
+function lettersCaption(composing: Composing): string {
+    const adjusted = Object.keys(composing.record?.letters ?? {}).length;
+    return rulesCaption(adjusted);
 }

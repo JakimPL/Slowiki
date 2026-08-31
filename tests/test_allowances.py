@@ -82,10 +82,18 @@ def test_every_numeric_setting_states_its_bounds() -> None:
     numeric = {
         allowance.setting for allowance in catalog().allowances if allowance.kind in NUMERIC_KINDS
     }
-    assert numeric == set(SETTING_BOUNDS)
+    assert numeric | {SettingName.LETTERS} == set(SETTING_BOUNDS)
 
 
-@pytest.mark.parametrize("setting", sorted(SETTING_BOUNDS))
+def test_the_letters_state_the_bounds_one_letter_number_takes() -> None:
+    bounds = SETTING_BOUNDS[SettingName.LETTERS]
+    assert bounds.minimum == 0
+    assert stated(SettingName.LETTERS, {"A": {"value": bounds.maximum, "count": bounds.maximum}})
+    with pytest.raises(ValidationError):
+        stated(SettingName.LETTERS, {"A": {"value": bounds.maximum + 1}})
+
+
+@pytest.mark.parametrize("setting", sorted(set(SETTING_BOUNDS) - {SettingName.LETTERS}))
 def test_each_bound_is_the_one_the_record_enforces(setting: SettingName) -> None:
     bounds = SETTING_BOUNDS[setting]
     assert getattr(stated(setting, bounds.minimum), setting.value) == bounds.minimum
@@ -97,7 +105,7 @@ def test_each_bound_is_the_one_the_record_enforces(setting: SettingName) -> None
         stated(setting, bounds.maximum + 1)
 
 
-@pytest.mark.parametrize("setting", sorted(SETTING_BOUNDS))
+@pytest.mark.parametrize("setting", sorted(set(SETTING_BOUNDS) - {SettingName.LETTERS}))
 def test_a_setting_takes_no_value_only_where_the_bounds_say_so(setting: SettingName) -> None:
     if SETTING_BOUNDS[setting].unlimited:
         assert getattr(stated(setting, None), setting.value) is None

@@ -10,7 +10,14 @@ import type { Seat } from "./seat";
 import { headersFor } from "./seat";
 import type { Streamed } from "./streaming";
 import { follow } from "./streaming";
-import type { JoinRequest, OfferingsResponse, TableAdmission, TableDescription, TableRequest } from "./tables";
+import type {
+    JoinRequest,
+    OfferingsResponse,
+    PresetsResponse,
+    TableAdmission,
+    TableDescription,
+    TableRequest,
+} from "./tables";
 import type { StyleTokens, TableViewResponse } from "./views";
 import type { WordVerdicts } from "./words";
 
@@ -26,6 +33,16 @@ async function answered(response: Response): Promise<Response> {
 export async function readOfferings(): Promise<OfferingsResponse> {
     const response = await answered(await fetch("/offerings"));
     return parsed<OfferingsResponse>(response);
+}
+
+export async function readInvitation(code: string): Promise<TableDescription> {
+    const response = await answered(await fetch(`/invitations/${encodeURIComponent(code)}`));
+    return parsed<TableDescription>(response);
+}
+
+export async function readPresets(): Promise<PresetsResponse> {
+    const response = await answered(await fetch("/presets"));
+    return parsed<PresetsResponse>(response);
 }
 
 export async function readStyle(): Promise<StyleTokens> {
