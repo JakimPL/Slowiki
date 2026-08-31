@@ -1,5 +1,5 @@
 from wordcore.models.base import BaseFrozen
-from wordtable.config import TimeConfig
+from wordtable.timing import TimeConfig
 
 
 class RuleParameters(BaseFrozen):

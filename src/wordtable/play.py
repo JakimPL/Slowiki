@@ -13,9 +13,11 @@ from wordcore.moves.move import Move
 from wordcore.states.phase import finished
 from wordcore.tiles.tile import Tile
 from wordtable.build import build_rules
-from wordtable.catalog import resolve_scheme
 from wordtable.lexicons import load_lexicon
 from wordtable.paths import CONFIG_DIR
+from wordtable.rules import restated
+from wordtable.scheme import load_scheme
+from wordtable.settling import resolve_table
 
 logger = logging.getLogger(__name__)
 
@@ -37,14 +39,15 @@ def run(scheme_name: str, players: int) -> None:
 
 
 def _build_game(scheme_name: str, players: int) -> Game:
-    resolved = resolve_scheme(CONFIG_DIR, scheme_name)
-    lexicon = load_lexicon(resolved.scheme.dictionary)
-    seats = tuple(range(players))
+    scheme = load_scheme(CONFIG_DIR, scheme_name)
+    resolved = resolve_table(CONFIG_DIR, scheme, restated(scheme.rules, {"seats": players}))
+    lexicon = load_lexicon(resolved.rules.dictionary)
+    seats = tuple(range(resolved.rules.seats))
     rules = build_rules(resolved, seats, lexicon)
     return Game(
         rules,
         random.Random(),
-        premoves_allowed=resolved.scheme.premoves,
+        premoves_allowed=resolved.rules.premoves,
     )
 
 

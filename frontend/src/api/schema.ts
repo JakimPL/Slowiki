@@ -813,8 +813,6 @@ export interface components {
             readonly increment_seconds: number;
             /** Per Turn Seconds */
             readonly per_turn_seconds: number | null;
-            /** Premove Delay Seconds */
-            readonly premove_delay_seconds: number;
             /** Total Seconds */
             readonly total_seconds: number | null;
         };

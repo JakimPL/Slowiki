@@ -26,8 +26,12 @@ Capacitor steps for native iOS and Android shells.
 
 YAML under `config/` is the single authoritative configuration source:
 
-- `config/config.yaml` — service address, active scheme, active style.
-- `config/schemes/` — game presets (literaki, scrabble, solo-literaki).
+- `config/config.yaml` — service address, table lifetimes, active scheme, active
+  style.
+- `config/schemes/` — game presets (literaki, scrabble, solo-literaki). Each one
+  states its name and a single `rules:` record: which board, alphabet,
+  distribution and word list it plays with, how many seats and tiles a rack
+  holds, and every rule a table may change.
 - `config/presets/boards/` — board size and bonus squares.
 - `config/presets/alphabets/` — the letters a game plays with, their order, what
   each class of letters is worth, and the word lists it suits.
@@ -40,6 +44,10 @@ files it names. An alphabet and a distribution pair freely, so Polish letters at
 Scrabble values on the Literaki distribution is a scheme, not a new file.
 The offerings endpoint lists a scheme once its dictionary archive is present in
 `dictionaries/`; dropping `english.zip` there enables Scrabble.
+
+The server reads the whole tree at startup and refuses to start on a fault, so a
+scheme naming a board that is absent, an alphabet that leaves a letter unvalued,
+or a word list its letters do not suit is reported before the first table opens.
 
 ## Deployment
 

@@ -28,7 +28,7 @@ from wordserver.models.company import CompanyView
 from wordserver.models.heartbeat import HeartbeatView
 from wordserver.models.seat import SeatView
 from wordserver.racks import RackOrder
-from wordtable.config import TimeConfig
+from wordtable.timing import TimeConfig
 
 _HEARTBEAT_SECONDS: Final = 15
 _PRESENCE_EVENT: Final = "presence"
@@ -53,12 +53,15 @@ class TableSession:
         time: TimeConfig,
         names: dict[int, str | None],
         now: Callable[[], float],
+        *,
+        premove_delay_seconds: float,
     ) -> None:
         self._game = game
         self._tokens = tokens
         self._names = names
         self._now = now
         self._time = time
+        self._premove_delay_seconds = premove_delay_seconds
         self._clock = TurnClock(time, tokens, now)
         self._racks = RackOrder(tokens)
         self._condition = asyncio.Condition()
@@ -396,7 +399,7 @@ class TableSession:
         return seat
 
     async def _settle_premove(self, seat: int) -> None:
-        await asyncio.sleep(self._time.premove_delay_seconds)
+        await asyncio.sleep(self._premove_delay_seconds)
         async with self._condition:
             if self._premoving_seat() != seat:
                 return

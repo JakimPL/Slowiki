@@ -6,7 +6,7 @@ from wordgames.backend.literaki import LiterakiRules
 from wordgames.backend.parameters import GameParameters
 from wordgames.backend.scrabble import ScrabbleRules
 from wordgames.names import GameName
-from wordtable.catalog import ResolvedScheme
+from wordtable.resolved import ResolvedScheme
 
 
 def build_rules(
@@ -15,18 +15,19 @@ def build_rules(
     lexicon: Lexicon,
 ) -> Rules:
     board = board_from_preset(resolved.board)
+    rules = resolved.rules
     parameters = GameParameters(
-        rack_size=resolved.scheme.rack_size,
-        validate_on_play=resolved.scheme.validate_on_play,
-        exchange_limit=resolved.scheme.exchange_limit,
-        exchange_min_bag=resolved.scheme.exchange_min_bag,
-        pass_allowed=resolved.scheme.pass_allowed,
-        pass_end_rounds=resolved.scheme.pass_end_rounds,
-        scoreless_end_limit=resolved.scheme.scoreless_end_limit,
-        bingo_bonus=resolved.scheme.bingo_bonus,
+        rack_size=rules.rack_size,
+        validate_on_play=rules.validate_on_play,
+        exchange_limit=rules.exchange_limit,
+        exchange_min_bag=rules.exchange_min_bag,
+        pass_allowed=rules.pass_allowed,
+        pass_end_rounds=rules.pass_end_rounds,
+        scoreless_end_limit=rules.scoreless_end_limit,
+        bingo_bonus=rules.bingo_bonus,
     )
 
-    match resolved.scheme.game:
+    match resolved.game:
         case GameName.LITERAKI:
             return LiterakiRules(
                 players,
@@ -46,4 +47,4 @@ def build_rules(
             )
 
         case _:
-            raise InvalidConfiguration(f"unknown game: {resolved.scheme.game}")
+            raise InvalidConfiguration(f"unknown game: {resolved.game}")

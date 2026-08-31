@@ -18,3 +18,6 @@ class TileSet(BaseFrozen):
             raise InvalidConfiguration(f"a tile set states {''.join(repeated)} more than once")
 
         return self
+
+    def total(self) -> int:
+        return sum(spec.count for spec in self.letters) + self.blanks

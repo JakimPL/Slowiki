@@ -13,7 +13,7 @@ from wordassets.drawing.raster import (
 )
 from wordassets.drawing.shapes import circle, polygon, rect, svg
 from wordassets.geometry import band_height, star_points, tile_radius
-from wordtable.config import ThemeTokens
+from wordtable.style import ThemeTokens
 
 _TILE_RATIO: Final = 0.66
 _MASKABLE_TILE_RATIO: Final = 0.5

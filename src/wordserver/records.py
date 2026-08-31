@@ -17,8 +17,8 @@ def game_record(
     view = session.view(None)
     return GameRecord(
         table_id=table_id,
-        scheme=meta.scheme,
-        game=meta.game,
+        scheme=meta.resolved.scheme,
+        game=meta.resolved.game,
         phase=view.phase,
         seats=tuple(
             SeatRecord(

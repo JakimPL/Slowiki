@@ -6,9 +6,10 @@ from lexica.names import DictionaryName
 from wordcore.board.preset import board_from_preset
 from wordtable import paths
 from wordtable.catalog import list_schemes, offerings, resolve_scheme
-from wordtable.config import StyleTokens, load_style_tokens, read_config
+from wordtable.config import read_config
 from wordtable.lexicons import dictionary_ready
 from wordtable.paths import CONFIG_DIR
+from wordtable.style import StyleTokens, load_style_tokens
 
 
 def test_config_tree_exists() -> None:
@@ -51,14 +52,14 @@ def test_resolve_scheme_builds_board() -> None:
 
 def test_literaki_tile_counts() -> None:
     resolved = resolve_scheme(CONFIG_DIR, "literaki")
-    total = sum(letter.count for letter in resolved.tiles.letters) + resolved.tiles.blanks
-    assert total == 100
-    assert resolved.scheme.rack_size == 7
+    assert resolved.tiles.total() == 100
+    assert resolved.rules.rack_size == 7
 
 
 def test_the_solo_scheme_deals_the_whole_bag() -> None:
     resolved = resolve_scheme(CONFIG_DIR, "solo-literaki")
-    assert resolved.scheme.rack_size is None
+    assert resolved.rules.seats == 1
+    assert resolved.rules.rack_size is None
     assert resolved.tiles == resolve_scheme(CONFIG_DIR, "literaki").tiles
 
 

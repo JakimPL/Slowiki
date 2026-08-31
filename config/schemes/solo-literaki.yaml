@@ -1,23 +1,25 @@
 game: literaki
-board: literaki
-alphabet: literaki
-distribution: polish
-dictionary: sjp
-min_players: 1
-max_players: 1
-rack_size: null
-blanks: 2
-letters: {}
-validate_on_play: true
-premoves: false
-exchange_limit: 0
-exchange_min_bag: 7
-pass_allowed: true
-time:
+rules:
+  board: literaki
+  alphabet: literaki
+  distribution: polish
+  dictionary: sjp
+  seats: 1
+  rack_size: null
+  blanks: 2
+  validate_on_play: true
+  premoves: false
+  pass_allowed: true
+  exchange_limit: 0
+  exchange_min_bag: 7
+  opening_tiles: 2
+  opening_covers_center: true
+  bingo_bonus: 50
+  bingo_tiles: null
+  going_out_award: true
+  pass_end_rounds: null
+  scoreless_end_limit: null
   per_turn_seconds: 120
-  increment_seconds: 0
   total_seconds: null
-  premove_delay_seconds: 1
-pass_end_rounds: null
-scoreless_end_limit: null
-bingo_bonus: 50
+  increment_seconds: 0
+  letters: {}

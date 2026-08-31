@@ -25,8 +25,9 @@ from wordserver.session import TableSession
 from wordserver.sweep import TableSweep
 from wordtable.build import build_rules
 from wordtable.catalog import resolve_scheme
-from wordtable.config import TablesConfig, TimeConfig
+from wordtable.config import TablesConfig
 from wordtable.paths import CONFIG_DIR
+from wordtable.timing import TimeConfig, time_of
 
 _PREMOVE_DELAY: Final = 0.05
 
@@ -194,10 +195,16 @@ async def test_session_events_streams_after_submit() -> None:
         per_turn_seconds=None,
         increment_seconds=0,
         total_seconds=None,
-        premove_delay_seconds=_PREMOVE_DELAY,
     )
     names: dict[int, str | None] = {0: "Ala", 1: None}
-    session = TableSession(game, {0: "token-a", 1: "token-b"}, time, names, lambda: 0.0)
+    session = TableSession(
+        game,
+        {0: "token-a", 1: "token-b"},
+        time,
+        names,
+        lambda: 0.0,
+        premove_delay_seconds=_PREMOVE_DELAY,
+    )
     await session.claim("Bob")
     await session.submit(Move(player=0, action=Pass()), base_seq=0, premove=False, token="token-a")
     stream = session.events(observer=0, since=0)
@@ -220,10 +227,16 @@ async def test_presence_frames_follow_claims_and_disconnects() -> None:
         per_turn_seconds=None,
         increment_seconds=0,
         total_seconds=None,
-        premove_delay_seconds=_PREMOVE_DELAY,
     )
     names: dict[int, str | None] = {0: "Ala", 1: None}
-    session = TableSession(game, {0: "token-a", 1: "token-b"}, time, names, lambda: 0.0)
+    session = TableSession(
+        game,
+        {0: "token-a", 1: "token-b"},
+        time,
+        names,
+        lambda: 0.0,
+        premove_delay_seconds=_PREMOVE_DELAY,
+    )
     stream = session.events(observer=0, since=0)
     first = await anext(stream)
     assert first.startswith("event: presence\n")
@@ -254,7 +267,6 @@ def _timed_session(seconds: int | None, clock: _FakeClock) -> TableSession:
         per_turn_seconds=seconds,
         increment_seconds=0,
         total_seconds=None,
-        premove_delay_seconds=_PREMOVE_DELAY,
     )
     return _session_with(timed, clock)
 
@@ -264,7 +276,6 @@ def _budgeted_session(total: int, increment: int, clock: _FakeClock) -> TableSes
         per_turn_seconds=None,
         increment_seconds=increment,
         total_seconds=total,
-        premove_delay_seconds=_PREMOVE_DELAY,
     )
     return _session_with(budgeted, clock)
 
@@ -290,7 +301,14 @@ def _session_with(time: TimeConfig, clock: _FakeClock) -> TableSession:
     rules = build_rules(resolved, (0, 1), TextLexicon.from_words(["aa"]))
     game = Game(rules, random.Random(0), premoves_allowed=True)
     names: dict[int, str | None] = {0: None, 1: None}
-    return TableSession(game, {0: "token-a", 1: "token-b"}, time, names, clock)
+    return TableSession(
+        game,
+        {0: "token-a", 1: "token-b"},
+        time,
+        names,
+        clock,
+        premove_delay_seconds=_PREMOVE_DELAY,
+    )
 
 
 async def test_clock_arms_when_the_table_gathers() -> None:
@@ -741,12 +759,9 @@ async def test_a_cancelled_stream_releases_its_seat() -> None:
 def _registry_with(session: TableSession) -> tuple[TableRegistry, str]:
     resolved = resolve_scheme(CONFIG_DIR, "literaki")
     meta = TableMeta(
-        scheme="literaki",
-        game=resolved.scheme.game,
-        max_players=2,
         code="ABCDEF",
         resolved=resolved,
-        time=resolved.scheme.time,
+        time=time_of(resolved.rules),
     )
     registry = TableRegistry(GameBook(KEPT_GAMES))
     registry.add("table-1", session, meta)
@@ -755,7 +770,12 @@ def _registry_with(session: TableSession) -> tuple[TableRegistry, str]:
 
 
 def _swept(registry: TableRegistry, clock: _FakeClock) -> TableSweep:
-    bounds = TablesConfig(life_seconds=86400.0, linger_seconds=3600.0, sweep_seconds=60.0)
+    bounds = TablesConfig(
+        life_seconds=86400.0,
+        linger_seconds=3600.0,
+        sweep_seconds=60.0,
+        premove_delay_seconds=_PREMOVE_DELAY,
+    )
     return TableSweep(registry, bounds, clock)
 
 

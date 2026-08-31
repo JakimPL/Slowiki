@@ -4,6 +4,7 @@ from typing import Any
 import yaml
 
 from wordcore.errors.exceptions import InvalidConfiguration
+from wordtable.paths import configuration_file
 
 
 def read_mapping(path: Path) -> dict[str, Any]:
@@ -15,3 +16,7 @@ def read_mapping(path: Path) -> dict[str, Any]:
         raise InvalidConfiguration(f"config file must contain a mapping: {path}")
 
     return data
+
+
+def read_named(directory: Path, kind: Path, name: str) -> dict[str, Any]:
+    return {**read_mapping(directory / configuration_file(kind, name)), "name": name}

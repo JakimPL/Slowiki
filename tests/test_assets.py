@@ -22,8 +22,8 @@ from wordassets.slugs import letter_slug
 from wordgames.names import GameName
 from wordserver.app import create_app
 from wordtable.catalog import resolve_scheme
-from wordtable.config import ThemeTokens, load_style_tokens
 from wordtable.paths import CONFIG_DIR
+from wordtable.style import ThemeTokens, load_style_tokens
 
 
 def test_rendered_escapes_markup() -> None:

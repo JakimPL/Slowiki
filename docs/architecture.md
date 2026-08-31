@@ -71,6 +71,20 @@ live beside configuration rather than in the core because an alphabet names the
 dictionaries it admits, and the core knows no subsystem. The core holds what the
 engine consumes: the settled tile set and the bag built from it.
 
+One record carries the rules. `wordtable.rules.RulesConfig` is flat and complete:
+every setting a table may state stands in it, each one bounded by its own `Field`
+annotation, so the bounds ride the OpenAPI document to the client and Pydantic
+enforces them wherever the record is parsed. A scheme file
+(`wordtable.scheme.SchemeConfig`) is an identity plus one such record, and the
+validators split by what they need: arithmetic the record can settle alone lives
+on the record, and anything needing the presets lives in `wordtable.settling`,
+which loads the board, the alphabet and the distribution, expands the letters,
+and answers with a `wordtable.resolved.ResolvedScheme` — the scheme it came from,
+the rules it plays by, the board and the settled bag. `resolve_scheme` answers a
+scheme's own default; `resolve_table` settles a record onto one.
+`wordtable.audit.audit_configuration` walks the whole tree at startup, so a fault
+in a preset or a scheme is reported before the service accepts a request.
+
 ## Frontend
 
 The player interface lives in `frontend/` and splits into two strata: one reasons about the game on
@@ -133,11 +147,13 @@ the increment after a play or an exchange. A seat whose budget is spent leaves t
 game as an observer: the session refuses every move it submits, discards any premove
 it left standing, and auto-passes on its turn, so the opponents play on and the
 scheme's end limit closes the game. A queued premove settles
-`premove_delay_seconds` after the turn opens, so the move that answered it stands
-alone on its own frame first; the seat on turn is already armed, so its clock pays
-for the pause. A table asks for its own control at creation (`TableRequest.time`),
-which replaces the scheme's default and rides in the description as
-`parameters.time`.
+`tables.premove_delay_seconds` after the turn opens, so the move that answered it
+stands alone on its own frame first; the seat on turn is already armed, so its
+clock pays for the pause. That delay is stream policy the host sets, so it stands
+beside `tables.sweep_seconds` in `TablesConfig` and reaches a session as its own
+value. The budgets are game rules: a table states them in its rules record, and
+`wordtable.timing.time_of` derives the `TimeConfig` the clock reads, which rides
+in the description as `parameters.time`.
 
 ## Rack order
 

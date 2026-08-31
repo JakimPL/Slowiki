@@ -11,7 +11,7 @@ from wordcore.board.preset import BoardPreset, board_from_preset
 from wordcore.tiles.tile import LetterSpec
 from wordcore.tiles.tileset import TileSet
 from wordgames.names import GameName
-from wordtable.config import PremiumTokens, ThemeTokens
+from wordtable.style import PremiumTokens, ThemeTokens
 
 SPECIMEN_WORDS: Final[dict[GameName, str]] = {
     GameName.LITERAKI: "SŁOWIKI",

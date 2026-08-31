@@ -3,54 +3,55 @@ from wordcore.tiles.tileset import TileSet
 from wordserver.models.rule_parameters import RuleParameters
 from wordserver.models.table_description import TableDescription
 from wordserver.models.table_meta import TableMeta
-from wordtable.config import SchemeConfig, TimeConfig
 from wordtable.lexicons import dictionary_ready
 from wordtable.lore import lore_ready
+from wordtable.rules import RulesConfig
+from wordtable.timing import TimeConfig
 
 
-def word_check_offered(scheme: SchemeConfig) -> bool:
-    return scheme.validate_on_play and dictionary_ready(scheme.dictionary)
+def word_check_offered(rules: RulesConfig) -> bool:
+    return rules.validate_on_play and dictionary_ready(rules.dictionary)
 
 
-def lore_offered(scheme: SchemeConfig) -> bool:
-    return lore_ready(scheme.dictionary)
+def lore_offered(rules: RulesConfig) -> bool:
+    return lore_ready(rules.dictionary)
 
 
 def table_description(
     meta: TableMeta,
     observer: int | None,
 ) -> TableDescription:
-    scheme = meta.resolved.scheme
-    tiles = meta.resolved.tiles
+    resolved = meta.resolved
+    rules = resolved.rules
     return TableDescription(
         code=meta.code if observer is not None else None,
-        scheme=meta.scheme,
-        game=meta.game,
-        seats=meta.max_players,
-        dictionary=scheme.dictionary,
-        parameters=_rule_parameters(scheme, meta.time),
-        alphabet=_alphabet(tiles),
-        distribution=_distribution(tiles),
-        blanks=tiles.blanks,
+        scheme=resolved.scheme,
+        game=resolved.game,
+        seats=rules.seats,
+        dictionary=rules.dictionary,
+        parameters=_rule_parameters(rules, meta.time),
+        alphabet=_alphabet(resolved.tiles),
+        distribution=_distribution(resolved.tiles),
+        blanks=resolved.tiles.blanks,
     )
 
 
 def _rule_parameters(
-    scheme: SchemeConfig,
+    rules: RulesConfig,
     time: TimeConfig,
 ) -> RuleParameters:
     return RuleParameters(
-        rack_size=scheme.rack_size,
-        exchange_limit=scheme.exchange_limit,
-        exchange_min_bag=scheme.exchange_min_bag,
-        pass_allowed=scheme.pass_allowed,
-        bingo_bonus=scheme.bingo_bonus,
-        validate_on_play=scheme.validate_on_play,
-        word_check=word_check_offered(scheme),
-        lore=lore_offered(scheme),
-        premoves_allowed=scheme.premoves,
-        pass_end_rounds=scheme.pass_end_rounds,
-        scoreless_end_limit=scheme.scoreless_end_limit,
+        rack_size=rules.rack_size,
+        exchange_limit=rules.exchange_limit,
+        exchange_min_bag=rules.exchange_min_bag,
+        pass_allowed=rules.pass_allowed,
+        bingo_bonus=rules.bingo_bonus,
+        validate_on_play=rules.validate_on_play,
+        word_check=word_check_offered(rules),
+        lore=lore_offered(rules),
+        premoves_allowed=rules.premoves,
+        pass_end_rounds=rules.pass_end_rounds,
+        scoreless_end_limit=rules.scoreless_end_limit,
         time=time,
     )
 

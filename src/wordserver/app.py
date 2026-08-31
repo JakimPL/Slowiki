@@ -16,7 +16,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import StringConstraints
 
 from lexica.names import DictionaryName
-from wordcore.errors.exceptions import WordcoreError
+from wordcore.errors.exceptions import InvalidConfiguration, WordcoreError
 from wordcore.games.game import Game
 from wordcore.models.base import BaseFrozen
 from wordcore.moves.move import Move
@@ -42,18 +42,20 @@ from wordserver.records import KEPT_GAMES, GameBook
 from wordserver.registry import TableRegistry
 from wordserver.session import TableSession
 from wordserver.sweep import TableSweep
+from wordtable.audit import audit_configuration
 from wordtable.build import build_rules
-from wordtable.catalog import ResolvedScheme, offerings, resolve_scheme
-from wordtable.config import (
-    SchemeConfig,
-    StyleTokens,
-    TimeConfig,
-    load_style_tokens,
-    read_config,
-)
+from wordtable.catalog import offerings, resolve_scheme
+from wordtable.config import read_config
 from wordtable.lexicons import LexiconService, dictionary_ready
 from wordtable.lore import LoreService, lore_ready
+from wordtable.names import PresetName
 from wordtable.paths import ASSETS_DIR, CONFIG_DIR, FRONTEND_DIST_DIR, RUN_CONFIG_FILE
+from wordtable.resolved import ResolvedScheme
+from wordtable.rules import MAX_SEATS, MIN_SEATS, RulesConfig, restated
+from wordtable.scheme import SchemeConfig, load_scheme
+from wordtable.settling import resolve_table
+from wordtable.style import StyleTokens, load_style_tokens
+from wordtable.timing import time_of
 
 MAX_PLAYER_NAME_LENGTH: Final = 32
 MAX_JUDGED_WORDS: Final = 16
@@ -74,7 +76,7 @@ PlayerName = Annotated[
 
 
 class TableRequest(BaseFrozen):
-    scheme: str
+    scheme: PresetName
     seats: int
     name: PlayerName
     time: TableTimeRequest | None = None
@@ -104,20 +106,41 @@ class _TableIdentity(NamedTuple):
     tokens: dict[int, str]
 
 
-def _resolved_offering(scheme_name: str) -> ResolvedScheme:
+def _offered_scheme(scheme_name: str) -> SchemeConfig:
     try:
-        return resolve_scheme(CONFIG_DIR, scheme_name)
+        return load_scheme(CONFIG_DIR, scheme_name)
     except WordcoreError as error:
         raise Refusal(404, str(error), ErrorCode.UNKNOWN_SCHEME) from error
 
 
-def _ensure_seats_in_range(scheme: SchemeConfig, seats: int) -> None:
-    if not scheme.min_players <= seats <= scheme.max_players:
+def _ensure_seats_in_range(seats: int) -> None:
+    if not MIN_SEATS <= seats <= MAX_SEATS:
         raise Refusal(
             422,
-            "seats outside the scheme range",
+            f"a table seats {MIN_SEATS} to {MAX_SEATS} players",
             ErrorCode.SEATS_OUT_OF_RANGE,
         )
+
+
+def _settled_table(scheme: SchemeConfig, body: TableRequest) -> ResolvedScheme:
+    try:
+        return resolve_table(CONFIG_DIR, scheme, _asked_rules(scheme, body))
+    except InvalidConfiguration as error:
+        raise Refusal(422, str(error), ErrorCode.INVALID_CONFIGURATION) from error
+
+
+def _asked_rules(scheme: SchemeConfig, body: TableRequest) -> RulesConfig:
+    return restated(scheme.rules, {"seats": body.seats, **_asked_time(body.time)})
+
+
+def _asked_time(asked: TableTimeRequest | None) -> dict[str, object]:
+    if asked is None:
+        return {}
+
+    return {
+        "total_seconds": asked.total_seconds,
+        "increment_seconds": asked.increment_seconds,
+    }
 
 
 def _ensure_dictionary_available(dictionary: DictionaryName) -> None:
@@ -129,8 +152,8 @@ def _ensure_dictionary_available(dictionary: DictionaryName) -> None:
         )
 
 
-def _ensure_word_check_offered(scheme: SchemeConfig) -> None:
-    if not word_check_offered(scheme):
+def _ensure_word_check_offered(rules: RulesConfig) -> None:
+    if not word_check_offered(rules):
         raise Refusal(
             422,
             "this table judges words on submission only",
@@ -138,8 +161,8 @@ def _ensure_word_check_offered(scheme: SchemeConfig) -> None:
         )
 
 
-def _ensure_lore_offered(scheme: SchemeConfig) -> None:
-    if not lore_offered(scheme):
+def _ensure_lore_offered(rules: RulesConfig) -> None:
+    if not lore_offered(rules):
         raise Refusal(
             422,
             "this table serves no dictionary readings",
@@ -170,12 +193,12 @@ async def _built_game(
     resolved: ResolvedScheme,
     seats: tuple[int, ...],
 ) -> Game:
-    lexicon = await service.get(resolved.scheme.dictionary)
+    lexicon = await service.get(resolved.rules.dictionary)
     rules = build_rules(resolved, seats, lexicon)
     return Game(
         rules,
         random.Random(),
-        premoves_allowed=resolved.scheme.premoves,
+        premoves_allowed=resolved.rules.premoves,
     )
 
 
@@ -203,31 +226,17 @@ def _creator_names(seats: int, creator: str) -> dict[int, str | None]:
     return names
 
 
-def _table_time(scheme: SchemeConfig, asked: TableTimeRequest | None) -> TimeConfig:
-    if asked is None:
-        return scheme.time
-
-    return TimeConfig(
-        per_turn_seconds=None,
-        increment_seconds=asked.increment_seconds,
-        total_seconds=asked.total_seconds,
-        premove_delay_seconds=scheme.time.premove_delay_seconds,
-    )
-
-
 def _open_table(
     registry: TableRegistry,
     game: Game,
     resolved: ResolvedScheme,
-    body: TableRequest,
+    creator: str,
+    premove_delay_seconds: float,
 ) -> TableAdmission:
-    identity = _minted_identity(body.seats)
-    creator = body.name
-    played_time = _table_time(resolved.scheme, body.time)
+    seats = resolved.rules.seats
+    identity = _minted_identity(seats)
+    played_time = time_of(resolved.rules)
     meta = TableMeta(
-        scheme=body.scheme,
-        game=resolved.scheme.game,
-        max_players=body.seats,
         code=identity.code,
         resolved=resolved,
         time=played_time,
@@ -236,8 +245,9 @@ def _open_table(
         game,
         identity.tokens,
         played_time,
-        _creator_names(body.seats, creator),
+        _creator_names(seats, creator),
         time.time,
+        premove_delay_seconds=premove_delay_seconds,
     )
     registry.add(identity.table_id, session, meta)
     registry.add_code(identity.code, identity.table_id)
@@ -287,9 +297,9 @@ def _admission(
     return TableAdmission(
         table_id=table_id,
         code=code,
-        scheme=meta.scheme,
-        game=meta.game,
-        max_players=meta.max_players,
+        scheme=meta.resolved.scheme,
+        game=meta.resolved.game,
+        max_players=meta.resolved.rules.seats,
         seat=seat,
         token=token,
         name=name,
@@ -297,6 +307,7 @@ def _admission(
 
 
 def create_app() -> FastAPI:
+    audit_configuration(CONFIG_DIR)
     configuration = read_config(RUN_CONFIG_FILE)
     style_tokens = load_style_tokens(CONFIG_DIR, configuration.style)
     service = LexiconService()
@@ -307,7 +318,7 @@ def create_app() -> FastAPI:
     @asynccontextmanager
     async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
         default = resolve_scheme(CONFIG_DIR, configuration.scheme)
-        preload = asyncio.create_task(_warmed(service, lore, default.scheme.dictionary))
+        preload = asyncio.create_task(_warmed(service, lore, default.rules.dictionary))
         sweeping = asyncio.create_task(sweep.run())
         yield
         preload.cancel()
@@ -368,11 +379,18 @@ def create_app() -> FastAPI:
         responses={404: {"model": ErrorBody}, 422: {"model": ErrorBody}},
     )
     async def create_table(body: TableRequest) -> TableAdmission:
-        resolved = _resolved_offering(body.scheme)
-        _ensure_seats_in_range(resolved.scheme, body.seats)
-        _ensure_dictionary_available(resolved.scheme.dictionary)
-        game = await _built_game(service, resolved, tuple(range(body.seats)))
-        return _open_table(registry, game, resolved, body)
+        scheme = _offered_scheme(body.scheme)
+        _ensure_seats_in_range(body.seats)
+        resolved = _settled_table(scheme, body)
+        _ensure_dictionary_available(resolved.rules.dictionary)
+        game = await _built_game(service, resolved, tuple(range(resolved.rules.seats)))
+        return _open_table(
+            registry,
+            game,
+            resolved,
+            body.name,
+            configuration.tables.premove_delay_seconds,
+        )
 
     @app.post("/tables/{code}/join", responses=_PLAY_RESPONSES)
     async def join_table(code: str, body: JoinRequest) -> TableAdmission:
@@ -402,11 +420,11 @@ def create_app() -> FastAPI:
         words: Annotated[list[str], Query()],
     ) -> WordVerdicts:
         _, meta = table_with_meta(table_id)
-        scheme = meta.resolved.scheme
-        _ensure_word_check_offered(scheme)
+        rules = meta.resolved.rules
+        _ensure_word_check_offered(rules)
         asked = _canonical_words(words)
         _ensure_words_within_limit(asked)
-        lexicon = await service.get(scheme.dictionary)
+        lexicon = await service.get(rules.dictionary)
         return WordVerdicts(verdicts={word: lexicon.judge(word) for word in asked})
 
     @app.get(
@@ -418,11 +436,11 @@ def create_app() -> FastAPI:
         words: Annotated[list[str], Query()],
     ) -> WordLoreResponse:
         _, meta = table_with_meta(table_id)
-        scheme = meta.resolved.scheme
-        _ensure_lore_offered(scheme)
+        rules = meta.resolved.rules
+        _ensure_lore_offered(rules)
         asked = _canonical_words(words)
         _ensure_words_within_limit(asked)
-        return WordLoreResponse(lore=await lore.read(scheme.dictionary, asked))
+        return WordLoreResponse(lore=await lore.read(rules.dictionary, asked))
 
     @app.get("/tables/{table_id}/highlights", responses=_TABLE_RESPONSES)
     def table_highlights(table_id: str) -> GameHighlights:

@@ -5,7 +5,7 @@ from wordassets.drawing.shapes import glyph, rect, svg
 from wordassets.icons import icon_painting, painted_element
 from wordassets.tiles import tile_group
 from wordcore.tiles.tileset import TileSet
-from wordtable.config import ThemeTokens
+from wordtable.style import ThemeTokens
 
 PRODUCT_NAME: Final = "Słowiki"
 

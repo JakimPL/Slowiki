@@ -7,9 +7,11 @@ from wordassets.brand import og_image, splash
 from wordassets.drawing.node import document
 from wordassets.icons import favicon_ico_bytes, icon_png_bytes, icon_svg_element
 from wordassets.manifest import AssetRecord, write_manifest
-from wordtable.catalog import ResolvedScheme, list_schemes, resolve_scheme
-from wordtable.config import StyleTokens, load_style_tokens, read_config
+from wordtable.catalog import list_schemes, resolve_scheme
+from wordtable.config import read_config
 from wordtable.paths import CONFIG_DIR, RUN_CONFIG_FILE
+from wordtable.resolved import ResolvedScheme
+from wordtable.style import StyleTokens, load_style_tokens
 
 _ICON_SVG_SIZE: Final = 512.0
 _ICON_PNG_SIZES: Final = (192, 512)
@@ -149,12 +151,12 @@ def _resolved_by_board() -> dict[str, ResolvedScheme]:
     by_board: dict[str, ResolvedScheme] = {}
     for name in list_schemes(CONFIG_DIR):
         resolved = resolve_scheme(CONFIG_DIR, name)
-        by_board.setdefault(resolved.scheme.board, resolved)
+        by_board.setdefault(resolved.rules.board, resolved)
     return by_board
 
 
 def _specimen_document(resolved: ResolvedScheme, tokens: StyleTokens) -> str:
-    word = SPECIMEN_WORDS[resolved.scheme.game]
+    word = SPECIMEN_WORDS[resolved.game]
     return document(board_specimen(resolved.board, resolved.tiles, tokens.light, word))
 
 

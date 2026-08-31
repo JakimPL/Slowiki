@@ -2,7 +2,7 @@ from wordassets.colors import mixed_hex
 from wordassets.drawing.node import Element
 from wordassets.drawing.shapes import glyph, group, rect
 from wordassets.geometry import band_height, tile_radius
-from wordtable.config import ThemeTokens
+from wordtable.style import ThemeTokens
 
 _LETTER_SIZE_RATIO = 0.52
 _VALUE_SIZE_RATIO = 0.24

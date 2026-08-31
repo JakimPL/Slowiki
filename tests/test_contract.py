@@ -10,7 +10,7 @@ from wordserver.models.table import TableViewResponse
 from wordserver.models.table_admission import TableAdmission
 from wordserver.models.word_lore import WordLoreResponse
 from wordserver.models.word_verdicts import WordVerdicts
-from wordtable.config import StyleTokens
+from wordtable.style import StyleTokens
 
 try:
     import morfeusz2  # type: ignore[import-untyped]
@@ -266,7 +266,6 @@ async def test_created_table_carries_the_asked_time_control(client: httpx.AsyncC
         "per_turn_seconds": None,
         "increment_seconds": 15,
         "total_seconds": 600,
-        "premove_delay_seconds": 1.0,
     }
     await client.post(f"/tables/{data['code']}/join", json={"name": "Ola"})
     view = await client.get(
@@ -276,6 +275,27 @@ async def test_created_table_carries_the_asked_time_control(client: httpx.AsyncC
     assert clock is not None
     assert clock["remaining"] == {"0": 600.0, "1": 600.0}
     assert clock["seat"] == 0
+
+
+async def test_the_asked_budget_keeps_the_scheme_per_turn_limit(
+    client: httpx.AsyncClient,
+) -> None:
+    created = await client.post(
+        "/tables",
+        json={
+            "scheme": "solo-literaki",
+            "seats": 1,
+            "name": "Ala",
+            "time": {"total_seconds": 600, "increment_seconds": 0},
+        },
+    )
+    data = created.json()
+    described = await client.get(f"/tables/{data['table_id']}")
+    assert described.json()["parameters"]["time"] == {
+        "per_turn_seconds": 120,
+        "increment_seconds": 0,
+        "total_seconds": 600,
+    }
 
 
 async def test_time_control_stays_within_bounds(client: httpx.AsyncClient) -> None:
