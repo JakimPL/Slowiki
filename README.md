@@ -32,6 +32,9 @@ YAML under `config/` is the single authoritative configuration source:
   states its name and a single `rules:` record: which board, alphabet,
   distribution and word list it plays with, how many seats and tiles a rack
   holds, and every rule a table may change.
+- `config/allowances.yaml` — how each setting is presented: the group it joins,
+  how prominent it is, the kind of control it takes, and the values a picker
+  offers. The bounds live in the code that validates them.
 - `config/presets/boards/` — board size and bonus squares.
 - `config/presets/alphabets/` — the letters a game plays with, their order, what
   each class of letters is worth, and the word lists it suits.

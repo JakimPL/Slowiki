@@ -1,0 +1,27 @@
+from enum import StrEnum
+
+
+class SettingName(StrEnum):
+    BOARD = "board"
+    ALPHABET = "alphabet"
+    DISTRIBUTION = "distribution"
+    DICTIONARY = "dictionary"
+    SEATS = "seats"
+    RACK_SIZE = "rack_size"
+    BLANKS = "blanks"
+    VALIDATE_ON_PLAY = "validate_on_play"
+    PREMOVES = "premoves"
+    PASS_ALLOWED = "pass_allowed"
+    EXCHANGE_LIMIT = "exchange_limit"
+    EXCHANGE_MIN_BAG = "exchange_min_bag"
+    OPENING_TILES = "opening_tiles"
+    OPENING_COVERS_CENTER = "opening_covers_center"
+    BINGO_BONUS = "bingo_bonus"
+    BINGO_TILES = "bingo_tiles"
+    GOING_OUT_AWARD = "going_out_award"
+    PASS_END_ROUNDS = "pass_end_rounds"
+    SCORELESS_END_LIMIT = "scoreless_end_limit"
+    PER_TURN_SECONDS = "per_turn_seconds"
+    TOTAL_SECONDS = "total_seconds"
+    INCREMENT_SECONDS = "increment_seconds"
+    LETTERS = "letters"

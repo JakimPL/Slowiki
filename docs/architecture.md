@@ -88,6 +88,15 @@ in a preset or a scheme is reported before the service accepts a request — a
 preset that is absent, a letter left unvalued, a word list the letters do not
 suit, or board art a scheme's own letters cannot spell.
 
+`wordtable.allowances` describes each setting for the interface that renders it:
+the group it joins, its tier, the kind of control it takes, and the rungs a
+picker offers, authored in `config/allowances.yaml`. Bounds stay in the code that
+enforces them — `SETTING_BOUNDS` names them from the same constants the `Field`
+annotations spend, and a test proves each one is the bound the record refuses at,
+so the two can never restate each other. The catalog is answered whole: what a
+board, alphabet, distribution or dictionary choice offers is read from disk, so
+adding a preset file adds an option.
+
 A scheme's identity is its name and the word its board art paints. One backend
 serves every scheme: what distinguishes literaki from scrabble is the board, the
 letters and the word list a scheme names, all of them settings, so the rules

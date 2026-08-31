@@ -1,0 +1,96 @@
+allowances:
+  - setting: seats
+    group: table
+    tier: basic
+    kind: count
+  - setting: total_seconds
+    group: table
+    tier: basic
+    kind: seconds
+    offered: [60, 120, 300, 600, 900, 1800, 3600]
+  - setting: increment_seconds
+    group: table
+    tier: basic
+    kind: seconds
+    offered: [0, 5, 10, 15, 30, 60]
+  - setting: dictionary
+    group: words
+    tier: common
+    kind: choice
+  - setting: validate_on_play
+    group: words
+    tier: common
+    kind: toggle
+  - setting: pass_allowed
+    group: turns
+    tier: common
+    kind: toggle
+  - setting: exchange_limit
+    group: turns
+    tier: common
+    kind: optional_count
+  - setting: exchange_min_bag
+    group: turns
+    tier: common
+    kind: count
+  - setting: premoves
+    group: turns
+    tier: common
+    kind: toggle
+  - setting: per_turn_seconds
+    group: turns
+    tier: common
+    kind: seconds
+    offered: [30, 60, 90, 120, 180, 300, 600]
+  - setting: bingo_bonus
+    group: scoring
+    tier: common
+    kind: count
+  - setting: bingo_tiles
+    group: scoring
+    tier: common
+    kind: optional_count
+  - setting: going_out_award
+    group: scoring
+    tier: common
+    kind: toggle
+  - setting: pass_end_rounds
+    group: scoring
+    tier: common
+    kind: optional_count
+  - setting: scoreless_end_limit
+    group: scoring
+    tier: common
+    kind: optional_count
+  - setting: board
+    group: letters
+    tier: common
+    kind: choice
+  - setting: alphabet
+    group: letters
+    tier: common
+    kind: choice
+  - setting: distribution
+    group: letters
+    tier: common
+    kind: choice
+  - setting: rack_size
+    group: letters
+    tier: common
+    kind: optional_count
+  - setting: blanks
+    group: letters
+    tier: common
+    kind: count
+  - setting: opening_tiles
+    group: letters
+    tier: common
+    kind: count
+  - setting: opening_covers_center
+    group: letters
+    tier: common
+    kind: toggle
+  - setting: letters
+    group: letters
+    tier: common
+    kind: letters

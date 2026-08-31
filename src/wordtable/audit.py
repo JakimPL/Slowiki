@@ -3,6 +3,7 @@ from pathlib import Path
 
 from wordcore.errors.exceptions import InvalidConfiguration
 from wordcore.models.base import BaseFrozen
+from wordtable.allowances.load import load_allowances
 from wordtable.catalog import list_schemes
 from wordtable.paths import (
     CONFIGURATION_ALPHABETS_PATH,
@@ -22,6 +23,7 @@ from wordtable.style import load_style_tokens
 
 
 def audit_configuration(directory: Path) -> None:
+    load_allowances(directory)
     _audit_presets(directory)
     _audit_schemes(directory)
 
