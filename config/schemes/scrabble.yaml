@@ -1,9 +1,13 @@
 game: scrabble
 board: scrabble
-tiles: scrabble_en
+alphabet: scrabble-en
+distribution: english
 dictionary: english
 min_players: 2
 max_players: 4
+rack_size: 7
+blanks: 2
+letters: {}
 validate_on_play: true
 premoves: true
 exchange_limit: null

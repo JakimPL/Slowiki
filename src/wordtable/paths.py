@@ -16,7 +16,8 @@ ASSETS_DIR = PROJECT_ROOT / "assets"
 
 CONFIGURATION_SCHEMES_PATH = Path("schemes")
 CONFIGURATION_BOARDS_PATH = Path("presets") / "boards"
-CONFIGURATION_TILES_PATH = Path("presets") / "tiles"
+CONFIGURATION_ALPHABETS_PATH = Path("presets") / "alphabets"
+CONFIGURATION_DISTRIBUTIONS_PATH = Path("presets") / "distributions"
 CONFIGURATION_STYLES_PATH = Path("styles")
 
 

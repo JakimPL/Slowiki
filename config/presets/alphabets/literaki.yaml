@@ -1,0 +1,15 @@
+order: "AĄBCĆDEĘFGHIJKLŁMNŃOÓPRSŚTUWYZŹŻ"
+dictionaries: [sjp, osps]
+classes:
+  - value: 1
+    category: yellow
+    letters: "AEINORSWZ"
+  - value: 2
+    category: green
+    letters: "CDKLMPTY"
+  - value: 3
+    category: blue
+    letters: "BGHJŁU"
+  - value: 5
+    category: red
+    letters: "ĄĆĘFŃÓŚŹŻ"

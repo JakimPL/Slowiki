@@ -29,7 +29,7 @@ P6. The engine owns the cursor. Turn order, phase, and premove settlement are
     game rules compute stays with the game rules.
 
 P7. Letters are canonical. Every letter inside the system is uppercase; dictionary
-    loaders, tile presets, and move payloads normalize on ingestion, so rules,
+    loaders, alphabet presets, and move payloads normalize on ingestion, so rules,
     scoring, and projections compare letters directly. Compiled artifacts carry
     their kind and format version in the header and in the filename
     (`ARTIFACT_FORMATS` in `lexica.artifact.formats`), so a normalization change
@@ -61,6 +61,15 @@ into `wordcore.rules.words` (placements and word geometry) and
 `wordcore.rules.score` (word and move scoring). Dictionary source loaders live
 under `lexica.dictionaries`, one module per source, and each grammar dimension
 owns a module under `lexica.grammar`.
+
+Configuration presets own a module each under `wordtable.presets`: the alphabet
+(the letters a game plays with, their order, what each class of them is worth,
+and the word lists it suits), the distribution (how many tiles of each letter),
+a per-letter adjustment, the expansion that settles the three into a
+`wordcore.tiles.tileset.TileSet`, and the loaders that read them from disk. They
+live beside configuration rather than in the core because an alphabet names the
+dictionaries it admits, and the core knows no subsystem. The core holds what the
+engine consumes: the settled tile set and the bag built from it.
 
 ## Frontend
 

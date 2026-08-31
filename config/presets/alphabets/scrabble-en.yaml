@@ -1,0 +1,17 @@
+order: "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+dictionaries: [english]
+classes:
+  - value: 1
+    letters: "AEILNORSTU"
+  - value: 2
+    letters: "DG"
+  - value: 3
+    letters: "BCMP"
+  - value: 4
+    letters: "FHVWY"
+  - value: 5
+    letters: "K"
+  - value: 8
+    letters: "JX"
+  - value: 10
+    letters: "QZ"

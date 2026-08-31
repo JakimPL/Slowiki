@@ -1,4 +1,5 @@
-from wordcore.tiles.tile import Letter, TilePreset
+from wordcore.tiles.tile import Letter
+from wordcore.tiles.tileset import TileSet
 from wordserver.models.rule_parameters import RuleParameters
 from wordserver.models.table_description import TableDescription
 from wordserver.models.table_meta import TableMeta
@@ -27,7 +28,7 @@ def table_description(
         game=meta.game,
         seats=meta.max_players,
         dictionary=scheme.dictionary,
-        parameters=_rule_parameters(scheme, tiles, meta.time),
+        parameters=_rule_parameters(scheme, meta.time),
         alphabet=_alphabet(tiles),
         distribution=_distribution(tiles),
         blanks=tiles.blanks,
@@ -36,11 +37,10 @@ def table_description(
 
 def _rule_parameters(
     scheme: SchemeConfig,
-    tiles: TilePreset,
     time: TimeConfig,
 ) -> RuleParameters:
     return RuleParameters(
-        rack_size=tiles.rack_size,
+        rack_size=scheme.rack_size,
         exchange_limit=scheme.exchange_limit,
         exchange_min_bag=scheme.exchange_min_bag,
         pass_allowed=scheme.pass_allowed,
@@ -55,7 +55,7 @@ def _rule_parameters(
     )
 
 
-def _alphabet(tiles: TilePreset) -> tuple[Letter, ...]:
+def _alphabet(tiles: TileSet) -> tuple[Letter, ...]:
     return tuple(
         Letter(
             symbol=spec.symbol,
@@ -66,5 +66,5 @@ def _alphabet(tiles: TilePreset) -> tuple[Letter, ...]:
     )
 
 
-def _distribution(tiles: TilePreset) -> dict[str, int]:
+def _distribution(tiles: TileSet) -> dict[str, int]:
     return {spec.symbol: spec.count for spec in tiles.letters}

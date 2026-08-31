@@ -1,6 +1,7 @@
 from enum import StrEnum
 
 from wordcore.models.base import BaseFrozen
+from wordcore.models.letters import CategoryName
 
 
 class BonusKind(StrEnum):
@@ -12,4 +13,4 @@ class BonusKind(StrEnum):
 class Bonus(BaseFrozen):
     kind: BonusKind
     multiplier: int
-    category: str | None = None
+    category: CategoryName | None = None

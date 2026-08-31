@@ -16,6 +16,7 @@ def build_rules(
 ) -> Rules:
     board = board_from_preset(resolved.board)
     parameters = GameParameters(
+        rack_size=resolved.scheme.rack_size,
         validate_on_play=resolved.scheme.validate_on_play,
         exchange_limit=resolved.scheme.exchange_limit,
         exchange_min_bag=resolved.scheme.exchange_min_bag,

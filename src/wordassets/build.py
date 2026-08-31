@@ -7,20 +7,13 @@ from wordassets.brand import og_image, splash
 from wordassets.drawing.node import document
 from wordassets.icons import favicon_ico_bytes, icon_png_bytes, icon_svg_element
 from wordassets.manifest import AssetRecord, write_manifest
-from wordtable.catalog import list_schemes
-from wordtable.config import (
-    SchemeConfig,
-    StyleTokens,
-    load_board_preset,
-    load_style_tokens,
-    load_tile_preset,
-    read_config,
-)
+from wordtable.catalog import ResolvedScheme, list_schemes, resolve_scheme
+from wordtable.config import StyleTokens, load_style_tokens, read_config
 from wordtable.paths import CONFIG_DIR, RUN_CONFIG_FILE
 
 _ICON_SVG_SIZE: Final = 512.0
 _ICON_PNG_SIZES: Final = (192, 512)
-_OG_TILES: Final = "literaki"
+_OG_SCHEME: Final = "literaki"
 
 
 def build_assets(output: Path, docs: Path | None) -> tuple[AssetRecord, ...]:
@@ -44,10 +37,10 @@ def _specimen_records(
     specimens = output / "specimens"
     specimens.mkdir(parents=True, exist_ok=True)
     records: list[AssetRecord] = []
-    for scheme in _schemes_by_board().values():
-        destination = specimens / f"board-{scheme.board}.svg"
+    for board, resolved in _resolved_by_board().items():
+        destination = specimens / f"board-{board}.svg"
         destination.write_text(
-            _specimen_document(scheme, tokens),
+            _specimen_document(resolved, tokens),
             encoding="utf-8",
         )
         records.append(
@@ -133,7 +126,7 @@ def _brand_records(
 ) -> tuple[AssetRecord, ...]:
     brand = output / "brand"
     brand.mkdir(parents=True, exist_ok=True)
-    tiles = load_tile_preset(CONFIG_DIR, _OG_TILES)
+    tiles = resolve_scheme(CONFIG_DIR, _OG_SCHEME).tiles
     written = (
         ("og-image.svg", document(og_image(tokens.light, tiles))),
         ("splash.svg", document(splash(tokens.light))),
@@ -152,18 +145,17 @@ def _brand_records(
     return tuple(records)
 
 
-def _schemes_by_board() -> dict[str, SchemeConfig]:
-    by_board: dict[str, SchemeConfig] = {}
-    for scheme in list_schemes(CONFIG_DIR).values():
-        by_board.setdefault(scheme.board, scheme)
+def _resolved_by_board() -> dict[str, ResolvedScheme]:
+    by_board: dict[str, ResolvedScheme] = {}
+    for name in list_schemes(CONFIG_DIR):
+        resolved = resolve_scheme(CONFIG_DIR, name)
+        by_board.setdefault(resolved.scheme.board, resolved)
     return by_board
 
 
-def _specimen_document(scheme: SchemeConfig, tokens: StyleTokens) -> str:
-    board = load_board_preset(CONFIG_DIR, scheme.board)
-    tiles = load_tile_preset(CONFIG_DIR, scheme.tiles)
-    word = SPECIMEN_WORDS[scheme.game]
-    return document(board_specimen(board, tiles, tokens.light, word))
+def _specimen_document(resolved: ResolvedScheme, tokens: StyleTokens) -> str:
+    word = SPECIMEN_WORDS[resolved.scheme.game]
+    return document(board_specimen(resolved.board, resolved.tiles, tokens.light, word))
 
 
 def _copy_specimens(

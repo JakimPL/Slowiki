@@ -20,7 +20,8 @@ from wordcore.states.phase import Phase
 from wordcore.states.record import PlayRecord
 from wordcore.states.state import WordState
 from wordcore.tiles.bag import deal_racks, shuffled_bag
-from wordcore.tiles.tile import Tile, TilePreset
+from wordcore.tiles.tile import Tile
+from wordcore.tiles.tileset import TileSet
 from wordgames.backend.parameters import GameParameters
 
 
@@ -29,7 +30,7 @@ class WordGameRules(Rules):
         self,
         players: tuple[int, ...],
         board: Board,
-        tiles: TilePreset,
+        tiles: TileSet,
         lexicon: Lexicon,
         parameters: GameParameters,
     ) -> None:
@@ -41,7 +42,10 @@ class WordGameRules(Rules):
 
     def initial_position(self, rng: random.Random) -> Position:
         bag = shuffled_bag(self._tiles, rng)
-        racks, remaining = deal_racks(bag, {seat: self._tiles.rack_size for seat in self._players})
+        racks, remaining = deal_racks(
+            bag,
+            {seat: self._parameters.rack_size for seat in self._players},
+        )
         state = WordState(
             phase=Phase.TURN,
             to_act=frozenset({self._players[0]}),
@@ -177,7 +181,7 @@ class WordGameRules(Rules):
     ) -> tuple[tuple[Tile, ...], tuple[Tile, ...]]:
         played = {placement.tile.identifier for placement in placements}
         kept = tuple(tile for tile in rack_of(position, player) if tile.identifier not in played)
-        rack_size = self._tiles.rack_size
+        rack_size = self._parameters.rack_size
         if rack_size is None:
             return kept, position.state.bag
 
@@ -295,7 +299,7 @@ class WordGameRules(Rules):
         return tuple(result)
 
     def _bingo_bonus(self, played: int) -> int:
-        rack_size = self._tiles.rack_size
+        rack_size = self._parameters.rack_size
         if rack_size is not None and played == rack_size:
             return self._parameters.bingo_bonus
 

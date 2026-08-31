@@ -29,11 +29,15 @@ YAML under `config/` is the single authoritative configuration source:
 - `config/config.yaml` — service address, active scheme, active style.
 - `config/schemes/` — game presets (literaki, scrabble, solo-literaki).
 - `config/presets/boards/` — board size and bonus squares.
-- `config/presets/tiles/` — letter distributions, values, categories, rack size.
+- `config/presets/alphabets/` — the letters a game plays with, their order, what
+  each class of letters is worth, and the word lists it suits.
+- `config/presets/distributions/` — how many tiles of each letter the bag holds.
 - `config/styles/` — the design tokens (light and dark) for the board, tiles,
   premiums, and chrome.
 
-To add a variant, add a scheme file plus the board and tile files it references.
+To add a variant, add a scheme file plus the board, alphabet, and distribution
+files it names. An alphabet and a distribution pair freely, so Polish letters at
+Scrabble values on the Literaki distribution is a scheme, not a new file.
 The offerings endpoint lists a scheme once its dictionary archive is present in
 `dictionaries/`; dropping `english.zip` there enables Scrabble.
 

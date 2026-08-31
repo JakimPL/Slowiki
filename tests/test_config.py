@@ -53,12 +53,13 @@ def test_literaki_tile_counts() -> None:
     resolved = resolve_scheme(CONFIG_DIR, "literaki")
     total = sum(letter.count for letter in resolved.tiles.letters) + resolved.tiles.blanks
     assert total == 100
-    assert resolved.tiles.rack_size == 7
+    assert resolved.scheme.rack_size == 7
 
 
-def test_solo_tile_preset_is_unlimited() -> None:
+def test_the_solo_scheme_deals_the_whole_bag() -> None:
     resolved = resolve_scheme(CONFIG_DIR, "solo-literaki")
-    assert resolved.tiles.rack_size is None
+    assert resolved.scheme.rack_size is None
+    assert resolved.tiles == resolve_scheme(CONFIG_DIR, "literaki").tiles
 
 
 def test_style_tokens_load() -> None:

@@ -3,15 +3,16 @@ from pathlib import Path
 from lexica.names import DictionaryName
 from wordcore.board.preset import BoardPreset
 from wordcore.models.base import BaseFrozen
-from wordcore.tiles.tile import TilePreset
+from wordcore.tiles.tileset import TileSet
 from wordgames.names import GameName
-from wordtable.config import (
-    SchemeConfig,
-    load_board_preset,
-    load_scheme,
-    load_tile_preset,
-)
+from wordtable.config import SchemeConfig, load_scheme
 from wordtable.paths import CONFIGURATION_SCHEMES_PATH
+from wordtable.presets.letters import letters_of
+from wordtable.presets.load import (
+    load_alphabet_preset,
+    load_board_preset,
+    load_distribution_preset,
+)
 
 
 class Offering(BaseFrozen):
@@ -25,7 +26,7 @@ class Offering(BaseFrozen):
 class ResolvedScheme(BaseFrozen):
     scheme: SchemeConfig
     board: BoardPreset
-    tiles: TilePreset
+    tiles: TileSet
 
 
 def list_schemes(directory: Path) -> dict[str, SchemeConfig]:
@@ -57,5 +58,14 @@ def resolve_scheme(directory: Path, name: str) -> ResolvedScheme:
     return ResolvedScheme(
         scheme=scheme,
         board=load_board_preset(directory, scheme.board),
-        tiles=load_tile_preset(directory, scheme.tiles),
+        tiles=resolve_tiles(directory, scheme),
+    )
+
+
+def resolve_tiles(directory: Path, scheme: SchemeConfig) -> TileSet:
+    alphabet = load_alphabet_preset(directory, scheme.alphabet)
+    distribution = load_distribution_preset(directory, scheme.distribution)
+    return TileSet(
+        letters=letters_of(alphabet, distribution, scheme.letters),
+        blanks=scheme.blanks,
     )

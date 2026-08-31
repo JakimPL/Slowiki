@@ -1,24 +1,23 @@
 from pathlib import Path
-from typing import Annotated, Any
+from typing import Annotated
 
-import yaml
 from pydantic import Field, model_validator
 
 from lexica.names import DictionaryName
-from wordcore.board.preset import BoardPreset
 from wordcore.errors.exceptions import InvalidConfiguration
 from wordcore.models.base import BaseFrozen
-from wordcore.tiles.tile import TilePreset
+from wordcore.models.letters import CanonicalSymbol, TileCount
 from wordgames.names import GameName
+from wordtable.documents import read_mapping
 from wordtable.paths import (
-    CONFIGURATION_BOARDS_PATH,
     CONFIGURATION_SCHEMES_PATH,
     CONFIGURATION_STYLES_PATH,
-    CONFIGURATION_TILES_PATH,
     configuration_file,
 )
+from wordtable.presets.adjustment import LetterAdjustment
 
 PositiveSeconds = Annotated[float, Field(gt=0)]
+RackSize = Annotated[int, Field(ge=1, le=99)]
 
 
 class ServiceConfig(BaseFrozen):
@@ -42,10 +41,14 @@ class TimeConfig(BaseFrozen):
 class SchemeConfig(BaseFrozen):
     game: GameName
     board: str
-    tiles: str
+    alphabet: str
+    distribution: str
     dictionary: DictionaryName
     min_players: int
     max_players: int
+    rack_size: RackSize | None
+    blanks: TileCount
+    letters: dict[CanonicalSymbol, LetterAdjustment]
     validate_on_play: bool
     premoves: bool
     exchange_limit: int | None
@@ -135,38 +138,15 @@ class Configuration(BaseFrozen):
 
 
 def read_config(path: Path) -> Configuration:
-    return Configuration.model_validate(_read_yaml(path))
+    return Configuration.model_validate(read_mapping(path))
 
 
 def load_scheme(directory: Path, name: str) -> SchemeConfig:
     path = directory / configuration_file(CONFIGURATION_SCHEMES_PATH, name)
-    return SchemeConfig.model_validate(_read_yaml(path))
-
-
-def load_board_preset(directory: Path, name: str) -> BoardPreset:
-    path = directory / configuration_file(CONFIGURATION_BOARDS_PATH, name)
-    data = _read_yaml(path)
-    return BoardPreset.model_validate({**data, "name": name})
-
-
-def load_tile_preset(directory: Path, name: str) -> TilePreset:
-    path = directory / configuration_file(CONFIGURATION_TILES_PATH, name)
-    data = _read_yaml(path)
-    return TilePreset.model_validate({**data, "name": name})
+    return SchemeConfig.model_validate(read_mapping(path))
 
 
 def load_style_tokens(directory: Path, name: str) -> StyleTokens:
     path = directory / configuration_file(CONFIGURATION_STYLES_PATH, name)
-    data = _read_yaml(path)
+    data = read_mapping(path)
     return StyleTokens.model_validate({**data, "name": name})
-
-
-def _read_yaml(path: Path) -> dict[str, Any]:
-    if not path.is_file():
-        raise InvalidConfiguration(f"missing config file: {path}")
-
-    data = yaml.safe_load(path.read_text(encoding="utf-8"))
-    if not isinstance(data, dict):
-        raise InvalidConfiguration(f"config file must contain a mapping: {path}")
-
-    return data

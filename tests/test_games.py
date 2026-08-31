@@ -11,7 +11,8 @@ from wordcore.moves.action import Exchange, Pass, Play, PlayPlacement
 from wordcore.moves.move import Move
 from wordcore.positions.position import Position
 from wordcore.states.state import Phase, WordState
-from wordcore.tiles.tile import LetterSpec, Tile, TilePreset
+from wordcore.tiles.tile import LetterSpec, Tile
+from wordcore.tiles.tileset import TileSet
 from wordcore.views.projection import project
 from wordgames.backend.base import WordGameRules
 from wordgames.backend.parameters import GameParameters
@@ -19,14 +20,12 @@ from wordtable.build import build_rules
 from wordtable.catalog import resolve_scheme
 from wordtable.paths import CONFIG_DIR
 
-TINY_TILES = TilePreset(
-    name="tiny",
+TINY_TILES = TileSet(
     letters=(
         LetterSpec(symbol="a", value=1, category="yellow", count=4),
         LetterSpec(symbol="b", value=2, category="green", count=2),
     ),
     blanks=0,
-    rack_size=2,
 )
 
 
@@ -40,6 +39,7 @@ def make_board() -> Board:
 
 def make_rules(lexicon: Lexicon, players: tuple[int, ...] = (0, 1)) -> WordGameRules:
     parameters = GameParameters(
+        rack_size=2,
         validate_on_play=True,
         exchange_limit=None,
         exchange_min_bag=7,
@@ -297,8 +297,8 @@ def test_pass_rounds_scale_with_the_seat_count() -> None:
 
 
 def test_solo_unlimited_deals_all_tiles() -> None:
-    solo_tiles = TINY_TILES.model_copy(update={"rack_size": None})
     parameters = GameParameters(
+        rack_size=None,
         validate_on_play=True,
         exchange_limit=None,
         exchange_min_bag=7,
@@ -308,7 +308,7 @@ def test_solo_unlimited_deals_all_tiles() -> None:
         bingo_bonus=50,
     )
     rules = WordGameRules(
-        (0,), make_board(), solo_tiles, TextLexicon.from_words(["ab"]), parameters
+        (0,), make_board(), TINY_TILES, TextLexicon.from_words(["ab"]), parameters
     )
     position = rules.initial_position(random.Random(0))
     assert len(position.state.racks[0]) == 6

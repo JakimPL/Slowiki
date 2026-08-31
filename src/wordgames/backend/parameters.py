@@ -2,6 +2,7 @@ from wordcore.models.base import BaseFrozen
 
 
 class GameParameters(BaseFrozen):
+    rack_size: int | None
     validate_on_play: bool
     exchange_limit: int | None
     exchange_min_bag: int

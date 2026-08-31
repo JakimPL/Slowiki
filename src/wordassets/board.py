@@ -8,7 +8,8 @@ from wordassets.tiles import tile_group
 from wordcore.board.board import Board
 from wordcore.board.bonus import Bonus, BonusKind
 from wordcore.board.preset import BoardPreset, board_from_preset
-from wordcore.tiles.tile import LetterSpec, TilePreset
+from wordcore.tiles.tile import LetterSpec
+from wordcore.tiles.tileset import TileSet
 from wordgames.names import GameName
 from wordtable.config import PremiumTokens, ThemeTokens
 
@@ -28,7 +29,7 @@ _LABEL_DROP_RATIO: Final = 0.5
 
 def board_specimen(
     preset: BoardPreset,
-    tiles: TilePreset,
+    tiles: TileSet,
     theme: ThemeTokens,
     word: str,
 ) -> Element:
@@ -130,7 +131,7 @@ def _center_star(board: Board, theme: ThemeTokens) -> Element:
 
 def _word_tiles(
     board: Board,
-    tiles: TilePreset,
+    tiles: TileSet,
     theme: ThemeTokens,
     word: str,
 ) -> list[Element]:
@@ -159,6 +160,6 @@ def _word_tiles(
 def _letter_spec(by_symbol: dict[str, LetterSpec], symbol: str) -> LetterSpec:
     spec = by_symbol.get(symbol)
     if spec is None:
-        raise KeyError(f"specimen letter '{symbol}' is missing from the tile preset")
+        raise KeyError(f"specimen letter '{symbol}' is missing from the tile set")
 
     return spec

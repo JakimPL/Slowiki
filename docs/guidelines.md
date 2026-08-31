@@ -41,7 +41,7 @@
 ### Boundaries
 
 * External text — CLI arguments, configuration files, request payloads — is parsed once, at the boundary, into a typed structure (`NamedTuple` or Pydantic model) with explicit arity and value checks. Positional indexing of raw input is allowed only inside that parser.
-* Normalization happens once, at ingestion. Letters are canonically uppercase across the whole system (dictionary loaders, tile presets, blank assignments); join codes are canonically uppercase. Code past the boundary compares values directly and never calls `upper()`/`lower()` again.
+* Normalization happens once, at ingestion. Letters are canonically uppercase across the whole system (dictionary loaders, alphabet presets, blank assignments); join codes are canonically uppercase. Code past the boundary compares values directly and never calls `upper()`/`lower()` again.
 * Program status output goes through `logging`, configured at the entry point. `print` is reserved for data explicitly requested by the user (e.g. a value the CLI was asked to produce).
 * Compiled dictionary artifacts obey `docs/lexicon-contract.md`: `lexica` owns the bytes, the kinds, the formats and the readers, `wordtable` owns the paths, the builds, the caching and the dispatch, and the engine sees one verdict port. An artifact kind exists once it holds a row in that document's table, and `make contract` — also a pre-commit hook — holds the document and the code in agreement.
 

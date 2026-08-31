@@ -1,14 +1,16 @@
 import random
 
-from wordcore.tiles.tile import Tile, TilePreset
+from wordcore.tiles.blank import BLANK_CATEGORY, BLANK_VALUE
+from wordcore.tiles.tile import Tile
+from wordcore.tiles.tileset import TileSet
 
 
-def build_tiles(preset: TilePreset) -> tuple[Tile, ...]:
-    tiles: list[Tile] = []
+def build_tiles(tiles: TileSet) -> tuple[Tile, ...]:
+    built: list[Tile] = []
     identifier = 0
-    for letter in preset.letters:
+    for letter in tiles.letters:
         for _ in range(letter.count):
-            tiles.append(
+            built.append(
                 Tile(
                     identifier=identifier,
                     letter=letter.symbol,
@@ -19,25 +21,25 @@ def build_tiles(preset: TilePreset) -> tuple[Tile, ...]:
             )
             identifier += 1
 
-    for _ in range(preset.blanks):
-        tiles.append(
+    for _ in range(tiles.blanks):
+        built.append(
             Tile(
                 identifier=identifier,
                 letter="",
-                value=0,
-                category="blank",
+                value=BLANK_VALUE,
+                category=BLANK_CATEGORY,
                 blank=True,
             )
         )
         identifier += 1
 
-    return tuple(tiles)
+    return tuple(built)
 
 
-def shuffled_bag(preset: TilePreset, rng: random.Random) -> tuple[Tile, ...]:
-    tiles = list(build_tiles(preset))
-    rng.shuffle(tiles)
-    return tuple(tiles)
+def shuffled_bag(tiles: TileSet, rng: random.Random) -> tuple[Tile, ...]:
+    built = list(build_tiles(tiles))
+    rng.shuffle(built)
+    return tuple(built)
 
 
 def deal_racks(

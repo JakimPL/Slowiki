@@ -1,9 +1,13 @@
 game: literaki
 board: literaki
-tiles: literaki_solo
+alphabet: literaki
+distribution: polish
 dictionary: sjp
 min_players: 1
 max_players: 1
+rack_size: null
+blanks: 2
+letters: {}
 validate_on_play: true
 premoves: false
 exchange_limit: 0

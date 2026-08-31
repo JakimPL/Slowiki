@@ -1,20 +1,35 @@
+from typing import Annotated
+
+from pydantic import Field, model_validator
+
 from wordcore.board.board import Board
 from wordcore.board.bonus import Bonus, BonusKind
 from wordcore.errors.exceptions import InvalidConfiguration
 from wordcore.models.base import BaseFrozen
+from wordcore.models.letters import CategoryName
+
+BoardSize = Annotated[int, Field(ge=3, le=99)]
+BonusMultiplier = Annotated[int, Field(ge=1, le=9)]
 
 
 class BonusSpec(BaseFrozen):
     kind: BonusKind
-    multiplier: int
-    category: str | None = None
+    multiplier: BonusMultiplier
+    category: CategoryName | None = None
     positions: tuple[tuple[int, int], ...]
 
 
 class BoardPreset(BaseFrozen):
     name: str
-    size: int
+    size: BoardSize
     bonuses: tuple[BonusSpec, ...]
+
+    @model_validator(mode="after")
+    def _ensure_a_center_square(self) -> "BoardPreset":
+        if self.size % 2 == 0:
+            raise InvalidConfiguration(f"board '{self.name}' needs an odd size to have a center")
+
+        return self
 
 
 def get_bonus_index(row: int, column: int, preset: BoardPreset) -> int:
