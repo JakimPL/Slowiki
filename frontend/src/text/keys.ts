@@ -114,6 +114,7 @@ export interface PlainValues {
     readonly "rules.choice.scrabble-en": EmptyValues;
     readonly "rules.choice.scrabble-pl": EmptyValues;
     readonly "rules.choice.sjp": EmptyValues;
+    readonly "rules.choice.solo-literaki": EmptyValues;
     readonly "rules.close": EmptyValues;
     readonly "rules.custom": EmptyValues;
     readonly "rules.custom_span": EmptyValues;

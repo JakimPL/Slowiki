@@ -1986,7 +1986,9 @@ button.word-chip[data-open] {
 
 .menu-options {
     display: flex;
+    flex-wrap: wrap;
     gap: 4px;
+    justify-content: flex-end;
     padding: 3px;
     border: 1px solid var(--chrome-edge);
     border-radius: 999px;
@@ -2076,8 +2078,12 @@ button.word-chip[data-open] {
     flex-wrap: wrap;
     gap: 6px 10px;
     align-items: center;
-    justify-content: space-between;
     grid-column: 1 / -1;
+}
+
+.rules-item-head > :last-child {
+    min-width: 0;
+    margin-left: auto;
 }
 
 .rules-item-note {
@@ -2097,6 +2103,11 @@ button.word-chip[data-open] {
     font-weight: 600;
     text-decoration: underline;
     cursor: pointer;
+}
+
+.rules-revert[data-copied] {
+    color: var(--chrome-muted);
+    text-decoration: none;
 }
 
 .rules-select {
@@ -2154,6 +2165,11 @@ button.word-chip[data-open] {
     color: var(--chrome-muted);
 }
 
+.stepper:has(.stepper-value:disabled) {
+    border-color: color-mix(in srgb, var(--chrome-edge) 55%, transparent);
+    background: none;
+}
+
 .budget {
     display: flex;
     flex-wrap: wrap;
@@ -2167,10 +2183,6 @@ button.word-chip[data-open] {
     flex-wrap: wrap;
     gap: 6px;
     align-items: center;
-}
-
-.optional-count .stepper[aria-hidden] {
-    opacity: 0.5;
 }
 
 .rules-saved {
@@ -2277,6 +2289,11 @@ button.word-chip[data-open] {
     display: flex;
     gap: 10px;
     align-items: end;
+}
+
+.sheet-free .action {
+    padding: 9px 14px;
+    white-space: nowrap;
 }
 
 .sheet-free .field {
@@ -2630,6 +2647,15 @@ button.word-chip[data-open] {
 }
 
 .rack-tile:focus-visible,
+.action:focus-visible,
+.stepper-step:focus-visible,
+.stepper-value:focus-visible,
+.rules-group .rules-group-head:focus-visible,
+.rules-revert:focus-visible,
+.rules-saved-name:focus-visible,
+.rules-row:focus-visible,
+.rules-select:focus-visible,
+.letters-cell:focus-visible,
 .code-chip:focus-visible,
 .word-chip:focus-visible,
 .word-deepen:focus-visible,

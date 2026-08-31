@@ -107,6 +107,13 @@ inside the sheet, which is what the sheet's own scroll is for.
   neighbours, and the same words serve the sheet, the create card, the chips and the standard note. A
   budget's ladder ends in **Custom…**, which opens a field of seconds beside it; a value already off
   the ladder opens that field on sight, so the top rung is no ceiling.
+- **A row ends where every other row ends.** The label opens the line and the control closes it,
+  pushed to the right edge whether or not it wraps to a line of its own, and a control too wide for
+  the line wraps inside itself rather than past that edge. Every panel's buttons are the same button:
+  the same padding, the same 12px corner, the same disabled treatment, so a Save that is resting
+  reads as resting.
+- **Every control shows where the keyboard is.** Steppers, group heads, revert links, saved names,
+  the card's rules row, selects, letter cells and both kinds of button all carry the same focus ring.
 - **Deviation is a state a row wears.** A row standing apart from its scheme carries a tinted edge in
   the primary accent, prints the standard value beneath itself, and offers the control that restores
   it. Every row reserves the edge and that control whether or not it deviates, so a row holds its

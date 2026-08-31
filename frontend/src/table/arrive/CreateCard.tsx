@@ -9,6 +9,7 @@ import {
     CREATE_BUTTON,
     CREATE_HEADING,
     deviationCaption,
+    entryCaption,
     INCREMENT_LABEL,
     incrementCaption,
     OFFERINGS_LOADING,
@@ -56,7 +57,7 @@ export function CreateCard({ composing, busy, named, onCreate, onOpenRules }: Cr
                         >
                             {entries.map((held) => (
                                 <option key={held.id} value={held.id}>
-                                    {held.label}
+                                    {entryCaption(held)}
                                 </option>
                             ))}
                         </select>

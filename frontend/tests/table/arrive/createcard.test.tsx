@@ -21,6 +21,12 @@ describe("CreateCard", () => {
         }
     });
 
+    it("names each game in the reader's own words", () => {
+        const markup = markupOf();
+        expect(markup).toContain(">Literaki<");
+        expect(markup).not.toContain(">literaki<");
+    });
+
     it("offers the seats and the clock rungs the server allows", () => {
         const markup = markupOf();
         expect(markup).toContain('value="8"');

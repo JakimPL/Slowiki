@@ -241,9 +241,10 @@ rules:
     red: Red
     blank: Blank
   choice:
-    first_out: The first player to run out
-    all_out: Every player runs out
+    first_out: First out
+    all_out: Everyone out
     literaki: Literaki
+    solo-literaki: Solo Literaki
     scrabble: Scrabble
     scrabble-en: Scrabble (English)
     scrabble-pl: Scrabble (Polish)

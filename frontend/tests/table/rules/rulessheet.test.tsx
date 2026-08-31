@@ -30,6 +30,12 @@ describe("RulesSheet", () => {
         expect(markup).toContain('disabled=""');
     });
 
+    it("dresses its own buttons the way every other panel does", () => {
+        const markup = markupOf();
+        expect(markup).not.toContain('class="action-quiet"');
+        expect(markup.match(/class="action action-quiet"/g)?.length).toBe(2);
+    });
+
     it("opens the group that holds a deviating rule and prints the standard", () => {
         const markup = markupOf(aComposing(someRules({ premoves: false })));
         expect(markup).toContain('aria-expanded="true"');

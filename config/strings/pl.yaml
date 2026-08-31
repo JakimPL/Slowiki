@@ -248,9 +248,10 @@ rules:
     red: czerwony
     blank: blank
   choice:
-    first_out: Gdy pierwszy gracz zejdzie z liter
-    all_out: Gdy wszyscy zejdą z liter
+    first_out: Pierwszy
+    all_out: Wszyscy
     literaki: Literaki
+    solo-literaki: Literaki solo
     scrabble: Scrabble
     scrabble-en: Scrabble (angielskie)
     scrabble-pl: Scrabble (polskie)

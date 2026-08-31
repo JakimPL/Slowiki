@@ -47,7 +47,7 @@ export function SavedRules({ composing }: SavedRulesProps): ReactElement {
                 </label>
                 <button
                     type="button"
-                    className="action-quiet"
+                    className="action action-quiet"
                     disabled={!armed}
                     onClick={(): void => {
                         composing.savePreset(named);

@@ -6,6 +6,7 @@ import type { Motion } from "../play/device/motion";
 import type { Connection } from "../play/live/connection";
 import type { Control } from "../play/rules/control";
 import type { Deviation } from "../play/rules/deviation";
+import type { RulesEntry } from "../play/rules/entry";
 import type { Guidance } from "../play/story/guidance";
 import type { HighlightKind } from "../play/story/highlights";
 import type { LogEntry } from "../play/story/log";
@@ -88,6 +89,7 @@ const CHOICE_LABELS: Record<string, string> = {
     first_out: text("rules.choice.first_out"),
     all_out: text("rules.choice.all_out"),
     literaki: text("rules.choice.literaki"),
+    "solo-literaki": text("rules.choice.solo-literaki"),
     scrabble: text("rules.choice.scrabble"),
     "scrabble-en": text("rules.choice.scrabble-en"),
     "scrabble-pl": text("rules.choice.scrabble-pl"),
@@ -103,6 +105,10 @@ export function categoryCaption(category: string): string {
 
 export function choiceCaption(choice: string): string {
     return CHOICE_LABELS[choice] ?? choice;
+}
+
+export function entryCaption(entry: RulesEntry): string {
+    return entry.saved ? entry.label : choiceCaption(entry.label);
 }
 
 export const SETTING_LABELS: Record<SettingName, string> = {

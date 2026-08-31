@@ -14,6 +14,7 @@ from wordtable.paths import (
     CONFIGURATION_ALPHABETS_PATH,
     CONFIGURATION_BOARDS_PATH,
     CONFIGURATION_DISTRIBUTIONS_PATH,
+    CONFIGURATION_SCHEMES_PATH,
 )
 from wordtable.presets.alphabet import DEFAULT_CATEGORY
 from wordtable.presets.load import list_presets, load_alphabet_preset
@@ -22,6 +23,7 @@ PRESET_KINDS: Final = (
     CONFIGURATION_BOARDS_PATH,
     CONFIGURATION_ALPHABETS_PATH,
     CONFIGURATION_DISTRIBUTIONS_PATH,
+    CONFIGURATION_SCHEMES_PATH,
 )
 
 

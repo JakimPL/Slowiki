@@ -91,7 +91,7 @@ export function RulesSheet({ composing, readOnly, onClose }: RulesSheetProps): R
                 {readOnly ? null : (
                     <button
                         type="button"
-                        className="action-quiet"
+                        className="action action-quiet"
                         disabled={deviations.length === 0}
                         onClick={composing.revertAll}
                     >
