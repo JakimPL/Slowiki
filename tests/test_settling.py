@@ -3,6 +3,7 @@ import shutil
 from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
 
 from lexica.names import DictionaryName
 from wordcore.errors.exceptions import IllegalMove, InvalidConfiguration
@@ -14,6 +15,7 @@ from wordcore.rules.rack import rack_of
 from wordtable.audit import audit_configuration
 from wordtable.build import build_rules
 from wordtable.catalog import list_schemes, offerings, resolve_scheme
+from wordtable.limits import SettingOutOfRange
 from wordtable.paths import CONFIG_DIR
 from wordtable.resolved import ResolvedScheme
 from wordtable.rules import RulesConfig, restated
@@ -41,6 +43,11 @@ def literaki_rules() -> RulesConfig:
 def settled(tree: Path, changes: dict[str, object]) -> None:
     scheme = load_scheme(tree, "literaki")
     resolve_table(tree, scheme, restated(scheme.rules, changes))
+
+
+def settled_rules(changes: dict[str, object]) -> ResolvedScheme:
+    scheme = load_scheme(CONFIG_DIR, "literaki")
+    return resolve_table(CONFIG_DIR, scheme, restated(scheme.rules, changes))
 
 
 def test_the_record_states_every_rule() -> None:
@@ -87,39 +94,39 @@ def test_the_clock_reads_the_record() -> None:
 
 def test_a_table_of_several_seats_needs_an_end_limit() -> None:
     with pytest.raises(InvalidConfiguration, match="pass_end_rounds"):
-        restated(literaki_rules(), {"seats": 3, "pass_end_rounds": None})
+        settled_rules({"seats": 3, "pass_end_rounds": None})
 
 
 def test_the_whole_bag_is_dealt_to_one_seat_only() -> None:
     with pytest.raises(InvalidConfiguration, match="whole bag"):
-        restated(literaki_rules(), {"rack_size": None})
+        settled_rules({"rack_size": None})
 
 
 def test_a_bingo_fits_the_rack() -> None:
-    assert restated(literaki_rules(), {"bingo_tiles": 6}).bingo_tiles == 6
+    assert settled_rules({"bingo_tiles": 6}).rules.bingo_tiles == 6
     with pytest.raises(InvalidConfiguration, match="overruns a rack"):
-        restated(literaki_rules(), {"bingo_tiles": 8})
+        settled_rules({"bingo_tiles": 8})
 
 
 def test_the_rack_holds_the_opening_word() -> None:
     with pytest.raises(InvalidConfiguration, match="opening word"):
-        restated(literaki_rules(), {"opening_tiles": 9})
+        settled_rules({"opening_tiles": 9})
 
 
 def test_no_letter_claims_the_blank_category() -> None:
     with pytest.raises(InvalidConfiguration, match="blank"):
-        restated(literaki_rules(), {"letters": {"A": {"category": "blank"}}})
+        settled_rules({"letters": {"A": {"category": "blank"}}})
 
 
 def test_a_symbol_is_adjusted_once() -> None:
-    with pytest.raises(InvalidConfiguration, match="more than once"):
+    with pytest.raises(ValidationError, match="more than once"):
         restated(literaki_rules(), {"letters": {"a": {"value": 2}, "A": {"value": 3}}})
 
 
-def test_a_setting_outside_its_bound_is_refused() -> None:
+def test_a_setting_outside_its_range_is_refused() -> None:
     for changes in ({"seats": 9}, {"bingo_bonus": 500}, {"rack_size": 40}, {"blanks": 99}):
-        with pytest.raises(ValueError):
-            restated(literaki_rules(), changes)
+        with pytest.raises(SettingOutOfRange):
+            settled_rules(changes)
 
 
 def test_a_preset_name_stays_a_preset_name() -> None:
@@ -154,7 +161,7 @@ def test_the_opening_word_fits_the_board(tree: Path) -> None:
 def test_the_seats_a_bag_admits() -> None:
     tiles = resolve_scheme(CONFIG_DIR, "literaki").tiles
     assert seats_admitted(tiles, None) == 1
-    assert seats_admitted(tiles, 7) == 8
+    assert seats_admitted(tiles, 7) == 14
     assert seats_admitted(tiles, 15) == 6
     assert seats_admitted(tiles, 200) == 0
 

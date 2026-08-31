@@ -1,39 +1,32 @@
+from typing import Final
+
 from fastapi.exceptions import RequestValidationError
 
 from wordserver.errors.code import ErrorCode
 from wordserver.errors.refusal import Refusal
-from wordtable.allowances.name import SettingName
 
-_RULES_FIELD = "rules"
+_RULES_FIELD: Final = "rules"
+_VALUE_ERROR: Final = "value_error"
+# Pydantic prefixes a validator's own sentence when it reports the fault.
+_VALUE_ERROR_PREFIX: Final = "Value error, "
+_MALFORMED: Final = "the request is malformed"
 
 
 def malformed_request(error: RequestValidationError) -> Refusal:
-    setting = _setting_at_fault(error)
-    if setting is None:
-        return Refusal(422, "the request is malformed", ErrorCode.MALFORMED_REQUEST)
+    stated = _refused_rules(error)
+    if stated is None:
+        return Refusal(422, _MALFORMED, ErrorCode.MALFORMED_REQUEST)
 
-    return Refusal(
-        422,
-        f"the setting '{setting}' is outside what a table may ask for",
-        ErrorCode.SETTING_OUT_OF_RANGE,
-    )
+    return Refusal(422, stated, ErrorCode.RULES_INCONSISTENT)
 
 
-def _setting_at_fault(error: RequestValidationError) -> SettingName | None:
+def _refused_rules(error: RequestValidationError) -> str | None:
     for fault in error.errors():
-        named = _named_setting(fault.get("loc", ()))
-        if named is not None:
-            return named
+        if fault.get("type") == _VALUE_ERROR and _inside_the_rules(fault.get("loc", ())):
+            return str(fault.get("msg", _MALFORMED)).removeprefix(_VALUE_ERROR_PREFIX)
 
     return None
 
 
-def _named_setting(location: tuple[int | str, ...]) -> SettingName | None:
-    if len(location) < 3 or location[1] != _RULES_FIELD:
-        return None
-
-    stated = str(location[2])
-    if stated in set(SettingName):
-        return SettingName(stated)
-
-    return None
+def _inside_the_rules(location: tuple[int | str, ...]) -> bool:
+    return len(location) > 1 and location[1] == _RULES_FIELD

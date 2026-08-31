@@ -55,6 +55,7 @@ from wordtable.build import build_rules
 from wordtable.catalog import offerings, resolve_scheme
 from wordtable.config import read_config
 from wordtable.lexicons import LexiconService, dictionary_ready
+from wordtable.limits import SettingOutOfRange
 from wordtable.lore import LoreService, lore_ready
 from wordtable.paths import (
     ASSETS_DIR,
@@ -111,6 +112,8 @@ def _settled_table(scheme: SchemeConfig, asked: RulesConfig | None) -> ResolvedS
         return resolve_table(CONFIG_DIR, scheme, asked)
     except MissingConfiguration as error:
         raise Refusal(422, str(error), ErrorCode.UNKNOWN_PRESET) from error
+    except SettingOutOfRange as error:
+        raise Refusal(422, str(error), ErrorCode.SETTING_OUT_OF_RANGE) from error
     except InvalidConfiguration as error:
         raise Refusal(422, str(error), ErrorCode.RULES_INCONSISTENT) from error
 

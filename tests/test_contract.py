@@ -154,6 +154,42 @@ async def test_transport_refusals_carry_codes(client: httpx.AsyncClient) -> None
     assert inconsistent.json()["code"] == "rules_inconsistent"
 
 
+async def test_rules_that_contradict_each_other_are_refused(client: httpx.AsyncClient) -> None:
+    unending = await client.post(
+        "/tables",
+        json={
+            "scheme": "literaki",
+            "name": "Ala",
+            "rules": stated({"seats": 3, "pass_end_rounds": None}),
+        },
+    )
+    assert unending.status_code == 422
+    assert unending.json()["code"] == "rules_inconsistent"
+    assert "pass_end_rounds" in unending.json()["detail"]
+    twice = await client.post(
+        "/tables",
+        json={
+            "scheme": "literaki",
+            "name": "Ala",
+            "rules": stated({"letters": {"a": {"value": 2}, "A": {"value": 3}}}),
+        },
+    )
+    assert twice.status_code == 422
+    assert twice.json()["code"] == "rules_inconsistent"
+    assert twice.json()["detail"] == "rules adjust A more than once"
+
+
+async def test_a_record_missing_a_setting_is_malformed(client: httpx.AsyncClient) -> None:
+    incomplete = stated({})
+    del incomplete["seats"]
+    answered = await client.post(
+        "/tables",
+        json={"scheme": "literaki", "name": "Ala", "rules": incomplete},
+    )
+    assert answered.status_code == 422
+    assert answered.json()["code"] == "malformed_request"
+
+
 async def test_names_are_trimmed_and_served_in_company(client: httpx.AsyncClient) -> None:
     created = await client.post("/tables", json={"scheme": "literaki", "name": "  Ala  "})
     data = created.json()

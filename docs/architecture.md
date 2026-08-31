@@ -73,29 +73,32 @@ dictionaries it admits, and the core knows no subsystem. The core holds what the
 engine consumes: the settled tile set and the bag built from it.
 
 One record carries the rules. `wordtable.rules.RulesConfig` is flat and complete:
-every setting a table may state stands in it, each one bounded by its own `Field`
-annotation, so the bounds ride the OpenAPI document to the client and Pydantic
-enforces them wherever the record is parsed. A scheme file
-(`wordtable.scheme.SchemeConfig`) is an identity plus one such record, and the
-validators split by what they need: arithmetic the record can settle alone lives
-on the record, and anything needing the presets lives in `wordtable.settling`,
-which loads the board, the alphabet and the distribution, expands the letters,
-and answers with a `wordtable.resolved.ResolvedScheme` — the scheme it came from,
-the rules it plays by, the board and the settled bag. `resolve_scheme` answers a
-scheme's own default; `resolve_table` settles a record onto one.
+every setting a table may state stands in it, and the record holds their shape —
+the types, the canonically uppercase letters, the preset names. A scheme file
+(`wordtable.scheme.SchemeConfig`) is an identity plus one such record, and every
+rule a record must satisfy is enforced in one place: `wordtable.settling`, whose
+`resolve_table` reads as the list it enforces, from the ranges through the
+arithmetic to the rules that need the presets. It loads the board, the alphabet
+and the distribution, expands the letters, and answers with a
+`wordtable.resolved.ResolvedScheme` — the scheme it came from, the rules it plays
+by, the board and the settled bag. `resolve_scheme` answers a scheme's own
+default; `resolve_table` settles a record onto one.
 `wordtable.audit.audit_configuration` walks the whole tree at startup, so a fault
 in a preset or a scheme is reported before the service accepts a request — a
 preset that is absent, a letter left unvalued, a word list the letters do not
 suit, or board art a scheme's own letters cannot spell.
 
 `wordtable.allowances` describes each setting for the interface that renders it:
-the group it joins, its tier, the kind of control it takes, and the rungs a
-picker offers, authored in `config/allowances.yaml`. Bounds stay in the code that
-enforces them — `SETTING_BOUNDS` names them from the same constants the `Field`
-annotations spend, and a test proves each one is the bound the record refuses at,
-so the two can never restate each other. The catalog is answered whole: what a
-board, alphabet, distribution or dictionary choice offers is read from disk, so
-adding a preset file adds an option.
+the group it joins, its tier, the kind of control it takes, the range it stands
+inside, and the rungs a picker offers, all authored in `config/allowances.yaml`.
+One authored number serves both sides — `wordtable.limits.ensure_within_limits`
+holds a record to it at the settling boundary, naming the setting, the range and
+the value asked for, and the same number reaches the client that offers it. A row
+states a range exactly where its kind takes one, and a test holds each range
+against the value a table is held to. The step guides a stepper alone, so a value
+between two rungs stands the way an unoffered rung already does. The catalog is
+answered whole: what a board, alphabet, distribution or dictionary choice offers
+is read from disk, so adding a preset file adds an option.
 
 A scheme's identity is its name and the word its board art paints. One backend
 serves every scheme: what distinguishes literaki from scrabble is the board, the
@@ -165,10 +168,13 @@ design contract.
   wears is stated rather than left to the order the files are read in.
 - `GET /style` — the design tokens for the active theme, asked once per client.
 - `POST /tables` — a scheme, a player name, and optionally the whole rules record
-  the table plays by; absent, the scheme's own record stands. A record outside its
-  bounds answers 422 `setting_out_of_range` naming the setting, one naming a preset
-  that is absent answers `unknown_preset`, and one the presets contradict answers
-  `rules_inconsistent`.
+  the table plays by; absent, the scheme's own record stands. Every fault in that
+  record answers 422: a setting outside its range answers `setting_out_of_range`
+  naming the setting and the range, a board, alphabet or distribution the server
+  does not hold answers `unknown_preset`, and rules that contradict each other or
+  the presets answer `rules_inconsistent`. A body the record's own shape refuses —
+  a setting missing or written as the wrong kind of value — answers
+  `malformed_request`.
 - `POST /tables/{code}/join` — admissions with seat tokens.
 - `GET /invitations/{code}` — the settled description behind a join code, with no
   seat token and no code echoed back, so a guest reads the rules before accepting
