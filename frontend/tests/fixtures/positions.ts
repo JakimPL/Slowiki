@@ -1,4 +1,4 @@
-import type { RulesConfig, SettingAllowance, TableDescription } from "../../src/api/tables";
+import type { Offering, RulesConfig, SettingAllowance, TableDescription } from "../../src/api/tables";
 import type {
     Board,
     Bonus,
@@ -94,6 +94,15 @@ export function someRules(overrides: Partial<RulesConfig> = {}): RulesConfig {
         total_seconds: null,
         increment_seconds: 0,
         letters: {},
+        ...overrides,
+    };
+}
+
+export function anOffering(overrides: Partial<Offering> = {}): Offering {
+    return {
+        name: "literaki",
+        specimen: "SŁOWIKI",
+        rules: someRules(),
         ...overrides,
     };
 }

@@ -14,4 +14,7 @@ export type SettingKind = Schemas["SettingKind"];
 export type SettingTier = Schemas["SettingTier"];
 export type FeedbackOffered = Schemas["FeedbackOffered"];
 export type PresetsResponse = Schemas["PresetsResponse"];
+export type BoardPreset = Schemas["BoardPreset"];
+export type AlphabetPreset = Schemas["AlphabetPreset"];
+export type DistributionPreset = Schemas["DistributionPreset"];
 export type Letter = Schemas["Letter"];

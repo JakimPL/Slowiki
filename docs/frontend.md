@@ -68,6 +68,12 @@ F10. **Preferences are a layer.** Choices a player makes about the app rather th
      A saved record states its deviations from the game it came from, and the live catalog is what
      resolves them, so a setting added since it was saved arrives at the server's own default.
 
+     One layer holds the whole settings vocabulary. `play/rules/` reasons about the rules a table
+     plays by — the record, the changes laid over it, the catalog as a discriminated union of
+     controls, the letters a preset pair expands to, the saved records and their storage, and the one
+     list presenting built-in schemes and saved records alike — and `table/rules/` presents them.
+     Nothing outside that layer decides what a setting means.
+
 F11. **Failures are states.** A refusal becomes a typed value at the boundary, carrying its code and
      its sentence, and renders into a slot that reserves its space. The interface distinguishes what
      the player must decide from what the app can settle by itself.
