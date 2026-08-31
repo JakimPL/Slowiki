@@ -109,6 +109,9 @@ function controlFor(
                     value={control.value}
                     offered={control.offered}
                     unlimited={control.unlimited}
+                    minimum={control.minimum}
+                    maximum={control.maximum}
+                    step={control.step}
                     readOnly={readOnly}
                     onChange={onChange}
                 />

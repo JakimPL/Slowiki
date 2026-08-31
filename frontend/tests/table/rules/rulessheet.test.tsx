@@ -47,6 +47,13 @@ describe("RulesSheet", () => {
         expect(markup).toContain("Board");
     });
 
+    it("lets a number be typed", () => {
+        const markup = markupOf(aComposing(someRules({ bingo_tiles: 6 })));
+        expect(markup).toContain('class="stepper-value"');
+        expect(markup).toContain('inputMode="numeric"');
+        expect(markup).toContain('value="6"');
+    });
+
     it("names a choice in the reader's own words", () => {
         const markup = markupOf(aComposing(someRules({ board: "scrabble" })));
         expect(markup).toContain(">Literaki<");

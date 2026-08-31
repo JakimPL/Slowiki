@@ -174,9 +174,13 @@ sheets:
 clock:
   empty: "—"
   time: "{minutes:number}:{seconds}"
-  budget: "{minutes:number} min"
+  seconds: "{seconds:number} s"
+  minutes: "{minutes:number} min"
+  minutes_seconds: "{minutes:number} min {seconds:number} s"
+  hours: "{hours:number} godz."
+  hours_minutes: "{hours:number} godz. {minutes:number} min"
   increment_none: Brak
-  increment: "+{seconds:number} s"
+  increment: "+{span}"
 
 guidance:
   place: Dotknij pustego pola, aby położyć płytkę.
@@ -205,6 +209,8 @@ rules:
   revert: Przywróć
   standard_note: "Standardowo: {value}"
   limited: Z limitem
+  custom: Własny…
+  custom_span: Sekundy
   step_up: Zwiększ
   step_down: Zmniejsz
   expert_label: Ustawienia eksperckie

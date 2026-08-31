@@ -39,10 +39,14 @@ export interface PlainValues {
     readonly "board.fit_label": EmptyValues;
     readonly "board.label": EmptyValues;
     readonly "board.square": { readonly column: number; readonly row: number };
-    readonly "clock.budget": { readonly minutes: number };
     readonly "clock.empty": EmptyValues;
-    readonly "clock.increment": { readonly seconds: number };
+    readonly "clock.hours": { readonly hours: number };
+    readonly "clock.hours_minutes": { readonly hours: number; readonly minutes: number };
+    readonly "clock.increment": { readonly span: string };
     readonly "clock.increment_none": EmptyValues;
+    readonly "clock.minutes": { readonly minutes: number };
+    readonly "clock.minutes_seconds": { readonly minutes: number; readonly seconds: number };
+    readonly "clock.seconds": { readonly seconds: number };
     readonly "clock.time": { readonly minutes: number; readonly seconds: string };
     readonly "connection.joining": EmptyValues;
     readonly "connection.live": EmptyValues;
@@ -111,6 +115,8 @@ export interface PlainValues {
     readonly "rules.choice.scrabble-pl": EmptyValues;
     readonly "rules.choice.sjp": EmptyValues;
     readonly "rules.close": EmptyValues;
+    readonly "rules.custom": EmptyValues;
+    readonly "rules.custom_span": EmptyValues;
     readonly "rules.delete": EmptyValues;
     readonly "rules.edited": EmptyValues;
     readonly "rules.expert_hidden": EmptyValues;

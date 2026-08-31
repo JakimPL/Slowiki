@@ -169,9 +169,13 @@ sheets:
 clock:
   empty: "—"
   time: "{minutes:number}:{seconds}"
-  budget: "{minutes:number} min"
+  seconds: "{seconds:number} s"
+  minutes: "{minutes:number} min"
+  minutes_seconds: "{minutes:number} min {seconds:number} s"
+  hours: "{hours:number} h"
+  hours_minutes: "{hours:number} h {minutes:number} min"
   increment_none: None
-  increment: "+{seconds:number} s"
+  increment: "+{span}"
 
 guidance:
   place: Tap an empty square to place the tile.
@@ -199,6 +203,8 @@ rules:
   revert: Put back
   standard_note: "Standard: {value}"
   limited: Limited
+  custom: Custom…
+  custom_span: Seconds
   step_up: Raise
   step_down: Lower
   expert_label: Expert settings

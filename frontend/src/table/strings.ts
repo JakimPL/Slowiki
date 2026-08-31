@@ -53,6 +53,8 @@ export const RULES_REVERT = text("rules.revert");
 export const RULES_LIMITED = text("rules.limited");
 export const RULES_UNLIMITED = text("rules.unlimited");
 export const RULES_UNTIMED = text("rules.untimed");
+export const RULES_CUSTOM = text("rules.custom");
+export const RULES_CUSTOM_SPAN = text("rules.custom_span");
 export const RULES_STEP_UP = text("rules.step_up");
 export const RULES_STEP_DOWN = text("rules.step_down");
 export const RULES_EXPERT_LABEL = text("rules.expert_label");
@@ -208,6 +210,7 @@ export const MOTION_CAPTIONS: Record<Motion, string> = {
 };
 
 const SECONDS_PER_MINUTE = 60;
+const SECONDS_PER_HOUR = 3600;
 const CLOCK_PAD_WIDTH = 2;
 const TERM_SEPARATOR = text("words.term_separator");
 export const LIST_SEPARATOR = text("general.list_separator");
@@ -311,11 +314,30 @@ export function valueCaption(control: Control): string {
 }
 
 export function budgetCaption(seconds: number): string {
-    return text("clock.budget", { minutes: Math.round(seconds / SECONDS_PER_MINUTE) });
+    const whole = Math.max(0, Math.round(seconds));
+    if (whole < SECONDS_PER_MINUTE) {
+        return text("clock.seconds", { seconds: whole });
+    }
+    if (whole < SECONDS_PER_HOUR) {
+        return spannedMinutes(whole);
+    }
+    return spannedHours(whole);
+}
+
+function spannedMinutes(whole: number): string {
+    const minutes = Math.floor(whole / SECONDS_PER_MINUTE);
+    const rest = whole % SECONDS_PER_MINUTE;
+    return rest === 0 ? text("clock.minutes", { minutes }) : text("clock.minutes_seconds", { minutes, seconds: rest });
+}
+
+function spannedHours(whole: number): string {
+    const hours = Math.floor(whole / SECONDS_PER_HOUR);
+    const minutes = Math.round((whole % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE);
+    return minutes === 0 ? text("clock.hours", { hours }) : text("clock.hours_minutes", { hours, minutes });
 }
 
 export function incrementCaption(seconds: number): string {
-    return seconds === 0 ? text("clock.increment_none") : text("clock.increment", { seconds });
+    return seconds === 0 ? text("clock.increment_none") : text("clock.increment", { span: budgetCaption(seconds) });
 }
 
 export function exchangeCaption(count: number): string {

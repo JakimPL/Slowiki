@@ -37,6 +37,9 @@ export interface SecondsControl {
     readonly value: number | null;
     readonly offered: readonly number[];
     readonly unlimited: boolean;
+    readonly minimum: number;
+    readonly maximum: number;
+    readonly step: number;
 }
 
 export interface LettersControl {
@@ -86,7 +89,8 @@ function chosenControl(allowance: SettingAllowance, value: string): ChoiceContro
 }
 
 function secondsControl(allowance: SettingAllowance, value: number | null): SecondsControl | null {
-    if (allowance.offered === null) {
+    const bounded = boundsOf(allowance);
+    if (allowance.offered === null || bounded === null) {
         return null;
     }
     return {
@@ -95,6 +99,7 @@ function secondsControl(allowance: SettingAllowance, value: number | null): Seco
         value,
         offered: allowance.offered,
         unlimited: allowance.unlimited,
+        ...bounded,
     };
 }
 

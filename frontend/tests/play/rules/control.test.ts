@@ -73,6 +73,9 @@ describe("controlOf", () => {
             value: null,
             offered: [60, 600],
             unlimited: true,
+            minimum: 30,
+            maximum: 7200,
+            step: 5,
         });
     });
 

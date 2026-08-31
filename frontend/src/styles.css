@@ -2138,11 +2138,28 @@ button.word-chip[data-open] {
 }
 
 .stepper-value {
-    min-width: 3ch;
+    width: 5ch;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font-family: inherit;
     font-size: 13px;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
     text-align: center;
+}
+
+.stepper-value:disabled {
+    color: var(--chrome-muted);
+}
+
+.budget {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    justify-content: flex-end;
 }
 
 .optional-count {

@@ -98,6 +98,15 @@ inside the sheet, which is what the sheet's own scroll is for.
   that admits no limit — the stepper standing quiet and inert while no limit applies, so a table
   allowing no exchanges at all reads apart from one allowing any number — and a ladder of offered
   values for a budget of seconds.
+- **A number can be typed.** A stepper's value is a field: the −/+ buttons move it by the step the
+  server states, and typing into it commits on Enter or on leaving the field, holding the value inside
+  the range and keeping the standing one where what was typed is no number. The step guides the
+  buttons; the range is what binds, so a value between two rungs stands.
+- **A clock says what it is.** A span reads in the largest units that state it exactly — `45 s`,
+  `1 min`, `1 min 30 s`, `2 h`, `1 h 30 min` — so every rung of a ladder reads apart from its
+  neighbours, and the same words serve the sheet, the create card, the chips and the standard note. A
+  budget's ladder ends in **Custom…**, which opens a field of seconds beside it; a value already off
+  the ladder opens that field on sight, so the top rung is no ceiling.
 - **Deviation is a state a row wears.** A row standing apart from its scheme carries a tinted edge in
   the primary accent, prints the standard value beneath itself, and offers the control that restores
   it. Every row reserves the edge and that control whether or not it deviates, so a row holds its

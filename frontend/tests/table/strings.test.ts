@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+    budgetCaption,
     captionFor,
     categoryCaption,
     choiceCaption,
@@ -67,5 +68,22 @@ describe("identifier captions", () => {
     it("keeps an identifier it has no word for", () => {
         expect(categoryCaption("teal")).toBe("teal");
         expect(choiceCaption("hexagonal")).toBe("hexagonal");
+    });
+});
+
+describe("budgetCaption", () => {
+    it("says every span a table may state in its own words", () => {
+        expect(budgetCaption(45)).toBe("45 s");
+        expect(budgetCaption(60)).toBe("1 min");
+        expect(budgetCaption(90)).toBe("1 min 30 s");
+        expect(budgetCaption(120)).toBe("2 min");
+        expect(budgetCaption(3600)).toBe("1 h");
+        expect(budgetCaption(7200)).toBe("2 h");
+        expect(budgetCaption(5400)).toBe("1 h 30 min");
+    });
+
+    it("tells the rungs of a per-turn clock apart", () => {
+        const rungs = [30, 60, 90, 120, 180, 300, 600].map(budgetCaption);
+        expect(new Set(rungs).size).toBe(rungs.length);
     });
 });

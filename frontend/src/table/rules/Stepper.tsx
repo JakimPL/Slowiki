@@ -1,5 +1,7 @@
 import type { ReactElement } from "react";
+import { useEffect, useState } from "react";
 
+import { typedValue } from "../../play/rules/typed";
 import { RULES_STEP_DOWN, RULES_STEP_UP } from "../strings";
 
 export interface StepperProps {
@@ -13,6 +15,17 @@ export interface StepperProps {
 }
 
 export function Stepper({ label, value, minimum, maximum, step, disabled, onChange }: StepperProps): ReactElement {
+    const [typed, setTyped] = useState<string | null>(null);
+    useEffect(() => {
+        setTyped(null);
+    }, [value]);
+    const settle = (): void => {
+        const asked = typed === null ? null : typedValue(typed, minimum, maximum);
+        setTyped(null);
+        if (asked !== null && asked !== value) {
+            onChange(asked);
+        }
+    };
     return (
         <div className="stepper" role="group" aria-label={label}>
             <button
@@ -26,9 +39,23 @@ export function Stepper({ label, value, minimum, maximum, step, disabled, onChan
             >
                 −
             </button>
-            <span className="stepper-value" aria-live="polite">
-                {value}
-            </span>
+            <input
+                className="stepper-value"
+                type="text"
+                inputMode="numeric"
+                aria-label={label}
+                disabled={disabled}
+                value={typed ?? String(value)}
+                onChange={(change): void => {
+                    setTyped(change.target.value);
+                }}
+                onBlur={settle}
+                onKeyDown={(press): void => {
+                    if (press.key === "Enter") {
+                        press.currentTarget.blur();
+                    }
+                }}
+            />
             <button
                 type="button"
                 className="stepper-step"
