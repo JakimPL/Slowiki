@@ -6,6 +6,7 @@ import type { Deviation } from "../../play/rules/deviation";
 import { insideGroup } from "../../play/rules/deviation";
 import { rowsOf } from "../../play/rules/rows";
 import type { Composing } from "../../play/rules/useComposing";
+import { Reveal } from "../motion/Reveal";
 import { GROUP_LABELS, rulesCaption, SETTING_LABELS } from "../strings";
 import { RulesRow } from "./RulesRow";
 
@@ -35,13 +36,20 @@ export function RulesGroup({
     const apart = insideGroup(deviations, group);
     const record = composing.record;
     const rows = record === null ? [] : rowsOf(settings, composing.catalog, record, apart, expert);
+    const rowsId = `rules-group-${group}`;
     return (
         <section className="rules-group" data-open={open ? "true" : undefined}>
-            <button type="button" className="rules-group-head" aria-expanded={open} onClick={onToggle}>
+            <button
+                type="button"
+                className="rules-group-head"
+                aria-expanded={open}
+                aria-controls={rowsId}
+                onClick={onToggle}
+            >
                 <span className="rules-group-name">{GROUP_LABELS[group]}</span>
                 <span className="rules-group-state">{rulesCaption(apart.length)}</span>
             </button>
-            {open ? (
+            <Reveal open={open} id={rowsId}>
                 <div className="rules-group-rows">
                     {rows.map((row) => (
                         <RulesRow
@@ -64,7 +72,7 @@ export function RulesGroup({
                         </button>
                     )}
                 </div>
-            ) : null}
+            </Reveal>
         </section>
     );
 }

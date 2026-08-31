@@ -93,6 +93,9 @@ inside the sheet, which is what the sheet's own scroll is for.
 - A group holding a rule that differs **opens itself**, whatever tier its rules carry, so a saved
   record can hide nothing. A group that a player closes stays closed until the sheet is reopened,
   which collapses everything except the groups that deviate.
+- **A group opens by growing.** Its rows wait inside the closed group, where the tab order and a
+  reader pass them by; opening it grows the panel into their height and closing it hands that height
+  back — the same movement the `?` makes, on the same step of the motion scale.
 - A row is drawn from its setting's **kind**, never its name: a pair of pills for a toggle, pills or a
   select for a choice, a stepper for a count, a stepper beside a Limited/Unlimited pair for a count
   that admits no limit — the stepper standing quiet and inert while no limit applies, so a table

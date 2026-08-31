@@ -29,7 +29,8 @@ describe("RulesSheet", () => {
         expect(markup).toContain("Letters and the board");
         expect(markup).not.toContain("The table");
         expect(markup).not.toContain('aria-expanded="true"');
-        expect(markup).not.toContain("rules-group-rows");
+        expect(markup).toContain('class="reveal"><div class="reveal-body" id="rules-group-turns"');
+        expect(markup).not.toContain('data-open="true"');
     });
 
     it("names each group's state and rests the reset while nothing differs", () => {
