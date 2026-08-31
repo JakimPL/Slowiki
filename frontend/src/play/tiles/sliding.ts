@@ -12,9 +12,6 @@ export interface Slide {
 }
 
 const STILL_WITHIN = 0.5;
-const SECOND_MS = 1000;
-const SECONDS = "s";
-const MILLISECONDS = "ms";
 
 export function slidesBetween(before: RowPlaces, after: RowPlaces): readonly Slide[] {
     const slides: Slide[] = [];
@@ -27,17 +24,6 @@ export function slidesBetween(before: RowPlaces, after: RowPlaces): readonly Sli
     return slides;
 }
 
-export function slideDuration(raw: string): number {
-    const value = raw.trim();
-    if (value.endsWith(MILLISECONDS)) {
-        return positive(value.slice(0, -MILLISECONDS.length));
-    }
-    if (value.endsWith(SECONDS)) {
-        return positive(value.slice(0, -SECONDS.length)) * SECOND_MS;
-    }
-    return 0;
-}
-
 function slideOf(id: number, was: RowPlace | undefined, place: RowPlace): Slide | null {
     if (was === undefined) {
         return null;
@@ -48,9 +34,4 @@ function slideOf(id: number, was: RowPlace | undefined, place: RowPlace): Slide 
         return null;
     }
     return { id, dx, dy };
-}
-
-function positive(digits: string): number {
-    const parsed = Number(digits);
-    return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
 }

@@ -106,6 +106,15 @@ F15. **Every control is a real control.** Actions are buttons, groups are labele
      answers Escape by closing its innermost open layer, and the order of those layers is a tested
      rule (`play/rules/ladder.ts`) rather than a chain of branches in a view.
 
+F16. **Motion is one vocabulary.** Durations and easing curves are named steps in the stylesheet's own
+     scale, and an effect spends a step rather than writing a number, so two effects that should feel
+     alike are alike by construction. Every step is the scale multiplied by `--motion-scale`, which
+     the calm preference and a device asking for reduced motion set to zero — one number, so a new
+     effect is stilled the moment it is written. What that leaves behind is the appearance the
+     element declares for itself: keyframes add movement to a resting state, they never supply one.
+     Where the client must know a duration, it reads the step back out of the stylesheet
+     (`play/motion/tokens.ts`) rather than restating it.
+
 ## Where a new concern goes
 
 1. **Is it reasoning or presentation?** Anything that answers a question about the game or the
@@ -125,5 +134,7 @@ F15. **Every control is a real control.** Actions are buttons, groups are labele
    key, so a fact joins the layer that owns its kind (F10).
 7. **Does it take a gesture?** It joins the existing pointer session rather than listening on its own,
    and its arithmetic is a function that takes points and rectangles (F1, F9).
-8. **Write the test where the behavior is.** A rule gets a unit test; a rendered offering gets a
+8. **Does it move?** It names a step and a curve from the motion scale, and the element it moves
+   declares the appearance it holds when the scale is zero (F16).
+9. **Write the test where the behavior is.** A rule gets a unit test; a rendered offering gets a
    markup test; both, when a rule decides what is offered (F14).

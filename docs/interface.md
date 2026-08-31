@@ -393,8 +393,10 @@ Four choices belong to the device rather than to a table: the color mode, the in
 language, and the turn notice. They travel together as one record that every tab on the device
 shares, and the first three follow the same three-state shape — a system setting that reads what the
 device already says, and an explicit choice that overrides it on the document root (`data-mode`,
-`data-motion`, `lang`). Motion at `calm` stills the acting plaque's breath, the fresh-play cue, the
-tile lift, and the sliding rows; at the system setting `prefers-reduced-motion` decides. The table
+`data-motion`, `lang`). Motion at `calm` stills every effect the interface
+has, and a stilled effect leaves the appearance its element declares — the acting ring, the fresh-play
+frame and its halo, the lifted tile, the row in its new order — so what motion was carrying is still
+read, at rest. At the system setting `prefers-reduced-motion` decides. The table
 menu holds the color mode, the motion, and the turn notice while a game runs; the main view holds
 the color mode and the language. A device that made its choices under an earlier version keeps them.
 These four are what the device decides; the rules a player saves for a game are a layer beside them,
