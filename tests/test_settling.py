@@ -137,10 +137,11 @@ def test_the_seats_a_bag_admits() -> None:
     assert seats_admitted(tiles, 200) == 0
 
 
-def test_the_offerings_report_the_seats_each_scheme_admits() -> None:
+def test_every_offering_carries_its_scheme_record() -> None:
     by_name = {offering.name: offering for offering in offerings(CONFIG_DIR)}
-    assert by_name["literaki"].max_players == 8
-    assert by_name["solo-literaki"].max_players == 1
+    assert by_name["literaki"].rules == load_scheme(CONFIG_DIR, "literaki").rules
+    assert by_name["literaki"].specimen == "SŁOWIKI"
+    assert by_name["solo-literaki"].rules.rack_size is None
 
 
 def test_the_configuration_tree_audits_clean() -> None:

@@ -29,7 +29,6 @@ export interface PlainValues {
     readonly "arrive.return_button": EmptyValues;
     readonly "arrive.scheme_label": EmptyValues;
     readonly "arrive.seats_label": EmptyValues;
-    readonly "arrive.span": { readonly maximum: number; readonly minimum: number };
     readonly "arrive.stale_notice": EmptyValues;
     readonly "arrive.switch_to_create": EmptyValues;
     readonly "arrive.switch_to_join": EmptyValues;
@@ -157,7 +156,6 @@ export interface PlainValues {
 }
 
 export interface PluralValues {
-    readonly "arrive.offering": { readonly name: string; readonly span: string };
     readonly "hand.exchange_left": EmptyValues;
     readonly "seats.thinking": { readonly names: string };
     readonly "seats.won": { readonly names: string; readonly points: number };

@@ -1,20 +1,18 @@
 from pathlib import Path
 
-from lexica.names import DictionaryName
 from wordcore.models.base import BaseFrozen
 from wordtable.names import PresetName
 from wordtable.paths import CONFIGURATION_SCHEMES_PATH
 from wordtable.resolved import ResolvedScheme
-from wordtable.rules import MIN_SEATS
-from wordtable.scheme import SchemeConfig, load_scheme
-from wordtable.settling import resolve_table, seats_admitted
+from wordtable.rules import RulesConfig
+from wordtable.scheme import SchemeConfig, SpecimenWord, load_scheme
+from wordtable.settling import resolve_table
 
 
 class Offering(BaseFrozen):
     name: PresetName
-    dictionary: DictionaryName
-    min_players: int
-    max_players: int
+    specimen: SpecimenWord
+    rules: RulesConfig
 
 
 def list_schemes(directory: Path) -> dict[str, SchemeConfig]:
@@ -38,7 +36,6 @@ def resolve_scheme(directory: Path, name: str) -> ResolvedScheme:
 def _offering(resolved: ResolvedScheme) -> Offering:
     return Offering(
         name=resolved.scheme,
-        dictionary=resolved.rules.dictionary,
-        min_players=MIN_SEATS,
-        max_players=seats_admitted(resolved.tiles, resolved.rules.rack_size),
+        specimen=resolved.specimen,
+        rules=resolved.rules,
     )

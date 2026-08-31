@@ -339,7 +339,7 @@ Derived from the table description, consumed as data. Action legality (line, gap
 center rule) is always computed live on the client. Word verdicts follow the policy: `live` (the table
 answers word checks, so each formed word carries its verdict as it stands), `submit` (the server
 answers on submission), `challenge` (reserved: plays stand until contested). A table advertises the
-live path through `parameters.word_check`, which holds while the scheme validates on play and its
+live path through `feedback.word_check`, which holds while the table validates on play and its
 dictionary is loaded; the interface asks `GET /tables/{id}/words` for the words it shows and
 remembers every answer. A word the dictionary turns down rests the Play button, so a turn is spent
 only on a play the table will take; a word still waiting on its answer leaves the button armed, and

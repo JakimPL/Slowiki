@@ -1,4 +1,4 @@
-import type { RuleParameters, TableDescription } from "../../src/api/tables";
+import type { RulesConfig, SettingAllowance, TableDescription } from "../../src/api/tables";
 import type {
     Board,
     Bonus,
@@ -69,20 +69,47 @@ export function aPlayRecord(overrides: Partial<PlayRecord> = {}): PlayRecord {
     };
 }
 
-export function someParameters(overrides: Partial<RuleParameters> = {}): RuleParameters {
+export function someRules(overrides: Partial<RulesConfig> = {}): RulesConfig {
     return {
+        board: "literaki",
+        alphabet: "literaki",
+        distribution: "polish",
+        dictionary: "sjp",
+        seats: 2,
         rack_size: 7,
+        blanks: 2,
+        validate_on_play: true,
+        premoves: true,
+        pass_allowed: true,
         exchange_limit: 3,
         exchange_min_bag: 7,
-        pass_allowed: true,
+        opening_tiles: 2,
+        opening_covers_center: true,
         bingo_bonus: 50,
-        validate_on_play: true,
-        word_check: false,
-        lore: true,
-        premoves_allowed: true,
+        bingo_tiles: null,
+        going_out_award: true,
         pass_end_rounds: 2,
         scoreless_end_limit: null,
-        time: { per_turn_seconds: null, increment_seconds: 0, total_seconds: null },
+        per_turn_seconds: null,
+        total_seconds: null,
+        increment_seconds: 0,
+        letters: {},
+        ...overrides,
+    };
+}
+
+export function anAllowance(overrides: Partial<SettingAllowance> = {}): SettingAllowance {
+    return {
+        setting: "seats",
+        group: "table",
+        tier: "basic",
+        kind: "count",
+        minimum: 1,
+        maximum: 8,
+        step: 1,
+        unlimited: false,
+        offered: null,
+        choices: null,
         ...overrides,
     };
 }
@@ -91,9 +118,9 @@ export function aDescription(overrides: Partial<TableDescription> = {}): TableDe
     return {
         code: "KWPZTR",
         scheme: "literaki",
-        seats: 2,
-        dictionary: "sjp",
-        parameters: someParameters(),
+        specimen: "SŁOWIKI",
+        rules: someRules(),
+        feedback: { word_check: false, lore: true },
         alphabet: [
             { symbol: "A", value: 1, category: "yellow" },
             { symbol: "K", value: 2, category: "green" },

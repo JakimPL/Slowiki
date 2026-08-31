@@ -285,11 +285,6 @@ export function bagCaption(count: number): string {
     return text("docket.bag", { tiles: count });
 }
 
-export function offeringCaption(name: string, minimum: number, maximum: number): string {
-    const span = minimum === maximum ? String(minimum) : text("arrive.span", { minimum, maximum });
-    return counted("arrive.offering", maximum, { name, span });
-}
-
 export function gatheringCaption(present: number, total: number): string {
     return text("seats.gathering", { present, total });
 }

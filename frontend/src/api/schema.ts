@@ -21,6 +21,23 @@ export interface paths {
         readonly patch?: never;
         readonly trace?: never;
     };
+    readonly "/invitations/{code}": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        /** Read Invitation */
+        readonly get: operations["read_invitation_invitations__code__get"];
+        readonly put?: never;
+        readonly post?: never;
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
+    };
     readonly "/offerings": {
         readonly parameters: {
             readonly query?: never;
@@ -30,6 +47,23 @@ export interface paths {
         };
         /** List Offerings */
         readonly get: operations["list_offerings_offerings_get"];
+        readonly put?: never;
+        readonly post?: never;
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
+    };
+    readonly "/presets": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        /** List Offered Presets */
+        readonly get: operations["list_offered_presets_presets_get"];
         readonly put?: never;
         readonly post?: never;
         readonly delete?: never;
@@ -259,6 +293,17 @@ export interface components {
             /** Success */
             readonly success: string;
         };
+        /** AlphabetPreset */
+        readonly AlphabetPreset: {
+            /** Classes */
+            readonly classes: readonly components["schemas"]["LetterClass"][];
+            /** Dictionaries */
+            readonly dictionaries: readonly components["schemas"]["DictionaryName"][];
+            /** Name */
+            readonly name: string;
+            /** Order */
+            readonly order: readonly string[];
+        };
         /**
          * Aspect
          * @enum {string}
@@ -272,6 +317,15 @@ export interface components {
             readonly size: number;
             /** Tiles */
             readonly tiles: readonly (components["schemas"]["Tile"] | null)[];
+        };
+        /** BoardPreset */
+        readonly BoardPreset: {
+            /** Bonuses */
+            readonly bonuses: readonly components["schemas"]["BonusSpec"][];
+            /** Name */
+            readonly name: string;
+            /** Size */
+            readonly size: number;
         };
         /** BoardTokens */
         readonly BoardTokens: {
@@ -299,6 +353,19 @@ export interface components {
          * @enum {string}
          */
         readonly BonusKind: "word_multiplier" | "letter_multiplier" | "category_multiplier";
+        /** BonusSpec */
+        readonly BonusSpec: {
+            /** Category */
+            readonly category?: string | null;
+            readonly kind: components["schemas"]["BonusKind"];
+            /** Multiplier */
+            readonly multiplier: number;
+            /** Positions */
+            readonly positions: readonly (readonly [
+                number,
+                number
+            ])[];
+        };
         /**
          * Case
          * @enum {string}
@@ -345,6 +412,15 @@ export interface components {
          * @enum {string}
          */
         readonly DictionaryName: "sjp" | "osps" | "english";
+        /** DistributionPreset */
+        readonly DistributionPreset: {
+            /** Counts */
+            readonly counts: {
+                readonly [key: string]: readonly string[];
+            };
+            /** Name */
+            readonly name: string;
+        };
         /**
          * EntryKind
          * @enum {string}
@@ -360,7 +436,7 @@ export interface components {
          * ErrorCode
          * @enum {string}
          */
-        readonly ErrorCode: "illegal_move" | "not_your_turn" | "stale_position" | "invalid_word" | "game_over" | "no_premove" | "out_of_time" | "invalid_configuration" | "rejected" | "unknown_table" | "table_closed" | "unknown_code" | "unknown_scheme" | "table_full" | "seats_out_of_range" | "seat_token_mismatch" | "rack_mismatch" | "gathering" | "dictionary_unavailable" | "word_check_unavailable" | "lore_unavailable" | "too_many_words";
+        readonly ErrorCode: "illegal_move" | "not_your_turn" | "stale_position" | "invalid_word" | "game_over" | "no_premove" | "out_of_time" | "invalid_configuration" | "rejected" | "unknown_table" | "table_closed" | "unknown_code" | "unknown_scheme" | "unknown_preset" | "table_full" | "setting_out_of_range" | "rules_inconsistent" | "malformed_request" | "seat_token_mismatch" | "rack_mismatch" | "gathering" | "dictionary_unavailable" | "word_check_unavailable" | "lore_unavailable" | "too_many_words";
         /** EventView */
         readonly EventView: {
             /** Actor */
@@ -381,6 +457,13 @@ export interface components {
             readonly kind: "exchange";
             /** Tile Ids */
             readonly tile_ids: readonly number[];
+        };
+        /** FeedbackOffered */
+        readonly FeedbackOffered: {
+            /** Lore */
+            readonly lore: boolean;
+            /** Word Check */
+            readonly word_check: boolean;
         };
         /** GameHighlights */
         readonly GameHighlights: {
@@ -451,6 +534,27 @@ export interface components {
             /** Value */
             readonly value: number;
         };
+        /** LetterAdjustment */
+        readonly LetterAdjustment: {
+            /** Category */
+            readonly category?: string | null;
+            /** Count */
+            readonly count?: number | null;
+            /** Value */
+            readonly value?: number | null;
+        };
+        /** LetterClass */
+        readonly LetterClass: {
+            /**
+             * Category
+             * @default standard
+             */
+            readonly category: string;
+            /** Letters */
+            readonly letters: readonly string[];
+            /** Value */
+            readonly value: number;
+        };
         /** LoreReading */
         readonly LoreReading: {
             /** Base */
@@ -501,16 +605,16 @@ export interface components {
         readonly NumeralType: "główny" | "zbiorowy";
         /** Offering */
         readonly Offering: {
-            readonly dictionary: components["schemas"]["DictionaryName"];
-            /** Max Players */
-            readonly max_players: number;
-            /** Min Players */
-            readonly min_players: number;
             /** Name */
             readonly name: string;
+            readonly rules: components["schemas"]["RulesConfig"];
+            /** Specimen */
+            readonly specimen: string;
         };
         /** OfferingsResponse */
         readonly OfferingsResponse: {
+            /** Allowances */
+            readonly allowances: readonly components["schemas"]["SettingAllowance"][];
             readonly code: components["schemas"]["JoinCodeShape"];
             /** Offerings */
             readonly offerings: readonly components["schemas"]["Offering"][];
@@ -614,6 +718,15 @@ export interface components {
             /** Label */
             readonly label: string;
         };
+        /** PresetsResponse */
+        readonly PresetsResponse: {
+            /** Alphabets */
+            readonly alphabets: readonly components["schemas"]["AlphabetPreset"][];
+            /** Boards */
+            readonly boards: readonly components["schemas"]["BoardPreset"][];
+            /** Distributions */
+            readonly distributions: readonly components["schemas"]["DistributionPreset"][];
+        };
         /**
          * PronounType
          * @enum {string}
@@ -634,31 +747,55 @@ export interface components {
          * @enum {string}
          */
         readonly RejectionCode: "illegal_move" | "not_your_turn" | "stale_position" | "invalid_word" | "game_over" | "no_premove" | "out_of_time" | "invalid_configuration" | "rejected";
-        /** RuleParameters */
-        readonly RuleParameters: {
+        /** RulesConfig */
+        readonly RulesConfig: {
+            /** Alphabet */
+            readonly alphabet: string;
             /** Bingo Bonus */
             readonly bingo_bonus: number;
+            /** Bingo Tiles */
+            readonly bingo_tiles: number | null;
+            /** Blanks */
+            readonly blanks: number;
+            /** Board */
+            readonly board: string;
+            readonly dictionary: components["schemas"]["DictionaryName"];
+            /** Distribution */
+            readonly distribution: string;
             /** Exchange Limit */
             readonly exchange_limit: number | null;
             /** Exchange Min Bag */
             readonly exchange_min_bag: number;
-            /** Lore */
-            readonly lore: boolean;
+            /** Going Out Award */
+            readonly going_out_award: boolean;
+            /** Increment Seconds */
+            readonly increment_seconds: number;
+            /** Letters */
+            readonly letters: {
+                readonly [key: string]: components["schemas"]["LetterAdjustment"];
+            };
+            /** Opening Covers Center */
+            readonly opening_covers_center: boolean;
+            /** Opening Tiles */
+            readonly opening_tiles: number;
             /** Pass Allowed */
             readonly pass_allowed: boolean;
             /** Pass End Rounds */
             readonly pass_end_rounds: number | null;
-            /** Premoves Allowed */
-            readonly premoves_allowed: boolean;
+            /** Per Turn Seconds */
+            readonly per_turn_seconds: number | null;
+            /** Premoves */
+            readonly premoves: boolean;
             /** Rack Size */
             readonly rack_size: number | null;
             /** Scoreless End Limit */
             readonly scoreless_end_limit: number | null;
-            readonly time: components["schemas"]["TimeConfig"];
+            /** Seats */
+            readonly seats: number;
+            /** Total Seconds */
+            readonly total_seconds: number | null;
             /** Validate On Play */
             readonly validate_on_play: boolean;
-            /** Word Check */
-            readonly word_check: boolean;
         };
         /** ScoredWord */
         readonly ScoredWord: {
@@ -678,6 +815,45 @@ export interface components {
             /** Seat */
             readonly seat: number;
         };
+        /** SettingAllowance */
+        readonly SettingAllowance: {
+            /** Choices */
+            readonly choices: readonly string[] | null;
+            readonly group: components["schemas"]["SettingGroup"];
+            readonly kind: components["schemas"]["SettingKind"];
+            /** Maximum */
+            readonly maximum: number | null;
+            /** Minimum */
+            readonly minimum: number | null;
+            /** Offered */
+            readonly offered: readonly number[] | null;
+            readonly setting: components["schemas"]["SettingName"];
+            /** Step */
+            readonly step: number | null;
+            readonly tier: components["schemas"]["SettingTier"];
+            /** Unlimited */
+            readonly unlimited: boolean;
+        };
+        /**
+         * SettingGroup
+         * @enum {string}
+         */
+        readonly SettingGroup: "table" | "words" | "turns" | "scoring" | "letters";
+        /**
+         * SettingKind
+         * @enum {string}
+         */
+        readonly SettingKind: "toggle" | "count" | "optional_count" | "choice" | "seconds" | "letters";
+        /**
+         * SettingName
+         * @enum {string}
+         */
+        readonly SettingName: "board" | "alphabet" | "distribution" | "dictionary" | "seats" | "rack_size" | "blanks" | "validate_on_play" | "premoves" | "pass_allowed" | "exchange_limit" | "exchange_min_bag" | "opening_tiles" | "opening_covers_center" | "bingo_bonus" | "bingo_tiles" | "going_out_award" | "pass_end_rounds" | "scoreless_end_limit" | "per_turn_seconds" | "total_seconds" | "increment_seconds" | "letters";
+        /**
+         * SettingTier
+         * @enum {string}
+         */
+        readonly SettingTier: "basic" | "common" | "expert";
         /** StyleTokens */
         readonly StyleTokens: {
             readonly dark: components["schemas"]["ThemeTokens"];
@@ -691,14 +867,14 @@ export interface components {
         readonly TableAdmission: {
             /** Code */
             readonly code: string;
-            /** Max Players */
-            readonly max_players: number;
             /** Name */
             readonly name: string | null;
             /** Scheme */
             readonly scheme: string;
             /** Seat */
             readonly seat: number;
+            /** Seats */
+            readonly seats: number;
             /** Table Id */
             readonly table_id: string;
             /** Token */
@@ -712,36 +888,24 @@ export interface components {
             readonly blanks: number;
             /** Code */
             readonly code: string | null;
-            readonly dictionary: components["schemas"]["DictionaryName"];
             /** Distribution */
             readonly distribution: {
                 readonly [key: string]: number;
             };
-            readonly parameters: components["schemas"]["RuleParameters"];
+            readonly feedback: components["schemas"]["FeedbackOffered"];
+            readonly rules: components["schemas"]["RulesConfig"];
             /** Scheme */
             readonly scheme: string;
-            /** Seats */
-            readonly seats: number;
+            /** Specimen */
+            readonly specimen: string;
         };
         /** TableRequest */
         readonly TableRequest: {
             /** Name */
             readonly name: string;
+            readonly rules?: components["schemas"]["RulesConfig"] | null;
             /** Scheme */
             readonly scheme: string;
-            /** Seats */
-            readonly seats: number;
-            readonly time?: components["schemas"]["TableTimeRequest"] | null;
-        };
-        /** TableTimeRequest */
-        readonly TableTimeRequest: {
-            /**
-             * Increment Seconds
-             * @default 0
-             */
-            readonly increment_seconds: number;
-            /** Total Seconds */
-            readonly total_seconds?: number | null;
         };
         /** TableViewResponse */
         readonly TableViewResponse: {
@@ -798,15 +962,6 @@ export interface components {
             readonly face_tint: number;
             /** Text */
             readonly text: string;
-        };
-        /** TimeConfig */
-        readonly TimeConfig: {
-            /** Increment Seconds */
-            readonly increment_seconds: number;
-            /** Per Turn Seconds */
-            readonly per_turn_seconds: number | null;
-            /** Total Seconds */
-            readonly total_seconds: number | null;
         };
         /** ValidationError */
         readonly ValidationError: {
@@ -896,6 +1051,55 @@ export interface operations {
             };
         };
     };
+    readonly read_invitation_invitations__code__get: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path: {
+                readonly code: string;
+            };
+            readonly cookie?: never;
+        };
+        readonly requestBody?: never;
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["TableDescription"];
+                };
+            };
+            /** @description Not Found */
+            readonly 404: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+            /** @description Gone */
+            readonly 410: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["ErrorBody"];
+                };
+            };
+            /** @description Validation Error */
+            readonly 422: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     readonly list_offerings_offerings_get: {
         readonly parameters: {
             readonly query?: never;
@@ -912,6 +1116,26 @@ export interface operations {
                 };
                 content: {
                     readonly "application/json": components["schemas"]["OfferingsResponse"];
+                };
+            };
+        };
+    };
+    readonly list_offered_presets_presets_get: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly requestBody?: never;
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["PresetsResponse"];
                 };
             };
         };

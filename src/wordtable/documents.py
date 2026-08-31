@@ -3,13 +3,13 @@ from typing import Any
 
 import yaml
 
-from wordcore.errors.exceptions import InvalidConfiguration
+from wordcore.errors.exceptions import InvalidConfiguration, MissingConfiguration
 from wordtable.paths import configuration_file
 
 
 def read_mapping(path: Path) -> dict[str, Any]:
     if not path.is_file():
-        raise InvalidConfiguration(f"missing config file: {path}")
+        raise MissingConfiguration(f"missing config file: {path}")
 
     data = yaml.safe_load(path.read_text(encoding="utf-8"))
     if not isinstance(data, dict):

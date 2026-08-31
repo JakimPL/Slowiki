@@ -5,6 +5,7 @@ from typing import Any, Final
 
 import httpx
 import pytest
+from tests.fixtures.rules import seated, stated
 
 from lexica.names import DictionaryName
 from wordcore.errors.rejections import RejectionCode
@@ -57,13 +58,13 @@ async def test_offerings_list_ready_dictionaries(
     names = {offering["name"] for offering in served}
     assert {"literaki", "solo-literaki"} <= names
     assert "scrabble" not in names
-    assert all(offering["dictionary"] == "sjp" for offering in served)
+    assert all(offering["rules"]["dictionary"] == "sjp" for offering in served)
 
 
 async def test_offerings_serve_the_join_code_shape(client: httpx.AsyncClient) -> None:
     response = await client.get("/offerings")
     shape = response.json()["code"]
-    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
+    created = await client.post("/tables", json={"scheme": "literaki", "name": "Ala"})
     code = created.json()["code"]
     assert len(code) == shape["length"]
     assert set(code) <= set(shape["alphabet"])
@@ -87,13 +88,15 @@ async def test_scrabble_creation_refused_without_dictionary(
         "wordserver.app.dictionary_ready",
         lambda name: name == DictionaryName.SJP,
     )
-    response = await client.post("/tables", json={"scheme": "scrabble", "seats": 2, "name": "Ala"})
+    response = await client.post("/tables", json={"scheme": "scrabble", "name": "Ala"})
     assert response.status_code == 422
     assert response.json()["code"] == "dictionary_unavailable"
 
 
 async def test_description_serves_rules_and_alphabet(client: httpx.AsyncClient) -> None:
-    created = await client.post("/tables", json={"scheme": "literaki", "seats": 3, "name": "Ala"})
+    created = await client.post(
+        "/tables", json={"scheme": "literaki", "name": "Ala", "rules": seated(3)}
+    )
     data = created.json()
     described = await client.get(
         f"/tables/{data['table_id']}", headers={"X-Seat-Token": data["token"]}
@@ -102,14 +105,16 @@ async def test_description_serves_rules_and_alphabet(client: httpx.AsyncClient) 
     body = described.json()
     assert body["code"] == data["code"]
     assert body["scheme"] == "literaki"
-    assert body["seats"] == 3
-    assert body["dictionary"] == "sjp"
-    parameters = body["parameters"]
-    assert parameters["rack_size"] == 7
-    assert parameters["exchange_limit"] == 3
-    assert parameters["exchange_min_bag"] == 7
-    assert parameters["bingo_bonus"] == 50
-    assert parameters["premoves_allowed"] is True
+    assert body["specimen"] == "SŁOWIKI"
+    rules = body["rules"]
+    assert rules["seats"] == 3
+    assert rules["dictionary"] == "sjp"
+    assert rules["rack_size"] == 7
+    assert rules["exchange_limit"] == 3
+    assert rules["exchange_min_bag"] == 7
+    assert rules["bingo_bonus"] == 50
+    assert rules["premoves"] is True
+    assert body["feedback"]["lore"] is True
     symbols = [letter["symbol"] for letter in body["alphabet"]]
     assert symbols[:4] == ["A", "Ą", "B", "C"]
     assert sum(body["distribution"].values()) + body["blanks"] == 100
@@ -117,7 +122,7 @@ async def test_description_serves_rules_and_alphabet(client: httpx.AsyncClient) 
 
 
 async def test_description_hides_code_from_spectators(client: httpx.AsyncClient) -> None:
-    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
+    created = await client.post("/tables", json={"scheme": "literaki", "name": "Ala"})
     table_id = created.json()["table_id"]
     described = await client.get(f"/tables/{table_id}")
     assert described.status_code == 200
@@ -127,7 +132,7 @@ async def test_description_hides_code_from_spectators(client: httpx.AsyncClient)
 
 
 async def test_create_table_and_view(client: httpx.AsyncClient) -> None:
-    response = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
+    response = await client.post("/tables", json={"scheme": "literaki", "name": "Ala"})
     assert response.status_code == 200
     data = response.json()
     table_id = data["table_id"]
@@ -147,7 +152,7 @@ async def test_create_table_and_view(client: httpx.AsyncClient) -> None:
 
 
 async def test_move_requires_token(client: httpx.AsyncClient) -> None:
-    response = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
+    response = await client.post("/tables", json={"scheme": "literaki", "name": "Ala"})
     table_id = response.json()["table_id"]
     move = {"player": 0, "action": {"kind": "pass"}}
     result = await client.post(f"/tables/{table_id}/moves", json={"move": move, "base_seq": 0})
@@ -155,7 +160,7 @@ async def test_move_requires_token(client: httpx.AsyncClient) -> None:
 
 
 async def test_pass_advances_turn(client: httpx.AsyncClient) -> None:
-    response = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
+    response = await client.post("/tables", json={"scheme": "literaki", "name": "Ala"})
     data = response.json()
     table_id = data["table_id"]
     token = data["token"]
@@ -173,7 +178,7 @@ async def test_pass_advances_turn(client: httpx.AsyncClient) -> None:
 
 
 async def test_join_table(client: httpx.AsyncClient) -> None:
-    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
+    created = await client.post("/tables", json={"scheme": "literaki", "name": "Ala"})
     data = created.json()
     code = data["code"]
     joined = await client.post(f"/tables/{code}/join", json={"name": "Ola"})
@@ -568,7 +573,9 @@ async def test_a_waiting_stream_wakes_on_the_next_move() -> None:
 
 
 async def test_claims_hand_out_distinct_seats_concurrently(client: httpx.AsyncClient) -> None:
-    created = await client.post("/tables", json={"scheme": "literaki", "seats": 3, "name": "Ala"})
+    created = await client.post(
+        "/tables", json={"scheme": "literaki", "name": "Ala", "rules": seated(3)}
+    )
     code = created.json()["code"]
     first, second = await asyncio.gather(
         client.post(f"/tables/{code}/join", json={"name": "Bob"}),
@@ -580,7 +587,7 @@ async def test_claims_hand_out_distinct_seats_concurrently(client: httpx.AsyncCl
 
 
 async def test_gathering_hides_racks_and_blocks_moves(client: httpx.AsyncClient) -> None:
-    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
+    created = await client.post("/tables", json={"scheme": "literaki", "name": "Ala"})
     data = created.json()
     table_id = data["table_id"]
     token = data["token"]
@@ -606,7 +613,7 @@ async def test_gathering_hides_racks_and_blocks_moves(client: httpx.AsyncClient)
 
 
 async def _gathered_table(client: httpx.AsyncClient) -> tuple[str, str, str]:
-    created = await client.post("/tables", json={"scheme": "literaki", "seats": 2, "name": "Ala"})
+    created = await client.post("/tables", json={"scheme": "literaki", "name": "Ala"})
     data = created.json()
     joined = await client.post(f"/tables/{data['code']}/join", json={"name": "Ola"})
     return data["table_id"], data["token"], joined.json()["token"]
@@ -875,3 +882,101 @@ async def test_a_recorded_table_reads_as_closed() -> None:
     refusal = table_gone(registry.record_for(table_id))
     assert refusal.status_code == 410
     assert refusal.code is ErrorCode.TABLE_CLOSED
+
+
+async def test_the_offerings_carry_the_allowances(client: httpx.AsyncClient) -> None:
+    served = (await client.get("/offerings")).json()
+    by_setting = {allowance["setting"]: allowance for allowance in served["allowances"]}
+    assert by_setting["seats"]["minimum"] == 1
+    assert by_setting["seats"]["group"] == "table"
+    assert by_setting["total_seconds"]["offered"][0] == 60
+    assert by_setting["rack_size"]["unlimited"] is True
+    assert "literaki" in by_setting["board"]["choices"]
+    assert served["offerings"][0]["rules"]["seats"] == 2
+
+
+async def test_the_presets_serve_what_is_on_disk(client: httpx.AsyncClient) -> None:
+    served = (await client.get("/presets")).json()
+    assert [board["name"] for board in served["boards"]] == ["literaki", "scrabble"]
+    assert [alphabet["name"] for alphabet in served["alphabets"]] == [
+        "literaki",
+        "scrabble-en",
+        "scrabble-pl",
+    ]
+    assert [one["name"] for one in served["distributions"]] == ["english", "polish"]
+    literaki = next(one for one in served["alphabets"] if one["name"] == "literaki")
+    assert literaki["order"][:2] == ["A", "Ą"]
+    assert literaki["dictionaries"] == ["sjp", "osps"]
+
+
+async def test_an_invitation_reads_the_rules_before_a_seat_is_claimed(
+    client: httpx.AsyncClient,
+) -> None:
+    created = await client.post("/tables", json={"scheme": "literaki", "name": "Ala"})
+    data = created.json()
+    invited = await client.get(f"/invitations/{data['code']}")
+    assert invited.status_code == 200
+    body = invited.json()
+    assert body["code"] is None
+    assert body["scheme"] == "literaki"
+    assert body["rules"]["seats"] == 2
+    missing = await client.get("/invitations/ZZZZZZ")
+    assert missing.status_code == 404
+    assert missing.json()["code"] == "unknown_code"
+
+
+async def test_a_table_plays_by_the_rules_it_was_asked_for(client: httpx.AsyncClient) -> None:
+    asked = stated(
+        {
+            "seats": 3,
+            "exchange_limit": None,
+            "premoves": False,
+            "bingo_tiles": 6,
+            "per_turn_seconds": 300,
+            "letters": {"Ź": {"value": 12, "count": 3}},
+        }
+    )
+    created = await client.post(
+        "/tables",
+        json={"scheme": "literaki", "name": "Ala", "rules": asked},
+    )
+    assert created.status_code == 200
+    described = (await client.get(f"/tables/{created.json()['table_id']}")).json()
+    assert described["rules"]["exchange_limit"] is None
+    assert described["rules"]["premoves"] is False
+    assert described["rules"]["bingo_tiles"] == 6
+    assert described["rules"]["per_turn_seconds"] == 300
+    assert described["distribution"]["Ź"] == 3
+    zet = next(letter for letter in described["alphabet"] if letter["symbol"] == "Ź")
+    assert zet["value"] == 12
+    assert zet["category"] == "red"
+
+
+async def test_a_one_seat_literaki_table_deals_a_seven_tile_rack(
+    client: httpx.AsyncClient,
+) -> None:
+    asked = stated({"seats": 1, "rack_size": 7, "pass_end_rounds": None, "premoves": False})
+    created = await client.post(
+        "/tables",
+        json={"scheme": "literaki", "name": "Ala", "rules": asked},
+    )
+    assert created.status_code == 200
+    data = created.json()
+    assert data["seats"] == 1
+    view = await client.get(
+        f"/tables/{data['table_id']}/view",
+        headers={"X-Seat-Token": data["token"]},
+    )
+    body = view.json()
+    assert len(body["view"]["racks"]["0"]) == 7
+    assert body["view"]["bag_count"] == 93
+
+
+async def test_a_bag_too_small_for_its_racks_is_refused(client: httpx.AsyncClient) -> None:
+    response = await client.post(
+        "/tables",
+        json={"scheme": "literaki", "name": "Ala", "rules": stated({"seats": 8, "rack_size": 15})},
+    )
+    assert response.status_code == 422
+    assert response.json()["code"] == "rules_inconsistent"
+    assert "asks for 8" in response.json()["detail"]

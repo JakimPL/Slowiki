@@ -1,13 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-    captionFor,
-    gatheringCaption,
-    nameFor,
-    offeringCaption,
-    thinkingCaption,
-    wonCaption,
-} from "../../src/table/strings";
+import { captionFor, gatheringCaption, nameFor, thinkingCaption, wonCaption } from "../../src/table/strings";
 import { aCompany, aSeatView } from "../fixtures/positions";
 
 describe("nameFor", () => {
@@ -33,11 +26,6 @@ describe("captions", () => {
 
     it("counts the gathering", () => {
         expect(gatheringCaption(1, 4)).toBe("Gathering players — 1 of 4 at the table");
-    });
-
-    it("describes offerings with their player span", () => {
-        expect(offeringCaption("literaki", 2, 8)).toBe("literaki · 2–8 players");
-        expect(offeringCaption("solo-literaki", 1, 1)).toBe("solo-literaki · 1 player");
     });
 });
 

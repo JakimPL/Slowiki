@@ -30,8 +30,8 @@ def test_schemes_are_listed() -> None:
 def test_catalog_offers_every_scheme() -> None:
     by_name = {offering.name: offering for offering in offerings(CONFIG_DIR)}
     assert {"literaki", "scrabble", "solo-literaki"} <= set(by_name)
-    assert by_name["scrabble"].dictionary == DictionaryName.ENGLISH
-    assert by_name["literaki"].dictionary == DictionaryName.SJP
+    assert by_name["scrabble"].rules.dictionary == DictionaryName.ENGLISH
+    assert by_name["literaki"].rules.dictionary == DictionaryName.SJP
 
 
 def test_dictionary_readiness_follows_files(tmp_path, monkeypatch) -> None:

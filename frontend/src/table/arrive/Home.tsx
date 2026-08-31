@@ -3,9 +3,10 @@ import { useEffect, useState } from "react";
 
 import { createTable, joinTable, readOfferings } from "../../api/client";
 import { reasonOf } from "../../api/refusal";
-import type { Offering, OfferingsResponse, TableAdmission } from "../../api/tables";
+import type { OfferingsResponse, RulesConfig, SettingAllowance, TableAdmission } from "../../api/tables";
 import type { Tile } from "../../api/views";
-import { MOVE_INCREMENTS, timeRequestOf, TURN_BUDGETS } from "../../play/clock/timing";
+import { MOVE_INCREMENTS, TURN_BUDGETS } from "../../play/clock/timing";
+import { seatsOffered } from "../../play/rules/seats";
 import { enteredCode } from "../../play/seats/codes";
 import { rememberName, storedName } from "../../play/seats/identity";
 import { LocaleToggle } from "../seats/LocaleToggle";
@@ -22,7 +23,6 @@ import {
     JOIN_HEADING,
     NAME_LABEL,
     NAME_PLACEHOLDER,
-    offeringCaption,
     OFFERINGS_LOADING,
     PRODUCT_NAME,
     PRODUCT_TAGLINE,
@@ -88,7 +88,9 @@ export function Home({ invitedCode, themeNote, onArrive, onResume, onForget }: H
     const shape = arrivals?.code ?? null;
     const complete = shape === null ? code.trim() !== "" : code.length === shape.length;
     const chosen = offerings?.find((offering) => offering.name === schemeName) ?? offerings?.[0] ?? null;
-    const chosenSeats = boundedSeats(seats, chosen);
+    const allowances = arrivals?.allowances ?? null;
+    const offeredSeats = seatsOffered(chosen?.rules ?? null, allowanceOf(allowances, "seats"));
+    const chosenSeats = boundedSeats(seats, offeredSeats);
     const cleanedName = name.trim() === "" ? null : name.trim();
 
     const settle = async (action: () => Promise<TableAdmission>): Promise<void> => {
@@ -113,8 +115,8 @@ export function Home({ invitedCode, themeNote, onArrive, onResume, onForget }: H
         if (chosen === null || cleanedName === null) {
             return;
         }
-        const time = timeRequestOf({ totalSeconds: budget, incrementSeconds: increment });
-        void settle(() => createTable({ scheme: chosen.name, seats: chosenSeats, name: cleanedName, time }));
+        const rules = askedRules(chosen.rules, chosenSeats, budget, increment);
+        void settle(() => createTable({ scheme: chosen.name, name: cleanedName, rules }));
     };
 
     const join: SubmitEventHandler<HTMLFormElement> = (submission) => {
@@ -204,11 +206,7 @@ export function Home({ invitedCode, themeNote, onArrive, onResume, onForget }: H
                                     >
                                         {offerings.map((offering) => (
                                             <option key={offering.name} value={offering.name}>
-                                                {offeringCaption(
-                                                    offering.name,
-                                                    offering.min_players,
-                                                    offering.max_players,
-                                                )}
+                                                {offering.name}
                                             </option>
                                         ))}
                                     </select>
@@ -221,13 +219,11 @@ export function Home({ invitedCode, themeNote, onArrive, onResume, onForget }: H
                                             setSeats(Number(change.target.value));
                                         }}
                                     >
-                                        {chosen === null
-                                            ? null
-                                            : spanOf(chosen.min_players, chosen.max_players).map((count) => (
-                                                  <option key={count} value={count}>
-                                                      {count}
-                                                  </option>
-                                              ))}
+                                        {offeredSeats.map((count) => (
+                                            <option key={count} value={count}>
+                                                {count}
+                                            </option>
+                                        ))}
                                     </select>
                                 </label>
                                 <div className="field-row">
@@ -297,16 +293,26 @@ export function Home({ invitedCode, themeNote, onArrive, onResume, onForget }: H
     );
 }
 
-function boundedSeats(seats: number | null, chosen: Offering | null): number {
-    if (chosen === null) {
-        return 1;
-    }
-    if (seats === null) {
-        return chosen.min_players;
-    }
-    return Math.min(Math.max(seats, chosen.min_players), chosen.max_players);
+function allowanceOf(
+    allowances: readonly SettingAllowance[] | null,
+    setting: SettingAllowance["setting"],
+): SettingAllowance | null {
+    return allowances?.find((allowance) => allowance.setting === setting) ?? null;
 }
 
-function spanOf(minimum: number, maximum: number): readonly number[] {
-    return Array.from({ length: maximum - minimum + 1 }, (_, offset) => minimum + offset);
+function boundedSeats(seats: number | null, offered: readonly number[]): number {
+    const first = offered[0] ?? 1;
+    if (seats === null) {
+        return first;
+    }
+    return offered.includes(seats) ? seats : first;
+}
+
+function askedRules(standard: RulesConfig, seats: number, budget: number | null, increment: number): RulesConfig {
+    return {
+        ...standard,
+        seats,
+        total_seconds: budget,
+        increment_seconds: budget === null ? 0 : increment,
+    };
 }

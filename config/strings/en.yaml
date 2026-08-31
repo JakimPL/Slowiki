@@ -29,11 +29,6 @@ arrive:
   offerings_loading: Reading the table offerings…
   return_button: Return to your table
   forget_button: Forget that table
-  span: "{minimum:number}–{maximum:number}"
-  offering:
-    plural:
-      one: "{name} · {span} player"
-      other: "{name} · {span} players"
   invite_button: Copy invitation
   invite_copied: Invitation copied
   copy_code_label: Copy the table code

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { MOVE_INCREMENTS, timeRequestOf, TURN_BUDGETS, UNTIMED } from "../../../src/play/clock/timing";
+import { MOVE_INCREMENTS, TURN_BUDGETS, UNTIMED } from "../../../src/play/clock/timing";
 
 describe("timing", () => {
     it("offers minute budgets and second increments", () => {
@@ -9,11 +9,8 @@ describe("timing", () => {
         expect(MOVE_INCREMENTS[0]).toBe(0);
     });
 
-    it("asks for a clock only when a budget is chosen", () => {
-        expect(timeRequestOf(UNTIMED)).toBeNull();
-        expect(timeRequestOf({ totalSeconds: 600, incrementSeconds: 15 })).toEqual({
-            total_seconds: 600,
-            increment_seconds: 15,
-        });
+    it("leaves a table untimed until a budget is chosen", () => {
+        expect(UNTIMED.totalSeconds).toBeNull();
+        expect(UNTIMED.incrementSeconds).toBe(0);
     });
 });

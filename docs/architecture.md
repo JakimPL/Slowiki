@@ -155,21 +155,34 @@ design contract.
 
 ## HTTP surface
 
-- `GET /offerings` — schemes whose dictionaries are present on disk, and the shape of a
-  join code, so a client filters and parses what a player types from the server's own answer.
+- `GET /offerings` — schemes whose dictionaries are present on disk, each with its
+  own complete rules record; the shape of a join code, so a client parses what a
+  player types from the server's own answer; and the allowance for every setting,
+  so the client renders a control per setting from server data.
+- `GET /presets` — every board, alphabet and distribution on disk, so a client
+  composes a letter set it has never seen and prints what the bag would hold.
 - `GET /style` — the design tokens for the active theme, asked once per client.
-- `POST /tables`, `POST /tables/{code}/join` — admissions with seat tokens.
-- `GET /tables/{table_id}` — the table description: rules parameters, alphabet,
-  distribution, and the join code for seat holders. Every route under a table
-  answers 404 `unknown_table` for an identifier the server never held and 410
-  `table_closed` for one it has let go, so a client tells a stale link from a typo.
+- `POST /tables` — a scheme, a player name, and optionally the whole rules record
+  the table plays by; absent, the scheme's own record stands. A record outside its
+  bounds answers 422 `setting_out_of_range` naming the setting, one naming a preset
+  that is absent answers `unknown_preset`, and one the presets contradict answers
+  `rules_inconsistent`.
+- `POST /tables/{code}/join` — admissions with seat tokens.
+- `GET /invitations/{code}` — the settled description behind a join code, with no
+  seat token and no code echoed back, so a guest reads the rules before accepting
+  them.
+- `GET /tables/{table_id}` — the table description: the settled rules record, what
+  feedback the table offers, the alphabet and distribution of the settled bag, and
+  the join code for seat holders. Every route under a table answers 404
+  `unknown_table` for an identifier the server never held and 410 `table_closed`
+  for one it has let go, so a client tells a stale link from a typo.
 - `GET /tables/{table_id}/view` — the per-observer projection with the company
   and the turn clock.
 - `GET /tables/{table_id}/words` — dictionary verdicts for up to sixteen words,
-  offered while the scheme validates on play (`parameters.word_check`).
+  offered while the table validates on play (`feedback.word_check`).
 - `GET /tables/{table_id}/lore` — the readings of up to sixteen words: part of
   speech, base form and whole paradigm per reading, offered while the scheme's
-  dictionary carries Polish morphology (`parameters.lore`). `docs/lore.md` holds
+  dictionary carries Polish morphology (`feedback.lore`). `docs/lore.md` holds
   the sources behind it.
 - `GET /tables/{table_id}/highlights` — the highest-scoring word and the longest
   word of the game, walked from the journal, so the answer stays whole however
@@ -202,8 +215,8 @@ stands alone on its own frame first; the seat on turn is already armed, so its
 clock pays for the pause. That delay is stream policy the host sets, so it stands
 beside `tables.sweep_seconds` in `TablesConfig` and reaches a session as its own
 value. The budgets are game rules: a table states them in its rules record, and
-`wordtable.timing.time_of` derives the `TimeConfig` the clock reads, which rides
-in the description as `parameters.time`.
+`wordtable.timing.time_of` derives the `TimeConfig` the clock reads, and the
+description carries them in its rules record.
 
 ## Rack order
 

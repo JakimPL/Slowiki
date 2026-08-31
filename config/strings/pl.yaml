@@ -29,12 +29,6 @@ arrive:
   offerings_loading: Czytamy ofertę stołów…
   return_button: Wróć do swojego stołu
   forget_button: Zapomnij ten stół
-  span: "{minimum:number}–{maximum:number}"
-  offering:
-    plural:
-      one: "{name} · {span} gracz"
-      few: "{name} · {span} gracze"
-      many: "{name} · {span} graczy"
   invite_button: Kopiuj zaproszenie
   invite_copied: Zaproszenie skopiowane
   copy_code_label: Skopiuj kod stołu

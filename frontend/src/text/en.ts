@@ -22,7 +22,6 @@ export const EN: Catalog = {
         "arrive.return_button": "Return to your table",
         "arrive.scheme_label": "Game",
         "arrive.seats_label": "Players",
-        "arrive.span": "{minimum}–{maximum}",
         "arrive.stale_notice": "The table has moved on — the latest position is shown.",
         "arrive.switch_to_create": "Start your own table instead",
         "arrive.switch_to_join": "Have an invitation code?",
@@ -149,12 +148,6 @@ export const EN: Catalog = {
         "words.words_here": "Words at this square",
     },
     plural: {
-        "arrive.offering": {
-            one: "{name} · {span} player",
-            few: "{name} · {span} players",
-            many: "{name} · {span} players",
-            other: "{name} · {span} players",
-        },
         "hand.exchange_left": {
             one: "{count} exchange left this game.",
             few: "{count} exchanges left this game.",

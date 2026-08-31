@@ -30,16 +30,16 @@ export function rulesFrom(description: TableDescription | null): TableRules {
     if (description === null) {
         return FALLBACK_RULES;
     }
-    const parameters = description.parameters;
+    const rules = description.rules;
     return {
-        rackSize: parameters.rack_size,
-        exchangeLimit: parameters.exchange_limit,
-        exchangeMinBag: parameters.exchange_min_bag,
-        passAllowed: parameters.pass_allowed,
-        bingoBonus: parameters.bingo_bonus,
-        premovesAllowed: parameters.premoves_allowed,
-        feedback: policyOf(parameters.validate_on_play, parameters.word_check),
-        lore: parameters.lore,
+        rackSize: rules.rack_size,
+        exchangeLimit: rules.exchange_limit,
+        exchangeMinBag: rules.exchange_min_bag,
+        passAllowed: rules.pass_allowed,
+        bingoBonus: rules.bingo_bonus,
+        premovesAllowed: rules.premoves,
+        feedback: policyOf(rules.validate_on_play, description.feedback.word_check),
+        lore: description.feedback.lore,
         alphabet: description.alphabet,
     };
 }

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { FALLBACK_RULES, rulesFrom } from "../../../src/play/live/rules";
-import { aDescription, someParameters } from "../../fixtures/positions";
+import { aDescription, someRules } from "../../fixtures/positions";
 
 describe("rulesFrom", () => {
     it("falls back before the description arrives", () => {
@@ -25,12 +25,12 @@ describe("rulesFrom", () => {
     });
 
     it("reads a challenge policy from an unvalidated scheme", () => {
-        const description = aDescription({ parameters: someParameters({ validate_on_play: false }) });
+        const description = aDescription({ rules: someRules({ validate_on_play: false }) });
         expect(rulesFrom(description).feedback).toBe("challenge");
     });
 
     it("goes live once the table offers word checks", () => {
-        const description = aDescription({ parameters: someParameters({ word_check: true }) });
+        const description = aDescription({ feedback: { word_check: true, lore: true } });
         expect(rulesFrom(description).feedback).toBe("live");
     });
 });
