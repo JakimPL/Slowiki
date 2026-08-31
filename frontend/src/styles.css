@@ -19,7 +19,7 @@
 @property --motion-settle {
     syntax: "<time>";
     inherits: true;
-    initial-value: 240ms;
+    initial-value: 360ms;
 }
 
 @property --motion-rise {
@@ -81,7 +81,7 @@
     --motion-scale: 1;
     --motion-stagger: calc(110ms * var(--motion-scale));
     --motion-quick: calc(150ms * var(--motion-scale));
-    --motion-settle: calc(240ms * var(--motion-scale));
+    --motion-settle: calc(360ms * var(--motion-scale));
     --motion-rise: calc(640ms * var(--motion-scale));
     --motion-linger: calc(1500ms * var(--motion-scale));
     --motion-breath: calc(2600ms * var(--motion-scale));
