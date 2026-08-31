@@ -179,3 +179,50 @@ guidance:
 general:
   list_separator: ", "
   list_pair: "{leading} and {last}"
+
+rules:
+  heading: House rules
+  close: Close the house rules
+  row_label: House rules
+  standard: Standard
+  changed:
+    plural:
+      one: "{count:number} change"
+      other: "{count:number} changes"
+  revert_all: Back to the standard rules
+  value_on: "on"
+  value_off: "off"
+  unlimited: any number
+  none: none
+  untimed: untimed
+  edited: edited
+  group:
+    table: The table
+    words: Words and the dictionary
+    turns: Taking a turn
+    scoring: Scoring and ending
+    letters: Letters and the board
+  setting:
+    board: Board
+    alphabet: Letters
+    distribution: How many of each letter
+    dictionary: Dictionary
+    seats: Players
+    rack_size: Tiles on the rack
+    blanks: Blank tiles
+    validate_on_play: Only words in the dictionary
+    premoves: Queued moves
+    pass_allowed: Passing
+    exchange_limit: Exchanges per player
+    exchange_min_bag: Tiles that must stay in the bag
+    opening_tiles: Tiles in the opening word
+    opening_covers_center: The opening word crosses the centre
+    bingo_bonus: Bonus for using the whole rack
+    bingo_tiles: Tiles a bonus play must use
+    going_out_award: Award for going out first
+    pass_end_rounds: Rounds of passes that end the game
+    scoreless_end_limit: Scoreless moves that end the game
+    per_turn_seconds: Time per turn
+    total_seconds: Time per player
+    increment_seconds: Bonus per move
+    letters: Edit the letters

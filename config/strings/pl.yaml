@@ -183,3 +183,51 @@ guidance:
 general:
   list_separator: ", "
   list_pair: "{leading} i {last}"
+
+rules:
+  heading: Zasady domowe
+  close: Zamknij zasady domowe
+  row_label: Zasady domowe
+  standard: Standardowe
+  changed:
+    plural:
+      one: "{count:number} zmiana"
+      few: "{count:number} zmiany"
+      many: "{count:number} zmian"
+  revert_all: Wróć do zasad standardowych
+  value_on: "tak"
+  value_off: "nie"
+  unlimited: bez limitu
+  none: brak
+  untimed: bez zegara
+  edited: zmienione
+  group:
+    table: Stół
+    words: Słowa i słownik
+    turns: Przebieg tury
+    scoring: Punkty i koniec gry
+    letters: Litery i plansza
+  setting:
+    board: Plansza
+    alphabet: Litery
+    distribution: Ile których liter
+    dictionary: Słownik
+    seats: Gracze
+    rack_size: Litery na stojaku
+    blanks: Blanki
+    validate_on_play: Tylko słowa ze słownika
+    premoves: Ruchy w kolejce
+    pass_allowed: Pasowanie
+    exchange_limit: Wymiany na gracza
+    exchange_min_bag: Litery, które zostają w worku
+    opening_tiles: Litery w pierwszym słowie
+    opening_covers_center: Pierwsze słowo przez środek
+    bingo_bonus: Premia za cały stojak
+    bingo_tiles: Litery potrzebne do premii
+    going_out_award: Nagroda za pierwsze zakończenie
+    pass_end_rounds: Rundy pasów kończące grę
+    scoreless_end_limit: Ruchy bez punktów kończące grę
+    per_turn_seconds: Czas na turę
+    total_seconds: Czas na gracza
+    increment_seconds: Premia za ruch
+    letters: Zmień litery

@@ -1,8 +1,11 @@
+import type { SettingGroup, SettingName } from "../api/tables";
 import type { CompanyView, Tile } from "../api/views";
 import type { ScoredWord } from "../play/board/scoring";
 import type { Mode } from "../play/device/mode";
 import type { Motion } from "../play/device/motion";
 import type { Connection } from "../play/live/connection";
+import type { Control } from "../play/rules/control";
+import type { Deviation } from "../play/rules/deviation";
 import type { Guidance } from "../play/story/guidance";
 import type { HighlightKind } from "../play/story/highlights";
 import type { LogEntry } from "../play/story/log";
@@ -40,6 +43,43 @@ export const SWITCH_TO_CREATE = text("arrive.switch_to_create");
 export const STALE_NOTICE = text("arrive.stale_notice");
 export const JOINING_CAPTION = text("arrive.joining");
 export const OFFERINGS_LOADING = text("arrive.offerings_loading");
+export const RULES_HEADING = text("rules.heading");
+export const RULES_CLOSE = text("rules.close");
+export const RULES_ROW_LABEL = text("rules.row_label");
+export const RULES_STANDARD = text("rules.standard");
+export const RULES_REVERT_ALL = text("rules.revert_all");
+export const SETTING_LABELS: Record<SettingName, string> = {
+    board: text("rules.setting.board"),
+    alphabet: text("rules.setting.alphabet"),
+    distribution: text("rules.setting.distribution"),
+    dictionary: text("rules.setting.dictionary"),
+    seats: text("rules.setting.seats"),
+    rack_size: text("rules.setting.rack_size"),
+    blanks: text("rules.setting.blanks"),
+    validate_on_play: text("rules.setting.validate_on_play"),
+    premoves: text("rules.setting.premoves"),
+    pass_allowed: text("rules.setting.pass_allowed"),
+    exchange_limit: text("rules.setting.exchange_limit"),
+    exchange_min_bag: text("rules.setting.exchange_min_bag"),
+    opening_tiles: text("rules.setting.opening_tiles"),
+    opening_covers_center: text("rules.setting.opening_covers_center"),
+    bingo_bonus: text("rules.setting.bingo_bonus"),
+    bingo_tiles: text("rules.setting.bingo_tiles"),
+    going_out_award: text("rules.setting.going_out_award"),
+    pass_end_rounds: text("rules.setting.pass_end_rounds"),
+    scoreless_end_limit: text("rules.setting.scoreless_end_limit"),
+    per_turn_seconds: text("rules.setting.per_turn_seconds"),
+    total_seconds: text("rules.setting.total_seconds"),
+    increment_seconds: text("rules.setting.increment_seconds"),
+    letters: text("rules.setting.letters"),
+};
+export const GROUP_LABELS: Record<SettingGroup, string> = {
+    table: text("rules.group.table"),
+    words: text("rules.group.words"),
+    turns: text("rules.group.turns"),
+    scoring: text("rules.group.scoring"),
+    letters: text("rules.group.letters"),
+};
 export const OPEN_SEAT_LABEL = text("seats.open_seat");
 export const YOU_MARKER = text("seats.you_marker");
 export const YOUR_TURN_CAPTION = text("seats.your_turn");
@@ -169,6 +209,31 @@ export function odmianaCaption(terms: readonly string[]): string {
 export function primaryCaption(premove: boolean, points: number | null): string {
     const base = premove ? PREMOVE_BUTTON : PLAY_BUTTON;
     return points === null ? base : text("hand.primary_scored", { action: base, points });
+}
+
+export function rulesCaption(changes: number): string {
+    return changes === 0 ? RULES_STANDARD : counted("rules.changed", changes);
+}
+
+export function deviationCaption(deviation: Deviation): string {
+    return `${SETTING_LABELS[deviation.setting]} · ${valueCaption(deviation.control)}`;
+}
+
+export function valueCaption(control: Control): string {
+    switch (control.kind) {
+        case "toggle":
+            return control.value ? text("rules.value_on") : text("rules.value_off");
+        case "count":
+            return String(control.value);
+        case "optional_count":
+            return control.value === null ? text("rules.unlimited") : String(control.value);
+        case "choice":
+            return control.value;
+        case "seconds":
+            return control.value === null ? text("rules.untimed") : budgetCaption(control.value);
+        case "letters":
+            return text("rules.edited");
+    }
 }
 
 export function budgetCaption(seconds: number): string {

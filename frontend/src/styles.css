@@ -355,6 +355,48 @@ select {
     color: color-mix(in srgb, var(--chrome-muted) 80%, transparent);
 }
 
+.rules-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--chrome-edge);
+    border-radius: 10px;
+    background: var(--chrome-surface);
+    color: var(--chrome-text);
+    font-family: inherit;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.rules-row-label {
+    font-weight: 600;
+}
+
+.rules-row-state {
+    min-width: 9ch;
+    color: var(--chrome-muted);
+    text-align: right;
+}
+
+.rules-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: -4px 0 0;
+}
+
+.rules-chip {
+    padding: 3px 9px;
+    border: 1px solid color-mix(in srgb, var(--accent-primary) 40%, var(--chrome-edge));
+    border-radius: 999px;
+    color: var(--chrome-muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+
 .home-name[data-wanted] input {
     border-color: var(--accent-danger);
     animation: var(--motion-wanted) 2.6s ease-in-out infinite;

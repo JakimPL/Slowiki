@@ -101,8 +101,9 @@ inside the sheet, which is what the sheet's own scroll is for.
   the primary accent, prints the standard value beneath itself, and offers the control that restores
   it. Every row reserves the edge and that control whether or not it deviates, so a row holds its
   height as its value changes. Each group's summary carries the number of rules it holds apart, and
-  the card's rules row carries the total. All of it is measured against the **scheme**, never against
-  the record the player chose, so a saved record named for a household reads the same count every
+  the card's rules row carries the count of the rules the card does not itself show — its own five
+  controls announce their values already, so a timed three-player game reads as standard. All of it is
+  measured against the **scheme**, never against the record the player chose, so a saved record named for a household reads the same count every
   time it is opened.
 - **The letters** are their own depth, reached from *Letters and the board*: a grid of real tile faces,
   each printing its value and how many stand in the bag, over a panel that holds the selected letter's
