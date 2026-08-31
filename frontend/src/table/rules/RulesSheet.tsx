@@ -16,6 +16,7 @@ import {
     RULES_REVERT_ALL,
 } from "../strings";
 import { RulesGroup } from "./RulesGroup";
+import { SavedRules } from "./SavedRules";
 
 const CARD_GROUP = "table";
 
@@ -58,10 +59,11 @@ export function RulesSheet({ composing, onClose }: RulesSheetProps): ReactElemen
                             open={open.includes(rows.group)}
                             expert={expert}
                             onToggle={(): void => {
-                                setOpen(toggled(open, rows.group));
+                                setOpen((held) => toggled(held, rows.group));
                             }}
                         />
                     ))}
+                <SavedRules composing={composing} />
                 {holdsExpert(catalog) ? (
                     <div className="menu-row">
                         <span className="menu-label">{RULES_EXPERT_LABEL}</span>

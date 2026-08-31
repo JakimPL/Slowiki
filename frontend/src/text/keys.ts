@@ -93,10 +93,12 @@ export interface PlainValues {
     readonly "product.style_fallback": EmptyValues;
     readonly "product.tagline": EmptyValues;
     readonly "rules.close": EmptyValues;
+    readonly "rules.delete": EmptyValues;
     readonly "rules.edited": EmptyValues;
     readonly "rules.expert_hidden": EmptyValues;
     readonly "rules.expert_label": EmptyValues;
     readonly "rules.expert_shown": EmptyValues;
+    readonly "rules.export": EmptyValues;
     readonly "rules.group.letters": EmptyValues;
     readonly "rules.group.scoring": EmptyValues;
     readonly "rules.group.table": EmptyValues;
@@ -105,9 +107,15 @@ export interface PlainValues {
     readonly "rules.heading": EmptyValues;
     readonly "rules.limited": EmptyValues;
     readonly "rules.none": EmptyValues;
+    readonly "rules.retired": EmptyValues;
     readonly "rules.revert": EmptyValues;
     readonly "rules.revert_all": EmptyValues;
     readonly "rules.row_label": EmptyValues;
+    readonly "rules.save_button": EmptyValues;
+    readonly "rules.save_label": EmptyValues;
+    readonly "rules.save_placeholder": EmptyValues;
+    readonly "rules.saved_heading": EmptyValues;
+    readonly "rules.saved_none": EmptyValues;
     readonly "rules.setting.alphabet": EmptyValues;
     readonly "rules.setting.bingo_bonus": EmptyValues;
     readonly "rules.setting.bingo_tiles": EmptyValues;

@@ -198,6 +198,14 @@ rules:
   expert_label: Expert settings
   expert_hidden: Hidden
   expert_shown: Shown
+  saved_heading: Your saved rules
+  save_label: Name these rules
+  save_placeholder: House rules
+  save_button: Save
+  saved_none: Nothing saved yet.
+  delete: Delete
+  export: Copy as text
+  retired: Its game is no longer offered.
   value_on: "on"
   value_off: "off"
   unlimited: any number

@@ -1,15 +1,17 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import type { OfferingsResponse, RulesConfig, SettingName } from "../../api/tables";
 import type { RulesCatalog } from "./catalog";
 import { catalogOf, EMPTY_CATALOG } from "./catalog";
 import type { RuleChanges, RuleValue } from "./changes";
-import { NO_CHANGES, resolvedRules, withoutSetting, withSetting } from "./changes";
+import { NO_CHANGES, resolvedRules, sameValue, withoutSetting, withSetting } from "./changes";
 import type { Deviation } from "./deviation";
 import { deviationsOf } from "./deviation";
 import type { RulesEntry } from "./entry";
 import { entriesOf, entryOf } from "./entry";
-import { EMPTY_BOOK } from "./preset";
+import type { PresetBook, SavedPreset } from "./preset";
+import { EMPTY_BOOK, lastUsed, presetOf, withoutPreset, withPreset } from "./preset";
+import { newPresetId, rememberPresets, storedPresets } from "./storage";
 
 export interface Composing {
     readonly catalog: RulesCatalog;
@@ -18,18 +20,23 @@ export interface Composing {
     readonly standard: RulesConfig | null;
     readonly record: RulesConfig | null;
     readonly deviations: readonly Deviation[];
+    readonly presets: readonly SavedPreset[];
+    readonly unsaved: boolean;
     readonly chooseEntry: (id: string) => void;
     readonly setSetting: (setting: SettingName, value: RuleValue) => void;
     readonly revert: (setting: SettingName) => void;
     readonly revertAll: () => void;
+    readonly savePreset: (label: string) => void;
+    readonly deletePreset: (id: string) => void;
 }
 
 export function useComposing(arrivals: OfferingsResponse | null): Composing {
-    const [chosen, setChosen] = useState<string | null>(null);
-    const [changes, setChanges] = useState<RuleChanges>(NO_CHANGES);
+    const [book, setBook] = useState<PresetBook>(currentBook);
+    const [chosen, setChosen] = useState<string | null>(book.last);
+    const [changes, setChanges] = useState<RuleChanges>(() => presetOf(book, book.last)?.changes ?? NO_CHANGES);
 
     const catalog = useMemo(() => (arrivals === null ? EMPTY_CATALOG : catalogOf(arrivals.allowances)), [arrivals]);
-    const entries = useMemo(() => (arrivals === null ? [] : entriesOf(arrivals.offerings, EMPTY_BOOK)), [arrivals]);
+    const entries = useMemo(() => (arrivals === null ? [] : entriesOf(arrivals.offerings, book)), [arrivals, book]);
     const entry = entryOf(entries, chosen) ?? entries[0] ?? null;
     const standard = standardOf(arrivals, entry);
     const record = useMemo(
@@ -41,10 +48,17 @@ export function useComposing(arrivals: OfferingsResponse | null): Composing {
         [record, standard, catalog],
     );
 
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            rememberPresets(book, window.localStorage);
+        }
+    }, [book]);
+
     const chooseEntry = useCallback(
         (id: string): void => {
             setChosen(id);
             setChanges(entryOf(entries, id)?.changes ?? NO_CHANGES);
+            setBook((held) => lastUsed(held, id));
         },
         [entries],
     );
@@ -66,6 +80,30 @@ export function useComposing(arrivals: OfferingsResponse | null): Composing {
         setChanges(NO_CHANGES);
     }, []);
 
+    const savePreset = useCallback(
+        (label: string): void => {
+            if (entry === null) {
+                return;
+            }
+            const saved: SavedPreset = {
+                id: entry.saved ? entry.id : newPresetId(),
+                label,
+                origin: entry.origin,
+                changes,
+                saved: Date.now(),
+            };
+            setBook((held) => withPreset(held, saved));
+            setChosen(saved.id);
+        },
+        [entry, changes],
+    );
+
+    const deletePreset = useCallback((id: string): void => {
+        setBook((held) => withoutPreset(held, id));
+        setChosen(null);
+        setChanges(NO_CHANGES);
+    }, []);
+
     return {
         catalog,
         entries,
@@ -73,11 +111,26 @@ export function useComposing(arrivals: OfferingsResponse | null): Composing {
         standard,
         record,
         deviations,
+        presets: book.presets,
+        unsaved: unsavedAgainst(entry, changes, catalog),
         chooseEntry,
         setSetting,
         revert,
         revertAll,
+        savePreset,
+        deletePreset,
     };
+}
+
+function currentBook(): PresetBook {
+    return typeof window === "undefined" ? EMPTY_BOOK : storedPresets(window.localStorage);
+}
+
+function unsavedAgainst(entry: RulesEntry | null, changes: RuleChanges, catalog: RulesCatalog): boolean {
+    if (entry === null) {
+        return false;
+    }
+    return catalog.settings.some((setting) => !sameValue(changes[setting] ?? null, entry.changes[setting] ?? null));
 }
 
 function standardOf(arrivals: OfferingsResponse | null, entry: RulesEntry | null): RulesConfig | null {

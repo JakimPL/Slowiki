@@ -62,9 +62,13 @@ export function aComposing(record: RulesConfig = someRules()): Composing {
         standard,
         record,
         deviations: deviationsOf(record, standard, RULES_CATALOG),
+        presets: [],
+        unsaved: false,
         chooseEntry: NOTHING,
         setSetting: NOTHING,
         revert: NOTHING,
         revertAll: NOTHING,
+        savePreset: NOTHING,
+        deletePreset: NOTHING,
     };
 }

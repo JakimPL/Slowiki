@@ -31,6 +31,9 @@ export function lastUsed(book: PresetBook, entry: string): PresetBook {
     return { presets: book.presets, last: entry };
 }
 
-export function presetOf(book: PresetBook, id: string): SavedPreset | null {
+export function presetOf(book: PresetBook, id: string | null): SavedPreset | null {
+    if (id === null) {
+        return null;
+    }
     return book.presets.find((held) => held.id === id) ?? null;
 }

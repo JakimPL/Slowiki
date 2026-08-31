@@ -203,6 +203,14 @@ rules:
   expert_label: Ustawienia eksperckie
   expert_hidden: Ukryte
   expert_shown: Widoczne
+  saved_heading: Twoje zapisane zasady
+  save_label: Nazwij te zasady
+  save_placeholder: Zasady domowe
+  save_button: Zapisz
+  saved_none: Nic jeszcze nie zapisano.
+  delete: Usuń
+  export: Kopiuj jako tekst
+  retired: Ta gra nie jest już oferowana.
   value_on: "tak"
   value_off: "nie"
   unlimited: bez limitu
