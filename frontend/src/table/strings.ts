@@ -48,6 +48,16 @@ export const RULES_CLOSE = text("rules.close");
 export const RULES_ROW_LABEL = text("rules.row_label");
 export const RULES_STANDARD = text("rules.standard");
 export const RULES_REVERT_ALL = text("rules.revert_all");
+export const RULES_REVERT = text("rules.revert");
+export const RULES_LIMITED = text("rules.limited");
+export const RULES_UNLIMITED = text("rules.unlimited");
+export const RULES_STEP_UP = text("rules.step_up");
+export const RULES_STEP_DOWN = text("rules.step_down");
+export const RULES_EXPERT_LABEL = text("rules.expert_label");
+export const RULES_EXPERT_HIDDEN = text("rules.expert_hidden");
+export const RULES_EXPERT_SHOWN = text("rules.expert_shown");
+export const VALUE_ON = text("rules.value_on");
+export const VALUE_OFF = text("rules.value_off");
 export const SETTING_LABELS: Record<SettingName, string> = {
     board: text("rules.setting.board"),
     alphabet: text("rules.setting.alphabet"),
@@ -215,6 +225,10 @@ export function rulesCaption(changes: number): string {
     return changes === 0 ? RULES_STANDARD : counted("rules.changed", changes);
 }
 
+export function standardNote(value: string): string {
+    return text("rules.standard_note", { value });
+}
+
 export function deviationCaption(deviation: Deviation): string {
     return `${SETTING_LABELS[deviation.setting]} · ${valueCaption(deviation.control)}`;
 }
@@ -222,11 +236,11 @@ export function deviationCaption(deviation: Deviation): string {
 export function valueCaption(control: Control): string {
     switch (control.kind) {
         case "toggle":
-            return control.value ? text("rules.value_on") : text("rules.value_off");
+            return control.value ? VALUE_ON : VALUE_OFF;
         case "count":
             return String(control.value);
         case "optional_count":
-            return control.value === null ? text("rules.unlimited") : String(control.value);
+            return control.value === null ? RULES_UNLIMITED : String(control.value);
         case "choice":
             return control.value;
         case "seconds":

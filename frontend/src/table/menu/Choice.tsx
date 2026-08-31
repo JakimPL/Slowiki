@@ -1,9 +1,7 @@
 import type { ReactElement } from "react";
 
-export interface Option<Value> {
-    readonly value: Value;
-    readonly caption: string;
-}
+import type { Option } from "./Options";
+import { Options } from "./Options";
 
 export interface ChoiceProps<Value> {
     readonly label: string;
@@ -13,7 +11,7 @@ export interface ChoiceProps<Value> {
     readonly onChoose: (value: Value) => void;
 }
 
-export function Choice<Value extends string | boolean>({
+export function Choice<Value extends string | number | boolean>({
     label,
     note,
     options,
@@ -23,21 +21,7 @@ export function Choice<Value extends string | boolean>({
     return (
         <div className="menu-row">
             <span className="menu-label">{label}</span>
-            <div className="menu-options" role="group" aria-label={label}>
-                {options.map((option) => (
-                    <button
-                        key={String(option.value)}
-                        type="button"
-                        className="menu-option"
-                        aria-pressed={option.value === chosen}
-                        onClick={(): void => {
-                            onChoose(option.value);
-                        }}
-                    >
-                        {option.caption}
-                    </button>
-                ))}
-            </div>
+            <Options label={label} options={options} chosen={chosen} disabled={false} onChoose={onChoose} />
             {note === null ? null : <p className="menu-note">{note}</p>}
         </div>
     );

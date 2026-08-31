@@ -94,13 +94,18 @@ export interface PlainValues {
     readonly "product.tagline": EmptyValues;
     readonly "rules.close": EmptyValues;
     readonly "rules.edited": EmptyValues;
+    readonly "rules.expert_hidden": EmptyValues;
+    readonly "rules.expert_label": EmptyValues;
+    readonly "rules.expert_shown": EmptyValues;
     readonly "rules.group.letters": EmptyValues;
     readonly "rules.group.scoring": EmptyValues;
     readonly "rules.group.table": EmptyValues;
     readonly "rules.group.turns": EmptyValues;
     readonly "rules.group.words": EmptyValues;
     readonly "rules.heading": EmptyValues;
+    readonly "rules.limited": EmptyValues;
     readonly "rules.none": EmptyValues;
+    readonly "rules.revert": EmptyValues;
     readonly "rules.revert_all": EmptyValues;
     readonly "rules.row_label": EmptyValues;
     readonly "rules.setting.alphabet": EmptyValues;
@@ -127,6 +132,9 @@ export interface PlainValues {
     readonly "rules.setting.total_seconds": EmptyValues;
     readonly "rules.setting.validate_on_play": EmptyValues;
     readonly "rules.standard": EmptyValues;
+    readonly "rules.standard_note": { readonly value: string };
+    readonly "rules.step_down": EmptyValues;
+    readonly "rules.step_up": EmptyValues;
     readonly "rules.unlimited": EmptyValues;
     readonly "rules.untimed": EmptyValues;
     readonly "rules.value_off": EmptyValues;

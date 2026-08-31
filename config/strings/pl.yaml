@@ -195,6 +195,14 @@ rules:
       few: "{count:number} zmiany"
       many: "{count:number} zmian"
   revert_all: Wróć do zasad standardowych
+  revert: Przywróć
+  standard_note: "Standardowo: {value}"
+  limited: Z limitem
+  step_up: Zwiększ
+  step_down: Zmniejsz
+  expert_label: Ustawienia eksperckie
+  expert_hidden: Ukryte
+  expert_shown: Widoczne
   value_on: "tak"
   value_off: "nie"
   unlimited: bez limitu

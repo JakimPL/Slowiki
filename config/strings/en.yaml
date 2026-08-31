@@ -190,6 +190,14 @@ rules:
       one: "{count:number} change"
       other: "{count:number} changes"
   revert_all: Back to the standard rules
+  revert: Put back
+  standard_note: "Standard: {value}"
+  limited: Limited
+  step_up: Raise
+  step_down: Lower
+  expert_label: Expert settings
+  expert_hidden: Hidden
+  expert_shown: Shown
   value_on: "on"
   value_off: "off"
   unlimited: any number
