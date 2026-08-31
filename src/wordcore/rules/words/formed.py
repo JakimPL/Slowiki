@@ -37,10 +37,16 @@ def formed_words(
     return _straight_words(combined, placements, new_indices)
 
 
-def validate_anchor(board: Board, placements: tuple[Placement, ...]) -> None:
+def validate_anchor(
+    board: Board,
+    placements: tuple[Placement, ...],
+    *,
+    opening_tiles: int,
+    opening_covers_center: bool,
+) -> None:
     if board.is_empty():
-        _ensure_opening_size(placements)
-        _ensure_covers_center(board, placements)
+        _ensure_opening_size(placements, opening_tiles)
+        _ensure_covers_center(board, placements, opening_covers_center)
         return
 
     _ensure_touches_existing(board, placements)
@@ -297,15 +303,19 @@ def _to_word(
     )
 
 
-def _ensure_opening_size(placements: tuple[Placement, ...]) -> None:
-    if len(placements) < 2:
-        raise IllegalMove("the first move requires at least two tiles")
+def _ensure_opening_size(placements: tuple[Placement, ...], opening_tiles: int) -> None:
+    if len(placements) < opening_tiles:
+        raise IllegalMove(f"the first move requires at least {opening_tiles} tiles")
 
 
 def _ensure_covers_center(
     board: Board,
     placements: tuple[Placement, ...],
+    opening_covers_center: bool,
 ) -> None:
+    if not opening_covers_center:
+        return
+
     center = board.center()
     if not any(placement.row == center and placement.column == center for placement in placements):
         raise IllegalMove("the first move must cover the center square")

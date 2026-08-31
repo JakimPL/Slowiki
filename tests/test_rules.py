@@ -95,7 +95,21 @@ def test_anchor_first_move_must_cover_center() -> None:
     board = make_board(3, (None,) * 9)
     placements = (Placement(tile=tile(1, "a", 1, "yellow"), row=0, column=0),)
     with pytest.raises(IllegalMove):
-        validate_anchor(board, placements)
+        validate_anchor(board, placements, opening_tiles=1, opening_covers_center=True)
+
+
+def test_an_opening_stands_off_the_center_when_the_rules_let_it() -> None:
+    board = make_board(3, (None,) * 9)
+    placements = (Placement(tile=tile(1, "a", 1, "yellow"), row=0, column=0),)
+    validate_anchor(board, placements, opening_tiles=1, opening_covers_center=False)
+
+
+def test_an_opening_states_how_many_tiles_it_takes() -> None:
+    board = make_board(3, (None,) * 9)
+    placements = (Placement(tile=tile(1, "a", 1, "yellow"), row=1, column=1),)
+    validate_anchor(board, placements, opening_tiles=1, opening_covers_center=True)
+    with pytest.raises(IllegalMove, match="at least 2 tiles"):
+        validate_anchor(board, placements, opening_tiles=2, opening_covers_center=True)
 
 
 def test_anchor_requires_connection() -> None:
@@ -103,7 +117,7 @@ def test_anchor_requires_connection() -> None:
     board = board.with_tiles({board.index(0, 0): tile(1, "a", 1, "yellow")})
     placements = (Placement(tile=tile(2, "b", 1, "yellow"), row=2, column=2),)
     with pytest.raises(IllegalMove):
-        validate_anchor(board, placements)
+        validate_anchor(board, placements, opening_tiles=2, opening_covers_center=True)
 
 
 def test_score_category_match() -> None:
@@ -233,8 +247,9 @@ def test_final_scores() -> None:
             )
         }
     )
-    assert final_scores(position, went_out=0) == {0: 8, 1: 19}
-    assert final_scores(position, went_out=None) == {0: 7, 1: 19}
+    assert final_scores(position, went_out=0, going_out_award=True) == {0: 8, 1: 19}
+    assert final_scores(position, went_out=None, going_out_award=True) == {0: 7, 1: 19}
+    assert final_scores(position, went_out=0, going_out_award=False) == {0: 7, 1: 19}
 
 
 def test_next_seat() -> None:

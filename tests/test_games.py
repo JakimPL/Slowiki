@@ -1,4 +1,5 @@
 import random
+from typing import Final
 
 import pytest
 
@@ -37,18 +38,24 @@ def make_board() -> Board:
     return Board(size=3, bonuses=(None,) * 9, tiles=(None,) * 9)
 
 
+TINY_PARAMETERS: Final = GameParameters(
+    rack_size=2,
+    validate_on_play=True,
+    exchange_limit=None,
+    exchange_min_bag=7,
+    pass_allowed=True,
+    opening_tiles=2,
+    opening_covers_center=True,
+    pass_end_rounds=2,
+    scoreless_end_limit=None,
+    bingo_bonus=50,
+    bingo_tiles=None,
+    going_out_award=True,
+)
+
+
 def make_rules(lexicon: Lexicon, players: tuple[int, ...] = (0, 1)) -> WordGameRules:
-    parameters = GameParameters(
-        rack_size=2,
-        validate_on_play=True,
-        exchange_limit=None,
-        exchange_min_bag=7,
-        pass_allowed=True,
-        pass_end_rounds=2,
-        scoreless_end_limit=None,
-        bingo_bonus=50,
-    )
-    return WordGameRules(players, make_board(), TINY_TILES, lexicon, parameters)
+    return WordGameRules(players, make_board(), TINY_TILES, lexicon, TINY_PARAMETERS)
 
 
 def make_position(
@@ -297,16 +304,7 @@ def test_pass_rounds_scale_with_the_seat_count() -> None:
 
 
 def test_solo_unlimited_deals_all_tiles() -> None:
-    parameters = GameParameters(
-        rack_size=None,
-        validate_on_play=True,
-        exchange_limit=None,
-        exchange_min_bag=7,
-        pass_allowed=True,
-        pass_end_rounds=None,
-        scoreless_end_limit=None,
-        bingo_bonus=50,
-    )
+    parameters = TINY_PARAMETERS.model_copy(update={"rack_size": None, "pass_end_rounds": None})
     rules = WordGameRules(
         (0,), make_board(), TINY_TILES, TextLexicon.from_words(["ab"]), parameters
     )
@@ -369,3 +367,69 @@ def test_a_game_yet_to_be_played_has_no_highlights() -> None:
     game = Game(rules, random.Random(0), premoves_allowed=True)
     assert game.highlights().best_word is None
     assert game.highlights().longest_word is None
+
+
+def test_a_bingo_fires_at_the_tile_count_the_rules_state() -> None:
+    rules = WordGameRules(
+        (0, 1),
+        make_board(),
+        TINY_TILES,
+        TextLexicon.from_words(["ab"]),
+        TINY_PARAMETERS.model_copy(update={"rack_size": 3, "bingo_tiles": 2}),
+    )
+    position = make_position(
+        racks={
+            0: (
+                make_tile(1, "a", 1, "yellow"),
+                make_tile(2, "b", 2, "green"),
+                make_tile(5, "a", 1, "yellow"),
+            ),
+            1: (make_tile(3, "a", 1, "yellow"), make_tile(4, "b", 2, "green")),
+        },
+        bag=(make_tile(6, "b", 2, "green"),),
+    )
+    move = Move(
+        player=0,
+        action=Play(
+            placements=(
+                PlayPlacement(tile_id=1, row=1, column=0),
+                PlayPlacement(tile_id=2, row=1, column=1),
+            )
+        ),
+    )
+    record = rules.apply(position, move, random.Random(0)).state.last_play
+    assert record is not None
+    assert record.bingo == 50
+
+
+def test_a_bingo_stays_quiet_below_the_tile_count() -> None:
+    rules = WordGameRules(
+        (0, 1),
+        make_board(),
+        TINY_TILES,
+        TextLexicon.from_words(["ab"]),
+        TINY_PARAMETERS.model_copy(update={"rack_size": 3, "bingo_tiles": 3}),
+    )
+    position = make_position(
+        racks={
+            0: (
+                make_tile(1, "a", 1, "yellow"),
+                make_tile(2, "b", 2, "green"),
+                make_tile(5, "a", 1, "yellow"),
+            ),
+            1: (make_tile(3, "a", 1, "yellow"), make_tile(4, "b", 2, "green")),
+        },
+        bag=(make_tile(6, "b", 2, "green"),),
+    )
+    move = Move(
+        player=0,
+        action=Play(
+            placements=(
+                PlayPlacement(tile_id=1, row=1, column=0),
+                PlayPlacement(tile_id=2, row=1, column=1),
+            )
+        ),
+    )
+    record = rules.apply(position, move, random.Random(0)).state.last_play
+    assert record is not None
+    assert record.bingo == 0

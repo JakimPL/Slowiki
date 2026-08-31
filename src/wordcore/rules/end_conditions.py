@@ -17,10 +17,15 @@ def opponents_rack_total(deductions: dict[int, int], went_out: int) -> int:
     return sum(value for seat, value in deductions.items() if seat != went_out)
 
 
-def final_scores(position: Position, went_out: int | None) -> dict[int, int]:
+def final_scores(
+    position: Position,
+    went_out: int | None,
+    *,
+    going_out_award: bool,
+) -> dict[int, int]:
     deductions = rack_deductions(position)
     scores = deducted_scores(position, deductions)
-    if went_out is not None:
-        scores[went_out] += opponents_rack_total(deductions, went_out)
+    if went_out is None or not going_out_award:
+        return scores
 
-    return scores
+    return {**scores, went_out: scores[went_out] + opponents_rack_total(deductions, went_out)}

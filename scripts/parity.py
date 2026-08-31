@@ -26,6 +26,7 @@ _LETTERS: Final = "AĄBCĆDEĘKLŁNOÓRSTWZŻ"
 _CATEGORIES: Final = ("yellow", "green", "blue", "red")
 _MAX_VALUE: Final = 5
 _MAX_PLACED: Final = 4
+_OPENING_TILES: Final = 2
 _OPENING_MAX: Final = 5
 _BLANK_CHANCE: Final = 0.1
 
@@ -95,7 +96,7 @@ def _opening_placements(
     cases: list[dict[str, Any]],
 ) -> tuple[Placement, ...]:
     center = _SIZE // 2
-    length = rng.randint(2, _OPENING_MAX)
+    length = rng.randint(_OPENING_TILES, _OPENING_MAX)
     start = rng.randint(center - length + 1, center)
     placements = tuple(
         Placement(tile=mint.tile(), row=center, column=start + offset) for offset in range(length)
@@ -113,7 +114,12 @@ def _legal_placements(
     for _ in range(_ATTEMPTS):
         placements = _proposed(rng, mint, board)
         try:
-            validate_anchor(board, placements)
+            validate_anchor(
+                board,
+                placements,
+                opening_tiles=_OPENING_TILES,
+                opening_covers_center=True,
+            )
             formed_words(board, placements)
         except IllegalMove:
             continue

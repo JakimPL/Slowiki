@@ -112,7 +112,12 @@ class WordGameRules(Rules):
         action: Play,
     ) -> None:
         placements = self._resolve_placements(position, player, action)
-        validate_anchor(position.board, placements)
+        validate_anchor(
+            position.board,
+            placements,
+            opening_tiles=self._parameters.opening_tiles,
+            opening_covers_center=self._parameters.opening_covers_center,
+        )
         words = formed_words(position.board, placements)
         validate_words(
             self._lexicon,
@@ -268,7 +273,11 @@ class WordGameRules(Rules):
         new_state = position.state.model_copy(
             update={
                 "phase": Phase.GAME_OVER,
-                "scores": final_scores(position, went_out),
+                "scores": final_scores(
+                    position,
+                    went_out,
+                    going_out_award=self._parameters.going_out_award,
+                ),
                 "to_act": frozenset(),
             }
         )
@@ -299,11 +308,17 @@ class WordGameRules(Rules):
         return tuple(result)
 
     def _bingo_bonus(self, played: int) -> int:
-        rack_size = self._parameters.rack_size
-        if rack_size is not None and played == rack_size:
+        threshold = self._bingo_threshold()
+        if threshold is not None and played >= threshold:
             return self._parameters.bingo_bonus
 
         return 0
+
+    def _bingo_threshold(self) -> int | None:
+        if self._parameters.bingo_tiles is not None:
+            return self._parameters.bingo_tiles
+
+        return self._parameters.rack_size
 
     @staticmethod
     def _resolved_tile(

@@ -18,9 +18,13 @@ def build_rules(
         exchange_limit=rules.exchange_limit,
         exchange_min_bag=rules.exchange_min_bag,
         pass_allowed=rules.pass_allowed,
+        opening_tiles=rules.opening_tiles,
+        opening_covers_center=rules.opening_covers_center,
         pass_end_rounds=rules.pass_end_rounds,
         scoreless_end_limit=rules.scoreless_end_limit,
         bingo_bonus=rules.bingo_bonus,
+        bingo_tiles=rules.bingo_tiles,
+        going_out_award=rules.going_out_award,
     )
     return WordGameRules(
         players,

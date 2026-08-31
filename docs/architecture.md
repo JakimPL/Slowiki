@@ -94,6 +94,39 @@ letters and the word list a scheme names, all of them settings, so the rules
 class is chosen by nothing and `build_rules` translates the record into
 `wordgames.backend.parameters.GameParameters` for it.
 
+## Fixed policy
+
+Four rules a scheme tunes reach the kernel as keyword-only scalars on pure
+functions, the way `validate_exchange` and `validate_words` already took theirs:
+how many tiles the opening play takes and whether it covers the center
+(`validate_anchor`), how many tiles earn the bingo bonus
+(`WordGameRules._bingo_bonus`, where `bingo_tiles` left unstated means the whole
+rack), and whether the seat that goes out takes the opponents' rack totals
+(`final_scores`). `wordcore` stays configuration-ignorant; `wordgames` holds the
+only parameters record.
+
+The rest is policy the engine fixes, and this is the whole list:
+
+- Turn order is seat order, and seat 0 moves first.
+- A blank is worth nothing and carries the category `blank`, which board art may
+  paint and a letter adjustment may not claim. A blank takes any alphabetic
+  character as its letter for the play.
+- A play takes at least one tile, and tiles adjoin orthogonally.
+- A seat goes out by emptying its rack while the bag is empty. Final scoring
+  deducts each seat's remaining rack.
+- A one-seat table ends when the seat empties its rack or passes once, whichever
+  comes first — the solitaire ending, which a one-seat literaki table inherits.
+- `pass_end_rounds` counts rounds, so the limit it sets is
+  `pass_end_rounds × seats` consecutive passes.
+- An exchange limit counts exchanges rather than tiles, and exchanged tiles
+  return to the back of the bag.
+- A word is judged or it is not: the table states `validate_on_play`, and there
+  is no challenge.
+- The bag shuffle draws from an unseeded `random.Random()`, recorded in the
+  initial position (P2).
+- A board is a preset file: a table picks one, and painting individual squares
+  belongs to configuration.
+
 ## Frontend
 
 The player interface lives in `frontend/` and splits into two strata: one reasons about the game on

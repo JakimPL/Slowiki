@@ -7,6 +7,10 @@ class GameParameters(BaseFrozen):
     exchange_limit: int | None
     exchange_min_bag: int
     pass_allowed: bool
+    opening_tiles: int
+    opening_covers_center: bool
     pass_end_rounds: int | None
     scoreless_end_limit: int | None
     bingo_bonus: int
+    bingo_tiles: int | None
+    going_out_award: bool
