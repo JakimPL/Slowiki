@@ -11,6 +11,7 @@ from wordcore.lexicon.protocol import Lexicon
 from wordcore.moves.action import Exchange, Pass, Play, PlayPlacement
 from wordcore.moves.move import Move
 from wordcore.positions.position import Position
+from wordcore.rules.ending import Ending
 from wordcore.states.state import Phase, WordState
 from wordcore.tiles.tile import LetterSpec, Tile
 from wordcore.tiles.tileset import TileSet
@@ -50,6 +51,7 @@ TINY_PARAMETERS: Final = GameParameters(
     scoreless_end_limit=None,
     bingo_bonus=50,
     bingo_tiles=None,
+    ending=Ending.FIRST_OUT,
     rack_penalties=True,
     going_out_award=True,
     going_out_bonus=0,
@@ -281,6 +283,38 @@ def test_two_rounds_of_passes_end_game() -> None:
 
     assert position.state.phase == Phase.GAME_OVER
     assert position.state.scores == {0: -1, 1: -2}
+
+
+def test_a_first_out_table_ends_the_moment_a_rack_empties() -> None:
+    finished = _went_out(_ruled({"bingo_bonus": 0}))
+    assert finished.state.phase == Phase.GAME_OVER
+    assert finished.state.went_out == 0
+
+
+def test_an_all_out_table_plays_on_past_the_first_finisher() -> None:
+    rules = _ruled({"bingo_bonus": 0, "ending": Ending.ALL_OUT})
+    standing = _went_out(rules)
+    assert standing.state.phase == Phase.TURN
+    assert standing.state.went_out == 0
+    assert standing.state.to_act == frozenset({1})
+
+
+def test_an_all_out_table_skips_a_seat_that_is_out() -> None:
+    rules = _ruled({"bingo_bonus": 0, "ending": Ending.ALL_OUT})
+    standing = _went_out(rules)
+    passed = rules.apply(standing, Move(player=1, action=Pass()), random.Random(0))
+    assert passed.state.phase == Phase.TURN
+    assert passed.state.to_act == frozenset({1})
+
+
+def test_an_all_out_table_ends_when_the_last_rack_empties() -> None:
+    rules = _ruled({"bingo_bonus": 0, "ending": Ending.ALL_OUT})
+    standing = _went_out(rules)
+    closing = Move(player=1, action=Play(placements=(PlayPlacement(tile_id=3, row=0, column=1),)))
+    finished = rules.apply(standing, closing, random.Random(0))
+    assert finished.state.phase == Phase.GAME_OVER
+    assert finished.state.went_out == 0
+    assert finished.state.scores == {0: 3, 1: 3}
 
 
 def test_a_table_without_rack_penalties_keeps_the_scores_it_earned() -> None:

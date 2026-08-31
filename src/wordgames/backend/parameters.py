@@ -1,4 +1,5 @@
 from wordcore.models.base import BaseFrozen
+from wordcore.rules.ending import Ending
 
 
 class GameParameters(BaseFrozen):
@@ -13,6 +14,7 @@ class GameParameters(BaseFrozen):
     scoreless_end_limit: int | None
     bingo_bonus: int
     bingo_tiles: int | None
+    ending: Ending
     rack_penalties: bool
     going_out_award: bool
     going_out_bonus: int

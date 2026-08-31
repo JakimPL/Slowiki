@@ -42,5 +42,5 @@ def _described(allowance: Allowance, choices: tuple[str, ...] | None) -> Setting
         step=allowance.step,
         unlimited=allowance.unlimited,
         offered=allowance.offered,
-        choices=choices,
+        choices=choices if choices is not None else allowance.choices,
     )

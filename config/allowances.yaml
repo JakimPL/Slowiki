@@ -78,6 +78,11 @@ allowances:
     maximum: 15
     step: 1
     unlimited: true
+  - setting: ending
+    group: scoring
+    tier: common
+    kind: choice
+    choices: [first_out, all_out]
   - setting: rack_penalties
     group: scoring
     tier: common

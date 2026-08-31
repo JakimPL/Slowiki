@@ -11,6 +11,7 @@ from wordcore.positions.position import Position
 from wordcore.rules.end_conditions import final_scores
 from wordcore.rules.exchange import apply_exchange, validate_exchange
 from wordcore.rules.score.scoring import score_move
+from wordcore.rules.turn import next_seat, next_seat_among
 from wordcore.rules.validity import validate_words
 from wordcore.rules.words.formed import formed_words, validate_anchor
 from wordcore.rules.words.placement import Placement
@@ -298,8 +299,12 @@ def _scored(
 
 
 def test_next_seat() -> None:
-    from wordcore.rules.turn import next_seat
-
     assert next_seat((0, 1, 2), 0) == 1
     assert next_seat((0, 1, 2), 2) == 0
     assert next_seat((0,), 0) == 0
+
+
+def test_next_seat_among_walks_past_the_seats_that_are_out() -> None:
+    assert next_seat_among((0, 1, 2), 0, frozenset({0, 2})) == 2
+    assert next_seat_among((0, 1, 2), 2, frozenset({2})) == 2
+    assert next_seat_among((0, 1, 2), 0, frozenset()) == 1

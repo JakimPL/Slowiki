@@ -3,6 +3,7 @@ from pydantic import field_validator
 from lexica.names import DictionaryName
 from wordcore.models.base import BaseFrozen
 from wordcore.models.letters import CanonicalSymbol
+from wordcore.rules.ending import Ending
 from wordtable.names import PresetName
 from wordtable.presets.adjustment import LetterAdjustment
 
@@ -24,6 +25,7 @@ class RulesConfig(BaseFrozen):
     opening_covers_center: bool
     bingo_bonus: int
     bingo_tiles: int | None
+    ending: Ending
     rack_penalties: bool
     going_out_award: bool
     going_out_bonus: int

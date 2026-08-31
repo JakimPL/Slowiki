@@ -5,6 +5,7 @@ import pytest
 from scripts.strings import CATALOG_DIR, Catalog, locale_names, read_catalog
 
 from lexica.names import DictionaryName
+from wordcore.rules.ending import Ending
 from wordcore.tiles.blank import BLANK_CATEGORY
 from wordtable.allowances.group import SettingGroup
 from wordtable.allowances.name import SettingName
@@ -44,7 +45,7 @@ def categories_on_disk() -> tuple[str, ...]:
 
 
 def choices_on_disk() -> tuple[str, ...]:
-    named = {name.value for name in DictionaryName}
+    named = {name.value for name in DictionaryName} | {ending.value for ending in Ending}
     for kind in PRESET_KINDS:
         named.update(list_presets(CONFIG_DIR, kind))
 

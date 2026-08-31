@@ -16,6 +16,7 @@ rules:
   opening_covers_center: true
   bingo_bonus: 50
   bingo_tiles: null
+  ending: first_out
   rack_penalties: true
   going_out_award: true
   going_out_bonus: 0

@@ -42,6 +42,7 @@ arrive:
 seats:
   open_seat: Open seat
   you_marker: you
+  out_marker: out
   players_label: Players
   your_turn: Your turn
   fallback_name: "Player {seat:number}"
@@ -234,6 +235,8 @@ rules:
     red: Red
     blank: Blank
   choice:
+    first_out: The first player to run out
+    all_out: Every player runs out
     literaki: Literaki
     scrabble: Scrabble
     scrabble-en: Scrabble (English)
@@ -265,6 +268,7 @@ rules:
     opening_covers_center: The opening word crosses the centre
     bingo_bonus: Bonus for using the whole rack
     bingo_tiles: Tiles a bonus play must use
+    ending: When the game ends
     rack_penalties: Leftover letters count against a player
     going_out_award: Finisher takes opponents' racks
     going_out_bonus: Bonus for going out first

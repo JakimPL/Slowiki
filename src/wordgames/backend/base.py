@@ -8,11 +8,12 @@ from wordcore.moves.action import Exchange, Pass, Play, PlayPlacement
 from wordcore.moves.move import Move
 from wordcore.positions.position import Position
 from wordcore.rules.end_conditions import final_scores
+from wordcore.rules.ending import Ending
 from wordcore.rules.exchange import apply_exchange, validate_exchange
 from wordcore.rules.rack import rack_of
 from wordcore.rules.score.move import MoveScore
 from wordcore.rules.score.scoring import score_move
-from wordcore.rules.turn import next_seat
+from wordcore.rules.turn import next_seat_among
 from wordcore.rules.validity import validate_words
 from wordcore.rules.words.formed import formed_words, validate_anchor
 from wordcore.rules.words.placement import Placement, board_with_placements
@@ -220,16 +221,37 @@ class WordGameRules(Rules):
         *,
         went_out: int | None,
     ) -> Position:
-        if went_out is not None:
-            return self._finish_game(position, went_out=went_out)
+        standing = self._remembering_the_finisher(position, went_out)
+        if self._ending_reached(standing):
+            return self._finish_game(standing)
 
-        if self._end_limit_reached(position.state):
-            return self._finish_game(position, went_out=None)
+        if self._end_limit_reached(standing.state):
+            return self._finish_game(standing)
 
-        if self._solo_ended(position, mover):
-            return self._finish_game(position, went_out=None)
+        if self._solo_ended(standing, mover):
+            return self._finish_game(standing)
 
-        return self._advance_turn(position, mover)
+        return self._advance_turn(standing, mover)
+
+    def _remembering_the_finisher(self, position: Position, went_out: int | None) -> Position:
+        if went_out is None or position.state.went_out is not None:
+            return position
+
+        return position.model_copy(
+            update={"state": position.state.model_copy(update={"went_out": went_out})}
+        )
+
+    def _ending_reached(self, position: Position) -> bool:
+        if self._parameters.ending is Ending.FIRST_OUT:
+            return position.state.went_out is not None
+
+        return not self._still_playing(position)
+
+    def _still_playing(self, position: Position) -> frozenset[int]:
+        if position.state.bag:
+            return frozenset(self._players)
+
+        return frozenset(seat for seat in self._players if rack_of(position, seat))
 
     def _end_limit_reached(self, state: WordState) -> bool:
         return self._passes_exhausted(state) or self._scoreless_exhausted(state)
@@ -255,7 +277,7 @@ class WordGameRules(Rules):
         return not rack_of(position, mover) or position.state.consecutive_passes >= 1
 
     def _advance_turn(self, position: Position, mover: int) -> Position:
-        next_player = next_seat(self._players, mover)
+        next_player = next_seat_among(self._players, mover, self._still_playing(position))
         new_state = position.state.model_copy(
             update={
                 "to_act": frozenset({next_player}),
@@ -264,18 +286,13 @@ class WordGameRules(Rules):
         )
         return position.model_copy(update={"state": new_state})
 
-    def _finish_game(
-        self,
-        position: Position,
-        *,
-        went_out: int | None,
-    ) -> Position:
+    def _finish_game(self, position: Position) -> Position:
         new_state = position.state.model_copy(
             update={
                 "phase": Phase.GAME_OVER,
                 "scores": final_scores(
                     position,
-                    went_out,
+                    position.state.went_out,
                     rack_penalties=self._parameters.rack_penalties,
                     going_out_award=self._parameters.going_out_award,
                     going_out_bonus=self._parameters.going_out_bonus,

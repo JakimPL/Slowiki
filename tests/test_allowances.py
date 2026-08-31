@@ -9,6 +9,7 @@ from wordtable.allowances.allowance import Allowance
 from wordtable.allowances.bounds import SettingBounds
 from wordtable.allowances.catalog import AllowanceCatalog
 from wordtable.allowances.choices import offered_choices
+from wordtable.allowances.described import setting_allowances
 from wordtable.allowances.group import SettingGroup
 from wordtable.allowances.kind import BOUNDED_KINDS, SettingKind
 from wordtable.allowances.load import load_allowances
@@ -211,6 +212,17 @@ def test_every_rung_is_a_value_a_table_may_state() -> None:
             assert bounds.minimum <= rung <= bounds.maximum
             settled_value = settled(allowance.setting, rung).rules.model_dump()
             assert settled_value[allowance.setting.value] == rung
+
+
+def test_a_choice_the_disk_does_not_hold_names_its_own_values() -> None:
+    described = {allowance.setting: allowance for allowance in setting_allowances(CONFIG_DIR)}
+    assert described[SettingName.ENDING].choices == ("first_out", "all_out")
+    assert described[SettingName.BOARD].choices == ("literaki", "scrabble")
+
+
+def test_a_row_that_is_no_choice_names_no_values() -> None:
+    with pytest.raises(InvalidConfiguration, match="names some"):
+        row(SettingKind.TOGGLE, choices=("yes", "no"))
 
 
 def test_every_clock_setting_offers_rungs() -> None:

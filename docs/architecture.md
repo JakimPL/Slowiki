@@ -16,7 +16,10 @@ P3. The board is mechanism, rules are policy. The board stores squares and
     bonuses; the scoring and validity kernel interprets them.
 
 P4. Only projections cross the wire. The server derives a per-observer view and
-    hides racks and premoves of other seats.
+    hides racks and premoves of other seats. What a hidden rack implies and every
+    seat is owed travels as its own fact: `out_of_tiles` names the seats holding
+    nothing while the bag is empty, so a player watching the turn skip a seat is
+    told why.
 
 P5. The journal is append-only. Each move appends a transaction of the form
     `(sequence, move, resulting_position)`.
@@ -108,14 +111,15 @@ class is chosen by nothing and `build_rules` translates the record into
 
 ## Fixed policy
 
-Six rules a scheme tunes reach the kernel as keyword-only scalars on pure
+Seven rules a scheme tunes reach the kernel as keyword-only scalars on pure
 functions, the way `validate_exchange` and `validate_words` already took theirs:
 how many tiles the opening play takes and whether it covers the center
 (`validate_anchor`), how many tiles earn the bingo bonus
 (`WordGameRules._bingo_bonus`, where `bingo_tiles` left unstated means the whole
-rack), and the three that close a game — whether a seat's leftover letters count
-against it, whether the seat that goes out takes the opponents' rack totals, and
-the flat bonus that seat earns (`final_scores`). `wordcore` stays
+rack), when the game ends (`Ending`, read by `WordGameRules._ending_reached`), and
+the three that close it — whether a seat's leftover letters count against it,
+whether the seat that goes out takes the opponents' rack totals, and the flat bonus
+that seat earns (`final_scores`). `wordcore` stays
 configuration-ignorant; `wordgames` holds the only parameters record.
 
 The rest is policy the engine fixes, and this is the whole list:
@@ -125,11 +129,15 @@ The rest is policy the engine fixes, and this is the whole list:
   paint and a letter adjustment may not claim. A blank takes any alphabetic
   character as its letter for the play.
 - A play takes at least one tile, and tiles adjoin orthogonally.
-- A seat goes out by emptying its rack while the bag is empty. What the closing
-  arithmetic makes of that is the table's to state: `rack_penalties` deducts each
-  seat's remaining rack, `going_out_award` hands those totals to the finisher, and
+- A seat goes out by emptying its rack while the bag is empty, and the state
+  remembers the first seat to do it. When that ends the game is the table's to
+  state: `first_out` closes on the first empty rack, `all_out` plays on past it,
+  skipping every seat that is out until the last rack empties. What the closing
+  arithmetic makes of it is the table's too: `rack_penalties` deducts each seat's
+  remaining rack, `going_out_award` hands those totals to the finisher, and
   `going_out_bonus` pays the finisher a flat sum, which is what still rewards going
-  out when the award is off.
+  out when the award is off — and under `all_out`, where every rack usually ends
+  empty, the flat bonus is the whole of it.
 - A one-seat table ends when the seat empties its rack or passes once, whichever
   comes first — the solitaire ending, which a one-seat literaki table inherits.
 - `pass_end_rounds` counts rounds, so the limit it sets is

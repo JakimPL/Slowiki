@@ -100,7 +100,9 @@ export interface PlainValues {
     readonly "rules.category.red": EmptyValues;
     readonly "rules.category.standard": EmptyValues;
     readonly "rules.category.yellow": EmptyValues;
+    readonly "rules.choice.all_out": EmptyValues;
     readonly "rules.choice.english": EmptyValues;
+    readonly "rules.choice.first_out": EmptyValues;
     readonly "rules.choice.literaki": EmptyValues;
     readonly "rules.choice.osps": EmptyValues;
     readonly "rules.choice.polish": EmptyValues;
@@ -143,6 +145,7 @@ export interface PlainValues {
     readonly "rules.setting.board": EmptyValues;
     readonly "rules.setting.dictionary": EmptyValues;
     readonly "rules.setting.distribution": EmptyValues;
+    readonly "rules.setting.ending": EmptyValues;
     readonly "rules.setting.exchange_limit": EmptyValues;
     readonly "rules.setting.exchange_min_bag": EmptyValues;
     readonly "rules.setting.going_out_award": EmptyValues;
@@ -188,6 +191,7 @@ export interface PlainValues {
     readonly "seats.notice_off": EmptyValues;
     readonly "seats.notice_on": EmptyValues;
     readonly "seats.open_seat": EmptyValues;
+    readonly "seats.out_marker": EmptyValues;
     readonly "seats.players_label": EmptyValues;
     readonly "seats.standing_reopen": EmptyValues;
     readonly "seats.unresolved": EmptyValues;

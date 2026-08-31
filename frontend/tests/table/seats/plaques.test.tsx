@@ -39,6 +39,16 @@ describe("Plaques", () => {
         expect(markup).toContain("plaque-premove");
     });
 
+    it("marks a seat that has run out of tiles", () => {
+        const view = aView({ out_of_tiles: [1] });
+        const markup = renderToStaticMarkup(
+            <Plaques view={view} company={aCompany()} mySeat={null} clocks={NO_CLOCKS} clocked={false} />,
+        );
+        expect(markup).toContain(">out<");
+        expect(markup).toContain('data-out="true"');
+        expect(markup.match(/plaque-out/g)).toHaveLength(1);
+    });
+
     it("gives every plaque a clock line and counts down on the timed seat", () => {
         const clocks = new Map<number, SeatClock>([[1, { caption: "1:12", urgency: "critical" }]]);
         const markup = renderToStaticMarkup(

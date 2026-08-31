@@ -422,6 +422,11 @@ export interface components {
             readonly name: string;
         };
         /**
+         * Ending
+         * @enum {string}
+         */
+        readonly Ending: "first_out" | "all_out";
+        /**
          * EntryKind
          * @enum {string}
          */
@@ -690,6 +695,8 @@ export interface components {
                 readonly [key: string]: number;
             };
             readonly last_play: components["schemas"]["PlayRecord"] | null;
+            /** Out Of Tiles */
+            readonly out_of_tiles: readonly number[];
             /** Pending Premoves */
             readonly pending_premoves: readonly number[];
             readonly phase: components["schemas"]["Phase"];
@@ -762,6 +769,7 @@ export interface components {
             readonly dictionary: components["schemas"]["DictionaryName"];
             /** Distribution */
             readonly distribution: string;
+            readonly ending: components["schemas"]["Ending"];
             /** Exchange Limit */
             readonly exchange_limit: number | null;
             /** Exchange Min Bag */
@@ -852,7 +860,7 @@ export interface components {
          * SettingName
          * @enum {string}
          */
-        readonly SettingName: "board" | "alphabet" | "distribution" | "dictionary" | "seats" | "rack_size" | "blanks" | "validate_on_play" | "premoves" | "pass_allowed" | "exchange_limit" | "exchange_min_bag" | "opening_tiles" | "opening_covers_center" | "bingo_bonus" | "bingo_tiles" | "rack_penalties" | "going_out_award" | "going_out_bonus" | "pass_end_rounds" | "scoreless_end_limit" | "per_turn_seconds" | "total_seconds" | "increment_seconds" | "letters";
+        readonly SettingName: "board" | "alphabet" | "distribution" | "dictionary" | "seats" | "rack_size" | "blanks" | "validate_on_play" | "premoves" | "pass_allowed" | "exchange_limit" | "exchange_min_bag" | "opening_tiles" | "opening_covers_center" | "bingo_bonus" | "bingo_tiles" | "ending" | "rack_penalties" | "going_out_award" | "going_out_bonus" | "pass_end_rounds" | "scoreless_end_limit" | "per_turn_seconds" | "total_seconds" | "increment_seconds" | "letters";
         /**
          * SettingTier
          * @enum {string}

@@ -18,6 +18,7 @@ class SettingName(StrEnum):
     OPENING_COVERS_CENTER = "opening_covers_center"
     BINGO_BONUS = "bingo_bonus"
     BINGO_TILES = "bingo_tiles"
+    ENDING = "ending"
     RACK_PENALTIES = "rack_penalties"
     GOING_OUT_AWARD = "going_out_award"
     GOING_OUT_BONUS = "going_out_bonus"

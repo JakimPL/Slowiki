@@ -681,6 +681,21 @@ button.status-line {
     font-weight: 600;
 }
 
+.plaque-out {
+    flex: none;
+    padding: 0 6px;
+    border: 1px solid var(--chrome-edge);
+    border-radius: 999px;
+    color: var(--chrome-muted);
+    font-size: 10.5px;
+    font-style: normal;
+    font-weight: 600;
+}
+
+.plaque[data-out="true"] .plaque-name-text {
+    color: var(--chrome-muted);
+}
+
 .plaque-premove {
     flex: none;
     width: 7px;

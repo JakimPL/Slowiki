@@ -83,6 +83,8 @@ const CATEGORY_LABELS: Record<string, string> = {
     blank: text("rules.category.blank"),
 };
 const CHOICE_LABELS: Record<string, string> = {
+    first_out: text("rules.choice.first_out"),
+    all_out: text("rules.choice.all_out"),
     literaki: text("rules.choice.literaki"),
     scrabble: text("rules.choice.scrabble"),
     "scrabble-en": text("rules.choice.scrabble-en"),
@@ -118,6 +120,7 @@ export const SETTING_LABELS: Record<SettingName, string> = {
     opening_covers_center: text("rules.setting.opening_covers_center"),
     bingo_bonus: text("rules.setting.bingo_bonus"),
     bingo_tiles: text("rules.setting.bingo_tiles"),
+    ending: text("rules.setting.ending"),
     rack_penalties: text("rules.setting.rack_penalties"),
     going_out_award: text("rules.setting.going_out_award"),
     going_out_bonus: text("rules.setting.going_out_bonus"),
@@ -137,6 +140,7 @@ export const GROUP_LABELS: Record<SettingGroup, string> = {
 };
 export const OPEN_SEAT_LABEL = text("seats.open_seat");
 export const YOU_MARKER = text("seats.you_marker");
+export const OUT_MARKER = text("seats.out_marker");
 export const YOUR_TURN_CAPTION = text("seats.your_turn");
 export const GAME_OVER_HEADING = text("sheets.game_over_heading");
 export const GAME_OVER_VICTORY = text("sheets.game_over_victory");

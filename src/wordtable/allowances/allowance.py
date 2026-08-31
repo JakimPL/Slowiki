@@ -24,6 +24,7 @@ class Allowance(BaseFrozen):
     step: int | None = None
     unlimited: bool = UNLIMITED_DEFAULT
     offered: tuple[int, ...] | None = None
+    choices: tuple[str, ...] | None = None
 
     def bounds(self) -> SettingBounds | None:
         if self.minimum is None or self.maximum is None or self.step is None:
@@ -68,6 +69,15 @@ class Allowance(BaseFrozen):
     def _ensure_the_step_moves(self) -> "Allowance":
         if self.step is not None and self.step < SMALLEST_STEP:
             raise InvalidConfiguration(f"the allowance for {self.setting} steps by {self.step}")
+
+        return self
+
+    @model_validator(mode="after")
+    def _ensure_only_a_choice_names_its_values(self) -> "Allowance":
+        if self.choices is not None and self.kind is not SettingKind.CHOICE:
+            raise InvalidConfiguration(
+                f"a {self.kind} allowance holds no values, and {self.setting} names some"
+            )
 
         return self
 

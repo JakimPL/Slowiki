@@ -43,6 +43,7 @@ arrive:
 seats:
   open_seat: Wolne miejsce
   you_marker: ty
+  out_marker: bez liter
   players_label: Gracze
   your_turn: Twój ruch
   fallback_name: "Gracz {seat:number}"
@@ -241,6 +242,8 @@ rules:
     red: czerwony
     blank: blank
   choice:
+    first_out: Gdy pierwszy gracz zejdzie z liter
+    all_out: Gdy wszyscy zejdą z liter
     literaki: Literaki
     scrabble: Scrabble
     scrabble-en: Scrabble (angielskie)
@@ -272,6 +275,7 @@ rules:
     opening_covers_center: Pierwsze słowo przez środek
     bingo_bonus: Premia za cały stojak
     bingo_tiles: Litery potrzebne do premii
+    ending: Kiedy gra się kończy
     rack_penalties: Litery na stojaku odejmują punkty
     going_out_award: Kończący zabiera litery przeciwników
     going_out_bonus: Premia za pierwsze zakończenie

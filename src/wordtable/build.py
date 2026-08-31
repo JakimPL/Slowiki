@@ -24,6 +24,7 @@ def build_rules(
         scoreless_end_limit=rules.scoreless_end_limit,
         bingo_bonus=rules.bingo_bonus,
         bingo_tiles=rules.bingo_tiles,
+        ending=rules.ending,
         rack_penalties=rules.rack_penalties,
         going_out_award=rules.going_out_award,
         going_out_bonus=rules.going_out_bonus,
