@@ -7,7 +7,6 @@ from typing import Final
 from wordcore.errors.rejections import RejectionCode
 from wordcore.games.game import Game
 from wordcore.models.base import BaseFrozen
-from wordcore.moves.action import Pass
 from wordcore.moves.kind import ActionKind
 from wordcore.moves.move import Move
 from wordcore.rules.rack import rack_of
@@ -28,7 +27,7 @@ from wordserver.models.company import CompanyView
 from wordserver.models.heartbeat import HeartbeatView
 from wordserver.models.seat import SeatView
 from wordserver.racks import RackOrder
-from wordtable.config import TimeConfig
+from wordtable.timing import TimeConfig
 
 _HEARTBEAT_SECONDS: Final = 15
 _PRESENCE_EVENT: Final = "presence"
@@ -53,12 +52,15 @@ class TableSession:
         time: TimeConfig,
         names: dict[int, str | None],
         now: Callable[[], float],
+        *,
+        premove_delay_seconds: float,
     ) -> None:
         self._game = game
         self._tokens = tokens
         self._names = names
         self._now = now
         self._time = time
+        self._premove_delay_seconds = premove_delay_seconds
         self._clock = TurnClock(time, tokens, now)
         self._racks = RackOrder(tokens)
         self._condition = asyncio.Condition()
@@ -396,7 +398,7 @@ class TableSession:
         return seat
 
     async def _settle_premove(self, seat: int) -> None:
-        await asyncio.sleep(self._time.premove_delay_seconds)
+        await asyncio.sleep(self._premove_delay_seconds)
         async with self._condition:
             if self._premoving_seat() != seat:
                 return
@@ -428,10 +430,7 @@ class TableSession:
 
             self._clock.settle(earns_increment=False)
             self._discard_premove(seat, RejectionCode.OUT_OF_TIME)
-            self._game.submit(
-                Move(player=seat, action=Pass()),
-                base_seq=self._game.seq,
-            )
+            self._game.adjudicate_pass(seat, self._game.seq)
             self._schedule_timer()
             self._schedule_premove()
             self._stirred()

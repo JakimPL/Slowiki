@@ -2,7 +2,7 @@ from collections.abc import Callable, Iterable
 from typing import Final
 
 from wordserver.models.clock import ClockView
-from wordtable.config import TimeConfig
+from wordtable.timing import TimeConfig
 
 _LATENCY_GRACE_SECONDS: Final = 0.5
 

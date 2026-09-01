@@ -1,4 +1,4 @@
-import type { RuleParameters, TableDescription } from "../../src/api/tables";
+import type { Offering, RulesConfig, SettingAllowance, TableDescription } from "../../src/api/tables";
 import type {
     Board,
     Bonus,
@@ -39,6 +39,7 @@ export function aView(overrides: Partial<PositionView> = {}): PositionView {
         last_play: null,
         premove: null,
         pending_premoves: [],
+        out_of_tiles: [],
         turn_number: 0,
         players: [0, 1],
         ...overrides,
@@ -69,20 +70,59 @@ export function aPlayRecord(overrides: Partial<PlayRecord> = {}): PlayRecord {
     };
 }
 
-export function someParameters(overrides: Partial<RuleParameters> = {}): RuleParameters {
+export function someRules(overrides: Partial<RulesConfig> = {}): RulesConfig {
     return {
+        board: "literaki",
+        alphabet: "literaki",
+        distribution: "polish",
+        dictionary: "sjp",
+        seats: 2,
         rack_size: 7,
+        blanks: 2,
+        validate_on_play: true,
+        premoves: true,
+        pass_allowed: true,
         exchange_limit: 3,
         exchange_min_bag: 7,
-        pass_allowed: true,
+        opening_tiles: 2,
+        opening_covers_center: true,
         bingo_bonus: 50,
-        validate_on_play: true,
-        word_check: false,
-        lore: true,
-        premoves_allowed: true,
+        bingo_tiles: null,
+        ending: "first_out",
+        rack_penalties: true,
+        going_out_award: true,
+        going_out_bonus: 0,
         pass_end_rounds: 2,
         scoreless_end_limit: null,
-        time: { per_turn_seconds: null, increment_seconds: 0, total_seconds: null, premove_delay_seconds: 1 },
+        per_turn_seconds: null,
+        total_seconds: null,
+        increment_seconds: 0,
+        letters: {},
+        ...overrides,
+    };
+}
+
+export function anOffering(overrides: Partial<Offering> = {}): Offering {
+    return {
+        name: "literaki",
+        specimen: "SŁOWIKI",
+        rules: someRules(),
+        ...overrides,
+    };
+}
+
+export function anAllowance(overrides: Partial<SettingAllowance> = {}): SettingAllowance {
+    return {
+        setting: "seats",
+        group: "table",
+        tier: "basic",
+        kind: "count",
+        minimum: 1,
+        maximum: 8,
+        step: 1,
+        unlimited: false,
+        offered: null,
+        choices: null,
         ...overrides,
     };
 }
@@ -91,10 +131,9 @@ export function aDescription(overrides: Partial<TableDescription> = {}): TableDe
     return {
         code: "KWPZTR",
         scheme: "literaki",
-        game: "literaki",
-        seats: 2,
-        dictionary: "sjp",
-        parameters: someParameters(),
+        specimen: "SŁOWIKI",
+        rules: someRules(),
+        feedback: { word_check: false, lore: true },
         alphabet: [
             { symbol: "A", value: 1, category: "yellow" },
             { symbol: "K", value: 2, category: "green" },

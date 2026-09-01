@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 import { useState } from "react";
 
 import type { Letter } from "../../api/tables";
+import { useSheetFocus } from "../input/useSheetFocus";
 import { BLANK_CONFIRM, BLANK_INPUT_LABEL, BLANK_PICKER_CLOSE, BLANK_PICKER_HEADING } from "../strings";
 
 export interface BlankPickerProps {
@@ -11,10 +12,11 @@ export interface BlankPickerProps {
 }
 
 export function BlankPicker({ alphabet, onPick, onClose }: BlankPickerProps): ReactElement {
+    const sheet = useSheetFocus<HTMLDivElement>();
     return (
         <div className="sheet-region">
             <button type="button" className="sheet-scrim" aria-label={BLANK_PICKER_CLOSE} onClick={onClose} />
-            <div className="sheet" role="dialog" aria-label={BLANK_PICKER_HEADING}>
+            <div className="sheet" role="dialog" aria-label={BLANK_PICKER_HEADING} tabIndex={-1} ref={sheet}>
                 <h2 className="sheet-heading">{BLANK_PICKER_HEADING}</h2>
                 {alphabet === null ? (
                     <FreeLetter onPick={onPick} />

@@ -4,7 +4,7 @@ import struct
 
 from fastapi.testclient import TestClient
 
-from wordassets.board import SPECIMEN_WORDS, board_specimen
+from wordassets.board import board_specimen
 from wordassets.brand import og_image, splash
 from wordassets.build import build_assets
 from wordassets.colors import channels_of, mixed_hex
@@ -19,11 +19,10 @@ from wordassets.icons import (
     icon_svg_element,
 )
 from wordassets.slugs import letter_slug
-from wordgames.names import GameName
 from wordserver.app import create_app
 from wordtable.catalog import resolve_scheme
-from wordtable.config import ThemeTokens, load_style_tokens
 from wordtable.paths import CONFIG_DIR
+from wordtable.style import ThemeTokens, load_style_tokens
 
 
 def test_rendered_escapes_markup() -> None:
@@ -78,9 +77,19 @@ def test_letter_slugs_stay_ascii() -> None:
 def _specimen_markup() -> tuple[str, ThemeTokens]:
     resolved = resolve_scheme(CONFIG_DIR, "literaki")
     tokens = load_style_tokens(CONFIG_DIR, "default")
-    word = SPECIMEN_WORDS[GameName.LITERAKI]
-    markup = document(board_specimen(resolved.board, resolved.tiles, tokens.light, word))
+    markup = document(
+        board_specimen(resolved.board, resolved.tiles, tokens.light, resolved.specimen)
+    )
     return markup, tokens.light
+
+
+def test_the_scheme_named_after_a_board_paints_its_specimen(tmp_path) -> None:
+    records = build_assets(tmp_path, None)
+    written = {record.path for record in records if record.kind == "board-specimen"}
+    assert written == {"specimens/board-literaki.svg", "specimens/board-scrabble.svg"}
+    painted = (tmp_path / "specimens" / "board-scrabble.svg").read_text(encoding="utf-8")
+    assert ">W</text>" in painted
+    assert ">Ł</text>" not in painted
 
 
 def test_board_specimen_draws_from_tokens_only() -> None:

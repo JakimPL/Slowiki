@@ -2,6 +2,7 @@ from wordcore.board.board import Board
 from wordcore.models.base import BaseFrozen
 from wordcore.moves.move import Move
 from wordcore.positions.position import Position
+from wordcore.rules.rack import rack_of
 from wordcore.states.phase import Phase
 from wordcore.states.record import PlayRecord
 from wordcore.tiles.tile import Tile
@@ -20,6 +21,7 @@ class PositionView(BaseFrozen):
     last_play: PlayRecord | None
     premove: Move | None
     pending_premoves: frozenset[int]
+    out_of_tiles: frozenset[int]
     turn_number: int
     players: tuple[int, ...]
 
@@ -45,6 +47,14 @@ def project(position: Position, observer: int | None) -> PositionView:
         last_play=state.last_play,
         premove=premove,
         pending_premoves=pending,
+        out_of_tiles=_out_of_tiles(position),
         turn_number=state.turn_number,
         players=position.players,
     )
+
+
+def _out_of_tiles(position: Position) -> frozenset[int]:
+    if position.state.bag:
+        return frozenset()
+
+    return frozenset(seat for seat in position.players if not rack_of(position, seat))

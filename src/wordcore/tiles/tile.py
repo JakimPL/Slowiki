@@ -1,30 +1,29 @@
 from wordcore.models.base import BaseFrozen
-from wordcore.models.letters import CanonicalLetter
+from wordcore.models.letters import (
+    CanonicalLetter,
+    CanonicalSymbol,
+    CategoryName,
+    LetterValue,
+    TileCount,
+)
 
 
 class Letter(BaseFrozen):
-    symbol: CanonicalLetter
-    value: int
-    category: str
+    symbol: CanonicalSymbol
+    value: LetterValue
+    category: CategoryName
 
 
 class LetterSpec(BaseFrozen):
-    symbol: CanonicalLetter
-    value: int
-    category: str
-    count: int
+    symbol: CanonicalSymbol
+    value: LetterValue
+    category: CategoryName
+    count: TileCount
 
 
 class Tile(BaseFrozen):
     identifier: int
     letter: CanonicalLetter
-    value: int
-    category: str
+    value: LetterValue
+    category: CategoryName
     blank: bool
-
-
-class TilePreset(BaseFrozen):
-    name: str
-    letters: tuple[LetterSpec, ...]
-    blanks: int
-    rack_size: int | None

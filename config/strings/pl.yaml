@@ -18,7 +18,6 @@ arrive:
   seats_label: Gracze
   time_label: Czas na gracza
   increment_label: Dodatek na ruch
-  untimed: Bez czasu
   code_label: Kod stołu
   create_button: Załóż stół
   join_button: Dołącz do stołu
@@ -27,14 +26,15 @@ arrive:
   stale_notice: Stół poszedł dalej — pokazujemy najnowszą pozycję.
   joining: Dołączanie do stołu…
   offerings_loading: Czytamy ofertę stołów…
+  reading_table: Czytamy stół…
+  code_hint: Wpisz kod z zaproszenia.
+  standing:
+    plural:
+      one: "{name} · {count:number} gracz · {clock}"
+      few: "{name} · {count:number} gracze · {clock}"
+      many: "{name} · {count:number} graczy · {clock}"
   return_button: Wróć do swojego stołu
   forget_button: Zapomnij ten stół
-  span: "{minimum:number}–{maximum:number}"
-  offering:
-    plural:
-      one: "{name} · {span} gracz"
-      few: "{name} · {span} gracze"
-      many: "{name} · {span} graczy"
   invite_button: Kopiuj zaproszenie
   invite_copied: Zaproszenie skopiowane
   copy_code_label: Skopiuj kod stołu
@@ -43,6 +43,7 @@ arrive:
 seats:
   open_seat: Wolne miejsce
   you_marker: ty
+  out_marker: bez liter
   players_label: Gracze
   your_turn: Twój ruch
   fallback_name: "Gracz {seat:number}"
@@ -173,9 +174,13 @@ sheets:
 clock:
   empty: "—"
   time: "{minutes:number}:{seconds}"
-  budget: "{minutes:number} min"
+  seconds: "{seconds:number} s"
+  minutes: "{minutes:number} min"
+  minutes_seconds: "{minutes:number} min {seconds:number} s"
+  hours: "{hours:number} godz."
+  hours_minutes: "{hours:number} godz. {minutes:number} min"
   increment_none: Brak
-  increment: "+{seconds:number} s"
+  increment: "+{span}"
 
 guidance:
   place: Dotknij pustego pola, aby położyć płytkę.
@@ -189,3 +194,136 @@ guidance:
 general:
   list_separator: ", "
   list_pair: "{leading} i {last}"
+
+rules:
+  heading: Zasady domowe
+  close: Zamknij zasady domowe
+  row_label: Zasady domowe
+  standard: Standardowe
+  changed:
+    plural:
+      one: "{count:number} zmiana"
+      few: "{count:number} zmiany"
+      many: "{count:number} zmian"
+  revert_all: Wróć do zasad standardowych
+  revert: Przywróć
+  standard_note: "Standardowo: {value}"
+  limited: Z limitem
+  custom: Własny…
+  custom_span: Sekundy
+  step_up: Zwiększ
+  step_down: Zmniejsz
+  expert_label: Ustawienia eksperckie
+  expert_hidden: Ukryte
+  expert_shown: Widoczne
+  saved_heading: Twoje zapisane zasady
+  save_label: Nazwij te zasady
+  save_placeholder: Zasady domowe
+  save_button: Zapisz
+  saved_none: Nic jeszcze nie zapisano.
+  delete: Usuń
+  confirm_heading: Na pewno?
+  confirm_revert: Niezapisane zmiany w tych zasadach przepadną.
+  confirm_delete: "Te zapisane zasady znikną: {label}."
+  confirm_keep: Zostaw
+  export: Kopiuj jako tekst
+  retired: Ta gra nie jest już oferowana.
+  letters_heading: Litery
+  letters_close: Zamknij litery
+  letters_done: Gotowe
+  letters_cancel: Anuluj
+  letters_shut: Zamknij
+  letter_points: Punkty
+  letter_count: W worku
+  letter_category: Kolor
+  bulk_label: Punkty dla całego koloru
+  bag_total:
+    plural:
+      one: "{count:number} litera w worku"
+      few: "{count:number} litery w worku"
+      many: "{count:number} liter w worku"
+  value_on: "tak"
+  value_off: "nie"
+  unlimited: bez limitu
+  untimed: bez zegara
+  edited: zmienione
+  category:
+    standard: zwykły
+    yellow: żółty
+    green: zielony
+    blue: niebieski
+    red: czerwony
+    blank: blank
+  choice:
+    first_out: Pierwszy
+    all_out: Wszyscy
+    literaki: Literaki
+    solo-literaki: Literaki solo
+    scrabble: Scrabble
+    scrabble-en: Scrabble (angielskie)
+    scrabble-pl: Scrabble (polskie)
+    english: angielski
+    polish: polski
+    sjp: polski (SJP)
+    osps: turniejowy (OSPS)
+  help_label: Co robi ta zasada
+  help:
+    board: Układ pól premiowych na planszy.
+    alphabet: Litery w worku i wartość każdej z nich.
+    distribution: Ile sztuk każdej litery trafia do worka.
+    dictionary: Lista słów, według której oceniamy każdy ruch.
+    seats: Ilu graczy siada przy stole.
+    rack_size: Ile liter gracz trzyma naraz. Bez limitu jeden gracz bierze cały worek.
+    blanks: Ile blanków jest w worku. Blank zastępuje dowolną literę i nie daje punktów.
+    validate_on_play: Każde słowo sprawdzamy w słowniku od razu, a słowo spoza listy odrzucamy.
+    premoves: Gracz może przygotować ruch, czekając na swoją kolej, a ruch wykona się sam.
+    pass_allowed: Gracz może oddać kolejkę. Zegar, który się skończy, przekazuje kolejkę dalej niezależnie od tego ustawienia.
+    exchange_limit: Ile razy gracz może wymienić litery na nowe.
+    exchange_min_bag: Do wymiany potrzeba co najmniej tylu liter w worku.
+    opening_tiles: Ile liter ma pierwsze słowo w grze.
+    opening_covers_center: Pierwsze słowo musi przechodzić przez gwiazdkę na środku planszy.
+    bingo_bonus: Dodatkowe punkty za ruch, który zużywa dość liter naraz.
+    bingo_tiles: Ile liter musi zużyć ruch, żeby dostać tę premię. Bez limitu liczy się cały stojak.
+    ending: Czy gra kończy się, gdy pierwszy gracz zejdzie z liter, czy trwa aż zejdą wszyscy.
+    rack_penalties: Litery, które gracz ma na stojaku, odejmujemy od jego wyniku na koniec gry.
+    going_out_award: Gracz, który pierwszy zejdzie z liter, zabiera też litery pozostałych.
+    going_out_bonus: Stała liczba punktów dla gracza, który pierwszy zejdzie z liter.
+    pass_end_rounds: Gra kończy się po tylu pełnych rundach, w których wszyscy pasują.
+    scoreless_end_limit: Gra kończy się po tylu ruchach z rzędu bez punktów.
+    per_turn_seconds: Ile czasu gracz ma na jedną kolejkę. Gdy czas minie, kolejka idzie dalej, a przygotowany ruch przepada.
+    total_seconds: Ile czasu gracz ma na całą grę. Gdy czas minie, gracz ogląda resztę partii.
+    increment_seconds: Czas dopisywany do zegara po każdym ruchu albo wymianie. Potrzebuje czasu na grę, do którego może dopisać.
+    letters: Zmień wartość każdej litery, liczbę sztuk w worku i jej kolor.
+  group:
+    table: Stół
+    words: Słowa i słownik
+    turns: Przebieg tury
+    scoring: Punkty i koniec gry
+    letters: Litery i plansza
+  setting:
+    board: Plansza
+    alphabet: Litery
+    distribution: Ile których liter
+    dictionary: Słownik
+    seats: Gracze
+    rack_size: Litery na stojaku
+    blanks: Blanki
+    validate_on_play: Tylko słowa ze słownika
+    premoves: Ruchy w kolejce
+    pass_allowed: Pasowanie
+    exchange_limit: Wymiany na gracza
+    exchange_min_bag: Litery, które zostają w worku
+    opening_tiles: Litery w pierwszym słowie
+    opening_covers_center: Pierwsze słowo przez środek
+    bingo_bonus: Premia za cały stojak
+    bingo_tiles: Litery potrzebne do premii
+    ending: Kiedy gra się kończy
+    rack_penalties: Litery na stojaku odejmują punkty
+    going_out_award: Kończący zabiera litery przeciwników
+    going_out_bonus: Premia za pierwsze zakończenie
+    pass_end_rounds: Rundy pasów kończące grę
+    scoreless_end_limit: Ruchy bez punktów kończące grę
+    per_turn_seconds: Czas na turę
+    total_seconds: Czas na gracza
+    increment_seconds: Premia za ruch
+    letters: Zmień litery

@@ -3,7 +3,7 @@ import type { ReactElement } from "react";
 import type { CompanyView, PositionView, SeatView } from "../../api/views";
 import type { Urgency } from "../../play/clock/clock";
 import { tintFor } from "../../play/seats/tints";
-import { EMPTY_CLOCK, fallbackNameFor, OPEN_SEAT_LABEL, PLAYERS_LABEL, YOU_MARKER } from "../strings";
+import { EMPTY_CLOCK, fallbackNameFor, OPEN_SEAT_LABEL, OUT_MARKER, PLAYERS_LABEL, YOU_MARKER } from "../strings";
 
 export interface SeatClock {
     readonly caption: string;
@@ -46,6 +46,7 @@ interface PlaqueProps {
 function Plaque({ seated, view, mine, countdown, clocked }: PlaqueProps): ReactElement {
     const acting = view.to_act.includes(seated.seat);
     const premoved = view.pending_premoves.includes(seated.seat);
+    const out = view.out_of_tiles.includes(seated.seat);
     const score = view.scores[String(seated.seat)] ?? 0;
     return (
         <li
@@ -53,6 +54,7 @@ function Plaque({ seated, view, mine, countdown, clocked }: PlaqueProps): ReactE
             data-acting={acting ? "true" : undefined}
             data-open={seated.claimed ? undefined : "true"}
             data-connected={seated.connected ? "true" : undefined}
+            data-out={out ? "true" : undefined}
             style={{ "--tint": tintFor(seated.seat).hex }}
         >
             <span className="plaque-name">
@@ -61,6 +63,7 @@ function Plaque({ seated, view, mine, countdown, clocked }: PlaqueProps): ReactE
                     {seated.claimed ? (seated.name ?? fallbackNameFor(seated.seat)) : OPEN_SEAT_LABEL}
                 </span>
                 {mine ? <em className="plaque-you">{YOU_MARKER}</em> : null}
+                {out ? <em className="plaque-out">{OUT_MARKER}</em> : null}
                 {premoved ? <i className="plaque-premove" aria-hidden="true" /> : null}
             </span>
             <span className="plaque-score">{score}</span>

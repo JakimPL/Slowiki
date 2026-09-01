@@ -1,0 +1,161 @@
+allowances:
+  - setting: seats
+    group: table
+    tier: basic
+    kind: count
+    minimum: 1
+    maximum: 8
+    step: 1
+  - setting: total_seconds
+    group: table
+    tier: basic
+    kind: seconds
+    minimum: 30
+    maximum: 7200
+    step: 5
+    unlimited: true
+    offered: [60, 120, 300, 600, 900, 1800, 3600]
+  - setting: increment_seconds
+    group: table
+    tier: basic
+    kind: seconds
+    minimum: 0
+    maximum: 300
+    step: 5
+    offered: [0, 5, 10, 15, 30, 60]
+  - setting: dictionary
+    group: words
+    tier: common
+    kind: choice
+  - setting: validate_on_play
+    group: words
+    tier: common
+    kind: toggle
+  - setting: pass_allowed
+    group: turns
+    tier: common
+    kind: toggle
+  - setting: exchange_limit
+    group: turns
+    tier: common
+    kind: optional_count
+    minimum: 0
+    maximum: 20
+    step: 1
+    unlimited: true
+  - setting: exchange_min_bag
+    group: turns
+    tier: common
+    kind: count
+    minimum: 0
+    maximum: 99
+    step: 1
+  - setting: premoves
+    group: turns
+    tier: common
+    kind: toggle
+  - setting: per_turn_seconds
+    group: turns
+    tier: common
+    kind: seconds
+    minimum: 5
+    maximum: 3600
+    step: 5
+    unlimited: true
+    offered: [30, 60, 90, 120, 180, 300, 600]
+  - setting: bingo_bonus
+    group: scoring
+    tier: common
+    kind: count
+    minimum: 0
+    maximum: 200
+    step: 5
+  - setting: bingo_tiles
+    group: scoring
+    tier: common
+    kind: optional_count
+    minimum: 1
+    maximum: 15
+    step: 1
+    unlimited: true
+  - setting: ending
+    group: scoring
+    tier: common
+    kind: choice
+    choices: [first_out, all_out]
+  - setting: rack_penalties
+    group: scoring
+    tier: common
+    kind: toggle
+  - setting: going_out_award
+    group: scoring
+    tier: common
+    kind: toggle
+  - setting: going_out_bonus
+    group: scoring
+    tier: common
+    kind: count
+    minimum: 0
+    maximum: 200
+    step: 5
+  - setting: pass_end_rounds
+    group: scoring
+    tier: common
+    kind: optional_count
+    minimum: 1
+    maximum: 10
+    step: 1
+    unlimited: true
+  - setting: scoreless_end_limit
+    group: scoring
+    tier: common
+    kind: optional_count
+    minimum: 1
+    maximum: 50
+    step: 1
+    unlimited: true
+  - setting: board
+    group: letters
+    tier: common
+    kind: choice
+  - setting: alphabet
+    group: letters
+    tier: common
+    kind: choice
+  - setting: distribution
+    group: letters
+    tier: common
+    kind: choice
+  - setting: rack_size
+    group: letters
+    tier: common
+    kind: optional_count
+    minimum: 1
+    maximum: 15
+    step: 1
+    unlimited: true
+  - setting: blanks
+    group: letters
+    tier: common
+    kind: count
+    minimum: 0
+    maximum: 20
+    step: 1
+  - setting: opening_tiles
+    group: letters
+    tier: common
+    kind: count
+    minimum: 1
+    maximum: 15
+    step: 1
+  - setting: opening_covers_center
+    group: letters
+    tier: common
+    kind: toggle
+  - setting: letters
+    group: letters
+    tier: common
+    kind: letters
+    minimum: 0
+    maximum: 99
+    step: 1

@@ -1,3 +1,5 @@
+from typing import Final
+
 import pytest
 
 from wordcore.board.board import Board
@@ -9,11 +11,16 @@ from wordcore.positions.position import Position
 from wordcore.rules.end_conditions import final_scores
 from wordcore.rules.exchange import apply_exchange, validate_exchange
 from wordcore.rules.score.scoring import score_move
+from wordcore.rules.turn import next_seat, next_seat_among
 from wordcore.rules.validity import validate_words
 from wordcore.rules.words.formed import formed_words, validate_anchor
 from wordcore.rules.words.placement import Placement
 from wordcore.states.state import Phase, WordState
 from wordcore.tiles.tile import Tile
+
+_PENALTIES_APPLY: Final = True
+_AWARD_STANDS: Final = True
+_NO_FLAT_BONUS: Final = 0
 
 
 def tile(identifier: int, letter: str, value: int, category: str) -> Tile:
@@ -95,7 +102,21 @@ def test_anchor_first_move_must_cover_center() -> None:
     board = make_board(3, (None,) * 9)
     placements = (Placement(tile=tile(1, "a", 1, "yellow"), row=0, column=0),)
     with pytest.raises(IllegalMove):
-        validate_anchor(board, placements)
+        validate_anchor(board, placements, opening_tiles=1, opening_covers_center=True)
+
+
+def test_an_opening_stands_off_the_center_when_the_rules_let_it() -> None:
+    board = make_board(3, (None,) * 9)
+    placements = (Placement(tile=tile(1, "a", 1, "yellow"), row=0, column=0),)
+    validate_anchor(board, placements, opening_tiles=1, opening_covers_center=False)
+
+
+def test_an_opening_states_how_many_tiles_it_takes() -> None:
+    board = make_board(3, (None,) * 9)
+    placements = (Placement(tile=tile(1, "a", 1, "yellow"), row=1, column=1),)
+    validate_anchor(board, placements, opening_tiles=1, opening_covers_center=True)
+    with pytest.raises(IllegalMove, match="at least 2 tiles"):
+        validate_anchor(board, placements, opening_tiles=2, opening_covers_center=True)
 
 
 def test_anchor_requires_connection() -> None:
@@ -103,7 +124,7 @@ def test_anchor_requires_connection() -> None:
     board = board.with_tiles({board.index(0, 0): tile(1, "a", 1, "yellow")})
     placements = (Placement(tile=tile(2, "b", 1, "yellow"), row=2, column=2),)
     with pytest.raises(IllegalMove):
-        validate_anchor(board, placements)
+        validate_anchor(board, placements, opening_tiles=2, opening_covers_center=True)
 
 
 def test_score_category_match() -> None:
@@ -222,8 +243,33 @@ def test_exchange_limit() -> None:
 
 
 def test_final_scores() -> None:
+    position = _scoring_position()
+    assert _scored(position, went_out=0) == {0: 8, 1: 19}
+    assert _scored(position, went_out=None) == {0: 7, 1: 19}
+    assert _scored(position, went_out=0, going_out_award=False) == {0: 7, 1: 19}
+
+
+def test_final_scores_leave_the_racks_alone_where_penalties_are_off() -> None:
+    position = _scoring_position()
+    assert _scored(position, went_out=None, rack_penalties=False) == {0: 10, 1: 20}
+    assert _scored(position, went_out=0, rack_penalties=False) == {0: 11, 1: 20}
+
+
+def test_a_flat_bonus_rewards_the_finisher_where_the_award_is_off() -> None:
+    position = _scoring_position()
+    assert _scored(
+        position,
+        went_out=0,
+        going_out_award=False,
+        going_out_bonus=20,
+    ) == {0: 27, 1: 19}
+    assert _scored(position, went_out=0, going_out_bonus=20) == {0: 28, 1: 19}
+    assert _scored(position, went_out=None, going_out_bonus=20) == {0: 7, 1: 19}
+
+
+def _scoring_position() -> Position:
     position = empty_position()
-    position = position.model_copy(
+    return position.model_copy(
         update={
             "state": position.state.model_copy(
                 update={
@@ -233,13 +279,32 @@ def test_final_scores() -> None:
             )
         }
     )
-    assert final_scores(position, went_out=0) == {0: 8, 1: 19}
-    assert final_scores(position, went_out=None) == {0: 7, 1: 19}
+
+
+def _scored(
+    position: Position,
+    *,
+    went_out: int | None,
+    rack_penalties: bool = _PENALTIES_APPLY,
+    going_out_award: bool = _AWARD_STANDS,
+    going_out_bonus: int = _NO_FLAT_BONUS,
+) -> dict[int, int]:
+    return final_scores(
+        position,
+        went_out,
+        rack_penalties=rack_penalties,
+        going_out_award=going_out_award,
+        going_out_bonus=going_out_bonus,
+    )
 
 
 def test_next_seat() -> None:
-    from wordcore.rules.turn import next_seat
-
     assert next_seat((0, 1, 2), 0) == 1
     assert next_seat((0, 1, 2), 2) == 0
     assert next_seat((0,), 0) == 0
+
+
+def test_next_seat_among_walks_past_the_seats_that_are_out() -> None:
+    assert next_seat_among((0, 1, 2), 0, frozenset({0, 2})) == 2
+    assert next_seat_among((0, 1, 2), 2, frozenset({2})) == 2
+    assert next_seat_among((0, 1, 2), 0, frozenset()) == 1

@@ -2,7 +2,12 @@ from wordserver.fate import TableFate
 from wordserver.lifetime import TableStanding, fate_of
 from wordtable.config import TablesConfig
 
-BOUNDS = TablesConfig(life_seconds=100.0, linger_seconds=10.0, sweep_seconds=1.0)
+BOUNDS = TablesConfig(
+    life_seconds=100.0,
+    linger_seconds=10.0,
+    sweep_seconds=1.0,
+    premove_delay_seconds=1.0,
+)
 
 
 def test_a_table_within_its_life_is_kept() -> None:

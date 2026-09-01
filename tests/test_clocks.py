@@ -1,9 +1,5 @@
-from typing import Final
-
 from wordserver.clocks import TurnClock
-from wordtable.config import TimeConfig
-
-_NO_DELAY: Final = 0.0
+from wordtable.timing import TimeConfig
 
 
 class _FakeClock:
@@ -25,7 +21,6 @@ def _clock(
         per_turn_seconds=per_turn,
         increment_seconds=increment,
         total_seconds=total,
-        premove_delay_seconds=_NO_DELAY,
     )
     return TurnClock(time, (0, 1), moment)
 

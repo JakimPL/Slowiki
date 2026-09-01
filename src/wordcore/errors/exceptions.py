@@ -26,5 +26,9 @@ class InvalidConfiguration(WordcoreError):
     pass
 
 
+class MissingConfiguration(InvalidConfiguration):
+    pass
+
+
 class NoPremove(WordcoreError):
     pass

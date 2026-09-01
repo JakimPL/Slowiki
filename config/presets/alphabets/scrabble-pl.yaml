@@ -1,0 +1,17 @@
+order: "AĄBCĆDEĘFGHIJKLŁMNŃOÓPRSŚTUWYZŹŻ"
+dictionaries: [sjp, osps]
+classes:
+  - value: 1
+    letters: "AEINORSWZ"
+  - value: 2
+    letters: "CDKLMPTY"
+  - value: 3
+    letters: "BGHJŁU"
+  - value: 5
+    letters: "ĄĘFÓŚŻ"
+  - value: 6
+    letters: "Ć"
+  - value: 7
+    letters: "Ń"
+  - value: 9
+    letters: "Ź"

@@ -1,13 +1,12 @@
 from wordcore.models.base import BaseFrozen
-from wordgames.names import GameName
+from wordtable.names import PresetName
 
 
 class TableAdmission(BaseFrozen):
     table_id: str
     code: str
-    scheme: str
-    game: GameName
-    max_players: int
+    scheme: PresetName
+    seats: int
     seat: int
     token: str
     name: str | None

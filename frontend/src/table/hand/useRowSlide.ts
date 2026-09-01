@@ -1,11 +1,12 @@
 import type { RefObject } from "react";
 import { useLayoutEffect, useRef } from "react";
 
+import { durationOf, easingOf } from "../../play/motion/tokens";
 import type { RowPlace, RowPlaces, Slide } from "../../play/tiles/sliding";
-import { slideDuration, slidesBetween } from "../../play/tiles/sliding";
+import { slidesBetween } from "../../play/tiles/sliding";
 
-const SLIDE_TOKEN = "--motion-slide";
-const SLIDE_EASING = "ease";
+const SLIDE_DURATION = "--motion-quick";
+const SLIDE_EASING = "--ease-settle";
 const NO_PLACES: RowPlaces = new Map();
 const NOTHING_PLAYING: readonly Animation[] = [];
 
@@ -35,13 +36,17 @@ function stilled(playing: readonly Animation[]): void {
 }
 
 function slidRow(row: HTMLElement, before: RowPlaces, after: RowPlaces): readonly Animation[] {
-    const duration = slideDuration(getComputedStyle(row).getPropertyValue(SLIDE_TOKEN));
-    if (duration === 0) {
+    const style = getComputedStyle(row);
+    const timing: KeyframeAnimationOptions = {
+        duration: durationOf(style.getPropertyValue(SLIDE_DURATION)),
+        easing: easingOf(style.getPropertyValue(SLIDE_EASING)),
+    };
+    if (timing.duration === 0) {
         return NOTHING_PLAYING;
     }
     const playing: Animation[] = [];
     for (const slide of slidesBetween(before, after)) {
-        const animation = slid(row, slide, duration);
+        const animation = slid(row, slide, timing);
         if (animation !== null) {
             playing.push(animation);
         }
@@ -49,13 +54,13 @@ function slidRow(row: HTMLElement, before: RowPlaces, after: RowPlaces): readonl
     return playing;
 }
 
-function slid(row: HTMLElement, slide: Slide, duration: number): Animation | null {
+function slid(row: HTMLElement, slide: Slide, timing: KeyframeAnimationOptions): Animation | null {
     const found = row.querySelector(`[data-tile="${String(slide.id)}"]`);
     if (!(found instanceof HTMLElement)) {
         return null;
     }
     const from = { transform: `translate(${String(slide.dx)}px, ${String(slide.dy)}px)` };
-    return found.animate([from, { transform: "translate(0, 0)" }], { duration, easing: SLIDE_EASING });
+    return found.animate([from, { transform: "translate(0, 0)" }], timing);
 }
 
 function placesOf(row: HTMLElement): RowPlaces {

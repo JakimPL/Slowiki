@@ -5,5 +5,6 @@ tables:
   life_seconds: 86400
   linger_seconds: 3600
   sweep_seconds: 60
+  premove_delay_seconds: 1
 scheme: literaki
 style: default

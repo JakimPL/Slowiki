@@ -18,25 +18,40 @@ by amending it. The palette is the *Lniany* proposition chosen from the phase-0 
    simultaneous actors render correctly and a future real-time scheme is a data change.
 5. **The page knows no game.** Rack size, exchange limits, premove availability, the feedback
    policy, and the alphabet arrive as data from the table description, and the interface renders
-   behavior from them.
+   behavior from them. A rule a table can be told is described the same way: the server states each
+   setting's group, its rank, the kind of control it takes and the values it offers, and the interface
+   draws a row from that description. So a new rule reaches the player by arriving in the description,
+   and the only thing the page supplies is its name in plain English.
 
 ## Screens
 
-- **Arrive** — a single card: creating a table (scheme picker bounded by the offering's real
-  player range, seat count, and the clock: a time budget per player from one minute to an hour, or
-  untimed, beside the bonus added after every play or exchange — one fixed row of two controls, the
-  bonus quiet and inert while the table stays untimed, so the card holds its size through every
-  choice) and a quiet switch to the join card for holders of a code. An invitation link opens
-  straight onto the join card with the code prefilled, and that card keeps the switch, so a guest
-  can start a table of their own. A name is what both cards ask for first: the field carries a red
+- **Arrive** — a single card: creating a table and a quiet switch to the join card for holders of a
+  code. The create card carries five controls and always the same five, whatever is chosen: the
+  game, which names a standard scheme or a rules record the player has saved; the number of players;
+  the clock — a time budget per player beside the bonus added after every play or exchange, one
+  fixed row of two controls with the bonus quiet and inert while the table stays untimed; and a
+  rules row, which says how far the rules stand from the scheme they came from and opens the rules
+  sheet. Every offered value comes from the server's own allowances, so the ladders a picker climbs
+  are stated once and in one place. Under the rules row the card names each rule that differs, so a
+  player who never opens the sheet still reads what a saved record changed; that row wraps, and it
+  is the one part of the card whose height follows its content. An invitation link opens straight
+  onto the join card with the code prefilled, and that card keeps the switch, so a guest can start a
+  table of their own. The join card reserves two lines under the code field, which read in order of
+  precedence: the sentence a refused code earns, the table's own standing once the server answers
+  for it — the game, the players, the clock, and how far its rules stand from standard — the note
+  that the table is being read, and the invitation to enter a code. The read fires as soon as the
+  code reaches the length the server declares, so a code that names no table says so while it is
+  being typed, and the second line opens the rules sheet with every value printed — its groups
+  still open so a guest can read them, and nothing in it can be changed — so a guest accepts rules
+  they have read. A name is what both cards ask for first: the field carries a red
   glow that breathes while it stands empty, and neither table can be started until it holds
   something — the server asks for the same, so a nameless table cannot be minted by any client. The
   name persists in local storage across visits. A tab remembers the seat it arrived at while that
   game runs, so a quiet pair of switches under the name field offers the way back — the return in
   the premove color, the forgetting beside it — until the game ends or the player lets it go.
   Credentials live in the URL fragment; a reload rejoins by token, and the page follows the address
-  bar wherever the player points it, so an invitation pasted over a held seat opens its join card and
-  the seat it left waits under "Return to your table". An invitation link carries the join code
+  bar wherever the player points it, so an invitation pasted over a held seat opens its join card
+  and the seat it left waits under "Return to your table". An invitation link carries the join code
   alone, and the join field takes it whole: pasting the link, the fragment, or the bare code all
   leave the code itself, and the field admits only characters the code is made of. The color mode
   and the language rest as quiet chips in the corner of the card, which is where the language is
@@ -62,6 +77,88 @@ by amending it. The palette is the *Lniany* proposition chosen from the phase-0 
   stood: the heading says the game was left unfinished, the rows keep their places, and the win
   treatment rests. *Close* returns to the board with the final position and the move log readable,
   and the status line then reopens the standing; *Leave the table* returns to the main view.
+
+## Rules sheet
+
+Everything a table can be told, on the screen where a table is started. The sheet is the same bottom
+sheet the table menu uses — a scrim above the card, a heading, its own scroll — and it holds five
+disclosures, each naming its group and the state that group is in, plus one quiet control that puts the
+whole record back to the scheme's own. Collapsed, the sheet fits every phone in common use with room
+to spare, so a player meets five lines rather than twenty-three controls; an opened group scrolls
+inside the sheet, which is what the sheet's own scroll is for. Every sheet rises a short way into
+place as it arrives, behind a scrim that fades in with it, and leaves the moment it is answered.
+
+- **Words and the dictionary** · **Taking a turn** · **Scoring and ending** · **Letters and the board**
+  · **Your saved rules.** The groups, the order, and which settings belong to each arrive from the
+  server's allowances, so the interface arranges what it is told rather than what it knows.
+- A group holding a rule that differs **opens itself**, whatever tier its rules carry, so a saved
+  record can hide nothing. A group that a player closes stays closed until the sheet is reopened,
+  which collapses everything except the groups that deviate.
+- **A group opens by growing.** Its rows wait inside the closed group, where the tab order and a
+  reader pass them by; opening it grows the panel into their height and closing it hands that height
+  back — the same movement the `?` makes, on the same step of the motion scale.
+- A row is drawn from its setting's **kind**, never its name: a pair of pills for a toggle, pills or a
+  select for a choice, a stepper for a count, a stepper beside a Limited/Unlimited pair for a count
+  that admits no limit — the stepper standing quiet and inert while no limit applies, so a table
+  allowing no exchanges at all reads apart from one allowing any number — and a ladder of offered
+  values for a budget of seconds.
+- **A number can be typed.** A stepper's value is a field: the −/+ buttons move it by the step the
+  server states, and typing into it commits on Enter or on leaving the field, holding the value inside
+  the range and keeping the standing one where what was typed is no number. The step guides the
+  buttons; the range is what binds, so a value between two rungs stands.
+- **A clock says what it is.** A span reads in the largest units that state it exactly — `45 s`,
+  `1 min`, `1 min 30 s`, `2 h`, `1 h 30 min` — so every rung of a ladder reads apart from its
+  neighbours, and the same words serve the sheet, the create card, the chips and the standard note. A
+  budget's ladder ends in **Custom…**, which opens a field of seconds beside it; a value already off
+  the ladder opens that field on sight, so the top rung is no ceiling.
+- **Work is never dropped without asking.** *Back to the standard rules* asks first whenever the
+  record holds edits the player has not saved, and deleting a saved record asks by name. The question
+  is one centered card — a sentence, the answer that proceeds, and the answer that keeps — in the shape
+  the end-of-game card already uses.
+- **Escape closes the innermost thing that is open**, in the order the question, the letters, the
+  sheet — so a laptop player leaves a surface the same way they entered it.
+- **The letters are edited as a draft.** The letters box holds its own copy of the adjustments: the
+  grid, the panel and the bag total all read that copy, and the foot offers **Done**, which hands it to
+  the record, beside **Cancel**, which drops it. A guest reading rules they cannot change gets one
+  **Close**. Its scrim sits above the rules sheet, so the sheet behind it is out of reach until the box
+  is answered.
+- **Every rule explains itself.** A small `?` sits beside each rule's name and opens one authored
+  sentence under the row, saying what the rule does — what an expired clock does with the turn, what a
+  bonus play must use, when the game ends. The row grows into the sentence and hands the space back as
+  it closes, landing at the height it held before. A click pins the sentence open on every device and
+  the mark turns to say so; where a pointer can rest, hovering the `?` previews the same sentence and
+  moving away puts it back. The card's own three rules — the players, the clock and the bonus per move
+  — carry the same affordance, since the sheet does not draw the group they belong to.
+- **A row ends where every other row ends.** The label opens the line and the control closes it,
+  pushed to the right edge whether or not it wraps to a line of its own, and a control too wide for
+  the line wraps inside itself rather than past that edge. Every panel's buttons are the same button:
+  the same padding, the same 12px corner, the same disabled treatment, so a Save that is resting
+  reads as resting.
+- **Every control shows where the keyboard is.** Steppers, group heads, revert links, saved names,
+  the card's rules row, selects, letter cells and both kinds of button all carry the same focus ring.
+- **Deviation is a state a row wears.** A row standing apart from its scheme carries a tinted edge in
+  the primary accent, prints the standard value beneath itself, and offers the control that restores
+  it. Every row reserves the edge and that control whether or not it deviates, so a row holds its
+  height as its value changes. Each group's summary carries the number of rules it holds apart, and
+  the card's rules row carries the count of the rules the card does not itself show — its own five
+  controls announce their values already, so a timed three-player game reads as standard. All of it is
+  measured against the **scheme**, never against the record the player chose, so a saved record named for a household reads the same count every
+  time it is opened.
+- **The letters** are their own depth, reached from *Letters and the board*: a grid of real tile faces,
+  each printing its value and how many stand in the bag, over a panel that holds the selected letter's
+  points, color and count. Where the letters carry more than one color the grid also offers to set the
+  points of a whole color at once. One line beneath the grid counts the bag, which is the number the
+  server refuses on.
+- **A letter carries no enamel band where its scheme names no color.** Literaki's four colors are
+  tokens the theme states; Scrabble's letters are all one class, and the theme states no band for it,
+  so a Scrabble tile is a plain tile with its face, its relief and its printed value. That is what a
+  Scrabble tile is, and the fallback in the tile's own custom properties is what makes it so.
+- **Saved rules** are the player's own, kept on the device: a record is named to save it, named again
+  to rename it, copied out as text, or deleted. The standard schemes and the saved records present as
+  one list in the card's game control, because they are one kind of thing — a named set of rules.
+
+A table's rules stand for the life of the game, so the sheet belongs to the arrival and the table menu
+keeps to what the device decides.
 
 ## Table regions
 
@@ -241,6 +338,12 @@ the primary action when it is armed. The blank picker is a sheet with the scheme
 - **Clock**: a seat whose time is up becomes an observer — every control rests, tiles
   reach no square, and the guidance line says the time is up. The seat keeps its tiles
   and its score, and the game plays on to its own end.
+- **Deviation**: a rule the table holds apart from the scheme it came from. `standard` (the record
+  matches its scheme) versus `changed`, which a row wears as a tinted edge with the standard value
+  printed beneath it and the control that restores it, a group summary carries as a count, and the
+  create card carries as a count beside its rules row and as one named chip per rule. Deviation is
+  always read against the scheme; whether a record has edits its player has yet to save is a separate
+  state, which arms the saving control alone.
 - **Word status**: `unknown` (hollow dot) · `valid` (success accent) · `invalid` (danger, with the
   dictionary's sentence in the guidance line) · `standing` (reserved for challenge schemes).
 - **Word insight**: `absent` (the dictionary refuses the word) · `unclassified` (the word plays, and the
@@ -280,7 +383,7 @@ Derived from the table description, consumed as data. Action legality (line, gap
 center rule) is always computed live on the client. Word verdicts follow the policy: `live` (the table
 answers word checks, so each formed word carries its verdict as it stands), `submit` (the server
 answers on submission), `challenge` (reserved: plays stand until contested). A table advertises the
-live path through `parameters.word_check`, which holds while the scheme validates on play and its
+live path through `feedback.word_check`, which holds while the table validates on play and its
 dictionary is loaded; the interface asks `GET /tables/{id}/words` for the words it shows and
 remembers every answer. A word the dictionary turns down rests the Play button, so a turn is spent
 only on a play the table will take; a word still waiting on its answer leaves the button armed, and
@@ -295,10 +398,14 @@ Four choices belong to the device rather than to a table: the color mode, the in
 language, and the turn notice. They travel together as one record that every tab on the device
 shares, and the first three follow the same three-state shape — a system setting that reads what the
 device already says, and an explicit choice that overrides it on the document root (`data-mode`,
-`data-motion`, `lang`). Motion at `calm` stills the acting plaque's breath, the fresh-play cue, the
-tile lift, and the sliding rows; at the system setting `prefers-reduced-motion` decides. The table menu holds the
-color mode, the motion, and the turn notice while a game runs; the main view holds the color mode
-and the language. A device that made its choices under an earlier version keeps them.
+`data-motion`, `lang`). Motion at `calm` stills every effect the interface
+has, and a stilled effect leaves the appearance its element declares — the acting ring, the fresh-play
+frame and its halo, the lifted tile, the row in its new order — so what motion was carrying is still
+read, at rest. At the system setting `prefers-reduced-motion` decides. The table
+menu holds the color mode, the motion, and the turn notice while a game runs; the main view holds
+the color mode and the language. A device that made its choices under an earlier version keeps them.
+These four are what the device decides; the rules a player saves for a game are a layer beside them,
+kept under their own key and changed in the rules sheet.
 
 ## Theming and tokens
 

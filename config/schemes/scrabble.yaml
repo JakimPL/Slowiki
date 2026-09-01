@@ -1,19 +1,28 @@
-game: scrabble
-board: scrabble
-tiles: scrabble_en
-dictionary: english
-min_players: 2
-max_players: 4
-validate_on_play: true
-premoves: true
-exchange_limit: null
-exchange_min_bag: 7
-pass_allowed: true
-time:
+specimen: WORDS
+rules:
+  board: scrabble
+  alphabet: scrabble-en
+  distribution: english
+  dictionary: english
+  seats: 2
+  rack_size: 7
+  blanks: 2
+  validate_on_play: true
+  premoves: true
+  pass_allowed: true
+  exchange_limit: null
+  exchange_min_bag: 7
+  opening_tiles: 2
+  opening_covers_center: true
+  bingo_bonus: 50
+  bingo_tiles: null
+  ending: first_out
+  rack_penalties: true
+  going_out_award: true
+  going_out_bonus: 0
+  pass_end_rounds: null
+  scoreless_end_limit: 6
   per_turn_seconds: null
-  increment_seconds: 0
   total_seconds: null
-  premove_delay_seconds: 1
-pass_end_rounds: null
-scoreless_end_limit: 6
-bingo_bonus: 50
+  increment_seconds: 0
+  letters: {}

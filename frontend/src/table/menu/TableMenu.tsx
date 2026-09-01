@@ -7,6 +7,7 @@ import { MOTIONS } from "../../play/device/motion";
 import { useNotices } from "../../play/device/useNotices";
 import { useSettings } from "../../play/settings/useSettings";
 import { Invitation } from "../arrive/Invitation";
+import { useSheetFocus } from "../input/useSheetFocus";
 import {
     MENU_CLOSE,
     MENU_HEADING,
@@ -20,8 +21,8 @@ import {
     NOTICE_NOTE,
     TABLE_LEAVE,
 } from "../strings";
-import type { Option } from "./Choice";
 import { Choice } from "./Choice";
+import type { Option } from "./Options";
 
 const NOTICE_OPTIONS: readonly Option<boolean>[] = [
     { value: false, caption: NOTICE_CAPTIONS.off },
@@ -44,10 +45,11 @@ export interface TableMenuProps {
 export function TableMenu({ code, onLeave, onClose }: TableMenuProps): ReactElement {
     const { settings, change } = useSettings();
     const { wanted, choose } = useNotices();
+    const sheet = useSheetFocus<HTMLDivElement>();
     return (
         <div className="sheet-region">
             <button type="button" className="sheet-scrim" aria-label={MENU_CLOSE} onClick={onClose} />
-            <div className="sheet menu" role="dialog" aria-label={MENU_HEADING}>
+            <div className="sheet menu" role="dialog" aria-label={MENU_HEADING} tabIndex={-1} ref={sheet}>
                 <h2 className="sheet-heading">{MENU_HEADING}</h2>
                 {code === null ? null : (
                     <div className="menu-row">

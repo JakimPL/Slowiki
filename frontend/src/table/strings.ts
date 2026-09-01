@@ -1,8 +1,12 @@
+import type { RulesConfig, SettingGroup, SettingName } from "../api/tables";
 import type { CompanyView, Tile } from "../api/views";
 import type { ScoredWord } from "../play/board/scoring";
 import type { Mode } from "../play/device/mode";
 import type { Motion } from "../play/device/motion";
 import type { Connection } from "../play/live/connection";
+import type { Control } from "../play/rules/control";
+import type { Deviation } from "../play/rules/deviation";
+import type { RulesEntry } from "../play/rules/entry";
 import type { Guidance } from "../play/story/guidance";
 import type { HighlightKind } from "../play/story/highlights";
 import type { LogEntry } from "../play/story/log";
@@ -31,7 +35,6 @@ export const SCHEME_LABEL = text("arrive.scheme_label");
 export const SEATS_LABEL = text("arrive.seats_label");
 export const TIME_LABEL = text("arrive.time_label");
 export const INCREMENT_LABEL = text("arrive.increment_label");
-export const UNTIMED_CAPTION = text("arrive.untimed");
 export const CODE_LABEL = text("arrive.code_label");
 export const CREATE_BUTTON = text("arrive.create_button");
 export const JOIN_BUTTON = text("arrive.join_button");
@@ -40,8 +43,147 @@ export const SWITCH_TO_CREATE = text("arrive.switch_to_create");
 export const STALE_NOTICE = text("arrive.stale_notice");
 export const JOINING_CAPTION = text("arrive.joining");
 export const OFFERINGS_LOADING = text("arrive.offerings_loading");
+export const READING_TABLE = text("arrive.reading_table");
+export const CODE_HINT = text("arrive.code_hint");
+export const RULES_HEADING = text("rules.heading");
+export const RULES_CLOSE = text("rules.close");
+export const RULES_ROW_LABEL = text("rules.row_label");
+export const RULES_STANDARD = text("rules.standard");
+export const RULES_REVERT_ALL = text("rules.revert_all");
+export const RULES_REVERT = text("rules.revert");
+export const RULES_LIMITED = text("rules.limited");
+export const RULES_UNLIMITED = text("rules.unlimited");
+export const RULES_UNTIMED = text("rules.untimed");
+export const RULES_HELP = text("rules.help_label");
+export const RULES_CUSTOM = text("rules.custom");
+export const RULES_CUSTOM_SPAN = text("rules.custom_span");
+export const RULES_STEP_UP = text("rules.step_up");
+export const RULES_STEP_DOWN = text("rules.step_down");
+export const RULES_EXPERT_LABEL = text("rules.expert_label");
+export const RULES_EXPERT_HIDDEN = text("rules.expert_hidden");
+export const RULES_EXPERT_SHOWN = text("rules.expert_shown");
+export const RULES_SAVED_HEADING = text("rules.saved_heading");
+export const RULES_SAVE_LABEL = text("rules.save_label");
+export const RULES_SAVE_PLACEHOLDER = text("rules.save_placeholder");
+export const RULES_SAVE_BUTTON = text("rules.save_button");
+export const RULES_SAVED_NONE = text("rules.saved_none");
+export const RULES_DELETE = text("rules.delete");
+export const CONFIRM_HEADING = text("rules.confirm_heading");
+export const CONFIRM_REVERT = text("rules.confirm_revert");
+export const CONFIRM_KEEP = text("rules.confirm_keep");
+export const RULES_EXPORT = text("rules.export");
+export const RULES_RETIRED = text("rules.retired");
+export const LETTERS_HEADING = text("rules.letters_heading");
+export const LETTERS_CLOSE = text("rules.letters_close");
+export const LETTERS_DONE = text("rules.letters_done");
+export const LETTERS_CANCEL = text("rules.letters_cancel");
+export const LETTERS_SHUT = text("rules.letters_shut");
+export const LETTER_POINTS = text("rules.letter_points");
+export const LETTER_COUNT = text("rules.letter_count");
+export const LETTER_CATEGORY = text("rules.letter_category");
+export const LETTER_BULK_LABEL = text("rules.bulk_label");
+export const VALUE_ON = text("rules.value_on");
+export const VALUE_OFF = text("rules.value_off");
+const CATEGORY_LABELS: Record<string, string> = {
+    standard: text("rules.category.standard"),
+    yellow: text("rules.category.yellow"),
+    green: text("rules.category.green"),
+    blue: text("rules.category.blue"),
+    red: text("rules.category.red"),
+    blank: text("rules.category.blank"),
+};
+const CHOICE_LABELS: Record<string, string> = {
+    first_out: text("rules.choice.first_out"),
+    all_out: text("rules.choice.all_out"),
+    literaki: text("rules.choice.literaki"),
+    "solo-literaki": text("rules.choice.solo-literaki"),
+    scrabble: text("rules.choice.scrabble"),
+    "scrabble-en": text("rules.choice.scrabble-en"),
+    "scrabble-pl": text("rules.choice.scrabble-pl"),
+    english: text("rules.choice.english"),
+    polish: text("rules.choice.polish"),
+    sjp: text("rules.choice.sjp"),
+    osps: text("rules.choice.osps"),
+};
+
+export function categoryCaption(category: string): string {
+    return CATEGORY_LABELS[category] ?? category;
+}
+
+export function choiceCaption(choice: string): string {
+    return CHOICE_LABELS[choice] ?? choice;
+}
+
+export function entryCaption(entry: RulesEntry): string {
+    return entry.saved ? entry.label : choiceCaption(entry.label);
+}
+
+export const SETTING_LABELS: Record<SettingName, string> = {
+    board: text("rules.setting.board"),
+    alphabet: text("rules.setting.alphabet"),
+    distribution: text("rules.setting.distribution"),
+    dictionary: text("rules.setting.dictionary"),
+    seats: text("rules.setting.seats"),
+    rack_size: text("rules.setting.rack_size"),
+    blanks: text("rules.setting.blanks"),
+    validate_on_play: text("rules.setting.validate_on_play"),
+    premoves: text("rules.setting.premoves"),
+    pass_allowed: text("rules.setting.pass_allowed"),
+    exchange_limit: text("rules.setting.exchange_limit"),
+    exchange_min_bag: text("rules.setting.exchange_min_bag"),
+    opening_tiles: text("rules.setting.opening_tiles"),
+    opening_covers_center: text("rules.setting.opening_covers_center"),
+    bingo_bonus: text("rules.setting.bingo_bonus"),
+    bingo_tiles: text("rules.setting.bingo_tiles"),
+    ending: text("rules.setting.ending"),
+    rack_penalties: text("rules.setting.rack_penalties"),
+    going_out_award: text("rules.setting.going_out_award"),
+    going_out_bonus: text("rules.setting.going_out_bonus"),
+    pass_end_rounds: text("rules.setting.pass_end_rounds"),
+    scoreless_end_limit: text("rules.setting.scoreless_end_limit"),
+    per_turn_seconds: text("rules.setting.per_turn_seconds"),
+    total_seconds: text("rules.setting.total_seconds"),
+    increment_seconds: text("rules.setting.increment_seconds"),
+    letters: text("rules.setting.letters"),
+};
+export const SETTING_HELP: Record<SettingName, string> = {
+    board: text("rules.help.board"),
+    alphabet: text("rules.help.alphabet"),
+    distribution: text("rules.help.distribution"),
+    dictionary: text("rules.help.dictionary"),
+    seats: text("rules.help.seats"),
+    rack_size: text("rules.help.rack_size"),
+    blanks: text("rules.help.blanks"),
+    validate_on_play: text("rules.help.validate_on_play"),
+    premoves: text("rules.help.premoves"),
+    pass_allowed: text("rules.help.pass_allowed"),
+    exchange_limit: text("rules.help.exchange_limit"),
+    exchange_min_bag: text("rules.help.exchange_min_bag"),
+    opening_tiles: text("rules.help.opening_tiles"),
+    opening_covers_center: text("rules.help.opening_covers_center"),
+    bingo_bonus: text("rules.help.bingo_bonus"),
+    bingo_tiles: text("rules.help.bingo_tiles"),
+    ending: text("rules.help.ending"),
+    rack_penalties: text("rules.help.rack_penalties"),
+    going_out_award: text("rules.help.going_out_award"),
+    going_out_bonus: text("rules.help.going_out_bonus"),
+    pass_end_rounds: text("rules.help.pass_end_rounds"),
+    scoreless_end_limit: text("rules.help.scoreless_end_limit"),
+    per_turn_seconds: text("rules.help.per_turn_seconds"),
+    total_seconds: text("rules.help.total_seconds"),
+    increment_seconds: text("rules.help.increment_seconds"),
+    letters: text("rules.help.letters"),
+};
+export const GROUP_LABELS: Record<SettingGroup, string> = {
+    table: text("rules.group.table"),
+    words: text("rules.group.words"),
+    turns: text("rules.group.turns"),
+    scoring: text("rules.group.scoring"),
+    letters: text("rules.group.letters"),
+};
 export const OPEN_SEAT_LABEL = text("seats.open_seat");
 export const YOU_MARKER = text("seats.you_marker");
+export const OUT_MARKER = text("seats.out_marker");
 export const YOUR_TURN_CAPTION = text("seats.your_turn");
 export const GAME_OVER_HEADING = text("sheets.game_over_heading");
 export const GAME_OVER_VICTORY = text("sheets.game_over_victory");
@@ -109,6 +251,7 @@ export const MOTION_CAPTIONS: Record<Motion, string> = {
 };
 
 const SECONDS_PER_MINUTE = 60;
+const SECONDS_PER_HOUR = 3600;
 const CLOCK_PAD_WIDTH = 2;
 const TERM_SEPARATOR = text("words.term_separator");
 export const LIST_SEPARATOR = text("general.list_separator");
@@ -171,12 +314,75 @@ export function primaryCaption(premove: boolean, points: number | null): string 
     return points === null ? base : text("hand.primary_scored", { action: base, points });
 }
 
+export function standingCaption(name: string, rules: RulesConfig): string {
+    return counted("arrive.standing", rules.seats, {
+        name,
+        clock: rules.total_seconds === null ? RULES_UNTIMED : budgetCaption(rules.total_seconds),
+    });
+}
+
+export function rulesCaption(changes: number): string {
+    return changes === 0 ? RULES_STANDARD : counted("rules.changed", changes);
+}
+
+export function bagTotalCaption(tiles: number): string {
+    return counted("rules.bag_total", tiles);
+}
+
+export function confirmDelete(label: string): string {
+    return text("rules.confirm_delete", { label });
+}
+
+export function standardNote(value: string): string {
+    return text("rules.standard_note", { value });
+}
+
+export function deviationCaption(deviation: Deviation): string {
+    return `${SETTING_LABELS[deviation.setting]} · ${valueCaption(deviation.control)}`;
+}
+
+export function valueCaption(control: Control): string {
+    switch (control.kind) {
+        case "toggle":
+            return control.value ? VALUE_ON : VALUE_OFF;
+        case "count":
+            return String(control.value);
+        case "optional_count":
+            return control.value === null ? RULES_UNLIMITED : String(control.value);
+        case "choice":
+            return choiceCaption(control.value);
+        case "seconds":
+            return control.value === null ? RULES_UNTIMED : budgetCaption(control.value);
+        case "letters":
+            return text("rules.edited");
+    }
+}
+
 export function budgetCaption(seconds: number): string {
-    return text("clock.budget", { minutes: Math.round(seconds / SECONDS_PER_MINUTE) });
+    const whole = Math.max(0, Math.round(seconds));
+    if (whole < SECONDS_PER_MINUTE) {
+        return text("clock.seconds", { seconds: whole });
+    }
+    if (whole < SECONDS_PER_HOUR) {
+        return spannedMinutes(whole);
+    }
+    return spannedHours(whole);
+}
+
+function spannedMinutes(whole: number): string {
+    const minutes = Math.floor(whole / SECONDS_PER_MINUTE);
+    const rest = whole % SECONDS_PER_MINUTE;
+    return rest === 0 ? text("clock.minutes", { minutes }) : text("clock.minutes_seconds", { minutes, seconds: rest });
+}
+
+function spannedHours(whole: number): string {
+    const hours = Math.floor(whole / SECONDS_PER_HOUR);
+    const minutes = Math.round((whole % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE);
+    return minutes === 0 ? text("clock.hours", { hours }) : text("clock.hours_minutes", { hours, minutes });
 }
 
 export function incrementCaption(seconds: number): string {
-    return seconds === 0 ? text("clock.increment_none") : text("clock.increment", { seconds });
+    return seconds === 0 ? text("clock.increment_none") : text("clock.increment", { span: budgetCaption(seconds) });
 }
 
 export function exchangeCaption(count: number): string {
@@ -283,11 +489,6 @@ export function nameFor(company: CompanyView, seat: number): string {
 
 export function bagCaption(count: number): string {
     return text("docket.bag", { tiles: count });
-}
-
-export function offeringCaption(name: string, minimum: number, maximum: number): string {
-    const span = minimum === maximum ? String(minimum) : text("arrive.span", { minimum, maximum });
-    return counted("arrive.offering", maximum, { name, span });
 }
 
 export function gatheringCaption(present: number, total: number): string {

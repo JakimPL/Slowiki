@@ -13,6 +13,7 @@ from wordcore.games.abandonment import abandoned
 from wordcore.games.journal import JournalEntry
 from wordcore.games.kind import EntryKind
 from wordcore.games.rules import Rules
+from wordcore.moves.action import Pass
 from wordcore.moves.kind import ActionKind
 from wordcore.moves.move import Move
 from wordcore.positions.position import Position
@@ -78,6 +79,13 @@ class Game:
             return self._queue_premove(position, move)
 
         return self._play_move(position, move)
+
+    def adjudicate_pass(self, player: int, base_seq: int) -> JournalEntry:
+        position = self._require_current(base_seq)
+        self._ensure_member(position, player)
+        move = Move(player=player, action=Pass())
+        self._ensure_on_turn(position, move)
+        return self._recorded_move(position, move)
 
     def abandon(self) -> JournalEntry:
         position = self.position
@@ -170,6 +178,9 @@ class Game:
     def _play_move(self, position: Position, move: Move) -> JournalEntry:
         self._ensure_on_turn(position, move)
         self._rules.validate(position, move)
+        return self._recorded_move(position, move)
+
+    def _recorded_move(self, position: Position, move: Move) -> JournalEntry:
         return self._record(
             kind=EntryKind.MOVE,
             move=move,

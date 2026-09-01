@@ -22,7 +22,8 @@ from wordcore.moves.action import Exchange, Pass, Play, PlayPlacement
 from wordcore.moves.move import Move
 from wordcore.states.phase import Phase
 from wordcore.tiles.bag import build_tiles, deal_racks, shuffled_bag
-from wordcore.tiles.tile import LetterSpec, Tile, TilePreset
+from wordcore.tiles.tile import LetterSpec, Tile
+from wordcore.tiles.tileset import TileSet
 from wordcore.views.events import event_view
 
 
@@ -63,37 +64,31 @@ def test_bonus_kinds() -> None:
 
 
 def test_bag_counts() -> None:
-    preset = TilePreset(
-        name="tiny",
+    tiles = TileSet(
         letters=(LetterSpec(symbol="a", value=1, category="yellow", count=3),),
         blanks=1,
-        rack_size=2,
     )
-    tiles = build_tiles(preset)
-    assert len(tiles) == 4
-    assert sum(1 for tile in tiles if tile.blank) == 1
+    built = build_tiles(tiles)
+    assert len(built) == 4
+    assert sum(1 for tile in built if tile.blank) == 1
 
 
 def test_shuffled_bag_is_deterministic() -> None:
-    preset = TilePreset(
-        name="tiny",
+    tiles = TileSet(
         letters=(LetterSpec(symbol="a", value=1, category="yellow", count=5),),
         blanks=0,
-        rack_size=2,
     )
-    first = shuffled_bag(preset, random.Random(7))
-    second = shuffled_bag(preset, random.Random(7))
+    first = shuffled_bag(tiles, random.Random(7))
+    second = shuffled_bag(tiles, random.Random(7))
     assert first == second
 
 
 def test_deal_racks() -> None:
-    preset = TilePreset(
-        name="tiny",
+    tiles = TileSet(
         letters=(LetterSpec(symbol="a", value=1, category="yellow", count=4),),
         blanks=0,
-        rack_size=2,
     )
-    bag = shuffled_bag(preset, random.Random(1))
+    bag = shuffled_bag(tiles, random.Random(1))
     racks, remaining = deal_racks(bag, {0: 2, 1: None})
     assert len(racks[0]) == 2
     assert len(racks[1]) == 2

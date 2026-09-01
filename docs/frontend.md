@@ -34,7 +34,13 @@ F5. **One source of truth per fact.** Position and company come from the live st
 
 F6. **Every word comes from the catalog.** No user-facing text is written in a component. Keys are
     generated from the source catalogs, so a missing or misspelled key fails compilation, and counted
-    phrases go through the plural machinery rather than through string concatenation.
+    phrases go through the plural machinery rather than through string concatenation. An identifier the
+    server sends — a tile category, a board, an alphabet, a letter distribution, a word list — reaches
+    the eye through `categoryCaption` or `choiceCaption`, which speak the authored word and fall back to
+    the identifier itself; `tests/test_labels.py` holds both catalogs against what is on disk, so a
+    preset ships readable. Every setting also carries one authored sentence: `SETTING_HELP` is
+    exhaustive over `SettingName`, so a new setting fails the build until it is explained, and
+    `tests/test_labels.py` holds that sentence in every locale.
 
 F7. **Color and metric come from tokens.** The theme arrives as tokens and becomes custom properties;
     components set properties and the stylesheet spends them. A derived value — a tint, a wash, a
@@ -60,6 +66,20 @@ F10. **Preferences are a layer.** Choices a player makes about the app rather th
      and one provider at the root carries the record to whatever reads it — a route reserved for
      device facts, never for the state of a game.
 
+     A remembered choice about a *game* — a named rules record the player keeps for next time — is a
+     second layer with its own owner, its own key and its own parse tolerance: it is game data, so it
+     stays out of the device record and out of the provider that carries it. Both layers keep one
+     storage shape: a pure module owns the key, takes `Pick<Storage, …>` so a test supplies its own,
+     and reads defensively enough that a document written by another version still yields what it can.
+     A saved record states its deviations from the game it came from, and the live catalog is what
+     resolves them, so a setting added since it was saved arrives at the server's own default.
+
+     One layer holds the whole settings vocabulary. `play/rules/` reasons about the rules a table
+     plays by — the record, the changes laid over it, the catalog as a discriminated union of
+     controls, the letters a preset pair expands to, the saved records and their storage, and the one
+     list presenting built-in schemes and saved records alike — and `table/rules/` presents them.
+     Nothing outside that layer decides what a setting means.
+
 F11. **Failures are states.** A refusal becomes a typed value at the boundary, carrying its code and
      its sentence, and renders into a slot that reserves its space. The interface distinguishes what
      the player must decide from what the app can settle by itself.
@@ -82,7 +102,20 @@ F14. **Tests reach the logic.** Pure modules carry the behavior tests, which is 
 
 F15. **Every control is a real control.** Actions are buttons, groups are labeled, labels come from
      the catalog, pressed and open states are announced, and focus stays visible. An affordance
-     reachable only by a gesture gets a second route that a keyboard can take.
+     reachable only by a gesture gets a second route that a keyboard can take. A surface that stacks
+     answers Escape by closing its innermost open layer, and the order of those layers is a tested
+     rule (`play/rules/ladder.ts`) rather than a chain of branches in a view.
+
+F16. **Motion is one vocabulary.** Durations and easing curves are named steps in the stylesheet's own
+     scale, and an effect spends a step rather than writing a number, so two effects that should feel
+     alike are alike by construction. Every step is the scale multiplied by `--motion-scale`, which
+     the calm preference and a device asking for reduced motion set to zero — one number, so a new
+     effect is stilled the moment it is written. What that leaves behind is the appearance the
+     element declares for itself: keyframes add movement to a resting state, they never supply one.
+     Where the client must know a duration, it reads the step back out of the stylesheet
+     (`play/motion/tokens.ts`) rather than restating it. A region that opens or closes grows through
+     the one reveal (`table/motion/Reveal.tsx`), which holds its content mounted and out of reach
+     while it is shut, so a new disclosure inherits the movement rather than inventing one.
 
 ## Where a new concern goes
 
@@ -98,9 +131,12 @@ F15. **Every control is a real control.** Actions are buttons, groups are labele
 4. **Does it show words?** They go into the source catalogs and reach the code as generated keys (F6).
 5. **Does it show color or spacing?** It becomes a token or spends one; a new derived value declares
    the share it derives from (F7).
-6. **Does it remember something?** Decide the scope first — device or tab — then add it to the
-   record that owns that scope rather than opening a new key (F10).
+6. **Does it remember something?** Decide the scope first — device or tab — then name the layer it
+   belongs to: device preferences, or the saved rules a player keeps for a game. Each layer owns one
+   key, so a fact joins the layer that owns its kind (F10).
 7. **Does it take a gesture?** It joins the existing pointer session rather than listening on its own,
    and its arithmetic is a function that takes points and rectangles (F1, F9).
-8. **Write the test where the behavior is.** A rule gets a unit test; a rendered offering gets a
+8. **Does it move?** It names a step and a curve from the motion scale, and the element it moves
+   declares the appearance it holds when the scale is zero (F16).
+9. **Write the test where the behavior is.** A rule gets a unit test; a rendered offering gets a
    markup test; both, when a rule decides what is offered (F14).

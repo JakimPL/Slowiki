@@ -4,8 +4,8 @@ from wordassets.drawing.node import Element
 from wordassets.drawing.shapes import glyph, rect, svg
 from wordassets.icons import icon_painting, painted_element
 from wordassets.tiles import tile_group
-from wordcore.tiles.tile import TilePreset
-from wordtable.config import ThemeTokens
+from wordcore.tiles.tileset import TileSet
+from wordtable.style import ThemeTokens
 
 PRODUCT_NAME: Final = "Słowiki"
 
@@ -26,7 +26,7 @@ _SPLASH_NAME_SIZE: Final = 84.0
 _SPLASH_NAME_DROP: Final = 0.68
 
 
-def og_image(theme: ThemeTokens, tiles: TilePreset) -> Element:
+def og_image(theme: ThemeTokens, tiles: TileSet) -> Element:
     by_symbol = {spec.symbol: spec for spec in tiles.letters}
     row_width = len(_OG_WORD) * _OG_TILE + (len(_OG_WORD) - 1) * _OG_TILE_GAP
     start = (_OG_WIDTH - row_width) / 2
