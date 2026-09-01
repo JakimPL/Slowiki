@@ -49,6 +49,19 @@ function aFailingTransport(
     };
 }
 
+function aResumingTransport(
+    recorded: Recorded[],
+    id: string,
+): (url: string, init: FetchEventSourceInit) => Promise<void> {
+    return (url, init) => {
+        const headers = { ...init.headers, "last-event-id": id };
+        recorded.push({ url, init: { ...init, headers } });
+        return new Promise(() => {
+            return;
+        });
+    };
+}
+
 function aListener(): { heard: Heard; streamed: Streamed } {
     const heard: Heard = {
         beats: 0,
@@ -99,6 +112,14 @@ describe("follow", () => {
         const recorded: Recorded[] = [];
         follow(aTransport(recorded), "/tables/t/events", { "X-Seat-Token": "tok" }, 5, aListener().streamed);
         expect(recorded[0]?.init.headers).toEqual({ "X-Seat-Token": "tok", [LAST_EVENT_ID_HEADER]: "4" });
+    });
+
+    it("leaves the transport one resume header to overwrite", () => {
+        const recorded: Recorded[] = [];
+        follow(aResumingTransport(recorded, "32"), "/tables/t/events", {}, 22, aListener().streamed);
+        const sent = recorded[0]?.init.headers ?? {};
+        expect(Object.keys(sent).filter((key) => key.toLowerCase() === "last-event-id")).toEqual(["last-event-id"]);
+        expect(sent["last-event-id"]).toBe("32");
     });
 
     it("sends bare headers when starting from zero", () => {

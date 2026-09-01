@@ -22,7 +22,8 @@ export const PRESENCE_EVENT = "presence";
 export const POSITION_EVENT = "position";
 export const CLOCK_EVENT = "clock";
 export const HEARTBEAT_EVENT = "heartbeat";
-export const LAST_EVENT_ID_HEADER = "Last-Event-ID";
+// the transport writes the resume id under this exact key
+export const LAST_EVENT_ID_HEADER = "last-event-id";
 export const RETRY_AFTER_DROP_MILLISECONDS = 1000;
 
 export function follow(
