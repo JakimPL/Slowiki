@@ -47,6 +47,7 @@ from wordserver.models.word_lore import WordLoreResponse
 from wordserver.models.word_verdicts import WordVerdicts
 from wordserver.records import KEPT_GAMES, GameBook
 from wordserver.registry import TableRegistry
+from wordserver.resuming import resume_point
 from wordserver.session import TableSession
 from wordserver.sweep import TableSweep
 from wordtable.allowances.described import setting_allowances
@@ -518,7 +519,7 @@ def create_app() -> FastAPI:
     ) -> StreamingResponse:
         session = session_for(table_id)
         observer = session.observer_for(request.headers.get("X-Seat-Token"))
-        since = int(last_event_id) + 1 if last_event_id else 0
+        since = resume_point(last_event_id)
         return StreamingResponse(
             session.events(observer, since),
             media_type="text/event-stream",
