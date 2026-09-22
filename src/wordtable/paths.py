@@ -3,7 +3,7 @@ from pathlib import Path
 from lexica.artifact.formats import ARTIFACT_FORMATS
 from lexica.artifact.kind import ArtifactKind
 from lexica.names import DictionaryName
-from wordtable.releases import POLIMORF_RELEASE, SJP_RELEASE
+from wordtable.sources.releases import POLIMORF_RELEASE, SJP_RELEASE
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 CONFIG_DIR = PROJECT_ROOT / "config"

@@ -9,7 +9,7 @@ from typing import Final
 from lexica.names import DictionaryName
 from wordcore.errors.exceptions import InvalidConfiguration
 from wordtable.paths import POLIMORF_TABLE, dictionary_archive
-from wordtable.releases import POLIMORF_RELEASE, SJP_RELEASE, SourceRelease
+from wordtable.sources.releases import POLIMORF_RELEASE, SJP_RELEASE, SourceRelease
 
 MIRROR_VARIABLE: Final = "SLOWIKI_SOURCE_MIRROR"
 

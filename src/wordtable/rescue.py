@@ -12,7 +12,7 @@ from wordcore.errors.exceptions import InvalidConfiguration
 from wordtable.lexicons import compile_dictionary
 from wordtable.manifest import inputs_stand_recorded, record_inputs
 from wordtable.paths import dictionary_compiled
-from wordtable.releases import POLIMORF_RELEASE
+from wordtable.sources.releases import POLIMORF_RELEASE
 
 _NO_RESCUE: Final[RescueTable] = {}
 

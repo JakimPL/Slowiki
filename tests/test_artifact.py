@@ -14,7 +14,7 @@ from lexica.lore.rescue import RescueRow
 from lexica.names import DictionaryName
 from wordcore.errors.exceptions import InvalidConfiguration
 from wordtable.paths import dictionary_compiled
-from wordtable.releases import SJP_RELEASE
+from wordtable.sources.releases import SJP_RELEASE
 
 WORDS = ("DOM", "KOT", "KOTA")
 

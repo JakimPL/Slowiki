@@ -190,7 +190,7 @@ manifest, which together keep a rerun byte-identical.
 Every step is a lookup or a pure table: analysis is a dictionary lookup,
 classification is the segment table in `lexica.grammar`, assembly is grouping.
 The same inputs produce the same artifacts byte for byte, which is what makes
-the pinned releases in `wordtable.releases` a complete description of a build.
+the pinned releases in `wordtable.sources.releases` a complete description of a build.
 
 The word list's inputs are named by its path: the file name carries the release
 stem, so a bump writes a new file. The rescue table reads more than its path

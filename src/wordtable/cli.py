@@ -4,12 +4,12 @@ from pathlib import Path
 
 from lexica.names import DictionaryName
 from wordtable.coverage import report_coverage, summary_of
-from wordtable.fetch import fetch_sources
 from wordtable.lexicons import compile_dictionary
 from wordtable.paths import POLIMORF_TABLE, dictionary_coverage, dictionary_unread
 from wordtable.play import run
 from wordtable.rescue import compile_rescue
 from wordtable.serve import run as run_server
+from wordtable.sources.fetch import fetch_sources
 
 logger = logging.getLogger(__name__)
 

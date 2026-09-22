@@ -12,7 +12,7 @@ agreement, both as a pre-commit hook and as a step of `make check`.
   earns its refusal here, from a message that names the path and states the remedy.
 - **`wordtable` owns the placement.** It composes each file name from the kind and the
   format `lexica` declares over the stem of the pinned source release in
-  `wordtable.releases`, builds a missing artifact, caches a loaded one per dictionary,
+  `wordtable.sources.releases`, builds a missing artifact, caches a loaded one per dictionary,
   and offers the game exactly the capability it asks for. A release bump therefore moves
   the archive, every artifact and every diagnostic to a new set of paths at once, and
   the next build writes them.

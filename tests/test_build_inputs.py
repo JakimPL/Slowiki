@@ -8,7 +8,7 @@ from wordcore.lexicon.lexicon import TextLexicon
 from wordtable import paths
 from wordtable.manifest import inputs_stand_recorded, record_inputs
 from wordtable.overrides import load_overrides
-from wordtable.releases import SJP_RELEASE
+from wordtable.sources.releases import SJP_RELEASE
 
 OVERRIDES = """overrides:
   - form: kot

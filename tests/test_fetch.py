@@ -4,8 +4,8 @@ from pathlib import Path
 import pytest
 
 from wordcore.errors.exceptions import InvalidConfiguration
-from wordtable.fetch import MIRROR_VARIABLE, fetch_release, pinned_sources, source_url
-from wordtable.releases import POLIMORF_RELEASE, SJP_RELEASE, SourceRelease
+from wordtable.sources.fetch import MIRROR_VARIABLE, fetch_release, pinned_sources, source_url
+from wordtable.sources.releases import POLIMORF_RELEASE, SJP_RELEASE, SourceRelease
 
 BODY = b"a pinned source\n"
 
