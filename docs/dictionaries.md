@@ -2,7 +2,7 @@
 
 ## SJP
 
-The SJP game word list lives in `dictionaries/sjp-20260820.zip`.
+The SJP game word list lives in `dictionaries/sjp-20260901.zip`.
 
 Archive contents:
 
@@ -14,7 +14,7 @@ License: GPL 2 and Creative Commons Attribution 4.0 International.
 
 Source: <https://sjp.pl/sl/growy/>
 
-`lexica` compiles the archive into `dictionaries/sjp-20260820.words.v1.lexicon`, a
+`lexica` compiles the archive into `dictionaries/sjp-20260901.words.v1.lexicon`, a
 cached artifact the server loads at startup. Every compiled artifact opens with a
 header naming its kind and format, and carries both in its filename, so each kind
 occupies its own path and a reader accepts only what it understands. `lexica

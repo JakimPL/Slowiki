@@ -19,10 +19,10 @@ class SourceRelease(BaseFrozen):
 
 
 SJP_RELEASE: Final = SourceRelease(
-    stem="sjp-20260820",
+    stem="sjp-20260901",
     suffix=".zip",
     origin="https://sjp.pl/sl/growy/",
-    sha256="c5d0835277c879397b4c12bb7a091e426d1c0ac9e45bd550698008f101139bb6",
+    sha256="43796ccf34a8ba9b6e965588b842721056b5a89cad4c8c38e057f838d4eaa6a5",
 )
 
 POLIMORF_RELEASE: Final = SourceRelease(
