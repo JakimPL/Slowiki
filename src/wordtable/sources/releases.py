@@ -26,13 +26,6 @@ class DiscoveredRelease(BaseFrozen):
 SJP_INDEX: Final = "https://sjp.pl/sl/growy/"
 
 
-SJP_RELEASE: Final = SourceRelease(
-    stem="sjp-20260901",
-    suffix=".zip",
-    origin="https://sjp.pl/sl/growy/",
-    sha256="43796ccf34a8ba9b6e965588b842721056b5a89cad4c8c38e057f838d4eaa6a5",
-)
-
 POLIMORF_RELEASE: Final = SourceRelease(
     stem="polimorf-20260726",
     suffix=".tab.gz",

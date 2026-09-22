@@ -1,40 +1,51 @@
+import functools
 import hashlib
 import logging
 import os
 import urllib.error
 import urllib.request
+import zipfile
+from collections.abc import Callable
 from pathlib import Path
 from typing import Final
 
+from lexica.dictionaries.sjp import SJP_WORD_LIST
 from wordcore.errors.exceptions import InvalidConfiguration
 from wordtable.paths import POLIMORF_TABLE, archive_path, sjp_release_record
+from wordtable.sources.discovery import latest_release
 from wordtable.sources.record import ReleaseRecord, write_release_record
-from wordtable.sources.releases import POLIMORF_RELEASE, SJP_RELEASE, SourceRelease
+from wordtable.sources.releases import POLIMORF_RELEASE, SJP_INDEX, SourceRelease
 
 MIRROR_VARIABLE: Final = "SLOWIKI_SOURCE_MIRROR"
 
 _CHUNK: Final = 1 << 20
 _PARTIAL_SUFFIX: Final = ".partial"
+_PAGE_ENCODING: Final = "utf-8"
 
 logger = logging.getLogger(__name__)
 
 
 def pinned_sources() -> tuple[tuple[SourceRelease, Path], ...]:
-    return (
-        (SJP_RELEASE, archive_path(SJP_RELEASE.stem)),
-        (POLIMORF_RELEASE, POLIMORF_TABLE),
-    )
+    return ((POLIMORF_RELEASE, POLIMORF_TABLE),)
 
 
 def fetch_sources() -> tuple[Path, ...]:
-    sources = tuple(
-        fetch_release(release, destination) for release, destination in pinned_sources()
-    )
-    write_release_record(
-        sjp_release_record(),
-        ReleaseRecord(stem=SJP_RELEASE.stem, url=SJP_RELEASE.url, sha256=SJP_RELEASE.sha256),
-    )
-    return sources
+    pinned = tuple(fetch_release(release, destination) for release, destination in pinned_sources())
+    return (fetch_latest_sjp(SJP_INDEX), *pinned)
+
+
+def fetch_latest_sjp(index_url: str) -> Path:
+    release = latest_release(_read_page(index_url), index_url)
+    destination = archive_path(release.stem)
+    if not destination.is_file():
+        logger.info("downloading %s from %s", destination.name, release.url)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        _download(release.url, destination, _ensure_sjp_archive)
+
+    _ensure_sjp_archive(destination, str(destination))
+    record = ReleaseRecord(stem=release.stem, url=release.url, sha256=_file_digest(destination))
+    write_release_record(sjp_release_record(), record)
+    return destination
 
 
 def fetch_release(release: SourceRelease, destination: Path) -> Path:
@@ -45,7 +56,7 @@ def fetch_release(release: SourceRelease, destination: Path) -> Path:
     url = source_url(release)
     logger.info("downloading %s from %s", release.filename, url)
     destination.parent.mkdir(parents=True, exist_ok=True)
-    _download(release, url, destination)
+    _download(url, destination, functools.partial(_ensure_digest_agrees, release))
     return destination
 
 
@@ -57,11 +68,21 @@ def source_url(release: SourceRelease) -> str:
     return f"{mirror.rstrip('/')}/{release.filename}"
 
 
-def _download(release: SourceRelease, url: str, destination: Path) -> None:
+def _read_page(url: str) -> str:
+    try:
+        with urllib.request.urlopen(url) as response:
+            body: bytes = response.read()
+    except urllib.error.URLError as error:
+        raise InvalidConfiguration(f"the page {url} failed to load: {error}") from error
+
+    return body.decode(_PAGE_ENCODING)
+
+
+def _download(url: str, destination: Path, ensure_valid: Callable[[Path, str], None]) -> None:
     partial = destination.with_name(destination.name + _PARTIAL_SUFFIX)
     try:
         _stream(url, partial)
-        _ensure_digest_agrees(release, partial, url)
+        ensure_valid(partial, url)
     except InvalidConfiguration:
         partial.unlink(missing_ok=True)
         raise
@@ -85,6 +106,33 @@ def _ensure_digest_agrees(release: SourceRelease, path: Path, origin: str) -> No
             f"{origin} carries sha256 {digest} where the pinned {release.filename} carries "
             f"{release.sha256}; delete any stale copy and fetch the source again"
         )
+
+
+def _ensure_sjp_archive(path: Path, origin: str) -> None:
+    _ensure_zip_intact(path, origin)
+    _ensure_word_list_present(path, origin)
+
+
+def _ensure_zip_intact(path: Path, origin: str) -> None:
+    if not zipfile.is_zipfile(path):
+        raise InvalidConfiguration(f"{origin} carries no zip archive")
+
+    try:
+        with zipfile.ZipFile(path) as archive:
+            damaged = archive.testzip()
+    except zipfile.BadZipFile as error:
+        raise InvalidConfiguration(f"{origin} carries a damaged zip archive: {error}") from error
+
+    if damaged is not None:
+        raise InvalidConfiguration(f"{origin} carries a damaged member {damaged}")
+
+
+def _ensure_word_list_present(path: Path, origin: str) -> None:
+    with zipfile.ZipFile(path) as archive:
+        members = archive.namelist()
+
+    if SJP_WORD_LIST not in members:
+        raise InvalidConfiguration(f"{origin} carries no word list {SJP_WORD_LIST}")
 
 
 def _file_digest(path: Path) -> str:

@@ -1,11 +1,20 @@
 import hashlib
+import zipfile
 from pathlib import Path
 
 import pytest
 
 from wordcore.errors.exceptions import InvalidConfiguration
-from wordtable.sources.fetch import MIRROR_VARIABLE, fetch_release, pinned_sources, source_url
-from wordtable.sources.releases import POLIMORF_RELEASE, SJP_RELEASE, SourceRelease
+from wordtable import paths
+from wordtable.sources.fetch import (
+    MIRROR_VARIABLE,
+    fetch_latest_sjp,
+    fetch_release,
+    pinned_sources,
+    source_url,
+)
+from wordtable.sources.record import ReleaseRecord, read_release_record
+from wordtable.sources.releases import POLIMORF_RELEASE, SourceRelease
 
 BODY = b"a pinned source\n"
 
@@ -52,7 +61,7 @@ def test_a_present_source_of_another_digest_is_refused(tmp_path: Path) -> None:
 
 def test_every_pinned_source_lands_beside_the_dictionaries() -> None:
     releases = {release for release, _ in pinned_sources()}
-    assert releases == {SJP_RELEASE, POLIMORF_RELEASE}
+    assert releases == {POLIMORF_RELEASE}
     for release, destination in pinned_sources():
         assert destination.name == release.filename
 
@@ -70,3 +79,76 @@ def test_a_download_of_another_digest_leaves_no_file(
 
     assert not destination.exists()
     assert not destination.with_name(destination.name + ".partial").exists()
+
+
+@pytest.fixture(name="dictionaries")
+def _dictionaries(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    dictionaries = tmp_path / "dictionaries"
+    monkeypatch.setattr(paths, "DICTIONARIES_DIR", dictionaries)
+    return dictionaries
+
+
+def _served_index(tmp_path: Path, archive_name: str) -> str:
+    served = tmp_path / "served"
+    served.mkdir()
+    index = served / "index.html"
+    index.write_text(f'<p><b><a href="{archive_name}">{archive_name}</a></b></p>', encoding="utf-8")
+    return index.as_uri()
+
+
+def _sjp_archive(path: Path) -> bytes:
+    with zipfile.ZipFile(path, "w") as bundle:
+        bundle.writestr("slowa.txt", "aa\r\nab\r\n")
+        bundle.writestr("README.txt", "license\n")
+
+    return path.read_bytes()
+
+
+def test_the_linked_archive_downloads_and_is_recorded(tmp_path: Path, dictionaries: Path) -> None:
+    index = _served_index(tmp_path, "sjp-20261001.zip")
+    body = _sjp_archive(tmp_path / "served" / "sjp-20261001.zip")
+    fetched = fetch_latest_sjp(index)
+    assert fetched == dictionaries / "sjp-20261001.zip"
+    assert fetched.read_bytes() == body
+    assert read_release_record(paths.sjp_release_record()) == ReleaseRecord(
+        stem="sjp-20261001",
+        url=(tmp_path / "served" / "sjp-20261001.zip").as_uri(),
+        sha256=hashlib.sha256(body).hexdigest(),
+    )
+
+
+def test_an_archive_on_disk_is_kept_and_recorded(tmp_path: Path, dictionaries: Path) -> None:
+    index = _served_index(tmp_path, "sjp-20261001.zip")
+    dictionaries.mkdir()
+    body = _sjp_archive(dictionaries / "sjp-20261001.zip")
+    assert fetch_latest_sjp(index).read_bytes() == body
+    record = read_release_record(paths.sjp_release_record())
+    assert record is not None
+    assert record.sha256 == hashlib.sha256(body).hexdigest()
+
+
+def test_a_damaged_archive_leaves_no_file_and_no_record(tmp_path: Path, dictionaries: Path) -> None:
+    index = _served_index(tmp_path, "sjp-20261001.zip")
+    (tmp_path / "served" / "sjp-20261001.zip").write_bytes(b"an html error page")
+    with pytest.raises(InvalidConfiguration, match="carries no zip archive"):
+        fetch_latest_sjp(index)
+
+    assert not (dictionaries / "sjp-20261001.zip").exists()
+    assert not (dictionaries / "sjp-20261001.zip.partial").exists()
+    assert not paths.sjp_release_record().exists()
+
+
+def test_an_archive_without_the_word_list_is_refused(tmp_path: Path, dictionaries: Path) -> None:
+    index = _served_index(tmp_path, "sjp-20261001.zip")
+    with zipfile.ZipFile(tmp_path / "served" / "sjp-20261001.zip", "w") as bundle:
+        bundle.writestr("README.txt", "license\n")
+
+    with pytest.raises(InvalidConfiguration, match="carries no word list"):
+        fetch_latest_sjp(index)
+
+    assert not paths.sjp_release_record().exists()
+
+
+def test_an_unreachable_index_is_reported(tmp_path: Path, dictionaries: Path) -> None:
+    with pytest.raises(InvalidConfiguration, match="failed to load"):
+        fetch_latest_sjp((tmp_path / "absent.html").as_uri())
