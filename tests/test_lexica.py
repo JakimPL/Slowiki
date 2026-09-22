@@ -11,14 +11,16 @@ from wordbots.registry import BotRegistry
 from wordcore.errors.exceptions import InvalidConfiguration
 from wordcore.moves.move import Move
 from wordcore.positions.position import Position
-from wordtable.paths import dictionary_archive
-
-SJP_ARCHIVE = dictionary_archive(DictionaryName.SJP)
+from wordtable.paths import dictionary_archive, dictionary_known
 
 
-@pytest.mark.skipif(not SJP_ARCHIVE.is_file(), reason="SJP archive not present")
+def _sjp_archive_present() -> bool:
+    return dictionary_known(DictionaryName.SJP) and dictionary_archive(DictionaryName.SJP).is_file()
+
+
+@pytest.mark.skipif(not _sjp_archive_present(), reason="SJP archive not present")
 def test_sjp_loader_sample() -> None:
-    words = list(itertools.islice(iter_sjp_words(SJP_ARCHIVE), 25))
+    words = list(itertools.islice(iter_sjp_words(dictionary_archive(DictionaryName.SJP)), 25))
     assert words[0] == "AA"
     assert all(word == word.upper() for word in words)
 

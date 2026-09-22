@@ -7,9 +7,8 @@ from typing import Final, NamedTuple
 
 from lexica.artifact.formats import ARTIFACT_FORMATS
 from lexica.artifact.kind import ArtifactKind
-from lexica.names import DictionaryName
 from wordcore.errors.exceptions import InvalidConfiguration
-from wordtable.paths import dictionary_archive, dictionary_compiled
+from wordtable.paths import compiled_name
 
 PROJECT_ROOT: Final[Path] = Path(__file__).resolve().parents[1]
 DOCUMENT: Final[Path] = PROJECT_ROOT / "docs" / "lexicon-contract.md"
@@ -21,7 +20,6 @@ BOUNDARIES_SECTION: Final = "Boundaries"
 
 RESERVED: Final = "—"
 STEM_PLACEHOLDER: Final = "{stem}"
-ARCHIVE_SUFFIX: Final = ".zip"
 
 _HEADING: Final = "## "
 _PIPE: Final = "|"
@@ -199,15 +197,11 @@ def _ensure_format_agrees(document: Path, row: KindRow) -> None:
 
 
 def _ensure_file_name_agrees(document: Path, row: KindRow) -> None:
-    kind = ArtifactKind(row.kind)
-    for name in DictionaryName:
-        stem = dictionary_archive(name).name.removesuffix(ARCHIVE_SUFFIX)
-        declared = row.file_name.replace(STEM_PLACEHOLDER, stem)
-        produced = dictionary_compiled(name, kind).name
-        if produced != declared:
-            raise InvalidConfiguration(
-                f"{document}: {name} yields {produced} where the contract declares {declared}"
-            )
+    produced = compiled_name(STEM_PLACEHOLDER, ArtifactKind(row.kind))
+    if produced != row.file_name:
+        raise InvalidConfiguration(
+            f"{document}: {row.kind} yields {produced} where the contract declares {row.file_name}"
+        )
 
 
 def _ensure_members_resolve(document: Path, row: KindRow) -> None:

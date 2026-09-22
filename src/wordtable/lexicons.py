@@ -6,10 +6,13 @@ from lexica.artifact.words import read_word_list, write_word_list
 from lexica.dictionaries.catalog import iter_dictionary_words
 from lexica.names import DictionaryName
 from wordcore.lexicon.protocol import Lexicon
-from wordtable.paths import dictionary_archive, dictionary_compiled
+from wordtable.paths import dictionary_archive, dictionary_compiled, dictionary_known
 
 
 def dictionary_ready(name: DictionaryName) -> bool:
+    if not dictionary_known(name):
+        return False
+
     return word_list_path(name).is_file() or dictionary_archive(name).is_file()
 
 

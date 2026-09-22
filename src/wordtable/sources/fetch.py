@@ -6,9 +6,9 @@ import urllib.request
 from pathlib import Path
 from typing import Final
 
-from lexica.names import DictionaryName
 from wordcore.errors.exceptions import InvalidConfiguration
-from wordtable.paths import POLIMORF_TABLE, dictionary_archive
+from wordtable.paths import POLIMORF_TABLE, archive_path, sjp_release_record
+from wordtable.sources.record import ReleaseRecord, write_release_record
 from wordtable.sources.releases import POLIMORF_RELEASE, SJP_RELEASE, SourceRelease
 
 MIRROR_VARIABLE: Final = "SLOWIKI_SOURCE_MIRROR"
@@ -21,13 +21,20 @@ logger = logging.getLogger(__name__)
 
 def pinned_sources() -> tuple[tuple[SourceRelease, Path], ...]:
     return (
-        (SJP_RELEASE, dictionary_archive(DictionaryName.SJP)),
+        (SJP_RELEASE, archive_path(SJP_RELEASE.stem)),
         (POLIMORF_RELEASE, POLIMORF_TABLE),
     )
 
 
 def fetch_sources() -> tuple[Path, ...]:
-    return tuple(fetch_release(release, destination) for release, destination in pinned_sources())
+    sources = tuple(
+        fetch_release(release, destination) for release, destination in pinned_sources()
+    )
+    write_release_record(
+        sjp_release_record(),
+        ReleaseRecord(stem=SJP_RELEASE.stem, url=SJP_RELEASE.url, sha256=SJP_RELEASE.sha256),
+    )
+    return sources
 
 
 def fetch_release(release: SourceRelease, destination: Path) -> Path:

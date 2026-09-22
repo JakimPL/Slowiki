@@ -11,10 +11,8 @@ from lexica.artifact.rescue import read_rescue_table, write_rescue_table
 from lexica.artifact.words import read_word_list, write_word_list
 from lexica.cli import main
 from lexica.lore.rescue import RescueRow
-from lexica.names import DictionaryName
 from wordcore.errors.exceptions import InvalidConfiguration
-from wordtable.paths import dictionary_compiled
-from wordtable.sources.releases import SJP_RELEASE
+from wordtable.paths import compiled_name
 
 WORDS = ("DOM", "KOT", "KOTA")
 
@@ -30,10 +28,8 @@ def test_every_kind_declares_a_current_format() -> None:
 
 
 def test_compiled_names_carry_the_kind() -> None:
-    words = dictionary_compiled(DictionaryName.SJP, ArtifactKind.WORDS)
-    rescue = dictionary_compiled(DictionaryName.SJP, ArtifactKind.RESCUE)
-    assert words.name == f"{SJP_RELEASE.stem}.words.v1.lexicon"
-    assert rescue.name == f"{SJP_RELEASE.stem}.rescue.v1.lexicon"
+    assert compiled_name("sjp-20260101", ArtifactKind.WORDS) == "sjp-20260101.words.v1.lexicon"
+    assert compiled_name("sjp-20260101", ArtifactKind.RESCUE) == "sjp-20260101.rescue.v1.lexicon"
 
 
 RESCUE = {

@@ -8,7 +8,11 @@ from wordcore.lexicon.lexicon import TextLexicon
 from wordtable import paths
 from wordtable.manifest import inputs_stand_recorded, record_inputs
 from wordtable.overrides import load_overrides
-from wordtable.sources.releases import SJP_RELEASE
+from wordtable.sources.record import ReleaseRecord, write_release_record
+
+RECORD = ReleaseRecord(
+    stem="sjp-20260101", url="https://example.invalid/sjp-20260101.zip", sha256="0" * 64
+)
 
 OVERRIDES = """overrides:
   - form: kot
@@ -21,11 +25,12 @@ OVERRIDES = """overrides:
 @pytest.fixture(name="dictionaries")
 def _dictionaries(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     monkeypatch.setattr(paths, "DICTIONARIES_DIR", tmp_path)
+    write_release_record(paths.sjp_release_record(), RECORD)
     return tmp_path
 
 
 def _sources(dictionaries: Path) -> Path:
-    (dictionaries / f"{SJP_RELEASE.stem}.zip").write_bytes(b"archive")
+    paths.archive_path(RECORD.stem).write_bytes(b"archive")
     polimorf = dictionaries / "polimorf.tab.gz"
     polimorf.write_bytes(b"table")
     return polimorf
