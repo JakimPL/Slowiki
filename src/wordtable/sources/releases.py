@@ -18,6 +18,14 @@ class SourceRelease(BaseFrozen):
         return f"{self.origin}{self.filename}"
 
 
+class DiscoveredRelease(BaseFrozen):
+    stem: str
+    url: str
+
+
+SJP_INDEX: Final = "https://sjp.pl/sl/growy/"
+
+
 SJP_RELEASE: Final = SourceRelease(
     stem="sjp-20260901",
     suffix=".zip",
