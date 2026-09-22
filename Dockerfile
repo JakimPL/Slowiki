@@ -18,6 +18,7 @@ ENV SLOWIKI_SOURCE_MIRROR=${SOURCE_MIRROR}
 
 RUN uv sync --extra server --extra morphology --no-group dev
 
+ADD https://sjp.pl/sl/growy/ /tmp/sjp-index.html
 RUN uv run python -m wordtable.cli fetch
 
 RUN uv run python -m wordtable.cli dictionary --name sjp \

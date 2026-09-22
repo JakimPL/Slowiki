@@ -2,19 +2,20 @@
 
 ## SJP
 
-The SJP game word list lives in `dictionaries/sjp-20260901.zip`.
+The SJP game word list lives in `dictionaries/{stem}.zip`, where `{stem}` names
+the current release, e.g. `sjp-20260901`.
 
 Archive contents:
 
-- `slowa.txt` — 3,240,471 lines, one lowercase Polish word per line, sorted,
-  UTF-8 with CRLF line terminators. Includes inflected forms.
+- `slowa.txt` — one lowercase Polish word per line, sorted, UTF-8 with CRLF
+  line terminators; 3,245,600 lines in `sjp-20260901`. Includes inflected forms.
 - `README.txt` — license notice.
 
 License: GPL 2 and Creative Commons Attribution 4.0 International.
 
 Source: <https://sjp.pl/sl/growy/>
 
-`lexica` compiles the archive into `dictionaries/sjp-20260901.words.v1.lexicon`, a
+`lexica` compiles the archive into `dictionaries/{stem}.words.v1.lexicon`, a
 cached artifact the server loads at startup. Every compiled artifact opens with a
 header naming its kind and format, and carries both in its filename, so each kind
 occupies its own path and a reader accepts only what it understands. `lexica
@@ -22,32 +23,30 @@ header <path>` prints that header, and `docs/lexicon-contract.md` holds the kind
 the envelope and the ownership between `lexica` and `wordtable`. The
 `dictionaries/` directory is gitignored.
 
-## Pinned sources
+## Sources
 
-`src/wordtable/releases.py` pins every downloaded source by stem, origin and
-sha256 — today the SJP archive and the PoliMorf table. `wordtable fetch`
-(`make sources`) downloads each one into the gitignored `dictionaries/` tree and
-checks its digest, so the build is a function of the pins. A file already on disk
-is checked in place, which turns each pin into a statement about what a developer
-already has. `wordtable.paths` derives the artifact stems from the SJP pin, so a
-release bump renames the archive, the compiled artifacts and the coverage
-diagnostics together.
+`wordtable fetch` (`make sources`) brings every downloaded source into the
+gitignored `dictionaries/` tree: the SJP archive and the PoliMorf table.
 
-sjp.pl publishes one archive at a time: <https://sjp.pl/sl/growy/> keeps its
-address while the file behind it moves to a new date, and only the current file
-stays available. Two habits follow.
+**SJP follows the latest release.** sjp.pl publishes one archive at a time, and
+<https://sjp.pl/sl/growy/> links the current one. The fetch reads that page, takes
+the newest `sjp-YYYYMMDD.zip` it links, downloads it unless it is already on disk,
+checks that it is an intact zip holding `slowa.txt`, and writes
+`dictionaries/sjp.release.json` with the stem, the URL and the sha256.
+`wordtable.paths` reads the stem from that record, so a new release renames the
+archive, the compiled artifacts and the coverage diagnostics together. Until a
+fetch writes the record, the server offers the SJP games as unavailable.
 
-**Mirror the pinned archive.** Copy it to storage you control and set
-`SLOWIKI_SOURCE_MIRROR` to a base URL serving the pinned file names; the fetch
-reads from there and still checks the pinned digests, so the mirror proves itself
-on every build. The Docker build takes it as `--build-arg SOURCE_MIRROR=…`.
-CC BY 4.0 permits the redistribution, with attribution.
+Every Docker build runs the fetch, and the image picks up a new release on its
+next build. Locally, `make sources dictionary rescue coverage` does the same.
+`tests/specimens/oracle.yaml` states what Polish grammar requires, so it stands
+across releases and moves only when the language does.
 
-**Follow a new release deliberately.** Read <https://sjp.pl/sl/growy/> for the
-current file name, download it, and record its stem and sha256 in `releases.py`.
-Then rebuild what moves with the list: the word list, the rescue table and the
-coverage report. `tests/specimens/oracle.yaml` states what Polish grammar
-requires, so it stands across releases and moves only when the language does.
+**PoliMorf is pinned.** `src/wordtable/sources/releases.py` pins the PoliMorf
+table by stem, origin and sha256, and the fetch checks that digest on every run,
+also for a file already on disk. To mirror it, copy the pinned file to storage you
+control and set `SLOWIKI_SOURCE_MIRROR` to a base URL serving it; the Docker build
+takes it as `--build-arg SOURCE_MIRROR=…`.
 
 ## Morphology
 
